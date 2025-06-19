@@ -1,4 +1,11 @@
 spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_MAX_POOL_SIZE}
   jpa:
     hibernate:
       ddl-auto: update

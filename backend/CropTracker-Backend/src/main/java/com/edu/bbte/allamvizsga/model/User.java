@@ -1,9 +1,6 @@
 package com.edu.bbte.allamvizsga.model;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,7 +10,21 @@ import java.util.Set;
 @Table(name = "user")
 @Data
 public class User extends BaseEntity{
+    @Column(unique = true, nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
     private String role;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
 }
