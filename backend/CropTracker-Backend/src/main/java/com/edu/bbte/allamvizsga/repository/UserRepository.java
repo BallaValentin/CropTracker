@@ -5,9 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.rmi.server.UID;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UID> {
-    User getUserByUid(UID uid);
-    User getUserByUsername(String username);
+    Optional<User> findByUid(UID uid);
+    Optional<User> findByUsername(String username);
 }
