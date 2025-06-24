@@ -8,8 +8,34 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import type { RegisterData } from "../../interfaces/RegisterData";
+import { useState } from "react";
 
-function RegisterForm() {
+interface RegisterFormProps {
+  onSubmit: (registerData: RegisterData) => void;
+  isPending: boolean;
+}
+
+function RegisterForm(props: RegisterFormProps) {
+  const [registerData, setRegisterData] = useState<RegisterData>({
+    username: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    password2: "",
+  });
+
+  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setRegisterData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    props.onSubmit(registerData);
+  };
+
   return (
     <Box
       sx={{
@@ -29,7 +55,7 @@ function RegisterForm() {
         <Typography variant="h4" gutterBottom sx={{ textAlign: "center" }}>
           Sign up
         </Typography>
-        <form>
+        <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <FormControl sx={{ mt: 2 }} fullWidth>
               <Typography variant="body1" gutterBottom>
@@ -39,6 +65,7 @@ function RegisterForm() {
                 name="username"
                 placeholder="Your username"
                 required
+                onChange={handleFormChange}
                 fullWidth
               />
             </FormControl>
@@ -48,9 +75,10 @@ function RegisterForm() {
                 First Name
               </Typography>
               <TextField
-                name="firstname"
+                name="firstName"
                 placeholder="Your first name"
                 required
+                onChange={handleFormChange}
                 fullWidth
               />
             </FormControl>
@@ -60,9 +88,10 @@ function RegisterForm() {
                 Last Name
               </Typography>
               <TextField
-                name="lastname"
+                name="lastName"
                 placeholder="Your last name"
                 required
+                onChange={handleFormChange}
                 fullWidth
               />
               <FormControl />
@@ -72,9 +101,10 @@ function RegisterForm() {
                   Email
                 </Typography>
                 <TextField
-                  name="mailaddress"
+                  name="email"
                   placeholder="Your email address"
                   required
+                  onChange={handleFormChange}
                   fullWidth
                 />
               </FormControl>
@@ -84,10 +114,11 @@ function RegisterForm() {
                   Password
                 </Typography>
                 <TextField
-                  name="password1"
+                  name="password"
                   type="password"
                   placeholder="Your password"
                   required
+                  onChange={handleFormChange}
                   fullWidth
                 />
               </FormControl>
@@ -101,12 +132,19 @@ function RegisterForm() {
                   type="password"
                   placeholder="Repeat your password"
                   required
+                  onChange={handleFormChange}
                   fullWidth
                 />
               </FormControl>
 
-              <Button sx={{ mt: 2 }} variant="contained" color="primary">
-                Create Account
+              <Button
+                type="submit"
+                sx={{ mt: 2 }}
+                variant="contained"
+                color="primary"
+                disabled={props.isPending}
+              >
+                {props.isPending ? "Creating Account..." : "Create Account"}
               </Button>
 
               <Box sx={{ mt: 1, textAlign: "center" }}>
