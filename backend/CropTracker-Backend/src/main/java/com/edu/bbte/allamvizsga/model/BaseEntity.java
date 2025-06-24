@@ -7,12 +7,12 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 
 import java.io.Serializable;
-import java.rmi.server.UID;
+import java.util.UUID;
 
 @MappedSuperclass
 @Data
 public abstract class BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UID uid;
+    private UUID uid;
 }

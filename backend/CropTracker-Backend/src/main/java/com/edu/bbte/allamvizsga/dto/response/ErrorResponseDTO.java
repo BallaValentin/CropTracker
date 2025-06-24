@@ -1,12 +1,12 @@
 package com.edu.bbte.allamvizsga.dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
-@Getter
+@Data
 public class ErrorResponseDTO {
     private LocalDateTime timestamp;
     private Integer statusCode;

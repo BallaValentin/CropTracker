@@ -1,18 +1,18 @@
 package com.edu.bbte.allamvizsga.services;
 
+import com.edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import com.edu.bbte.allamvizsga.model.User;
 import com.edu.bbte.allamvizsga.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.rmi.server.UID;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -23,7 +23,17 @@ public class UserService {
 
 
     public void createUser(User user) {
+
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new InvalidSignupException("User with username " + user.getUsername() + " already exists");
+        }
+
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new InvalidSignupException("User with email " + user.getEmail() + " already exists");
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole("USER");
         userRepository.save(user);
     }
 
@@ -31,7 +41,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User findUserById(UID uid) {
+    public User findUserById(UUID uid) {
         Optional<User> user = userRepository.findByUid(uid);
         return user.orElse(null);
     }
