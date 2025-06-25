@@ -46,7 +46,7 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public User login(User user) {
+    public User authenticate(User user) {
         User user1 = userRepository.findByUsername(user.getUsername());
         if (user1 != null) {
             if (passwordEncoder.matches(user.getPassword(), user1.getPassword())) {

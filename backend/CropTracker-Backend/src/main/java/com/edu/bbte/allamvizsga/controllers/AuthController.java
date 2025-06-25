@@ -4,7 +4,9 @@ import com.edu.bbte.allamvizsga.dto.request.RegisterRequestDTO;
 import com.edu.bbte.allamvizsga.dto.response.LoginResponseDTO;
 import com.edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import com.edu.bbte.allamvizsga.mappers.UserMapper;
+import com.edu.bbte.allamvizsga.model.RefreshToken;
 import com.edu.bbte.allamvizsga.model.User;
+import com.edu.bbte.allamvizsga.services.RefreshTokenService;
 import com.edu.bbte.allamvizsga.services.UserService;
 import com.edu.bbte.allamvizsga.util.JwtUtil;
 import jakarta.validation.Valid;
@@ -19,6 +21,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(value = "http://localhost:5174", allowCredentials = "true")
@@ -26,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class AuthController {
     private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -36,22 +41,24 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticate(@Valid @RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<LoginResponseDTO> authenticate(@Valid @RequestBody LoginRequestDTO loginRequest) {
         log.debug("Received login request");
         User user = userMapper.loginDtoToModel(loginRequest);
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
         );
 
-        User foundUser = userService.login(user);
+        User foundUser = userService.authenticate(user);
         LoginResponseDTO loginResponseDTO = userMapper.modelToLoginDto(foundUser);
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtUtil.generateToken(userDetails.getUsername());
+        loginResponseDTO.setAccessToken(token);
 
-        return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + token)
-                .body(loginResponseDTO);
+        RefreshToken refreshToken = new RefreshToken(foundUser, UUID.randomUUID());
+        refreshTokenService.save(refreshToken);
+
+        return ResponseEntity.ok(loginResponseDTO);
     }
 
     @PostMapping("/register")
