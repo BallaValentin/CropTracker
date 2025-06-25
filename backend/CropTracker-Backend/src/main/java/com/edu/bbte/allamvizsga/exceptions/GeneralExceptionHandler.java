@@ -51,4 +51,18 @@ public class GeneralExceptionHandler {
         String path = request.getRequestURI();
         return new ErrorResponseDTO(timestamp, statusCode, error, path);
     }
+
+    @ExceptionHandler(RefreshTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public ErrorResponseDTO handleRefreshTokenException(
+            RefreshTokenException exception, HttpServletRequest request
+    ) {
+        LocalDateTime timestamp = LocalDateTime.now();
+        Integer statusCode = HttpStatus.UNAUTHORIZED.value();
+        String message = exception.getMessage();
+        String path = request.getRequestURI();
+        return new ErrorResponseDTO(timestamp, statusCode, message, path);
+    }
+
 }

@@ -2,6 +2,9 @@ package com.edu.bbte.allamvizsga.controllers;
 import com.edu.bbte.allamvizsga.dto.request.LoginRequestDTO;
 import com.edu.bbte.allamvizsga.dto.request.RegisterRequestDTO;
 import com.edu.bbte.allamvizsga.dto.response.LoginResponseDTO;
+import com.edu.bbte.allamvizsga.dto.response.RefreshTokenResponseDTO;
+import com.edu.bbte.allamvizsga.exceptions.RefreshTokenException;
+import org.springframework.http.ResponseEntity;
 import com.edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import com.edu.bbte.allamvizsga.mappers.UserMapper;
 import com.edu.bbte.allamvizsga.model.RefreshToken;
@@ -9,18 +12,19 @@ import com.edu.bbte.allamvizsga.model.User;
 import com.edu.bbte.allamvizsga.services.RefreshTokenService;
 import com.edu.bbte.allamvizsga.services.UserService;
 import com.edu.bbte.allamvizsga.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.UUID;
 
 @RestController
@@ -41,7 +45,10 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<LoginResponseDTO> authenticate(@Valid @RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<LoginResponseDTO> authenticate(
+            @Valid @RequestBody LoginRequestDTO loginRequest,
+            HttpServletResponse response) {
+
         log.debug("Received login request");
         User user = userMapper.loginDtoToModel(loginRequest);
         Authentication authentication = authenticationManager.authenticate(
@@ -58,6 +65,14 @@ public class AuthController {
         RefreshToken refreshToken = new RefreshToken(foundUser, UUID.randomUUID());
         refreshTokenService.save(refreshToken);
 
+        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken.getToken().toString());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setMaxAge(3600 * 24);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setAttribute("SameSite", "Strict");
+        response.addCookie(refreshTokenCookie);
+
         return ResponseEntity.ok(loginResponseDTO);
     }
 
@@ -73,5 +88,27 @@ public class AuthController {
         User user = userMapper.registerDtoToModel(registerRequest);
         userService.createUser(user);
         userMapper.registerDtoToModel(registerRequest);
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<RefreshTokenResponseDTO> refreshToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            throw new RefreshTokenException("Invalid or missing refresh token");
+        }
+
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("refresh_token")) {
+                UUID refreshToken = UUID.fromString(cookie.getValue());
+                RefreshToken foundToken = refreshTokenService.findByToken(refreshToken);
+                if (foundToken != null) {
+                    String accessToken = jwtUtil.generateToken(foundToken.getUser().getUsername());
+                    RefreshTokenResponseDTO refreshTokenResponseDTO = new RefreshTokenResponseDTO(accessToken);
+                    return ResponseEntity.ok(refreshTokenResponseDTO);
+                }
+            }
+        }
+        throw new RefreshTokenException("Invalid or missing refresh token");
     }
 }

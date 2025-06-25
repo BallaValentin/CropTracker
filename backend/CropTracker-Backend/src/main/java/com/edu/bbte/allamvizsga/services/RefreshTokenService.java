@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class RefreshTokenService {
@@ -13,5 +15,9 @@ public class RefreshTokenService {
 
     public void save(RefreshToken refreshToken) {
         refreshTokenRepository.save(refreshToken);
+    }
+
+    public RefreshToken findByToken(UUID token) {
+        return refreshTokenRepository.findByToken(token);
     }
 }
