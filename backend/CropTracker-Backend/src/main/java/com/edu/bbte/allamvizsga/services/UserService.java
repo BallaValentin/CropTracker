@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.rmi.server.UID;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,11 +21,11 @@ public class UserService {
 
     public void createUser(User user) {
 
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new InvalidSignupException("User with username " + user.getUsername() + " already exists");
         }
 
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(user.getEmail()) != null) {
             throw new InvalidSignupException("User with email " + user.getEmail() + " already exists");
         }
 
@@ -42,20 +39,18 @@ public class UserService {
     }
 
     public User findUserById(UUID uid) {
-        Optional<User> user = userRepository.findByUid(uid);
-        return user.orElse(null);
+        return userRepository.findByUid(uid);
     }
 
     public User findUserByUsername(String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        return user.orElse(null);
+        return userRepository.findByUsername(username);
     }
 
     public User login(User user) {
-        Optional<User> userOptional = userRepository.findByUid(user.getUid());
-        if (userOptional.isPresent()) {
-            if (passwordEncoder.matches(user.getPassword(), userOptional.get().getPassword())) {
-                return userOptional.get();
+        User user1 = userRepository.findByUsername(user.getUsername());
+        if (user1 != null) {
+            if (passwordEncoder.matches(user.getPassword(), user1.getPassword())) {
+                return user1;
             } else {
                 throw new BadCredentialsException("Invalid username or password");
             }
