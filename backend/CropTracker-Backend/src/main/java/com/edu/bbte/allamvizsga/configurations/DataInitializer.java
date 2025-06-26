@@ -10,8 +10,8 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initRoles(RoleRepository roleRepository) {
         return args -> {
-            createRoleIfNotExist(roleRepository, "ROLE_ADMIN");
-            createRoleIfNotExist(roleRepository, "ROLE_USER");
+            createRoleIfNotExist(roleRepository, "ADMIN");
+            createRoleIfNotExist(roleRepository, "USER");
         };
     }
 

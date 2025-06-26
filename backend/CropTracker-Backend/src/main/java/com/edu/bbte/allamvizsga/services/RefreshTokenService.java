@@ -5,7 +5,6 @@ import com.edu.bbte.allamvizsga.repository.RefreshTokenRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.UUID;
 
 @Service

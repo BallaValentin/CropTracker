@@ -6,7 +6,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -22,22 +21,25 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
+        log.info("Initializing JWT with secret: {}", secret);
         key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String username) {
         return Jwts.builder().subject(username).issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + expiration))
-                .signWith(key).compact();
+                .signWith(key, Jwts.SIG.HS256).compact();
     }
 
     public String getUsername(String token) {
-        return Jwts.parser().build().parseSignedClaims(token).getPayload().getSubject();
+        return Jwts.parser().verifyWith(key)
+                .build().parseSignedClaims(token).getPayload().getSubject();
     }
 
     public Boolean validateToken(String token) {
+        log.info("Validating token: {}", token);
         try {
-            Jwts.parser().build().parseSignedClaims(token);
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
         } catch (SecurityException e) {
             log.error("Invalid JWT signature: {}", e.getMessage());

@@ -3,13 +3,17 @@ package com.edu.bbte.allamvizsga.services;
 import com.edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import com.edu.bbte.allamvizsga.model.Role;
 import com.edu.bbte.allamvizsga.model.User;
+import com.edu.bbte.allamvizsga.repository.RoleRepository;
 import com.edu.bbte.allamvizsga.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -17,6 +21,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -31,7 +36,20 @@ public class UserService {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.getRoles().add(new Role("ROLE_USER"));
+        user.setRoles(new ArrayList<>());
+
+        Optional<Role> userRole = roleRepository.findByName("USER");
+        if (userRole.isEmpty()) {
+            throw new RuntimeException("Role not found");
+        }
+
+        Optional<Role> adminRole = roleRepository.findByName("ADMIN");
+        if (adminRole.isEmpty()) {
+            throw new RuntimeException("Role not found");
+        }
+
+        user.getRoles().add(userRole.get());
+        user.getRoles().add(adminRole.get());
         userRepository.save(user);
     }
 
