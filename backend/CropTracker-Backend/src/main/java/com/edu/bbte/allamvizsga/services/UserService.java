@@ -1,6 +1,7 @@
 package com.edu.bbte.allamvizsga.services;
 
 import com.edu.bbte.allamvizsga.exceptions.InvalidSignupException;
+import com.edu.bbte.allamvizsga.model.Role;
 import com.edu.bbte.allamvizsga.model.User;
 import com.edu.bbte.allamvizsga.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,7 @@ public class UserService {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("USER");
+        user.getRoles().add(new Role("ROLE_USER"));
         userRepository.save(user);
     }
 
