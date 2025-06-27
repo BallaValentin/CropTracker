@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   FormControl,
+  FormHelperText,
   Grid,
   Link,
   TextField,
@@ -10,6 +11,7 @@ import {
 } from "@mui/material";
 import type { RegisterData } from "../../interfaces/RegisterData";
 import { useState } from "react";
+import type { RegisterError } from "../../interfaces/RegisterError";
 
 interface RegisterFormProps {
   onSubmit: (registerData: RegisterData) => void;
@@ -26,14 +28,69 @@ function RegisterForm(props: RegisterFormProps) {
     password2: "",
   });
 
+  const [registerError, setRegisterError] = useState<RegisterError>({
+    usernameError: false,
+    firstNameError: false,
+    lastNameError: false,
+    passwordError: false,
+    passwordRepeatError: false,
+    emailError: false,
+  });
+
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setRegisterData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const isFormValid = () => {
+    let hasErrors = false;
+
+    if (!/^[A-Za-z][A-Za-z0-9_]{2,}$/.test(registerData.username)) {
+      setRegisterError((prev) => ({ ...prev, usernameError: true }));
+      hasErrors = true;
+    }
+
+    if (!/^[A-Z][a-z]+$/.test(registerData.firstName)) {
+      setRegisterError((prev) => ({ ...prev, firstNameError: true }));
+      hasErrors = true;
+    }
+
+    if (!/^[A-Z][a-z]+$/.test(registerData.lastName)) {
+      setRegisterError((prev) => ({ ...prev, lastNameError: true }));
+      hasErrors = true;
+    }
+
+    if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+        registerData.email
+      )
+    ) {
+      setRegisterError((prev) => ({ ...prev, emailError: true }));
+      hasErrors = true;
+    }
+
+    if (
+      !/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
+        registerData.password
+      )
+    ) {
+      setRegisterError((prev) => ({ ...prev, passwordError: true }));
+      hasErrors = true;
+    }
+
+    if (registerData.password != registerData.password2) {
+      setRegisterError((prev) => ({ ...prev, passwordRepeatError: true }));
+      hasErrors = true;
+    }
+
+    return hasErrors;
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    props.onSubmit(registerData);
+    if (isFormValid()) {
+      props.onSubmit(registerData);
+    }
   };
 
   return (
@@ -62,12 +119,19 @@ function RegisterForm(props: RegisterFormProps) {
                 Username
               </Typography>
               <TextField
+                error={registerError.usernameError}
                 name="username"
                 placeholder="Your username"
                 required
                 onChange={handleFormChange}
                 fullWidth
               />
+              {registerError.usernameError && (
+                <FormHelperText>
+                  Your username must start with a letter and can only contain
+                  letters and digits.
+                </FormHelperText>
+              )}
             </FormControl>
 
             <FormControl sx={{ mt: 2 }} fullWidth>
@@ -75,12 +139,18 @@ function RegisterForm(props: RegisterFormProps) {
                 First Name
               </Typography>
               <TextField
+                error={registerError.firstNameError}
                 name="firstName"
                 placeholder="Your first name"
                 required
                 onChange={handleFormChange}
                 fullWidth
               />
+              {registerError.firstNameError && (
+                <FormHelperText>
+                  Firstname must contain only letters.
+                </FormHelperText>
+              )}
             </FormControl>
 
             <FormControl sx={{ mt: 2 }} fullWidth>
@@ -88,12 +158,18 @@ function RegisterForm(props: RegisterFormProps) {
                 Last Name
               </Typography>
               <TextField
+                error={registerError.lastNameError}
                 name="lastName"
                 placeholder="Your last name"
                 required
                 onChange={handleFormChange}
                 fullWidth
               />
+              {registerError.lastNameError && (
+                <FormHelperText>
+                  Lastname must contain only letters.
+                </FormHelperText>
+              )}
               <FormControl />
 
               <FormControl sx={{ mt: 2 }} fullWidth>
@@ -101,12 +177,18 @@ function RegisterForm(props: RegisterFormProps) {
                   Email
                 </Typography>
                 <TextField
+                  error={registerError.emailError}
                   name="email"
                   placeholder="Your email address"
                   required
                   onChange={handleFormChange}
                   fullWidth
                 />
+                {registerError.emailError && (
+                  <FormHelperText>
+                    Must be a valid email address.
+                  </FormHelperText>
+                )}
               </FormControl>
 
               <FormControl sx={{ mt: 2 }} fullWidth>
@@ -114,6 +196,7 @@ function RegisterForm(props: RegisterFormProps) {
                   Password
                 </Typography>
                 <TextField
+                  error={registerError.passwordError}
                   name="password"
                   type="password"
                   placeholder="Your password"
@@ -121,6 +204,12 @@ function RegisterForm(props: RegisterFormProps) {
                   onChange={handleFormChange}
                   fullWidth
                 />
+                {registerError.passwordError && (
+                  <FormHelperText>
+                    Password must contain uppercase, lowercase letters, digits
+                    and special characters.
+                  </FormHelperText>
+                )}
               </FormControl>
 
               <FormControl sx={{ mt: 2 }} fullWidth>
@@ -128,6 +217,7 @@ function RegisterForm(props: RegisterFormProps) {
                   Repeat Password
                 </Typography>
                 <TextField
+                  error={registerError.passwordRepeatError}
                   name="password2"
                   type="password"
                   placeholder="Repeat your password"
@@ -135,6 +225,9 @@ function RegisterForm(props: RegisterFormProps) {
                   onChange={handleFormChange}
                   fullWidth
                 />
+                {registerError.passwordRepeatError && (
+                  <FormHelperText>The two passwords must match.</FormHelperText>
+                )}
               </FormControl>
 
               <Button
