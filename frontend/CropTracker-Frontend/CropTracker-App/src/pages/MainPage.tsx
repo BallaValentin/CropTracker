@@ -1,7 +1,12 @@
 import { Box } from "@mui/material";
+import MainHeader from "../elements/headers/MainHeader";
 
 function MainPage() {
-  return <Box>This is the main page</Box>;
+  return (
+    <Box>
+      <MainHeader />
+    </Box>
+  );
 }
 
 export default MainPage;

@@ -13,6 +13,7 @@ export const authApi = axios.create({
 });
 
 export const loginUser = async(loginData: LoginData): Promise<LoginResponse>  => {
+    console.log("Sending login request to server");
     const response = await authApi.post<LoginResponse>("/authenticate", loginData);
     const {accessToken} = response.data;
     sessionStorage.setItem('accesToken', accessToken);
@@ -20,11 +21,13 @@ export const loginUser = async(loginData: LoginData): Promise<LoginResponse>  =>
 }
 
 export const registerUser = async(registerData: RegisterData): Promise<number>  => {
+    console.log("Sending sign up request to server")
     const response = await authApi.post<number>("/register", registerData);
     return response.status;
 }
 
 export const refreshToken = async(): Promise<RefreshTokenResponse> => {
+    console.log("Sending refresh-token request to server")
     const response = await authApi.post<RefreshTokenResponse>("/refresh-token");
     return response.data;
 } 

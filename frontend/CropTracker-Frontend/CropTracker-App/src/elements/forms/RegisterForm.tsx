@@ -43,21 +43,21 @@ function RegisterForm(props: RegisterFormProps) {
   };
 
   const isFormValid = () => {
-    let hasErrors = false;
+    let isValid = true;
 
     if (!/^[A-Za-z][A-Za-z0-9_]{2,}$/.test(registerData.username)) {
       setRegisterError((prev) => ({ ...prev, usernameError: true }));
-      hasErrors = true;
+      isValid = false;
     }
 
     if (!/^[A-Z][a-z]+$/.test(registerData.firstName)) {
       setRegisterError((prev) => ({ ...prev, firstNameError: true }));
-      hasErrors = true;
+      isValid = false;
     }
 
     if (!/^[A-Z][a-z]+$/.test(registerData.lastName)) {
       setRegisterError((prev) => ({ ...prev, lastNameError: true }));
-      hasErrors = true;
+      isValid = false;
     }
 
     if (
@@ -66,7 +66,7 @@ function RegisterForm(props: RegisterFormProps) {
       )
     ) {
       setRegisterError((prev) => ({ ...prev, emailError: true }));
-      hasErrors = true;
+      isValid = false;
     }
 
     if (
@@ -75,15 +75,15 @@ function RegisterForm(props: RegisterFormProps) {
       )
     ) {
       setRegisterError((prev) => ({ ...prev, passwordError: true }));
-      hasErrors = true;
+      isValid = false;
     }
 
     if (registerData.password != registerData.password2) {
       setRegisterError((prev) => ({ ...prev, passwordRepeatError: true }));
-      hasErrors = true;
+      isValid = false;
     }
 
-    return hasErrors;
+    return isValid;
   };
 
   const handleSubmit = (event: React.FormEvent) => {
