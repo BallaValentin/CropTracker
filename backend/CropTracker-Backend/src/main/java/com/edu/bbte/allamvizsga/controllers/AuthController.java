@@ -27,6 +27,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Base64;
 import java.util.UUID;
 
 @RestController
@@ -49,7 +52,7 @@ public class AuthController {
     @PostMapping("/authenticate")
     public ResponseEntity<LoginResponseDTO> authenticate(
             @Valid @RequestBody LoginRequestDTO loginRequest,
-            HttpServletResponse response) {
+            HttpServletResponse response) throws IOException {
 
         log.debug("Received login request");
         User user = userMapper.loginDtoToModel(loginRequest);
@@ -59,6 +62,18 @@ public class AuthController {
 
         User foundUser = userService.authenticate(user);
         LoginResponseDTO loginResponseDTO = userMapper.modelToLoginDto(foundUser);
+
+        String base64 = null;
+
+        String imagePath = "./images/" + foundUser.getUid() + "/profile.png";
+        Path path = Path.of(imagePath);
+
+        if(Files.exists(path)) {
+            byte[] bytes = Files.readAllBytes(path);
+            base64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(bytes);
+        }
+
+        loginResponseDTO.setAvatar(base64);
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtUtil.generateToken(userDetails.getUsername());
