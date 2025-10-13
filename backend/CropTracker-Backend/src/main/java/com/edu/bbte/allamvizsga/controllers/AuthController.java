@@ -25,6 +25,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -78,7 +80,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void register(@Valid @RequestBody RegisterRequestDTO registerRequest) {
+    public void register(@Valid @RequestBody RegisterRequestDTO registerRequest) throws IOException {
         log.debug("Received register request");
 
         if (!registerRequest.getPassword().equals(registerRequest.getPassword2())) {
@@ -90,7 +92,7 @@ public class AuthController {
         userMapper.registerDtoToModel(registerRequest);
     }
 
-    @PostMapping("/refresh-token")
+    @GetMapping("/refresh-token")
     public ResponseEntity<RefreshTokenResponseDTO> refreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 

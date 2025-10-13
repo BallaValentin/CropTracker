@@ -11,6 +11,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -23,9 +24,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ImageService imageService;
 
 
-    public void createUser(User user) {
+    public void createUser(User user) throws IOException {
 
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new InvalidSignupException("User with username " + user.getUsername() + " already exists");
@@ -51,6 +53,7 @@ public class UserService {
         user.getRoles().add(userRole.get());
         user.getRoles().add(adminRole.get());
         userRepository.save(user);
+        imageService.uploadDefaultImage(user);
     }
 
     public Collection<User> getAllUsers() {
