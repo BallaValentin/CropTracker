@@ -12,15 +12,22 @@ import {
 import SpaIcon from "@mui/icons-material/Spa";
 import type { LoginResponse } from "../../interfaces/LoginResponse";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface MainHeaderProps {
   userData: LoginResponse;
 }
 
 function MainHeader(mainHeaderProps: MainHeaderProps) {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const accessToken = sessionStorage.getItem("accessToken");
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("accessToken");
+    navigate("/signin");
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -70,7 +77,7 @@ function MainHeader(mainHeaderProps: MainHeaderProps) {
                     mainHeaderProps.userData.lastName}
                 </Typography>
                 <Divider />
-                <MenuItem>Logout</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </>
           ) : (
