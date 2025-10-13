@@ -5,13 +5,14 @@ import { loginUser } from "../services/AuthService";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { LoginData } from "../interfaces/LoginData";
+import type { LoginResponse } from "../interfaces/LoginResponse";
 
 function LoginPage() {
   const navigate = useNavigate();
   const { mutate, isPending } = useMutation({
     mutationFn: loginUser,
-    onSuccess: () => {
-      navigate("/");
+    onSuccess: (data: LoginResponse) => {
+      navigate("/", { state: { user: data } });
     },
     onError: (err: AxiosError) => {
       console.log(err.message);

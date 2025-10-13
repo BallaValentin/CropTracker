@@ -16,7 +16,7 @@ export const loginUser = async(loginData: LoginData): Promise<LoginResponse>  =>
     console.log("Sending login request to server");
     const response = await authApi.post<LoginResponse>("/authenticate", loginData);
     const {accessToken} = response.data;
-    sessionStorage.setItem('accesToken', accessToken);
+    sessionStorage.setItem('accessToken', accessToken);
     return response.data;
 }
 
@@ -28,7 +28,7 @@ export const registerUser = async(registerData: RegisterData): Promise<number>  
 
 export const refreshToken = async(): Promise<RefreshTokenResponse> => {
     console.log("Sending refresh-token request to server")
-    const response = await authApi.post<RefreshTokenResponse>("/refresh-token");
+    const response = await authApi.get<RefreshTokenResponse>("/refresh-token");
     return response.data;
 } 
 
