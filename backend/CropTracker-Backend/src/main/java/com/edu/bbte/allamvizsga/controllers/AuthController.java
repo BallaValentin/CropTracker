@@ -128,4 +128,18 @@ public class AuthController {
         }
         throw new RefreshTokenException("Invalid or missing refresh token");
     }
+
+    @GetMapping("/logout")
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie: cookies) {
+            if (cookie.getName().equals("refresh-token")) {
+                cookie.setMaxAge(0);
+                cookie.setValue("");
+                cookie.setPath("/");
+                response.addCookie(cookie);
+                return;
+            }
+        }
+    }
 }
