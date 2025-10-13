@@ -20,6 +20,12 @@ export const loginUser = async(loginData: LoginData): Promise<LoginResponse>  =>
     return response.data;
 }
 
+export const logoutUser = async(): Promise<number> => {
+    console.log("Sending logout request to server");
+    const response = await authApi.get<number>("/logout");
+    return response.status;
+}
+
 export const registerUser = async(registerData: RegisterData): Promise<number>  => {
     console.log("Sending sign up request to server")
     const response = await authApi.post<number>("/register", registerData);

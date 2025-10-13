@@ -13,6 +13,9 @@ import SpaIcon from "@mui/icons-material/Spa";
 import type { LoginResponse } from "../../interfaces/LoginResponse";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../../services/AuthService";
+import type { AxiosError } from "axios";
+import { useMutation } from "@tanstack/react-query";
 
 interface MainHeaderProps {
   userData: LoginResponse;
@@ -24,9 +27,19 @@ function MainHeader(mainHeaderProps: MainHeaderProps) {
   const open = Boolean(anchorEl);
   const accessToken = sessionStorage.getItem("accessToken");
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: logoutUser,
+    onSuccess: () => {
+      sessionStorage.removeItem("accessToken");
+      navigate("/signin");
+    },
+    onError: (err: AxiosError) => {
+      console.log(err.message);
+    },
+  });
+
   const handleLogout = () => {
-    sessionStorage.removeItem("accessToken");
-    navigate("/signin");
+    mutate();
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -77,7 +90,9 @@ function MainHeader(mainHeaderProps: MainHeaderProps) {
                     mainHeaderProps.userData.lastName}
                 </Typography>
                 <Divider />
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  {isPending ? "Logging out..." : "Logout"}
+                </MenuItem>
               </Menu>
             </>
           ) : (
