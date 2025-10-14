@@ -25,7 +25,7 @@ interface MainHeaderProps {
   userData: LoginResponse;
 }
 
-function MainHeader(mainHeaderProps: MainHeaderProps) {
+function MainHeader({ userData }: MainHeaderProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -69,17 +69,21 @@ function MainHeader(mainHeaderProps: MainHeaderProps) {
 
   return (
     <Box>
-      <AccountDialog isOpen={dialogOpen} handleClose={handleDialogClose} />
+      <AccountDialog
+        isOpen={dialogOpen}
+        handleClose={handleDialogClose}
+        userData={userData}
+      />
       <AppBar position="fixed" sx={{ bgcolor: "green" }}>
         <Toolbar>
           <SpaIcon fontSize="large" sx={{ mr: 1 }} />
           <Typography variant="h4" sx={{ flexGrow: 1 }}>
             CropTracker
           </Typography>
-          {accessToken && mainHeaderProps.userData ? (
+          {accessToken && userData ? (
             <>
               <Button onClick={handleClick}>
-                <Avatar src={mainHeaderProps.userData.avatar} />
+                <Avatar src={userData.avatar} />
               </Button>
               <Menu
                 anchorEl={anchorEl}
@@ -106,9 +110,7 @@ function MainHeader(mainHeaderProps: MainHeaderProps) {
                   <MenuItem onClick={handleDialogOpen}>
                     <ManageAccountsIcon sx={{ mr: 1 }} />
                     <Typography variant="subtitle1">
-                      {mainHeaderProps.userData.firstName +
-                        " " +
-                        mainHeaderProps.userData.lastName}
+                      {userData.firstName + " " + userData.lastName}
                     </Typography>
                   </MenuItem>
                 </Tooltip>

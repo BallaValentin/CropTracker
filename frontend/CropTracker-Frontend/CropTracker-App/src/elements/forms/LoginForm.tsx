@@ -16,7 +16,7 @@ interface LoginFormProps {
   isPending: boolean;
 }
 
-function LoginForm(props: LoginFormProps) {
+function LoginForm({ onLoginSubmit, isPending }: LoginFormProps) {
   const [loginData, setLoginData] = useState<LoginData>({
     username: "",
     password: "",
@@ -29,7 +29,7 @@ function LoginForm(props: LoginFormProps) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    props.onLoginSubmit(loginData);
+    onLoginSubmit(loginData);
   };
 
   return (
@@ -85,9 +85,9 @@ function LoginForm(props: LoginFormProps) {
                 sx={{ mt: 2 }}
                 variant="contained"
                 color="primary"
-                disabled={props.isPending}
+                disabled={isPending}
               >
-                {props.isPending ? "Logging in..." : "Log in"}
+                {isPending ? "Logging in..." : "Log in"}
               </Button>
 
               <Box sx={{ mt: 1, textAlign: "center" }}>

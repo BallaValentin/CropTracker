@@ -1,22 +1,25 @@
 import {
+  Avatar,
   Box,
   Dialog,
   DialogContent,
   DialogTitle,
   Divider,
 } from "@mui/material";
+import type { LoginResponse } from "../../interfaces/LoginResponse";
 
 interface AccountDialogProps {
   isOpen: boolean;
   handleClose: () => void;
+  userData: LoginResponse;
 }
 
-function AccountDialog(accountDialogProps: AccountDialogProps) {
+function AccountDialog({ isOpen, handleClose, userData }: AccountDialogProps) {
   return (
     <Box>
       <Dialog
-        open={accountDialogProps.isOpen}
-        onClose={accountDialogProps.handleClose}
+        open={isOpen}
+        onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -25,6 +28,7 @@ function AccountDialog(accountDialogProps: AccountDialogProps) {
         </DialogTitle>
         <Divider />
         <DialogContent>
+          <Avatar src={userData.avatar} />
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Est fuga,
           nulla consequuntur tempora officiis reprehenderit delectus
           necessitatibus animi modi eius a suscipit quod molestias! Beatae

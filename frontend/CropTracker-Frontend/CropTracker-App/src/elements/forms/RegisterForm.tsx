@@ -18,7 +18,7 @@ interface RegisterFormProps {
   isPending: boolean;
 }
 
-function RegisterForm(props: RegisterFormProps) {
+function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
   const [registerData, setRegisterData] = useState<RegisterData>({
     username: "",
     firstName: "",
@@ -89,7 +89,7 @@ function RegisterForm(props: RegisterFormProps) {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (isFormValid()) {
-      props.onSubmit(registerData);
+      onSubmit(registerData);
     }
   };
 
@@ -235,9 +235,9 @@ function RegisterForm(props: RegisterFormProps) {
                 sx={{ mt: 2 }}
                 variant="contained"
                 color="primary"
-                disabled={props.isPending}
+                disabled={isPending}
               >
-                {props.isPending ? "Creating Account..." : "Create Account"}
+                {isPending ? "Creating Account..." : "Create Account"}
               </Button>
 
               <Box sx={{ mt: 1, textAlign: "center" }}>
