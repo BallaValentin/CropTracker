@@ -7,9 +7,12 @@ import {
   Menu,
   MenuItem,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import SpaIcon from "@mui/icons-material/Spa";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import LogoutIcon from "@mui/icons-material/Logout";
 import type { LoginResponse } from "../../interfaces/LoginResponse";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -46,6 +49,10 @@ function MainHeader(mainHeaderProps: MainHeaderProps) {
     setAnchorEl(event.currentTarget);
   };
 
+  const handleLoginClick = () => {
+    navigate("/signin");
+  };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -77,26 +84,32 @@ function MainHeader(mainHeaderProps: MainHeaderProps) {
                 }}
                 PaperProps={{
                   sx: {
-                    mt: 1.5,
+                    mt: 1,
                     borderRadius: 2,
                     minWidth: 180,
                     p: 2,
                   },
                 }}
               >
-                <Typography variant="subtitle1">
-                  {mainHeaderProps.userData.firstName +
-                    " " +
-                    mainHeaderProps.userData.lastName}
-                </Typography>
+                <Tooltip title="Manage account">
+                  <MenuItem>
+                    <ManageAccountsIcon sx={{ mr: 1 }} />
+                    <Typography variant="subtitle1">
+                      {mainHeaderProps.userData.firstName +
+                        " " +
+                        mainHeaderProps.userData.lastName}
+                    </Typography>
+                  </MenuItem>
+                </Tooltip>
                 <Divider />
                 <MenuItem onClick={handleLogout}>
+                  <LogoutIcon sx={{ mr: 1 }} />
                   {isPending ? "Logging out..." : "Logout"}
                 </MenuItem>
               </Menu>
             </>
           ) : (
-            <Button color="inherit" onClick={handleClick}>
+            <Button color="inherit" onClick={handleLoginClick}>
               Login
             </Button>
           )}
