@@ -106,7 +106,22 @@ function MainHeader({ userData }: MainHeaderProps) {
                   },
                 }}
               >
-                <Tooltip title="Manage account" placement="top">
+                <Tooltip
+                  title="Manage account"
+                  placement="top"
+                  slotProps={{
+                    popper: {
+                      modifiers: [
+                        {
+                          name: "offset",
+                          options: {
+                            offset: [0, -10],
+                          },
+                        },
+                      ],
+                    },
+                  }}
+                >
                   <MenuItem onClick={handleDialogOpen}>
                     <ManageAccountsIcon sx={{ mr: 1 }} />
                     <Typography variant="subtitle1">

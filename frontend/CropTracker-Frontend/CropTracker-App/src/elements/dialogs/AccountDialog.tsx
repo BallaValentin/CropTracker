@@ -43,10 +43,27 @@ function AccountDialog({ isOpen, handleClose, userData }: AccountDialogProps) {
               position: "relative",
             }}
           >
-            <Avatar
-              src={userData.avatar}
-              sx={{ textAlign: "center", width: 120, height: 120, mt: 2 }}
+            <input
+              id="avatar-upload"
+              type="file"
+              style={{ display: "none" }}
+              accept="image/*"
             />
+
+            <label htmlFor="avatar-upload">
+              <Avatar
+                src={userData.avatar}
+                sx={{
+                  textAlign: "center",
+                  width: 120,
+                  height: 120,
+                  mt: 2,
+                  "&:hover": {
+                    cursor: "pointer",
+                  },
+                }}
+              />
+            </label>
 
             <Tooltip
               title="Change profile picture"
@@ -77,8 +94,10 @@ function AccountDialog({ isOpen, handleClose, userData }: AccountDialogProps) {
                   },
                 }}
                 size="small"
+                component="label"
               >
                 <CameraAltIcon />
+                <input type="file" hidden accept="image/*" />
               </IconButton>
             </Tooltip>
           </Box>
