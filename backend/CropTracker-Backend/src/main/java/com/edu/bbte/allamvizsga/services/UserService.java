@@ -80,4 +80,8 @@ public class UserService {
             throw new BadCredentialsException("Invalid username or password");
         }
     }
+
+    public void changeAvatar(User user, String newImageSrc) throws IOException {
+        imageService.updateUserAvatar(user, newImageSrc);
+    }
 }

@@ -44,11 +44,6 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello World";
-    }
-
     @PostMapping("/authenticate")
     public ResponseEntity<LoginResponseDTO> authenticate(
             @Valid @RequestBody LoginRequestDTO loginRequest,
