@@ -20,6 +20,7 @@ import { logoutUser } from "../../services/AuthService";
 import type { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import AccountDialog from "../dialogs/AccountDialog";
+import { updateAvatar } from "../../services/UserService";
 
 interface MainHeaderProps {
   userData: LoginResponse;
@@ -39,6 +40,13 @@ function MainHeader({ userData }: MainHeaderProps) {
       sessionStorage.removeItem("accessToken");
       navigate("/signin");
     },
+    onError: (err: AxiosError) => {
+      console.log(err.message);
+    },
+  });
+
+  const changeAvatar = useMutation({
+    mutationFn: updateAvatar,
     onError: (err: AxiosError) => {
       console.log(err.message);
     },
@@ -70,6 +78,7 @@ function MainHeader({ userData }: MainHeaderProps) {
 
   const handleAvatarChange = (newImageSrc: string) => {
     setImageSrc(newImageSrc);
+    changeAvatar.mutate(newImageSrc);
   };
 
   return (
@@ -90,7 +99,7 @@ function MainHeader({ userData }: MainHeaderProps) {
           {accessToken && userData ? (
             <>
               <Button onClick={handleClick}>
-                <Avatar src={imageSrc} />
+                <Avatar src={imageSrc} alt="Avatar" />
               </Button>
               <Menu
                 anchorEl={anchorEl}

@@ -28,10 +28,20 @@ function AccountDialog({
   imageSrc,
   onImageChange,
 }: AccountDialogProps) {
-  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const toBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+
+  const handleAvatarUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
-      const newImageUrl = URL.createObjectURL(file);
+      const newImageUrl = await toBase64(file);
       onImageChange(newImageUrl);
     }
   };
@@ -70,6 +80,7 @@ function AccountDialog({
             <label htmlFor="avatar-upload">
               <Avatar
                 src={imageSrc}
+                alt="Avatar"
                 sx={{
                   textAlign: "center",
                   width: 120,
