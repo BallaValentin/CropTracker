@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { AvatarUpdates } from "../interfaces/AvatarUpdates";
+import type { UserData } from "../interfaces/UserData";
 
 export const userApi = axios.create({
     baseURL: "http://localhost:8080/api/user",
@@ -19,4 +20,14 @@ export const updateAvatar = async(newAvatarSrc: string): Promise<number>  => {
         }
     });
     return response.status;
+}
+
+export const fetchUserData = async(): Promise<UserData> => {
+    console.log('Sending fetch user data request to server');
+    const response = await userApi.get<UserData>("/fetch-user-data", {
+        headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+    });
+    return response.data;
 }

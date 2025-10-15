@@ -6,13 +6,20 @@ import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { LoginData } from "../interfaces/LoginData";
 import type { LoginResponse } from "../interfaces/LoginResponse";
+import { queryClient } from "../App";
+import { fetchUserData } from "../services/UserService";
 
 function LoginPage() {
   const navigate = useNavigate();
   const { mutate, isPending } = useMutation({
     mutationFn: loginUser,
-    onSuccess: (data: LoginResponse) => {
+    onSuccess: async (data: LoginResponse) => {
       navigate("/", { state: { user: data } });
+
+      await queryClient.prefetchQuery({
+        queryKey: ["userProfile"],
+        queryFn: fetchUserData,
+      });
     },
     onError: (err: AxiosError) => {
       console.log(err.message);

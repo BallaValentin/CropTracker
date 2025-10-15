@@ -21,6 +21,8 @@ import type { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import AccountDialog from "../dialogs/AccountDialog";
 import { updateAvatar } from "../../services/UserService";
+import { queryClient } from "../../App";
+import { useUserProfile } from "../../hooks/UseUserProfile";
 
 interface MainHeaderProps {
   userData: LoginResponse;
@@ -30,14 +32,16 @@ function MainHeader({ userData }: MainHeaderProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-  const [imageSrc, setImageSrc] = useState<string>(userData.avatar);
   const open = Boolean(anchorEl);
   const accessToken = sessionStorage.getItem("accessToken");
+
+  const { data: user, isLoading } = useUserProfile();
 
   const { mutate, isPending } = useMutation({
     mutationFn: logoutUser,
     onSuccess: () => {
       sessionStorage.removeItem("accessToken");
+      queryClient.removeQueries({ queryKey: ["userProfile"] });
       navigate("/signin");
     },
     onError: (err: AxiosError) => {
@@ -47,6 +51,9 @@ function MainHeader({ userData }: MainHeaderProps) {
 
   const changeAvatar = useMutation({
     mutationFn: updateAvatar,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+    },
     onError: (err: AxiosError) => {
       console.log(err.message);
     },
@@ -77,9 +84,12 @@ function MainHeader({ userData }: MainHeaderProps) {
   };
 
   const handleAvatarChange = (newImageSrc: string) => {
-    setImageSrc(newImageSrc);
     changeAvatar.mutate(newImageSrc);
   };
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <Box>
@@ -87,7 +97,7 @@ function MainHeader({ userData }: MainHeaderProps) {
         isOpen={dialogOpen}
         handleClose={handleDialogClose}
         userData={userData}
-        imageSrc={imageSrc}
+        imageSrc={user?.avatar || ""}
         onImageChange={handleAvatarChange}
       />
       <AppBar position="fixed" sx={{ bgcolor: "green" }}>
@@ -99,7 +109,7 @@ function MainHeader({ userData }: MainHeaderProps) {
           {accessToken && userData ? (
             <>
               <Button onClick={handleClick}>
-                <Avatar src={imageSrc} alt="Avatar" />
+                <Avatar src={user?.avatar || ""} alt="Avatar" />
               </Button>
               <Menu
                 anchorEl={anchorEl}
