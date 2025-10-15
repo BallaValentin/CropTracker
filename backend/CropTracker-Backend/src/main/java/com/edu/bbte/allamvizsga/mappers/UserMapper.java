@@ -4,6 +4,7 @@ import com.edu.bbte.allamvizsga.dto.response.AdminUserDTO;
 import com.edu.bbte.allamvizsga.dto.request.LoginRequestDTO;
 import com.edu.bbte.allamvizsga.dto.request.RegisterRequestDTO;
 import com.edu.bbte.allamvizsga.dto.response.LoginResponseDTO;
+import com.edu.bbte.allamvizsga.dto.response.UserDataDTO;
 import com.edu.bbte.allamvizsga.model.User;
 import org.mapstruct.Mapper;
 
@@ -13,4 +14,5 @@ public interface UserMapper {
     User registerDtoToModel(RegisterRequestDTO registerRequestDTO);
     AdminUserDTO modelToAdminResponse(User user);
     LoginResponseDTO modelToLoginDto(User user);
+    UserDataDTO modelToUserData(User user);
 }
