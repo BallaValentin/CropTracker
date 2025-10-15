@@ -16,10 +16,26 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 interface AccountDialogProps {
   isOpen: boolean;
   handleClose: () => void;
+  onImageChange: (newImageSrc: string) => void;
+  imageSrc: string;
   userData: LoginResponse;
 }
 
-function AccountDialog({ isOpen, handleClose, userData }: AccountDialogProps) {
+function AccountDialog({
+  isOpen,
+  handleClose,
+  userData,
+  imageSrc,
+  onImageChange,
+}: AccountDialogProps) {
+  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const newImageUrl = URL.createObjectURL(file);
+      onImageChange(newImageUrl);
+    }
+  };
+
   return (
     <Box>
       <Dialog
@@ -48,11 +64,12 @@ function AccountDialog({ isOpen, handleClose, userData }: AccountDialogProps) {
               type="file"
               style={{ display: "none" }}
               accept="image/*"
+              onChange={handleAvatarUpload}
             />
 
             <label htmlFor="avatar-upload">
               <Avatar
-                src={userData.avatar}
+                src={imageSrc}
                 sx={{
                   textAlign: "center",
                   width: 120,
@@ -97,7 +114,12 @@ function AccountDialog({ isOpen, handleClose, userData }: AccountDialogProps) {
                 component="label"
               >
                 <CameraAltIcon />
-                <input type="file" hidden accept="image/*" />
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                />
               </IconButton>
             </Tooltip>
           </Box>

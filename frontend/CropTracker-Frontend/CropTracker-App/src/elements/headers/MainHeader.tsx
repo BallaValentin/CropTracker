@@ -29,6 +29,7 @@ function MainHeader({ userData }: MainHeaderProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [imageSrc, setImageSrc] = useState<string>(userData.avatar);
   const open = Boolean(anchorEl);
   const accessToken = sessionStorage.getItem("accessToken");
 
@@ -67,12 +68,18 @@ function MainHeader({ userData }: MainHeaderProps) {
     setDialogOpen(false);
   };
 
+  const handleAvatarChange = (newImageSrc: string) => {
+    setImageSrc(newImageSrc);
+  };
+
   return (
     <Box>
       <AccountDialog
         isOpen={dialogOpen}
         handleClose={handleDialogClose}
         userData={userData}
+        imageSrc={imageSrc}
+        onImageChange={handleAvatarChange}
       />
       <AppBar position="fixed" sx={{ bgcolor: "green" }}>
         <Toolbar>
@@ -83,7 +90,7 @@ function MainHeader({ userData }: MainHeaderProps) {
           {accessToken && userData ? (
             <>
               <Button onClick={handleClick}>
-                <Avatar src={userData.avatar} />
+                <Avatar src={imageSrc} />
               </Button>
               <Menu
                 anchorEl={anchorEl}
