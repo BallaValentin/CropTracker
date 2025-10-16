@@ -9,23 +9,21 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import type { LoginResponse } from "../../interfaces/LoginResponse";
 
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import type { UserData } from "../../interfaces/UserData";
 
 interface AccountDialogProps {
   isOpen: boolean;
   handleClose: () => void;
   onImageChange: (newImageSrc: string) => void;
-  imageSrc: string;
-  userData: LoginResponse;
+  userData: UserData;
 }
 
 function AccountDialog({
   isOpen,
   handleClose,
   userData,
-  imageSrc,
   onImageChange,
 }: AccountDialogProps) {
   const toBase64 = (file: File): Promise<string> =>
@@ -79,7 +77,7 @@ function AccountDialog({
 
             <label htmlFor="avatar-upload">
               <Avatar
-                src={imageSrc}
+                src={userData.avatar}
                 alt="Avatar"
                 sx={{
                   textAlign: "center",

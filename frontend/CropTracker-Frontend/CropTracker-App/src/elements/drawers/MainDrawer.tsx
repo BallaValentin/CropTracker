@@ -1,7 +1,6 @@
 import {
   Box,
   Drawer,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -10,6 +9,9 @@ import {
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import { useNavigate } from "react-router-dom";
+
 interface MainDrawerProps {
   isOpen: boolean;
   handleClose: () => void;
@@ -17,6 +19,12 @@ interface MainDrawerProps {
 }
 
 function MainDrawer({ isOpen, handleClose, handleClick }: MainDrawerProps) {
+  const navigate = useNavigate();
+
+  const navigateToMainPage = () => {
+    navigate("/");
+  };
+
   return (
     <Box>
       <Drawer
@@ -32,11 +40,19 @@ function MainDrawer({ isOpen, handleClose, handleClick }: MainDrawerProps) {
         <Box sx={{ width: 250 }} role="presentation" onClick={handleClick}>
           <List>
             <ListItem key={"home"} disablePadding>
-              <ListItemButton>
+              <ListItemButton onClick={navigateToMainPage}>
                 <ListItemIcon>
                   <HomeIcon />
                 </ListItemIcon>
                 <ListItemText>Home</ListItemText>
+              </ListItemButton>
+            </ListItem>
+            <ListItem key={"check-users"} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <SupervisorAccountIcon />
+                </ListItemIcon>
+                <ListItemText>Check Users</ListItemText>
               </ListItemButton>
             </ListItem>
           </List>

@@ -108,8 +108,7 @@ function MainHeader({ userData }: MainHeaderProps) {
       <AccountDialog
         isOpen={dialogOpen}
         handleClose={handleDialogClose}
-        userData={userData}
-        imageSrc={user?.avatar || ""}
+        userData={user}
         onImageChange={handleAvatarChange}
       />
       <AppBar position="fixed" sx={{ bgcolor: "green" }}>
@@ -166,7 +165,7 @@ function MainHeader({ userData }: MainHeaderProps) {
                   <MenuItem onClick={handleDialogOpen}>
                     <ManageAccountsIcon sx={{ mr: 1 }} />
                     <Typography variant="subtitle1">
-                      {userData.firstName + " " + userData.lastName}
+                      {user?.firstName + " " + user?.lastName}
                     </Typography>
                   </MenuItem>
                 </Tooltip>
