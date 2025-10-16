@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Divider,
+  IconButton,
   Menu,
   MenuItem,
   Toolbar,
@@ -23,6 +24,8 @@ import AccountDialog from "../dialogs/AccountDialog";
 import { updateAvatar } from "../../services/UserService";
 import { queryClient } from "../../App";
 import { useUserProfile } from "../../hooks/UseUserProfile";
+import MenuIcon from "@mui/icons-material/Menu";
+import MainDrawer from "../drawers/MainDrawer";
 
 interface MainHeaderProps {
   userData: LoginResponse;
@@ -32,6 +35,7 @@ function MainHeader({ userData }: MainHeaderProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const open = Boolean(anchorEl);
   const accessToken = sessionStorage.getItem("accessToken");
 
@@ -87,6 +91,14 @@ function MainHeader({ userData }: MainHeaderProps) {
     changeAvatar.mutate(newImageSrc);
   };
 
+  const closeDrawer = () => {
+    setDrawerOpen(false);
+  };
+
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+
   if (isLoading) {
     return null;
   }
@@ -102,6 +114,9 @@ function MainHeader({ userData }: MainHeaderProps) {
       />
       <AppBar position="fixed" sx={{ bgcolor: "green" }}>
         <Toolbar>
+          <IconButton onClick={toggleDrawer}>
+            <MenuIcon fontSize="large" sx={{ mr: 1 }} />
+          </IconButton>
           <SpaIcon fontSize="large" sx={{ mr: 1 }} />
           <Typography variant="h4" sx={{ flexGrow: 1 }}>
             CropTracker
@@ -169,6 +184,11 @@ function MainHeader({ userData }: MainHeaderProps) {
           )}
         </Toolbar>
       </AppBar>
+      <MainDrawer
+        isOpen={drawerOpen}
+        handleClose={closeDrawer}
+        handleClick={closeDrawer}
+      />
     </Box>
   );
 }
