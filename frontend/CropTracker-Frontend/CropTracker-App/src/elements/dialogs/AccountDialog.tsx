@@ -77,7 +77,7 @@ function AccountDialog({
 
             <label htmlFor="avatar-upload">
               <Avatar
-                src={userData.avatar}
+                src={userData?.avatar}
                 alt="Avatar"
                 sx={{
                   textAlign: "center",

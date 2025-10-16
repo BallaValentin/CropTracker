@@ -25,6 +25,10 @@ function MainDrawer({ isOpen, handleClose, handleClick }: MainDrawerProps) {
     navigate("/");
   };
 
+  const navigateToShowUsers = () => {
+    navigate("/show-users");
+  };
+
   return (
     <Box>
       <Drawer
@@ -47,12 +51,12 @@ function MainDrawer({ isOpen, handleClose, handleClick }: MainDrawerProps) {
                 <ListItemText>Home</ListItemText>
               </ListItemButton>
             </ListItem>
-            <ListItem key={"check-users"} disablePadding>
-              <ListItemButton>
+            <ListItem key={"show users"} disablePadding>
+              <ListItemButton onClick={navigateToShowUsers}>
                 <ListItemIcon>
                   <SupervisorAccountIcon />
                 </ListItemIcon>
-                <ListItemText>Check Users</ListItemText>
+                <ListItemText>Show Users</ListItemText>
               </ListItemButton>
             </ListItem>
           </List>
