@@ -17,7 +17,7 @@ interface AccountDialogProps {
   isOpen: boolean;
   handleClose: () => void;
   onImageChange: (newImageSrc: string) => void;
-  userData: UserData;
+  userData: UserData | undefined;
 }
 
 function AccountDialog({
@@ -58,7 +58,7 @@ function AccountDialog({
         <Divider />
         <DialogContent>
           <Typography variant="h5" sx={{ textAlign: "center" }}>
-            {userData.firstName} {userData.lastName}
+            {userData?.firstName} {userData?.lastName}
           </Typography>
           <Box
             sx={{

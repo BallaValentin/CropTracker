@@ -1,15 +1,17 @@
 import { Box } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
-import { useLocation } from "react-router-dom";
-import type { LoginResponse } from "../interfaces/LoginResponse";
+import { useUserProfile } from "../hooks/UseUserProfile";
 
 function MainPage() {
-  const location = useLocation();
-  const userData: LoginResponse = location.state?.user || {};
+  const { data: user, isLoading } = useUserProfile();
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <Box>
-      <MainHeader userData={userData} />
+      <MainHeader userData={user} />
     </Box>
   );
 }

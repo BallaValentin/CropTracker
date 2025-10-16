@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { LoginData } from "../interfaces/LoginData";
 import type { LoginResponse } from "../interfaces/LoginResponse";
-import { queryClient } from "../App";
 import { fetchUserData } from "../services/UserService";
+import { queryClient } from "../query-client/QueryClient";
 
 function LoginPage() {
   const navigate = useNavigate();

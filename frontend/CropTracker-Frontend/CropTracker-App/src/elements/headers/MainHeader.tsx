@@ -14,7 +14,6 @@ import {
 import SpaIcon from "@mui/icons-material/Spa";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import LogoutIcon from "@mui/icons-material/Logout";
-import type { LoginResponse } from "../../interfaces/LoginResponse";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../../services/AuthService";
@@ -22,13 +21,14 @@ import type { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import AccountDialog from "../dialogs/AccountDialog";
 import { updateAvatar } from "../../services/UserService";
-import { queryClient } from "../../App";
 import { useUserProfile } from "../../hooks/UseUserProfile";
 import MenuIcon from "@mui/icons-material/Menu";
 import MainDrawer from "../drawers/MainDrawer";
+import type { UserData } from "../../interfaces/UserData";
+import { queryClient } from "../../query-client/QueryClient";
 
 interface MainHeaderProps {
-  userData: LoginResponse;
+  userData: UserData | undefined;
 }
 
 function MainHeader({ userData }: MainHeaderProps) {
