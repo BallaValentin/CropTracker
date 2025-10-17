@@ -26,6 +26,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import MainDrawer from "../drawers/MainDrawer";
 import type { UserData } from "../../interfaces/UserData";
 import { queryClient } from "../../query-client/QueryClient";
+import { useDrawer } from "../../contexts/DrawerProvider";
 
 interface MainHeaderProps {
   userData: UserData | undefined;
@@ -35,11 +36,12 @@ function MainHeader({ userData }: MainHeaderProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const open = Boolean(anchorEl);
   const accessToken = sessionStorage.getItem("accessToken");
 
   const { data: user, isLoading } = useUserProfile();
+
+  const { toggleDrawer } = useDrawer();
 
   const { mutate, isPending } = useMutation({
     mutationFn: logoutUser,
@@ -89,14 +91,6 @@ function MainHeader({ userData }: MainHeaderProps) {
 
   const handleAvatarChange = (newImageSrc: string) => {
     changeAvatar.mutate(newImageSrc);
-  };
-
-  const closeDrawer = () => {
-    setDrawerOpen(false);
-  };
-
-  const toggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
   };
 
   if (isLoading) {
@@ -183,11 +177,7 @@ function MainHeader({ userData }: MainHeaderProps) {
           )}
         </Toolbar>
       </AppBar>
-      <MainDrawer
-        isOpen={drawerOpen}
-        handleClose={closeDrawer}
-        handleClick={closeDrawer}
-      />
+      <MainDrawer />
     </Box>
   );
 }

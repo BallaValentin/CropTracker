@@ -5,20 +5,23 @@ import RegisterPage from "./pages/RegisterPage";
 import MainPage from "./pages/MainPage";
 import UsersListPage from "./pages/UsersListPage";
 import { queryClient } from "./query-client/QueryClient";
+import { DrawerProvider } from "./contexts/DrawerProvider";
 
 function App() {
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <Routes>
-            <Route path="/signin" element={<LoginPage />} />
-            <Route path="/signup" element={<RegisterPage />} />
-            <Route path="/" element={<MainPage />} />
-            <Route path="/show-users" element={<UsersListPage />} />
-          </Routes>
-        </Router>
-      </QueryClientProvider>
+      <DrawerProvider>
+        <QueryClientProvider client={queryClient}>
+          <Router>
+            <Routes>
+              <Route path="/signin" element={<LoginPage />} />
+              <Route path="/signup" element={<RegisterPage />} />
+              <Route path="/" element={<MainPage />} />
+              <Route path="/show-users" element={<UsersListPage />} />
+            </Routes>
+          </Router>
+        </QueryClientProvider>
+      </DrawerProvider>
     </>
   );
 }

@@ -17,7 +17,12 @@ function UsersTable({ columns, rows, isLoading }: UsersTableProps) {
 
   return (
     <Box>
-      <Paper sx={{ height: 400, width: "100%", marginTop: "70px" }}>
+      <Paper
+        sx={{
+          height: 400,
+          marginTop: "70px",
+        }}
+      >
         <DataGrid
           columns={columns}
           rows={rows}

@@ -1,12 +1,22 @@
-import { Box, Chip } from "@mui/material";
+import { Box } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import type { GridColDef } from "@mui/x-data-grid";
 import { useAdminUsers } from "../hooks/UseAdminUsers";
 import UsersTable from "../elements/tables/UsersTable";
+import {
+  COLLAPSED_DRAWER_WIDTH,
+  EXPANDED_DRAWER_WIDTH,
+} from "../utils/constants";
+import { useDrawer } from "../contexts/DrawerProvider";
 
 function UsersListPage() {
   const { data: user, isLoading } = useUserProfile();
+
+  const { isDrawerExpanded } = useDrawer();
+  const drawerWidth = isDrawerExpanded
+    ? EXPANDED_DRAWER_WIDTH
+    : COLLAPSED_DRAWER_WIDTH;
 
   const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 70 },
@@ -30,11 +40,20 @@ function UsersListPage() {
   return (
     <Box>
       <MainHeader userData={user} />
-      <UsersTable
-        columns={columns}
-        rows={adminUsers || []}
-        isLoading={isLoadingUsers}
-      />
+      <Box
+        sx={{
+          flexGrow: 1,
+          width: `calc(100%  - ${drawerWidth}px + 1px)`,
+          ml: `${drawerWidth + 1}px`,
+          transition: "all 0.3s ease",
+        }}
+      >
+        <UsersTable
+          columns={columns}
+          rows={adminUsers || []}
+          isLoading={isLoadingUsers}
+        />
+      </Box>
     </Box>
   );
 }
