@@ -15,6 +15,7 @@ import type { UserData } from "../../interfaces/UserData";
 
 interface AccountDialogProps {
   isOpen: boolean;
+  avatarURL: string;
   handleClose: () => void;
   onImageChange: (newImageSrc: string) => void;
   userData: UserData | undefined;
@@ -22,6 +23,7 @@ interface AccountDialogProps {
 
 function AccountDialog({
   isOpen,
+  avatarURL,
   handleClose,
   userData,
   onImageChange,
@@ -77,7 +79,7 @@ function AccountDialog({
 
             <label htmlFor="avatar-upload">
               <Avatar
-                src={userData?.avatar}
+                src={avatarURL}
                 alt="Avatar"
                 sx={{
                   textAlign: "center",
@@ -132,10 +134,6 @@ function AccountDialog({
               </IconButton>
             </Tooltip>
           </Box>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Est fuga,
-          nulla consequuntur tempora officiis reprehenderit delectus
-          necessitatibus animi modi eius a suscipit quod molestias! Beatae
-          explicabo cum sequi labore voluptatibus.
         </DialogContent>
       </Dialog>
     </Box>

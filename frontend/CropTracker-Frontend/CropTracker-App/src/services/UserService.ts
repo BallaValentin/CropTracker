@@ -31,3 +31,15 @@ export const fetchUserData = async(): Promise<UserData> => {
     });
     return response.data;
 }
+
+export const getAvatar = async(): Promise<Blob> => {
+    console.log('Sending get avatar request to server');
+    const response = await userApi.get<Blob>("/get-avatar", {
+        headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+        },
+        responseType: 'blob'
+    })
+
+    return response.data
+}

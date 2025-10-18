@@ -14,13 +14,13 @@ import {
 import SpaIcon from "@mui/icons-material/Spa";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../../services/AuthService";
 import type { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import AccountDialog from "../dialogs/AccountDialog";
-import { updateAvatar } from "../../services/UserService";
+import { getAvatar, updateAvatar } from "../../services/UserService";
 import { useUserProfile } from "../../hooks/UseUserProfile";
 import MenuIcon from "@mui/icons-material/Menu";
 import MainDrawer from "../drawers/MainDrawer";
@@ -36,12 +36,23 @@ function MainHeader({ userData }: MainHeaderProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [avatarURL, setAvatarURL] = useState<string | null>(null);
   const open = Boolean(anchorEl);
   const accessToken = sessionStorage.getItem("accessToken");
 
   const { data: user, isLoading } = useUserProfile();
 
   const { toggleDrawer } = useDrawer();
+
+  useEffect(() => {
+    const fecthAvatar = async () => {
+      const blob: Blob = await getAvatar();
+      const imageURL = URL.createObjectURL(blob);
+      setAvatarURL(imageURL);
+    };
+
+    fecthAvatar();
+  }, []);
 
   const { mutate, isPending } = useMutation({
     mutationFn: logoutUser,
@@ -57,8 +68,11 @@ function MainHeader({ userData }: MainHeaderProps) {
 
   const changeAvatar = useMutation({
     mutationFn: updateAvatar,
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      const blob = await getAvatar();
+      const imageURL = URL.createObjectURL(blob);
+      setAvatarURL(imageURL);
     },
     onError: (err: AxiosError) => {
       console.log(err.message);
@@ -89,7 +103,7 @@ function MainHeader({ userData }: MainHeaderProps) {
     setDialogOpen(false);
   };
 
-  const handleAvatarChange = (newImageSrc: string) => {
+  const handleAvatarChange = async (newImageSrc: string) => {
     changeAvatar.mutate(newImageSrc);
   };
 
@@ -101,6 +115,7 @@ function MainHeader({ userData }: MainHeaderProps) {
     <Box>
       <AccountDialog
         isOpen={dialogOpen}
+        avatarURL={avatarURL || ""}
         handleClose={handleDialogClose}
         userData={user}
         onImageChange={handleAvatarChange}
@@ -117,7 +132,7 @@ function MainHeader({ userData }: MainHeaderProps) {
           {accessToken && userData ? (
             <>
               <Button onClick={handleClick}>
-                <Avatar src={user?.avatar || ""} alt="Avatar" />
+                <Avatar src={avatarURL || ""} alt="Avatar" />
               </Button>
               <Menu
                 anchorEl={anchorEl}
