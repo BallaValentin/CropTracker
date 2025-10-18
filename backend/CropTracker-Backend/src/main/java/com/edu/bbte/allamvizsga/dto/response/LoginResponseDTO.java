@@ -9,7 +9,6 @@ public class LoginResponseDTO {
     private String username;
     private String firstName;
     private String lastName;
-    private String avatar;
     private Collection<RoleDTO> roles;
     private String accessToken;
 }

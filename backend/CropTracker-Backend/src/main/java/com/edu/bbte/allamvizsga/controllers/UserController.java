@@ -1,7 +1,6 @@
 package com.edu.bbte.allamvizsga.controllers;
 
 import com.edu.bbte.allamvizsga.dto.request.AvatarUpdatesDTO;
-import com.edu.bbte.allamvizsga.dto.response.LoginResponseDTO;
 import com.edu.bbte.allamvizsga.dto.response.UserDataDTO;
 import com.edu.bbte.allamvizsga.mappers.UserMapper;
 import com.edu.bbte.allamvizsga.model.User;
@@ -11,13 +10,20 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.rmi.server.UID;
 import java.util.Base64;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -46,16 +52,26 @@ public class UserController {
         User user = userService.findUserByUsername(username);
         UserDataDTO userData = userMapper.modelToUserData(user);
 
-        String base64 = null;
-
-        String imagePath = "./images/" + user.getUid() + "/profile.png";
-        Path path = Path.of(imagePath);
-
-        if(Files.exists(path)) {
-            byte[] bytes = Files.readAllBytes(path);
-            base64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(bytes);
-        }
-        userData.setAvatar(base64);
         return ResponseEntity.ok(userData);
+    }
+
+    @GetMapping("/get-avatar")
+    public ResponseEntity<Resource> getAvatar(
+            @RequestHeader("Authorization") String authorizationHeader) throws MalformedURLException {
+
+            String accessToken = authorizationHeader.substring(7);
+            String username = jwtUtil.getUsername(accessToken);
+
+            User user = userService.findUserByUsername(username);
+            UUID userID = user.getUid();
+
+            String uploadDir = "./images/" + userID + "/profile.png";
+            Path path = Paths.get(uploadDir);
+
+            Resource resource = new UrlResource(path.toUri());
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(resource);
     }
 }

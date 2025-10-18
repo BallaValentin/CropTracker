@@ -58,18 +58,6 @@ public class AuthController {
         User foundUser = userService.authenticate(user);
         LoginResponseDTO loginResponseDTO = userMapper.modelToLoginDto(foundUser);
 
-        String base64 = null;
-
-        String imagePath = "./images/" + foundUser.getUid() + "/profile.png";
-        Path path = Path.of(imagePath);
-
-        if(Files.exists(path)) {
-            byte[] bytes = Files.readAllBytes(path);
-            base64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(bytes);
-        }
-
-        loginResponseDTO.setAvatar(base64);
-
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtUtil.generateToken(userDetails.getUsername());
         loginResponseDTO.setAccessToken(token);
