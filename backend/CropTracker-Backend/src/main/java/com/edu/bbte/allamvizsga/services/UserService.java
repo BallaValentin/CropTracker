@@ -1,11 +1,13 @@
 package com.edu.bbte.allamvizsga.services;
 
+import com.edu.bbte.allamvizsga.dto.request.UserUpdateDTO;
 import com.edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import com.edu.bbte.allamvizsga.model.Role;
 import com.edu.bbte.allamvizsga.model.User;
 import com.edu.bbte.allamvizsga.repository.RoleRepository;
 import com.edu.bbte.allamvizsga.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,13 +21,13 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
-
 
     public void createUser(User user) throws IOException {
 
@@ -83,5 +85,29 @@ public class UserService {
 
     public void changeAvatar(User user, String newImageSrc) throws IOException {
         imageService.updateUserAvatar(user, newImageSrc);
+    }
+
+    public User updateUser(User user, UserUpdateDTO userUpdates) {
+        log.info("Initiating update");
+        UUID uid = user.getUid();
+        String newUsername = userUpdates.getUsername();
+        String newEmail = userUpdates.getEmail();
+
+        log.info("Processed parameters");
+
+        if (!newUsername.equals(user.getUsername())) {
+            log.info("Updating username");
+            userRepository.updateUsername(newUsername, uid);
+            log.info("Updated username successfully");
+        }
+
+        if (!newEmail.equals(user.getEmail())) {
+            log.info("Updating email");
+            userRepository.updateEmail(newEmail, uid);
+            log.info("Updated email successfully");
+        }
+
+        log.info("Returning updated user");
+        return userRepository.findByUid(uid);
     }
 }

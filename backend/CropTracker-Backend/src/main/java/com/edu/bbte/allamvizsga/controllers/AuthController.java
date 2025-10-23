@@ -59,7 +59,7 @@ public class AuthController {
         LoginResponseDTO loginResponseDTO = userMapper.modelToLoginDto(foundUser);
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtUtil.generateToken(userDetails.getUsername());
+        String token = jwtUtil.generateToken(foundUser.getUid());
         loginResponseDTO.setAccessToken(token);
 
         RefreshToken refreshToken = new RefreshToken(foundUser, UUID.randomUUID());
@@ -103,7 +103,7 @@ public class AuthController {
                 UUID refreshToken = UUID.fromString(cookie.getValue());
                 RefreshToken foundToken = refreshTokenService.findByToken(refreshToken);
                 if (foundToken != null) {
-                    String accessToken = jwtUtil.generateToken(foundToken.getUser().getUsername());
+                    String accessToken = jwtUtil.generateToken(foundToken.getUser().getUid());
                     RefreshTokenResponseDTO refreshTokenResponseDTO = new RefreshTokenResponseDTO(accessToken);
                     return ResponseEntity.ok(refreshTokenResponseDTO);
                 }

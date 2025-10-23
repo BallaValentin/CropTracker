@@ -1,6 +1,7 @@
 package com.edu.bbte.allamvizsga.controllers;
 
 import com.edu.bbte.allamvizsga.dto.request.AvatarUpdatesDTO;
+import com.edu.bbte.allamvizsga.dto.request.UserUpdateDTO;
 import com.edu.bbte.allamvizsga.dto.response.UserDataDTO;
 import com.edu.bbte.allamvizsga.mappers.UserMapper;
 import com.edu.bbte.allamvizsga.model.User;
@@ -18,11 +19,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.rmi.server.UID;
-import java.util.Base64;
 import java.util.UUID;
 
 @RestController
@@ -35,21 +33,23 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
+    protected User extractUser(String authorizationHeader) {
+        String accessToken = authorizationHeader.substring(7);
+        UUID uid = jwtUtil.getUid(accessToken);
+        return userService.findUserById(uid);
+    }
+
     @PutMapping("/change-avatar")
     public void changeAvatar(@Valid @RequestBody AvatarUpdatesDTO avatarUpdates,
                              @RequestHeader("Authorization") String authorizationHeader) throws IOException {
-        String accessToken = authorizationHeader.substring(7);
-        String username = jwtUtil.getUsername(accessToken);
-        User user = userService.findUserByUsername(username);
+        User user = extractUser(authorizationHeader);
         userService.changeAvatar(user, avatarUpdates.getNewAvatarSrc());
     }
 
     @GetMapping("/fetch-user-data")
     public ResponseEntity<UserDataDTO> fetchUserData(
             @RequestHeader("Authorization") String authorizationHeader) throws IOException {
-        String accessToken = authorizationHeader.substring(7);
-        String username = jwtUtil.getUsername(accessToken);
-        User user = userService.findUserByUsername(username);
+        User user = extractUser(authorizationHeader);
         UserDataDTO userData = userMapper.modelToUserData(user);
 
         return ResponseEntity.ok(userData);
@@ -59,19 +59,31 @@ public class UserController {
     public ResponseEntity<Resource> getAvatar(
             @RequestHeader("Authorization") String authorizationHeader) throws MalformedURLException {
 
-            String accessToken = authorizationHeader.substring(7);
-            String username = jwtUtil.getUsername(accessToken);
+        User user = extractUser(authorizationHeader);
+        UUID userID = user.getUid();
 
-            User user = userService.findUserByUsername(username);
-            UUID userID = user.getUid();
+        String uploadDir = "./images/" + userID + "/profile.png";
+        Path path = Paths.get(uploadDir);
 
-            String uploadDir = "./images/" + userID + "/profile.png";
-            Path path = Paths.get(uploadDir);
+        Resource resource = new UrlResource(path.toUri());
 
-            Resource resource = new UrlResource(path.toUri());
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(resource);
+    }
 
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_PNG)
-                    .body(resource);
+    @PutMapping("/update-profile")
+    public ResponseEntity<UserDataDTO> updateProfile(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody UserUpdateDTO userUpdates) {
+
+        log.info("Extracting user");
+        User user = extractUser(authorizationHeader);
+        log.info("Updating user");
+        User updatedUser = userService.updateUser(user, userUpdates);
+        log.info("Mapping response");
+        UserDataDTO userData = userMapper.modelToUserData(updatedUser);
+
+        return ResponseEntity.ok(userData);
     }
 }

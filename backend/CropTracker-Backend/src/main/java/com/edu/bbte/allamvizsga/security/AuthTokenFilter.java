@@ -1,5 +1,6 @@
 package com.edu.bbte.allamvizsga.security;
 
+import com.edu.bbte.allamvizsga.repository.UserRepository;
 import com.edu.bbte.allamvizsga.services.CustomUserDetailsService;
 import com.edu.bbte.allamvizsga.util.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -24,13 +26,21 @@ import java.io.IOException;
 public class AuthTokenFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private UserRepository userRepository;
+
+    public AuthTokenFilter(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
+        this.jwtUtil = jwtUtil;
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String token = parseRequest(request);
             if (token != null && jwtUtil.validateToken(token)) {
-                String username = jwtUtil.getUsername(token);
+                UUID userID = jwtUtil.getUid(token);
+                String username = userRepository.findByUid(userID).getUsername();
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(

@@ -27,6 +27,7 @@ import MainDrawer from "../drawers/MainDrawer";
 import type { UserData } from "../../interfaces/UserData";
 import { queryClient } from "../../query-client/QueryClient";
 import { useDrawer } from "../../contexts/DrawerProvider";
+import ProgressCircle from "../progress/ProgressCircle";
 
 interface MainHeaderProps {
   userData: UserData | undefined;
@@ -37,6 +38,7 @@ function MainHeader({ userData }: MainHeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [avatarURL, setAvatarURL] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState<boolean>(false);
   const open = Boolean(anchorEl);
   const accessToken = sessionStorage.getItem("accessToken");
 
@@ -45,13 +47,13 @@ function MainHeader({ userData }: MainHeaderProps) {
   const { toggleDrawer } = useDrawer();
 
   useEffect(() => {
-    const fecthAvatar = async () => {
+    const fetchAvatar = async () => {
       const blob: Blob = await getAvatar();
       const imageURL = URL.createObjectURL(blob);
       setAvatarURL(imageURL);
     };
 
-    fecthAvatar();
+    fetchAvatar();
   }, []);
 
   const { mutate, isPending } = useMutation({
@@ -69,7 +71,6 @@ function MainHeader({ userData }: MainHeaderProps) {
   const changeAvatar = useMutation({
     mutationFn: updateAvatar,
     onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
       const blob = await getAvatar();
       const imageURL = URL.createObjectURL(blob);
       setAvatarURL(imageURL);
@@ -104,16 +105,19 @@ function MainHeader({ userData }: MainHeaderProps) {
   };
 
   const handleAvatarChange = async (newImageSrc: string) => {
+    setIsUploadingAvatar(true);
     changeAvatar.mutate(newImageSrc);
+    setIsUploadingAvatar(false);
   };
 
   if (isLoading) {
-    return null;
+    return <ProgressCircle />;
   }
 
   return (
     <Box>
       <AccountDialog
+        isUploading={isUploadingAvatar}
         isOpen={dialogOpen}
         avatarURL={avatarURL || ""}
         handleClose={handleDialogClose}

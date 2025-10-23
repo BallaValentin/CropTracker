@@ -12,8 +12,15 @@ import {
 
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import type { UserData } from "../../interfaces/UserData";
+import EditUserForm from "../forms/EditUserForm";
+import { useMutation } from "@tanstack/react-query";
+import { updateProfile } from "../../services/UserService";
+import { queryClient } from "../../query-client/QueryClient";
+import type { UserUpdates } from "../../interfaces/UserUpdates";
+import type { AxiosError } from "axios";
 
 interface AccountDialogProps {
+  isUploading: boolean;
   isOpen: boolean;
   avatarURL: string;
   handleClose: () => void;
@@ -22,6 +29,7 @@ interface AccountDialogProps {
 }
 
 function AccountDialog({
+  isUploading,
   isOpen,
   avatarURL,
   handleClose,
@@ -46,10 +54,25 @@ function AccountDialog({
     }
   };
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ["userProfile"] });
+    },
+    onError: (err: AxiosError) => {
+      console.log(err.message);
+    },
+  });
+
+  const handleUserdataUpdate = (userUpdates: UserUpdates) => {
+    mutate(userUpdates);
+  };
+
   return (
     <Box>
       <Dialog
         open={isOpen}
+        aria-disabled={isUploading}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -134,6 +157,12 @@ function AccountDialog({
               </IconButton>
             </Tooltip>
           </Box>
+          <Divider sx={{ mt: 2 }} />
+          <EditUserForm
+            userData={userData}
+            onSubmit={handleUserdataUpdate}
+            isUpdating={isPending}
+          />
         </DialogContent>
       </Dialog>
     </Box>

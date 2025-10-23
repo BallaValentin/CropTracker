@@ -5,4 +5,5 @@ export interface LoginResponse {
     avatar: string,
     firstName: string,
     lastName: string
+    email: string
 }

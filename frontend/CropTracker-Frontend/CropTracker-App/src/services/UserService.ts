@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { AvatarUpdates } from "../interfaces/AvatarUpdates";
 import type { UserData } from "../interfaces/UserData";
+import type { UserUpdates } from "../interfaces/UserUpdates";
 
 export const userApi = axios.create({
     baseURL: "http://localhost:8080/api/user",
@@ -20,6 +21,16 @@ export const updateAvatar = async(newAvatarSrc: string): Promise<number>  => {
         }
     });
     return response.status;
+}
+
+export const updateProfile = async(userUpdates: UserUpdates): Promise<UserData>  => {
+    console.log('Sending update-profile request to server');
+    const response = await userApi.put<UserData>("/update-profile", userUpdates, {
+        headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+    });
+    return response.data;
 }
 
 export const fetchUserData = async(): Promise<UserData> => {
