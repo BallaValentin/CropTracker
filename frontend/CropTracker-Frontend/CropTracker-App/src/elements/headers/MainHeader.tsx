@@ -27,7 +27,6 @@ import MainDrawer from "../drawers/MainDrawer";
 import type { UserData } from "../../interfaces/UserData";
 import { queryClient } from "../../query-client/QueryClient";
 import { useDrawer } from "../../contexts/DrawerProvider";
-import ProgressCircle from "../progress/ProgressCircle";
 
 interface MainHeaderProps {
   userData: UserData | undefined;
@@ -64,7 +63,13 @@ function MainHeader({ userData }: MainHeaderProps) {
       navigate("/signin");
     },
     onError: (err: AxiosError) => {
-      console.log(err.message);
+      navigate("error", {
+        state: {
+          statusCode: err.code,
+          statusText: err.cause,
+          errorMessage: "Failed to sign out, try again later",
+        },
+      });
     },
   });
 
@@ -76,7 +81,13 @@ function MainHeader({ userData }: MainHeaderProps) {
       setAvatarURL(imageURL);
     },
     onError: (err: AxiosError) => {
-      console.log(err.message);
+      navigate("error", {
+        state: {
+          statusCode: err.response?.status ?? 500,
+          statusText: err.response?.statusText ?? "Internal Server Error",
+          errorMessage: "Failed to change your profile image, try again later",
+        },
+      });
     },
   });
 
@@ -111,7 +122,7 @@ function MainHeader({ userData }: MainHeaderProps) {
   };
 
   if (isLoading) {
-    return <ProgressCircle />;
+    return null;
   }
 
   return (

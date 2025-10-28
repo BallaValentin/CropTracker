@@ -6,6 +6,7 @@ import MainPage from "./pages/MainPage";
 import UsersListPage from "./pages/UsersListPage";
 import { queryClient } from "./query-client/QueryClient";
 import { DrawerProvider } from "./contexts/DrawerProvider";
+import ErrorPage from "./pages/ErrorPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
               <Route path="/signup" element={<RegisterPage />} />
               <Route path="/" element={<MainPage />} />
               <Route path="/show-users" element={<UsersListPage />} />
+              <Route path="/error" element={<ErrorPage />} />
             </Routes>
           </Router>
         </QueryClientProvider>
