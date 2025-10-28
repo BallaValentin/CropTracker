@@ -1,8 +1,10 @@
 package com.edu.bbte.allamvizsga.security;
 
+import com.edu.bbte.allamvizsga.exceptions.JwtTokenException;
 import com.edu.bbte.allamvizsga.repository.UserRepository;
 import com.edu.bbte.allamvizsga.services.CustomUserDetailsService;
 import com.edu.bbte.allamvizsga.util.JwtUtil;
+import io.jsonwebtoken.Jwt;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,6 +51,18 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                                 userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                logger.warn("Invalid or missing token");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("""
+                        {
+                          "status": 401,
+                          "error": "Unauthorized",
+                          "message": "Invalid or missing token"
+                        }
+                        """);
+                return;
             }
         } catch (Exception e) {
             logger.error("Cannot set user authentication", e);

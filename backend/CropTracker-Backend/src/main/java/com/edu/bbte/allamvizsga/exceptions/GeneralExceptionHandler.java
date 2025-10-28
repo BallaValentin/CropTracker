@@ -77,4 +77,17 @@ public class GeneralExceptionHandler {
         return new ErrorResponseDTO(timestamp, statusCode, message, path);
     }
 
+    @ExceptionHandler(JwtTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public ErrorResponseDTO handleJwtTokenException(
+            RuntimeException exception, HttpServletRequest request
+    ) {
+        LocalDateTime timestamp = LocalDateTime.now();
+        Integer statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        String message = exception.getMessage();
+        String path = request.getRequestURI();
+        return new ErrorResponseDTO(timestamp, statusCode, message, path);
+    }
+
 }
