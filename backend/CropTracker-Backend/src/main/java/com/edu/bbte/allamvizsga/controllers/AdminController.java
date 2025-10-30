@@ -6,9 +6,12 @@ import com.edu.bbte.allamvizsga.model.Role;
 import com.edu.bbte.allamvizsga.model.User;
 import com.edu.bbte.allamvizsga.services.UserService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/admin")
 @CrossOrigin(value = "http://localhost:5174")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
+@Slf4j
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
     private final UserService userService;
@@ -31,6 +35,8 @@ public class AdminController {
 
     @GetMapping("/get-users")
     public ResponseEntity<Collection<AdminUserDTO>> getAllUsers() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        log.info(auth.getAuthorities().toString());
         Collection<User> users = userService.getAllUsers();
         Collection<AdminUserDTO> adminUserDTOS = new ArrayList<>();
 

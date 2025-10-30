@@ -9,6 +9,7 @@ export const adminApi = axios.create({
 })
 
 export const getUsers = async (): Promise<AdminUser[]> => {
+    console.log("Sending get-users request to server")
     const response = await adminApi.get<AdminUser[]>("/get-users", {
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`

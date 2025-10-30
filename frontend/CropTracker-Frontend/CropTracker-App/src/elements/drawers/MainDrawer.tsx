@@ -17,10 +17,16 @@ import {
 } from "../../utils/constants";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
+import type { UserData } from "../../interfaces/UserData";
 
-function MainDrawer() {
+interface MainDrawerProps {
+  userData: UserData | undefined;
+}
+
+function MainDrawer({ userData }: MainDrawerProps) {
   const navigate = useNavigate();
   const [hovered, setHovered] = useState<boolean>(false);
+  const userRoles = userData?.roles ?? [];
 
   const { isDrawerExpanded } = useDrawer();
   const drawerWidth =
@@ -67,16 +73,18 @@ function MainDrawer() {
               )}
             </ListItemButton>
           </ListItem>
-          <ListItem key={"show users"} disablePadding>
-            <ListItemButton onClick={navigateToShowUsers}>
-              <ListItemIcon>
-                <SupervisorAccountIcon />
-              </ListItemIcon>
-              {(isDrawerExpanded || hovered) && (
-                <ListItemText>Show Users</ListItemText>
-              )}
-            </ListItemButton>
-          </ListItem>
+          {userRoles.findIndex((role) => role.name === "ADMIN") > -1 && (
+            <ListItem key={"show users"} disablePadding>
+              <ListItemButton onClick={navigateToShowUsers}>
+                <ListItemIcon>
+                  <SupervisorAccountIcon />
+                </ListItemIcon>
+                {(isDrawerExpanded || hovered) && (
+                  <ListItemText>Show Users</ListItemText>
+                )}
+              </ListItemButton>
+            </ListItem>
+          )}
         </List>
       </Drawer>
     </Box>

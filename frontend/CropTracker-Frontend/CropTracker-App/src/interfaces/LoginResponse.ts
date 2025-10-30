@@ -1,6 +1,8 @@
+import type { Role } from "./Role"
+
 export interface LoginResponse {
     username: string,
-    role: string,
+    roles: Role[],
     accessToken: string
     avatar: string,
     firstName: string,

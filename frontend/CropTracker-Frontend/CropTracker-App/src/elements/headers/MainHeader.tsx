@@ -207,7 +207,7 @@ function MainHeader({ userData }: MainHeaderProps) {
           )}
         </Toolbar>
       </AppBar>
-      <MainDrawer />
+      <MainDrawer userData={userData} />
     </Box>
   );
 }
