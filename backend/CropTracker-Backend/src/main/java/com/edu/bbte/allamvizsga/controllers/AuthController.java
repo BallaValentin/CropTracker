@@ -47,7 +47,7 @@ public class AuthController {
     @PostMapping("/authenticate")
     public ResponseEntity<LoginResponseDTO> authenticate(
             @Valid @RequestBody LoginRequestDTO loginRequest,
-            HttpServletResponse response) throws IOException {
+            HttpServletResponse response) {
 
         log.debug("Received login request");
         User user = userMapper.loginDtoToModel(loginRequest);
@@ -58,7 +58,6 @@ public class AuthController {
         User foundUser = userService.authenticate(user);
         LoginResponseDTO loginResponseDTO = userMapper.modelToLoginDto(foundUser);
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtUtil.generateToken(foundUser.getUid());
         loginResponseDTO.setAccessToken(token);
 
@@ -86,7 +85,7 @@ public class AuthController {
         }
 
         User user = userMapper.registerDtoToModel(registerRequest);
-        userService.createUser(user);
+        userService.createUser(user, registerRequest.getIsFarmer(), registerRequest.getIsDayLaborer());
         userMapper.registerDtoToModel(registerRequest);
     }
 

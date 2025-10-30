@@ -11,7 +11,8 @@ public class DataInitializer {
     public CommandLineRunner initRoles(RoleRepository roleRepository) {
         return args -> {
             createRoleIfNotExist(roleRepository, "ADMIN");
-            createRoleIfNotExist(roleRepository, "USER");
+            createRoleIfNotExist(roleRepository, "FARMER");
+            createRoleIfNotExist(roleRepository, "DAY_LABORER");
         };
     }
 

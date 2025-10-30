@@ -35,4 +35,7 @@ public class RegisterRequestDTO {
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
             message = "Invalid email pattern")
     private String email;
+
+    private Boolean isFarmer;
+    private Boolean isDayLaborer;
 }

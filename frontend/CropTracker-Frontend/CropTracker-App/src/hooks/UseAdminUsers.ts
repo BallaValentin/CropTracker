@@ -3,6 +3,7 @@ import { getUsers } from "../services/AdminService"
 import { useNavigate } from "react-router-dom"
 import type { AxiosError } from "axios";
 import type { AdminUser } from "../interfaces/AdminUser";
+import { getStatusMessage } from "../utils/GetStatusMessage";
 
 export const useAdminUsers = () => {
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ export const useAdminUsers = () => {
 
     if (query.isError && query.error) {
         const statusCode = query.error.response?.status ?? 500;
-        const statusText = query.error.response?.statusText ?? 'Internal Server Error';
+        const statusText = getStatusMessage(statusCode);
 
         navigate('/error', {state: {
                 statusCode,

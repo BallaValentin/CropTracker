@@ -5,4 +5,5 @@ export interface RegisterError {
     passwordError: boolean,
     passwordRepeatError: boolean,
     emailError: boolean,
+    roleError: boolean
 }

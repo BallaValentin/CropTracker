@@ -51,18 +51,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                                 userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                logger.warn("Invalid or missing token");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.getWriter().write("""
-                        {
-                          "status": 401,
-                          "error": "Unauthorized",
-                          "message": "Invalid or missing token"
-                        }
-                        """);
-                return;
             }
         } catch (Exception e) {
             logger.error("Cannot set user authentication", e);

@@ -3,11 +3,15 @@ import {
   Button,
   Card,
   FormControl,
+  FormControlLabel,
+  FormGroup,
   FormHelperText,
   Grid,
   Link,
   TextField,
   Typography,
+  Checkbox,
+  Divider,
 } from "@mui/material";
 import type { RegisterData } from "../../interfaces/RegisterData";
 import { useState } from "react";
@@ -26,6 +30,8 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     email: "",
     password: "",
     password2: "",
+    isFarmer: true,
+    isDayLaborer: false,
   });
 
   const [registerError, setRegisterError] = useState<RegisterError>({
@@ -35,6 +41,7 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     passwordError: false,
     passwordRepeatError: false,
     emailError: false,
+    roleError: false,
   });
 
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +90,11 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
       isValid = false;
     }
 
+    if (!registerData.isDayLaborer && !registerData.isFarmer) {
+      setRegisterError((prev) => ({ ...prev, roleError: true }));
+      isValid = false;
+    }
+
     return isValid;
   };
 
@@ -91,6 +103,17 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     if (isFormValid()) {
       onSubmit(registerData);
     }
+  };
+
+  const toggleFarmer = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRegisterData((prev) => ({ ...prev, isFarmer: event.target.checked }));
+  };
+
+  const toggleDayLaborer = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRegisterData((prev) => ({
+      ...prev,
+      isDayLaborer: event.target.checked,
+    }));
   };
 
   return (
@@ -227,6 +250,39 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                 />
                 {registerError.passwordRepeatError && (
                   <FormHelperText>The two passwords must match.</FormHelperText>
+                )}
+              </FormControl>
+
+              <Divider sx={{ mt: 2 }} />
+
+              <FormControl sx={{ mt: 2 }} fullWidth>
+                <Typography variant="body1">
+                  I want to use this application as
+                </Typography>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={registerData.isFarmer}
+                        onChange={toggleFarmer}
+                      />
+                    }
+                    label="Farmer"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={registerData.isDayLaborer}
+                        onChange={toggleDayLaborer}
+                      />
+                    }
+                    label="Day laborer"
+                  />
+                </FormGroup>
+                {registerError.roleError && (
+                  <FormHelperText>
+                    One of the roles must be choosen.
+                  </FormHelperText>
                 )}
               </FormControl>
 
