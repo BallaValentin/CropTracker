@@ -14,9 +14,10 @@ import { useState } from "react";
 interface LoginFormProps {
   onLoginSubmit: (loginData: LoginData) => void;
   isPending: boolean;
+  loginError: string | null;
 }
 
-function LoginForm({ onLoginSubmit, isPending }: LoginFormProps) {
+function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
   const [loginData, setLoginData] = useState<LoginData>({
     username: "",
     password: "",
@@ -99,6 +100,11 @@ function LoginForm({ onLoginSubmit, isPending }: LoginFormProps) {
                 </Typography>
               </Box>
             </FormControl>
+            {loginError != null && (
+              <Typography variant="subtitle2" color="error">
+                {loginError}
+              </Typography>
+            )}
           </Grid>
         </form>
       </Card>

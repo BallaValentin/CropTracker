@@ -4,19 +4,11 @@ import { useUserProfile } from "../hooks/UseUserProfile";
 import type { GridColDef } from "@mui/x-data-grid";
 import { useAdminUsers } from "../hooks/UseAdminUsers";
 import UsersTable from "../elements/tables/UsersTable";
-import {
-  COLLAPSED_DRAWER_WIDTH,
-  EXPANDED_DRAWER_WIDTH,
-} from "../utils/constants";
-import { useDrawer } from "../contexts/DrawerProvider";
+import ProgressCircle from "../elements/progress/ProgressCircle";
+import MainContainer from "../elements/containers/MainContainer";
 
 function UsersListPage() {
   const { data: user, isLoading } = useUserProfile();
-
-  const { isDrawerExpanded } = useDrawer();
-  const drawerWidth = isDrawerExpanded
-    ? EXPANDED_DRAWER_WIDTH
-    : COLLAPSED_DRAWER_WIDTH;
 
   const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 70 },
@@ -34,26 +26,19 @@ function UsersListPage() {
   const { data: adminUsers, isLoading: isLoadingUsers } = useAdminUsers();
 
   if (isLoading) {
-    return null;
+    return <ProgressCircle />;
   }
 
   return (
     <Box>
-      <MainHeader userData={user} />
-      <Box
-        sx={{
-          flexGrow: 1,
-          width: `calc(100%  - ${drawerWidth}px + 1px)`,
-          ml: `${drawerWidth + 1}px`,
-          transition: "all 0.3s ease",
-        }}
-      >
+      <MainHeader userData={user} authenticated={true} />
+      <MainContainer hasDrawer={true}>
         <UsersTable
           columns={columns}
           rows={adminUsers || []}
           isLoading={isLoadingUsers}
         />
-      </Box>
+      </MainContainer>
     </Box>
   );
 }

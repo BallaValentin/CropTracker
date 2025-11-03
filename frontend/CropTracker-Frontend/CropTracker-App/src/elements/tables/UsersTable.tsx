@@ -20,7 +20,6 @@ function UsersTable({ columns, rows, isLoading }: UsersTableProps) {
       <Paper
         sx={{
           height: 400,
-          marginTop: "70px",
         }}
       >
         <DataGrid

@@ -5,16 +5,18 @@ import { loginUser } from "../services/AuthService";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { LoginData } from "../interfaces/LoginData";
-import type { LoginResponse } from "../interfaces/LoginResponse";
 import { fetchUserData } from "../services/UserService";
 import { queryClient } from "../query-client/QueryClient";
+import { useState } from "react";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   const { mutate, isPending } = useMutation({
     mutationFn: loginUser,
-    onSuccess: async (data: LoginResponse) => {
-      navigate("/", { state: { user: data } });
+    onSuccess: async () => {
+      navigate("/");
 
       await queryClient.prefetchQuery({
         queryKey: ["userProfile"],
@@ -22,7 +24,9 @@ function LoginPage() {
       });
     },
     onError: (err: AxiosError) => {
-      console.log(err.message);
+      if (err.response?.status == 400) {
+        setLoginError("Invalid credentials");
+      }
     },
   });
 
@@ -32,7 +36,11 @@ function LoginPage() {
 
   return (
     <Box>
-      <LoginForm onLoginSubmit={handlelogin} isPending={isPending} />
+      <LoginForm
+        onLoginSubmit={handlelogin}
+        isPending={isPending}
+        loginError={loginError}
+      />
     </Box>
   );
 }

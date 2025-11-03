@@ -49,16 +49,15 @@ public class AuthController {
             @Valid @RequestBody LoginRequestDTO loginRequest,
             HttpServletResponse response) {
 
-        log.debug("Received login request");
         User user = userMapper.loginDtoToModel(loginRequest);
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
         );
 
         User foundUser = userService.authenticate(user);
-        LoginResponseDTO loginResponseDTO = userMapper.modelToLoginDto(foundUser);
 
         String token = jwtUtil.generateToken(foundUser.getUid());
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
         loginResponseDTO.setAccessToken(token);
 
         RefreshToken refreshToken = new RefreshToken(foundUser, UUID.randomUUID());

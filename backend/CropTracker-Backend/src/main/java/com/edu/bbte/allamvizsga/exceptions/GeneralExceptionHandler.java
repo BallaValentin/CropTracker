@@ -14,13 +14,13 @@ import java.time.LocalDateTime;
 public class GeneralExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponseDTO handleBadCredentialsException(
             BadCredentialsException exception, HttpServletRequest request
     ) {
         log.debug("Sign in failed");
         LocalDateTime dateTime = LocalDateTime.now();
-        Integer statusCode = HttpStatus.UNAUTHORIZED.value();
+        Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String message = exception.getMessage();
         String path = request.getRequestURI();
         return new ErrorResponseDTO(dateTime, statusCode, message, path);

@@ -1,20 +1,12 @@
-import { Box, CircularProgress } from "@mui/material";
+import { CircularProgress } from "@mui/material";
+import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 
 function ProgressCircle() {
   return (
     <>
-      <Box
-        sx={{
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          flexDirection: "column",
-        }}
-      >
+      <ColumnCenterContainer>
         <CircularProgress />
-      </Box>
+      </ColumnCenterContainer>
     </>
   );
 }

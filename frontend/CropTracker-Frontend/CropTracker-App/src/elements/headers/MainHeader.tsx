@@ -21,7 +21,6 @@ import type { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import AccountDialog from "../dialogs/AccountDialog";
 import { getAvatar, updateAvatar } from "../../services/UserService";
-import { useUserProfile } from "../../hooks/UseUserProfile";
 import MenuIcon from "@mui/icons-material/Menu";
 import MainDrawer from "../drawers/MainDrawer";
 import type { UserData } from "../../interfaces/UserData";
@@ -30,9 +29,10 @@ import { useDrawer } from "../../contexts/DrawerProvider";
 
 interface MainHeaderProps {
   userData: UserData | undefined;
+  authenticated: boolean;
 }
 
-function MainHeader({ userData }: MainHeaderProps) {
+function MainHeader({ userData, authenticated }: MainHeaderProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -41,11 +41,12 @@ function MainHeader({ userData }: MainHeaderProps) {
   const open = Boolean(anchorEl);
   const accessToken = sessionStorage.getItem("accessToken");
 
-  const { data: user, isLoading } = useUserProfile();
-
   const { toggleDrawer } = useDrawer();
 
   useEffect(() => {
+    if (!authenticated) {
+      return;
+    }
     const fetchAvatar = async () => {
       const blob: Blob = await getAvatar();
       const imageURL = URL.createObjectURL(blob);
@@ -92,7 +93,9 @@ function MainHeader({ userData }: MainHeaderProps) {
   });
 
   const handleLogout = () => {
-    mutate();
+    if (authenticated) {
+      mutate();
+    }
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -121,10 +124,6 @@ function MainHeader({ userData }: MainHeaderProps) {
     setIsUploadingAvatar(false);
   };
 
-  if (isLoading) {
-    return null;
-  }
-
   return (
     <Box>
       <AccountDialog
@@ -132,20 +131,21 @@ function MainHeader({ userData }: MainHeaderProps) {
         isOpen={dialogOpen}
         avatarURL={avatarURL || ""}
         handleClose={handleDialogClose}
-        userData={user}
+        userData={userData}
         onImageChange={handleAvatarChange}
       />
       <AppBar position="fixed" sx={{ bgcolor: "green" }}>
         <Toolbar>
-          <IconButton onClick={toggleDrawer}>
-            <MenuIcon fontSize="large" sx={{ mr: 1 }} />
-          </IconButton>
           <SpaIcon fontSize="large" sx={{ mr: 1 }} />
           <Typography variant="h4" sx={{ flexGrow: 1 }}>
             CropTracker
           </Typography>
           {accessToken && userData ? (
             <>
+              <IconButton onClick={toggleDrawer}>
+                <MenuIcon fontSize="large" sx={{ mr: 1 }} />
+              </IconButton>
+              <MainDrawer userData={userData} />
               <Button onClick={handleClick}>
                 <Avatar src={avatarURL || ""} alt="Avatar" />
               </Button>
@@ -189,7 +189,7 @@ function MainHeader({ userData }: MainHeaderProps) {
                   <MenuItem onClick={handleDialogOpen}>
                     <ManageAccountsIcon sx={{ mr: 1 }} />
                     <Typography variant="subtitle1">
-                      {user?.firstName + " " + user?.lastName}
+                      {userData?.firstName + " " + userData?.lastName}
                     </Typography>
                   </MenuItem>
                 </Tooltip>
@@ -207,7 +207,6 @@ function MainHeader({ userData }: MainHeaderProps) {
           )}
         </Toolbar>
       </AppBar>
-      <MainDrawer userData={userData} />
     </Box>
   );
 }
