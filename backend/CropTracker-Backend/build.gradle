@@ -22,6 +22,9 @@ dependencies {
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.38'
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.38'
 
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '3.5.0'
+
     // https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
 

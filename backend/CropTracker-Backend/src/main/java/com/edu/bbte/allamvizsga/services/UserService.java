@@ -78,6 +78,10 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public User authenticate(User user) {
         User user1 = userRepository.findByUsername(user.getUsername());
         if (user1 != null) {

@@ -12,13 +12,19 @@ import { useState } from "react";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import PersonIcon from "@mui/icons-material/Person";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import type { PasswordResetMail } from "../../interfaces/PasswordResetMail";
 
 interface EmailFormProps {
-  onEmailSubmit: (verificationEmail: string) => void;
+  onEmailSubmit: (verificationEmail: PasswordResetMail) => void;
+  isPending: boolean;
 }
 
-function EmailForm({ onEmailSubmit }: EmailFormProps) {
-  const [verificationEmail, setVerificationEmail] = useState<string>("");
+function EmailForm({ onEmailSubmit, isPending }: EmailFormProps) {
+  const [verificationEmail, setVerificationEmail] = useState<PasswordResetMail>(
+    {
+      email: "",
+    }
+  );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -26,7 +32,8 @@ function EmailForm({ onEmailSubmit }: EmailFormProps) {
   };
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setVerificationEmail(event.target.value);
+    const { name, value } = event.target;
+    setVerificationEmail((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -75,15 +82,18 @@ function EmailForm({ onEmailSubmit }: EmailFormProps) {
               />
 
               <Button
+                disabled={isPending}
                 type="submit"
                 color="primary"
                 variant="contained"
                 sx={{ mt: 1 }}
               >
-                Send verification email
+                {isPending
+                  ? "Sending verification email..."
+                  : "Send verification email"}
               </Button>
 
-              <Button sx={{ mt: 1 }}>
+              <Button disabled={isPending} sx={{ mt: 1 }}>
                 <Link
                   href="/signin"
                   underline="hover"
