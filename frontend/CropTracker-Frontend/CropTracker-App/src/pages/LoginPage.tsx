@@ -25,7 +25,7 @@ function LoginPage() {
     },
     onError: (err: AxiosError) => {
       if (err.response?.status == 400) {
-        setLoginError("Invalid credentials");
+        setLoginError("Invalid username or password");
       }
     },
   });

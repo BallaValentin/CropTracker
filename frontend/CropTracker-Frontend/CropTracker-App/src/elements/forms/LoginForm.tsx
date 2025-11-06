@@ -81,6 +81,21 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
                 />
               </FormControl>
 
+              {loginError != null && (
+                <Box sx={{ mt: 2, textAlign: "center" }}>
+                  <Typography variant="subtitle2" color="error">
+                    {loginError}
+                  </Typography>
+                </Box>
+              )}
+
+              <Typography variant="subtitle2">
+                Forgot password?{" "}
+                <Link href="/send-email" underline="hover">
+                  Click here
+                </Link>
+              </Typography>
+
               <Button
                 type="submit"
                 sx={{ mt: 2 }}
@@ -100,11 +115,6 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
                 </Typography>
               </Box>
             </FormControl>
-            {loginError != null && (
-              <Typography variant="subtitle2" color="error">
-                {loginError}
-              </Typography>
-            )}
           </Grid>
         </form>
       </Card>

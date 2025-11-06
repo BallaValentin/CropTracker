@@ -136,16 +136,27 @@ function MainHeader({ userData, authenticated }: MainHeaderProps) {
       />
       <AppBar position="fixed" sx={{ bgcolor: "green" }}>
         <Toolbar>
-          <SpaIcon fontSize="large" sx={{ mr: 1 }} />
-          <Typography variant="h4" sx={{ flexGrow: 1 }}>
-            CropTracker
-          </Typography>
           {accessToken && userData ? (
             <>
               <IconButton onClick={toggleDrawer}>
                 <MenuIcon fontSize="large" sx={{ mr: 1 }} />
               </IconButton>
+              <SpaIcon fontSize="large" sx={{ mr: 1 }} />
+              <Typography variant="h4" sx={{ flexGrow: 1 }}>
+                CropTracker
+              </Typography>
               <MainDrawer userData={userData} />
+            </>
+          ) : (
+            <>
+              <SpaIcon fontSize="large" sx={{ mr: 1 }} />
+              <Typography variant="h4" sx={{ flexGrow: 1 }}>
+                CropTracker
+              </Typography>
+            </>
+          )}
+          {accessToken && userData ? (
+            <>
               <Button onClick={handleClick}>
                 <Avatar src={avatarURL || ""} alt="Avatar" />
               </Button>
