@@ -13,7 +13,7 @@ public class MailService {
     }
 
     public void sendVerificationEmail(String toMail, String toUser, String resetToken) {
-        String changePasswordUrl = "http://localhost:8080/api/user/change-password?token=" + resetToken;
+        String changePasswordUrl = "http://localhost:5174/change-password?token=" + resetToken;
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(toMail);

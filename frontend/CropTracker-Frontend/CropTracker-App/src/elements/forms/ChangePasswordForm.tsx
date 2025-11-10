@@ -8,32 +8,42 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
-import ColumnCenterContainer from "../containers/ColumnCenterContainer";
+import React, { useState } from "react";
+import type { ChangePasswordData } from "../../interfaces/ChangePasswordData";
 import PersonIcon from "@mui/icons-material/Person";
+import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import type { PasswordResetMail } from "../../interfaces/PasswordResetMail";
+import { useLocation } from "react-router-dom";
 
-interface EmailFormProps {
-  onEmailSubmit: (verificationEmail: PasswordResetMail) => void;
+interface ChangePasswordFormProps {
+  handleSubmit: (newPasswordData: ChangePasswordData) => void;
   isPending: boolean;
 }
 
-function EmailForm({ onEmailSubmit, isPending }: EmailFormProps) {
-  const [verificationEmail, setVerificationEmail] = useState<PasswordResetMail>(
-    {
-      email: "",
-    }
-  );
+function ChangePasswordForm({
+  handleSubmit,
+  isPending,
+}: ChangePasswordFormProps) {
+  const location = useLocation();
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    onEmailSubmit(verificationEmail);
+  const queryParams = new URLSearchParams(location.search);
+  const token = queryParams.get("token");
+
+  const [changePasswordData, setChangePasswordData] =
+    useState<ChangePasswordData>({
+      password1: "",
+      password2: "",
+      token: token ?? "",
+    });
+
+  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setChangePasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setVerificationEmail((prev) => ({ ...prev, [name]: value }));
+  const submitNewPassword = (event: React.FormEvent) => {
+    event.preventDefault();
+    handleSubmit(changePasswordData);
   };
 
   return (
@@ -56,28 +66,44 @@ function EmailForm({ onEmailSubmit, isPending }: EmailFormProps) {
               <PersonIcon sx={{ width: 100, height: 100 }} />
             </Avatar>
           </Box>
-
           <Typography
             variant="h4"
             gutterBottom
             sx={{ textAlign: "center", mt: 2 }}
           >
-            Forgot Password?
+            Change Password
           </Typography>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={submitNewPassword}>
             <FormControl sx={{ mt: 2 }} fullWidth>
               <Typography
-                variant="body1"
                 sx={{ textAlign: "left" }}
+                variant="body1"
                 gutterBottom
               >
-                To verify yourself, write your email here:
+                New password
               </Typography>
               <TextField
-                name="email"
-                placeholder="Your email address"
+                name="password1"
+                type="password"
+                value={changePasswordData.password1}
                 required
-                onChange={handleEmailChange}
+                onChange={handleFormChange}
+                fullWidth
+              />
+
+              <Typography
+                sx={{ textAlign: "left", mt: 1 }}
+                variant="body1"
+                gutterBottom
+              >
+                Confirm new password
+              </Typography>
+              <TextField
+                name="password2"
+                type="password"
+                value={changePasswordData.password2}
+                required
+                onChange={handleFormChange}
                 fullWidth
               />
 
@@ -88,9 +114,7 @@ function EmailForm({ onEmailSubmit, isPending }: EmailFormProps) {
                 variant="contained"
                 sx={{ mt: 1 }}
               >
-                {isPending
-                  ? "Sending verification email..."
-                  : "Send verification email"}
+                {isPending ? "Changing password..." : "Change password"}
               </Button>
 
               <Button disabled={isPending} sx={{ mt: 1 }}>
@@ -115,4 +139,4 @@ function EmailForm({ onEmailSubmit, isPending }: EmailFormProps) {
   );
 }
 
-export default EmailForm;
+export default ChangePasswordForm;

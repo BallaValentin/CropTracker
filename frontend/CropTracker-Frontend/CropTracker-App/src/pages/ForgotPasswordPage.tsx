@@ -1,12 +1,14 @@
 import { Box } from "@mui/material";
-import EmailForm from "../elements/forms/EmailForm";
+import ForgotPasswordForm from "../elements/forms/ForgotPasswordForm";
 import type { PasswordResetMail } from "../interfaces/PasswordResetMail";
 import { useMutation } from "@tanstack/react-query";
 import { sendPasswordResetMail } from "../services/MailService";
 import { useNavigate } from "react-router-dom";
 
-function EmailPage() {
+function ForgotPasswordPage() {
   const navigate = useNavigate();
+
+  console.log("Forgot Password Page");
 
   const { mutate, isPending } = useMutation({
     mutationFn: sendPasswordResetMail,
@@ -15,17 +17,17 @@ function EmailPage() {
     },
   });
 
-  const sendMail = (verificationEmail: PasswordResetMail) => {
-    mutate(verificationEmail);
+  const sendMail = (verificationForgotPassword: PasswordResetMail) => {
+    mutate(verificationForgotPassword);
   };
 
   return (
     <>
       <Box>
-        <EmailForm onEmailSubmit={sendMail} isPending={isPending} />
+        <ForgotPasswordForm onEmailSubmit={sendMail} isPending={isPending} />
       </Box>
     </>
   );
 }
 
-export default EmailPage;
+export default ForgotPasswordPage;

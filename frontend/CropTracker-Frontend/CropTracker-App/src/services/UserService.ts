@@ -2,6 +2,7 @@ import axios from "axios";
 import type { AvatarUpdates } from "../interfaces/AvatarUpdates";
 import type { UserData } from "../interfaces/UserData";
 import type { UserUpdates } from "../interfaces/UserUpdates";
+import type { ChangePasswordData } from "../interfaces/ChangePasswordData";
 
 export const userApi = axios.create({
     baseURL: "http://localhost:8080/api/user",
@@ -53,4 +54,9 @@ export const getAvatar = async(): Promise<Blob> => {
     })
 
     return response.data
+}
+
+export const updatePassword = async(changePasswordData: ChangePasswordData): Promise<void> => {
+    console.log('Sending update password request to server');
+    await userApi.put<void>("/update-password", changePasswordData)
 }

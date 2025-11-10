@@ -1,10 +1,14 @@
 package com.edu.bbte.allamvizsga.controllers;
 
 import com.edu.bbte.allamvizsga.dto.request.AvatarUpdatesDTO;
+import com.edu.bbte.allamvizsga.dto.request.ChangePasswordDTO;
 import com.edu.bbte.allamvizsga.dto.request.UserUpdateDTO;
 import com.edu.bbte.allamvizsga.dto.response.UserDataDTO;
+import com.edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import com.edu.bbte.allamvizsga.mappers.UserMapper;
+import com.edu.bbte.allamvizsga.model.ResetPasswordToken;
 import com.edu.bbte.allamvizsga.model.User;
+import com.edu.bbte.allamvizsga.services.ResetPasswordTokenService;
 import com.edu.bbte.allamvizsga.services.UserService;
 import com.edu.bbte.allamvizsga.util.JwtUtil;
 import jakarta.validation.Valid;
@@ -32,6 +36,7 @@ public class UserController {
     private final JwtUtil jwtUtil;
     private final UserService userService;
     private final UserMapper userMapper;
+    private final ResetPasswordTokenService resetPasswordTokenService;
 
     protected User extractUser(String authorizationHeader) {
         String accessToken = authorizationHeader.substring(7);
@@ -85,5 +90,21 @@ public class UserController {
         UserDataDTO userData = userMapper.modelToUserData(updatedUser);
 
         return ResponseEntity.ok(userData);
+    }
+
+    @PutMapping("/update-password")
+    public void updatePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
+        UUID changePasswordToken = UUID.fromString(changePasswordDTO.getToken());
+
+        if (!changePasswordDTO.getPassword1().equals(changePasswordDTO.getPassword2())) {
+            throw new InvalidSignupException("Passwords do not match");
+        }
+
+        ResetPasswordToken resetPasswordToken = resetPasswordTokenService
+                .findByUid(changePasswordToken);
+
+        User tokenUser = resetPasswordToken.getUser();
+
+        userService.updatePassword(tokenUser, changePasswordDTO.getPassword1());
     }
 }

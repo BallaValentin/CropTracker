@@ -7,8 +7,8 @@ import UsersListPage from "./pages/UsersListPage";
 import { queryClient } from "./query-client/QueryClient";
 import { DrawerProvider } from "./contexts/DrawerProvider";
 import ErrorPage from "./pages/ErrorPage";
-import EmailPage from "./pages/EmailPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
               <Route path="/" element={<MainPage />} />
               <Route path="/show-users" element={<UsersListPage />} />
               <Route path="/error" element={<ErrorPage />} />
-              <Route path="/send-email" element={<EmailPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/change-password" element={<ChangePasswordPage />} />
             </Routes>
           </Router>

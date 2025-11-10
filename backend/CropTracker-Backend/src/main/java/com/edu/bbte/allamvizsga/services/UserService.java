@@ -122,4 +122,8 @@ public class UserService {
         log.info("Returning updated user");
         return userRepository.findByUid(uid);
     }
+
+    public void updatePassword(User user, String newPassword) {
+        userRepository.updatePassword(passwordEncoder.encode(newPassword), user.getUid());
+    }
 }

@@ -91,7 +91,7 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
 
               <Typography variant="subtitle2">
                 Forgot password?{" "}
-                <Link href="/send-email" underline="hover">
+                <Link href="/forgot-password" underline="hover">
                   Click here
                 </Link>
               </Typography>
