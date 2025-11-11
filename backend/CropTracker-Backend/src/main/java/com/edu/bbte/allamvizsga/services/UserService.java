@@ -124,6 +124,9 @@ public class UserService {
     }
 
     public void updatePassword(User user, String newPassword) {
-        userRepository.updatePassword(passwordEncoder.encode(newPassword), user.getUid());
+        log.info("Updating password...");
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        userRepository.updatePassword(encodedPassword, user.getUid());
+        log.info("The password has been updated");
     }
 }

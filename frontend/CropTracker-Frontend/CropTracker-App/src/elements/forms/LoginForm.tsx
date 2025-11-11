@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import type { LoginData } from "../../interfaces/LoginData";
 import { useState } from "react";
+import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 
 interface LoginFormProps {
   onLoginSubmit: (loginData: LoginData) => void;
@@ -34,15 +35,7 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        margin: "auto",
-        mt: 5,
-      }}
-    >
+    <ColumnCenterContainer>
       <Card
         sx={{
           p: 4,
@@ -55,7 +48,11 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <FormControl sx={{ mt: 2 }} fullWidth>
-              <Typography variant="body1" gutterBottom>
+              <Typography
+                sx={{ textAlign: "left" }}
+                variant="body1"
+                gutterBottom
+              >
                 Username
               </Typography>
               <TextField
@@ -68,7 +65,11 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
               <FormControl />
 
               <FormControl sx={{ mt: 2 }} fullWidth>
-                <Typography variant="body1" gutterBottom>
+                <Typography
+                  sx={{ textAlign: "left" }}
+                  variant="body1"
+                  gutterBottom
+                >
                   Password
                 </Typography>
                 <TextField
@@ -89,7 +90,7 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
                 </Box>
               )}
 
-              <Typography variant="subtitle2">
+              <Typography sx={{ textAlign: "left" }} variant="subtitle2">
                 Forgot password?{" "}
                 <Link href="/forgot-password" underline="hover">
                   Click here
@@ -118,7 +119,7 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
           </Grid>
         </form>
       </Card>
-    </Box>
+    </ColumnCenterContainer>
   );
 }
 

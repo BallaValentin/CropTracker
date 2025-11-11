@@ -10,7 +10,11 @@ function ChangePasswordPage() {
   const { mutate, isPending } = useMutation({
     mutationFn: updatePassword,
     onSuccess: () => {
-      navigate("/signin");
+      navigate("/signin", {
+        state: {
+          passwordUpdatedMessage: "Your password has been successfully updated",
+        },
+      });
     },
   });
 

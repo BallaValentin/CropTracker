@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   FormControl,
+  FormHelperText,
   Link,
   TextField,
   Typography,
@@ -36,6 +37,11 @@ function ChangePasswordForm({
       token: token ?? "",
     });
 
+  const [error, setError] = useState({
+    password1Error: false,
+    password2Error: false,
+  });
+
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setChangePasswordData((prev) => ({ ...prev, [name]: value }));
@@ -43,6 +49,25 @@ function ChangePasswordForm({
 
   const submitNewPassword = (event: React.FormEvent) => {
     event.preventDefault();
+
+    setError({
+      password1Error: false,
+      password2Error: false,
+    });
+
+    if (
+      !/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
+        changePasswordData.password1
+      )
+    ) {
+      setError((prev) => ({ ...prev, ["password1Error"]: true }));
+      return;
+    }
+
+    if (changePasswordData.password1 !== changePasswordData.password2) {
+      setError((prev) => ({ ...prev, ["password2Error"]: true }));
+      return;
+    }
     handleSubmit(changePasswordData);
   };
 
@@ -83,6 +108,7 @@ function ChangePasswordForm({
                 New password
               </Typography>
               <TextField
+                error={!!error.password1Error}
                 name="password1"
                 type="password"
                 value={changePasswordData.password1}
@@ -90,6 +116,12 @@ function ChangePasswordForm({
                 onChange={handleFormChange}
                 fullWidth
               />
+              {error.password1Error && (
+                <FormHelperText>
+                  Password must contain uppercase, lowercase letters, digits and
+                  special characters.
+                </FormHelperText>
+              )}
 
               <Typography
                 sx={{ textAlign: "left", mt: 1 }}
@@ -99,6 +131,7 @@ function ChangePasswordForm({
                 Confirm new password
               </Typography>
               <TextField
+                error={!!error.password2Error}
                 name="password2"
                 type="password"
                 value={changePasswordData.password2}
@@ -106,6 +139,9 @@ function ChangePasswordForm({
                 onChange={handleFormChange}
                 fullWidth
               />
+              {error.password2Error && (
+                <FormHelperText>Passwords must match.</FormHelperText>
+              )}
 
               <Button
                 disabled={isPending}

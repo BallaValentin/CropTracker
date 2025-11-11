@@ -70,6 +70,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/mail/reset-password").permitAll()
+                        .requestMatchers("/api/user/update-password").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated())
                 .exceptionHandling(exceptions ->

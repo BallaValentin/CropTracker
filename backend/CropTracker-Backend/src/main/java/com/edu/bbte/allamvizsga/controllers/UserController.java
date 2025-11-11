@@ -94,14 +94,14 @@ public class UserController {
 
     @PutMapping("/update-password")
     public void updatePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
-        UUID changePasswordToken = UUID.fromString(changePasswordDTO.getToken());
+        UUID tokenID = UUID.fromString(changePasswordDTO.getToken());
 
         if (!changePasswordDTO.getPassword1().equals(changePasswordDTO.getPassword2())) {
             throw new InvalidSignupException("Passwords do not match");
         }
 
         ResetPasswordToken resetPasswordToken = resetPasswordTokenService
-                .findByUid(changePasswordToken);
+                .findByUid(tokenID);
 
         User tokenUser = resetPasswordToken.getUser();
 
