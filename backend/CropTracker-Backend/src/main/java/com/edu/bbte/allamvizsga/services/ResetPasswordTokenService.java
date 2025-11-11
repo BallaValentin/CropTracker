@@ -1,6 +1,7 @@
 package com.edu.bbte.allamvizsga.services;
 
 import com.edu.bbte.allamvizsga.exceptions.InvalidEntityException;
+import com.edu.bbte.allamvizsga.exceptions.InvalidTokenException;
 import com.edu.bbte.allamvizsga.model.ResetPasswordToken;
 import com.edu.bbte.allamvizsga.repository.ResetPasswordTokenRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -31,11 +32,11 @@ public class ResetPasswordTokenService {
         if (resetPasswordToken.isPresent()) {
             ResetPasswordToken resetPasswordTokenVal = resetPasswordToken.get();
             if (resetPasswordTokenVal.getExpires().isBefore(Instant.now())) {
-                throw new InvalidEntityException("Reset password token has been expired");
+                throw new InvalidTokenException("The reset password token has been expired");
             }
             return resetPasswordToken.get();
         } else {
-            throw new EntityNotFoundException("Reset password token not found");
+            throw new InvalidTokenException("Reset password token not found");
         }
     }
 }

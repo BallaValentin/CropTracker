@@ -1,10 +1,8 @@
 package com.edu.bbte.allamvizsga.security;
 
-import com.edu.bbte.allamvizsga.exceptions.JwtTokenException;
 import com.edu.bbte.allamvizsga.repository.UserRepository;
 import com.edu.bbte.allamvizsga.services.CustomUserDetailsService;
 import com.edu.bbte.allamvizsga.util.JwtUtil;
-import io.jsonwebtoken.Jwt;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

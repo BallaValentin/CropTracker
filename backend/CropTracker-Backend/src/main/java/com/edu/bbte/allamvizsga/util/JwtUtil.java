@@ -1,6 +1,5 @@
 package com.edu.bbte.allamvizsga.util;
 
-import com.edu.bbte.allamvizsga.exceptions.JwtTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;

@@ -1,6 +1,7 @@
 package com.edu.bbte.allamvizsga.exceptions;
 
 import com.edu.bbte.allamvizsga.dto.response.ErrorResponseDTO;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -77,14 +78,27 @@ public class GeneralExceptionHandler {
         return new ErrorResponseDTO(timestamp, statusCode, message, path);
     }
 
-    @ExceptionHandler(JwtTokenException.class)
+    @ExceptionHandler(InvalidTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
-    public ErrorResponseDTO handleJwtTokenException(
+    public ErrorResponseDTO handleInvalidTokenException(
             RuntimeException exception, HttpServletRequest request
     ) {
         LocalDateTime timestamp = LocalDateTime.now();
-        Integer statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        Integer statusCode = HttpStatus.UNAUTHORIZED.value();
+        String message = exception.getMessage();
+        String path = request.getRequestURI();
+        return new ErrorResponseDTO(timestamp, statusCode, message, path);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ErrorResponseDTO handleEntityNotFoundException(
+            RuntimeException exception, HttpServletRequest request
+    ) {
+        LocalDateTime timestamp = LocalDateTime.now();
+        Integer statusCode = HttpStatus.NOT_FOUND.value();
         String message = exception.getMessage();
         String path = request.getRequestURI();
         return new ErrorResponseDTO(timestamp, statusCode, message, path);

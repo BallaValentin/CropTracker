@@ -6,6 +6,7 @@ import com.edu.bbte.allamvizsga.model.Role;
 import com.edu.bbte.allamvizsga.model.User;
 import com.edu.bbte.allamvizsga.repository.RoleRepository;
 import com.edu.bbte.allamvizsga.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,15 +72,21 @@ public class UserService {
     }
 
     public User findUserById(UUID uid) {
-        return userRepository.findByUid(uid);
-    }
-
-    public User findUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+        User user = userRepository.findByUid(uid);
+        if (user == null) {
+            throw new EntityNotFoundException("Couldn't find user");
+        } else {
+            return user;
+        }
     }
 
     public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new EntityNotFoundException("Couldn't find user with email: " + email);
+        } else {
+            return user;
+        }
     }
 
     public User authenticate(User user) {
