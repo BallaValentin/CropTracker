@@ -1,8 +1,9 @@
 export interface AdminUser {
-    id: number
+    id: string
     username: string
     firstName: string
     lastName: string
     email: string
     roles: string[]
+    avatarSrc: string
 }

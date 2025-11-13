@@ -18,3 +18,15 @@ export const getUsers = async (): Promise<AdminUser[]> => {
 
     return response.data
 }
+
+export const getAvatar = async(userID: string): Promise<Blob> => {
+    console.log('Sending get avatar request to server');
+    const response = await adminApi.get<Blob>(`/get-user-avatar?${userID}`, {
+        headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+        },
+        responseType: 'blob'
+    })
+
+    return response.data
+}

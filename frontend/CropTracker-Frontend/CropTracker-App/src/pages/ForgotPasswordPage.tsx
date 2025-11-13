@@ -18,7 +18,7 @@ function ForgotPasswordPage() {
       navigate("/signin", {
         state: {
           emailVerificationMessage:
-            "A verification email has been to your address",
+            "A verification email has been sent to your address",
         },
       });
     },

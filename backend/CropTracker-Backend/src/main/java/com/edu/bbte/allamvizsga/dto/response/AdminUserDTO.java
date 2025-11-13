@@ -12,4 +12,5 @@ public class AdminUserDTO {
     private String firstName;
     private String lastName;
     private Collection<String> roles;
+    private String avatarSrc;
 }

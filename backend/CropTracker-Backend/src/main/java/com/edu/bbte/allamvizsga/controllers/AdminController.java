@@ -8,18 +8,21 @@ import com.edu.bbte.allamvizsga.services.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -48,10 +51,36 @@ public class AdminController {
             List<String> roleNames = roles.stream().map(Role::getName)
                     .collect(Collectors.toList());
             adminUserDTO.setRoles(roleNames);
-            adminUserDTOS.add(adminUserDTO);
+
+            UUID userID = user.getUid();
+
+            String avatarUploadDir = "./images/" + userID + "/profile.png";
+            Path avatarPath = Paths.get(avatarUploadDir);
+            try {
+                byte[] avatarImageBytes = Files.readAllBytes(avatarPath);
+                String avatarBase64 = Base64.getEncoder().encodeToString(avatarImageBytes);
+                String fullAvatarBase64 = "data:" + "image/png;base64," + avatarBase64;
+                adminUserDTO.setAvatarSrc(fullAvatarBase64);
+
+                adminUserDTOS.add(adminUserDTO);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         return ResponseEntity.ok().body(adminUserDTOS);
+    }
+
+    @GetMapping("/get-user-avatar")
+    public ResponseEntity<Resource> getUserAvatar(@RequestParam String userID) throws MalformedURLException {
+        String uploadDir = "./images/" + userID + "/profile.png";
+        Path path = Paths.get(uploadDir);
+
+        Resource resource = new UrlResource(path.toUri());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(resource);
     }
 
 }
