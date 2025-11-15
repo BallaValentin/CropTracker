@@ -1,4 +1,4 @@
-import { Avatar, Box, Typography } from "@mui/material";
+import { Avatar, Box, Button, Typography } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import type { GridColDef } from "@mui/x-data-grid";
@@ -44,6 +44,25 @@ function UsersListPage() {
       field: "roles",
       headerName: "Roles",
       width: 200,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 250,
+      renderCell: (params) =>
+        params.row.username !== user?.username && (
+          <Box
+            sx={{
+              display: "flex",
+              height: "100%",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Button color="error">Suspend</Button>
+            <Button color="primary">Edit role</Button>
+          </Box>
+        ),
     },
   ];
 
