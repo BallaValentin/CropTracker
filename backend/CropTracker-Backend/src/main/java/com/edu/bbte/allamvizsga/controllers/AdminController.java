@@ -1,10 +1,12 @@
 package com.edu.bbte.allamvizsga.controllers;
 
+import com.edu.bbte.allamvizsga.dto.request.UserStatusUpdateDTO;
 import com.edu.bbte.allamvizsga.dto.response.AdminUserDTO;
 import com.edu.bbte.allamvizsga.mappers.UserMapper;
 import com.edu.bbte.allamvizsga.model.Role;
 import com.edu.bbte.allamvizsga.model.User;
 import com.edu.bbte.allamvizsga.services.UserService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +83,14 @@ public class AdminController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
                 .body(resource);
+    }
+
+    @PutMapping("/set-status")
+    public void setUserStatus(@Valid @RequestBody UserStatusUpdateDTO userStatusUpdate) {
+        log.info("Updating user status: {}", userStatusUpdate.toString());
+        User user = userService.findUserByUsername(userStatusUpdate.getUsername());
+
+        userService.updateUserStatus(user, userStatusUpdate.getStatus());
     }
 
 }

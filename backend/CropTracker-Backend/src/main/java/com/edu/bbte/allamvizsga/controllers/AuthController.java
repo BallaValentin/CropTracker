@@ -84,6 +84,7 @@ public class AuthController {
         }
 
         User user = userMapper.registerDtoToModel(registerRequest);
+        user.setStatus("ACTIVE");
         userService.createUser(user, registerRequest.getIsFarmer(), registerRequest.getIsDayLaborer());
         userMapper.registerDtoToModel(registerRequest);
     }

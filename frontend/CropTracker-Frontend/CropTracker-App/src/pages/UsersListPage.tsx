@@ -6,9 +6,31 @@ import { useAdminUsers } from "../hooks/UseAdminUsers";
 import UsersTable from "../elements/tables/UsersTable";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainContainer from "../elements/containers/MainContainer";
+import { useState } from "react";
+import UserStatusDialog from "../elements/dialogs/UserStatusDialog";
+import { useMutation } from "@tanstack/react-query";
+import { updateStatus } from "../services/AdminService";
+import type { UserStatusUpdate } from "../interfaces/UserStatusUpdate";
 
 function UsersListPage() {
   const { data: user, isLoading } = useUserProfile();
+  const [statusDialogOpen, setStatusDialogOpen] = useState<boolean>(false);
+
+  const handleClose = () => {
+    setStatusDialogOpen(false);
+  };
+
+  const handleClickOpen = () => {
+    setStatusDialogOpen(true);
+  };
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: updateStatus,
+  });
+
+  const updateUserStatus = (userStatusUpdate: UserStatusUpdate) => {
+    mutate(userStatusUpdate);
+  };
 
   const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 70 },
@@ -59,7 +81,59 @@ function UsersListPage() {
               gap: 1,
             }}
           >
-            <Button color="error">Suspend</Button>
+            {params.row.status === "ACTIVE" ? (
+              <>
+                <Button onClick={handleClickOpen} color="error">
+                  Suspend
+                </Button>
+                <UserStatusDialog
+                  isPending={isPending}
+                  title={"Suspend user"}
+                  contentText={
+                    "Are you sure you want to suspend this user's account?"
+                  }
+                  actionText={"Suspend"}
+                  open={statusDialogOpen}
+                  onClose={handleClose}
+                  userStatusUpdate={{
+                    status: "SUSPENDED",
+                    username: params.row.username,
+                  }}
+                  onAccept={() =>
+                    updateUserStatus({
+                      status: "SUSPENDED",
+                      username: params.row.username,
+                    })
+                  }
+                />
+              </>
+            ) : (
+              <>
+                <Button onClick={handleClickOpen} color="success">
+                  Add Back
+                </Button>
+                <UserStatusDialog
+                  isPending={isPending}
+                  title={"Add back user"}
+                  contentText={
+                    "Are you sure you want to remove suspension from this user's account?"
+                  }
+                  actionText={"Add Back"}
+                  open={statusDialogOpen}
+                  onClose={handleClose}
+                  userStatusUpdate={{
+                    status: "ACTIVE",
+                    username: params.row.username,
+                  }}
+                  onAccept={() =>
+                    updateUserStatus({
+                      status: "ACTIVE",
+                      username: params.row.username,
+                    })
+                  }
+                />
+              </>
+            )}
             <Button color="primary">Edit role</Button>
           </Box>
         ),

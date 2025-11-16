@@ -89,6 +89,15 @@ public class UserService {
         }
     }
 
+    public User findUserByUsername(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new EntityNotFoundException("Couldn't find user with username: " + username);
+        } else {
+            return user;
+        }
+    }
+
     public User authenticate(User user) {
         User user1 = userRepository.findByUsername(user.getUsername());
         if (user1 != null) {
@@ -107,33 +116,27 @@ public class UserService {
     }
 
     public User updateUser(User user, UserUpdateDTO userUpdates) {
-        log.info("Initiating update");
         UUID uid = user.getUid();
         String newUsername = userUpdates.getUsername();
         String newEmail = userUpdates.getEmail();
 
-        log.info("Processed parameters");
-
         if (!newUsername.equals(user.getUsername())) {
-            log.info("Updating username");
             userRepository.updateUsername(newUsername, uid);
-            log.info("Updated username successfully");
         }
 
         if (!newEmail.equals(user.getEmail())) {
-            log.info("Updating email");
             userRepository.updateEmail(newEmail, uid);
-            log.info("Updated email successfully");
         }
 
-        log.info("Returning updated user");
         return userRepository.findByUid(uid);
     }
 
+    public void updateUserStatus(User user, String status) {
+        userRepository.updateStatus(status, user.getUid());
+    }
+
     public void updatePassword(User user, String newPassword) {
-        log.info("Updating password...");
         String encodedPassword = passwordEncoder.encode(newPassword);
         userRepository.updatePassword(encodedPassword, user.getUid());
-        log.info("The password has been updated");
     }
 }

@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { AdminUser } from "../interfaces/AdminUser";
+import type { UserStatusUpdate } from "../interfaces/UserStatusUpdate";
 
 export const adminApi = axios.create({
     baseURL: "http://localhost:8080/api/admin",
@@ -29,4 +30,11 @@ export const getAvatar = async(userID: string): Promise<Blob> => {
     })
 
     return response.data
+}
+
+export const updateStatus = async(userStatusUpdate: UserStatusUpdate): Promise<void> => {
+    console.log("Sending user update status request to server");
+    await adminApi.put('/set-status', userStatusUpdate, {headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
+        }})
 }

@@ -10,5 +10,6 @@ public class UserDataDTO {
     private String firstName;
     private String lastName;
     private String email;
+    private String status;
     private Collection<RoleDTO> roles;
 }
