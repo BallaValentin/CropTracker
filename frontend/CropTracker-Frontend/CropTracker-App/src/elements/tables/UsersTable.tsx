@@ -25,6 +25,7 @@ function UsersTable({ columns, rows, isLoading }: UsersTableProps) {
         <DataGrid
           columns={columns}
           rows={rows}
+          loading={isLoading}
           initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[5, 10, 15, 20]}
           checkboxSelection

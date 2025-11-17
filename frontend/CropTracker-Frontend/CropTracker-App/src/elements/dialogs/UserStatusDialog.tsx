@@ -7,7 +7,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import type { UserStatusUpdate } from "../../interfaces/UserStatusUpdate";
+import type { AdminUser } from "../../interfaces/AdminUser";
 
 interface UserStatusDialogProps {
   isPending: boolean;
@@ -16,20 +16,24 @@ interface UserStatusDialogProps {
   actionText: string;
   open: boolean;
   onClose: () => void;
-  userStatusUpdate: UserStatusUpdate;
-  onAccept: (userStatusUpdate: UserStatusUpdate) => void;
+  user: AdminUser | null;
+  onAccept: (user: AdminUser) => void;
 }
 
 function UserStatusDialog({
-  userStatusUpdate,
   isPending,
   title,
   contentText,
   actionText,
   open,
   onClose,
+  user,
   onAccept,
 }: UserStatusDialogProps) {
+  if (user === null) {
+    return null;
+  }
+
   return (
     <>
       <Box>
@@ -43,10 +47,7 @@ function UserStatusDialog({
             <DialogContentText>{contentText}</DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button
-              disabled={isPending}
-              onClick={() => onAccept(userStatusUpdate)}
-            >
+            <Button disabled={isPending} onClick={() => onAccept(user)}>
               {actionText}
             </Button>
             <Button disabled={isPending} onClick={onClose}>

@@ -6,30 +6,69 @@ import { useAdminUsers } from "../hooks/UseAdminUsers";
 import UsersTable from "../elements/tables/UsersTable";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainContainer from "../elements/containers/MainContainer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserStatusDialog from "../elements/dialogs/UserStatusDialog";
 import { useMutation } from "@tanstack/react-query";
 import { updateStatus } from "../services/AdminService";
-import type { UserStatusUpdate } from "../interfaces/UserStatusUpdate";
+import type { AdminUser } from "../interfaces/AdminUser";
 
 function UsersListPage() {
   const { data: user, isLoading } = useUserProfile();
+  const { data: adminUsers, isLoading: isLoadingUsers } = useAdminUsers();
   const [statusDialogOpen, setStatusDialogOpen] = useState<boolean>(false);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+
+  const [dialogUser, setDialogUser] = useState<AdminUser | null>(null);
+  const [userStatus, setUserStatus] = useState<string>("ACTIVE");
+
+  useEffect(() => {
+    setUsers(adminUsers ?? []);
+  }, [adminUsers]);
 
   const handleClose = () => {
     setStatusDialogOpen(false);
-  };
-
-  const handleClickOpen = () => {
-    setStatusDialogOpen(true);
   };
 
   const { mutate, isPending } = useMutation({
     mutationFn: updateStatus,
   });
 
-  const updateUserStatus = (userStatusUpdate: UserStatusUpdate) => {
-    mutate(userStatusUpdate);
+  const updateUserStatus = (selectedUser: AdminUser, userStatus: string) => {
+    console.log(JSON.stringify(user));
+
+    mutate({ username: selectedUser.username, status: userStatus });
+
+    if (userStatus === "ACTIVE") {
+      setUsers((prev) =>
+        prev?.map((user) =>
+          user.username === selectedUser.username
+            ? { ...user, status: "ACTIVE" }
+            : user
+        )
+      );
+    } else {
+      setUsers((prev) =>
+        prev?.map((user) =>
+          user.username === selectedUser.username
+            ? { ...user, status: "SUSPENDED" }
+            : user
+        )
+      );
+    }
+  };
+
+  const suspendUser = (selectedUser: AdminUser) => {
+    updateUserStatus(selectedUser, "SUSPENDED");
+  };
+
+  const addBackUser = (selectedUser: AdminUser) => {
+    updateUserStatus(selectedUser, "ACTIVE");
+  };
+
+  const openDialog = (selectedUser: AdminUser, newStatus: string) => {
+    setStatusDialogOpen(true);
+    setDialogUser(selectedUser);
+    setUserStatus(newStatus);
   };
 
   const columns: GridColDef[] = [
@@ -83,55 +122,21 @@ function UsersListPage() {
           >
             {params.row.status === "ACTIVE" ? (
               <>
-                <Button onClick={handleClickOpen} color="error">
+                <Button
+                  onClick={() => openDialog(params.row, "SUSPENDED")}
+                  color="error"
+                >
                   Suspend
                 </Button>
-                <UserStatusDialog
-                  isPending={isPending}
-                  title={"Suspend user"}
-                  contentText={
-                    "Are you sure you want to suspend this user's account?"
-                  }
-                  actionText={"Suspend"}
-                  open={statusDialogOpen}
-                  onClose={handleClose}
-                  userStatusUpdate={{
-                    status: "SUSPENDED",
-                    username: params.row.username,
-                  }}
-                  onAccept={() =>
-                    updateUserStatus({
-                      status: "SUSPENDED",
-                      username: params.row.username,
-                    })
-                  }
-                />
               </>
             ) : (
               <>
-                <Button onClick={handleClickOpen} color="success">
+                <Button
+                  onClick={() => openDialog(params.row, "ACTIVE")}
+                  color="success"
+                >
                   Add Back
                 </Button>
-                <UserStatusDialog
-                  isPending={isPending}
-                  title={"Add back user"}
-                  contentText={
-                    "Are you sure you want to remove suspension from this user's account?"
-                  }
-                  actionText={"Add Back"}
-                  open={statusDialogOpen}
-                  onClose={handleClose}
-                  userStatusUpdate={{
-                    status: "ACTIVE",
-                    username: params.row.username,
-                  }}
-                  onAccept={() =>
-                    updateUserStatus({
-                      status: "ACTIVE",
-                      username: params.row.username,
-                    })
-                  }
-                />
               </>
             )}
             <Button color="primary">Edit role</Button>
@@ -139,8 +144,6 @@ function UsersListPage() {
         ),
     },
   ];
-
-  const { data: adminUsers, isLoading: isLoadingUsers } = useAdminUsers();
 
   if (isLoading) {
     return <ProgressCircle />;
@@ -152,8 +155,22 @@ function UsersListPage() {
       <MainContainer hasDrawer={true}>
         <UsersTable
           columns={columns}
-          rows={adminUsers || []}
+          rows={users || []}
           isLoading={isLoadingUsers}
+        />
+        <UserStatusDialog
+          isPending={isPending}
+          title={userStatus === "ACTIVE" ? "Add back user" : "Suspend user"}
+          contentText={
+            userStatus === "ACTIVE"
+              ? "Are you sure you want to add back this user?"
+              : "Are you sure you want to suspend this user's account?"
+          }
+          actionText={userStatus === "ACTIVE" ? "Add Back" : "Suspend"}
+          open={statusDialogOpen}
+          onClose={handleClose}
+          user={dialogUser}
+          onAccept={userStatus === "ACTIVE" ? addBackUser : suspendUser}
         />
       </MainContainer>
     </Box>
