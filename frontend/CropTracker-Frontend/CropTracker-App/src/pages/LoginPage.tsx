@@ -17,7 +17,7 @@ function LoginPage() {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const { passwordUpdatedMessage, emailVerificationMessage } =
+    const { passwordUpdatedMessage, emailVerificationMessage, signUpMessage } =
       location.state || {};
     if (passwordUpdatedMessage) {
       setFeedbackMessage(passwordUpdatedMessage);
@@ -26,6 +26,11 @@ function LoginPage() {
     }
     if (emailVerificationMessage) {
       setFeedbackMessage(emailVerificationMessage);
+      const timer = setTimeout(() => setFeedbackMessage(null), 7000);
+      return () => clearTimeout(timer);
+    }
+    if (signUpMessage) {
+      setFeedbackMessage(signUpMessage);
       const timer = setTimeout(() => setFeedbackMessage(null), 7000);
       return () => clearTimeout(timer);
     }

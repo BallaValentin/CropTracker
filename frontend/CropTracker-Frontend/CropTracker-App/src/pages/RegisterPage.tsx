@@ -11,7 +11,11 @@ function RegisterPage() {
   const { mutate, isPending } = useMutation({
     mutationFn: registerUser,
     onSuccess: () => {
-      navigate("/signin");
+      navigate("/signin", {
+        state: {
+          signUpMessage: "Your account has been successfully created.",
+        },
+      });
     },
     onError: (err: AxiosError) => {
       console.log(err.message);
