@@ -1,4 +1,4 @@
 export interface UserStatusUpdate {
-    status: string,
+    isActive: boolean
     username: string
 }

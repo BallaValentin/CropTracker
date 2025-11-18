@@ -4,6 +4,7 @@ import com.edu.bbte.allamvizsga.dto.request.RegisterRequestDTO;
 import com.edu.bbte.allamvizsga.dto.response.LoginResponseDTO;
 import com.edu.bbte.allamvizsga.dto.response.RefreshTokenResponseDTO;
 import com.edu.bbte.allamvizsga.exceptions.RefreshTokenException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import com.edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import com.edu.bbte.allamvizsga.mappers.UserMapper;
@@ -23,13 +24,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
 import java.util.UUID;
 
 @RestController
@@ -44,7 +41,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    @PostMapping("/authenticate")
+    @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> authenticate(
             @Valid @RequestBody LoginRequestDTO loginRequest,
             HttpServletResponse response) {
@@ -84,7 +81,7 @@ public class AuthController {
         }
 
         User user = userMapper.registerDtoToModel(registerRequest);
-        user.setStatus("ACTIVE");
+        user.setIsActive(Boolean.TRUE);
         userService.createUser(user, registerRequest.getIsFarmer(), registerRequest.getIsDayLaborer());
         userMapper.registerDtoToModel(registerRequest);
     }

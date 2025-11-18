@@ -6,4 +6,5 @@ export interface AdminUser {
     email: string
     roles: string[]
     avatarSrc: string
+    isActive: boolean
 }

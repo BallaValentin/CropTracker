@@ -29,6 +29,6 @@ public interface UserRepository extends JpaRepository<User, UID> {
     void updatePassword(String password, UUID userID);
     @Transactional
     @Modifying
-    @Query("update User u set u.status = :status where u.uid = :userID")
-    void updateStatus(String status, UUID userID);
+    @Query("update User u set u.isActive = :isActive where u.uid = :userID")
+    void updateStatus(Boolean isActive, UUID userID);
 }

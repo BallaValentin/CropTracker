@@ -32,5 +32,5 @@ public class User extends BaseEntity{
     private String lastName;
 
     @Column(nullable = false)
-    private String status;
+    private Boolean isActive;
 }

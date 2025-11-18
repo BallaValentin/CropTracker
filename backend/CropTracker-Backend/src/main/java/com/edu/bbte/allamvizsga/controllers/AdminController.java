@@ -90,7 +90,7 @@ public class AdminController {
         log.info("Updating user status: {}", userStatusUpdate.toString());
         User user = userService.findUserByUsername(userStatusUpdate.getUsername());
 
-        userService.updateUserStatus(user, userStatusUpdate.getStatus());
+        userService.updateUserStatus(user, userStatusUpdate.getIsActive());
     }
 
 }

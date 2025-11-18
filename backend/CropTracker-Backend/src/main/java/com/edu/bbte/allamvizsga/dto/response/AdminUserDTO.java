@@ -13,5 +13,5 @@ public class AdminUserDTO {
     private String lastName;
     private Collection<String> roles;
     private String avatarSrc;
-    private String status;
+    private Boolean isActive;
 }

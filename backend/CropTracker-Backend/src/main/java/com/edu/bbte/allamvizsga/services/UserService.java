@@ -131,8 +131,8 @@ public class UserService {
         return userRepository.findByUid(uid);
     }
 
-    public void updateUserStatus(User user, String status) {
-        userRepository.updateStatus(status, user.getUid());
+    public void updateUserStatus(User user, Boolean isActive) {
+        userRepository.updateStatus(isActive, user.getUid());
     }
 
     public void updatePassword(User user, String newPassword) {

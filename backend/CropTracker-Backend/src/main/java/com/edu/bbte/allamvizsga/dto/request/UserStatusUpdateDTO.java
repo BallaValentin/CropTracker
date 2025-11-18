@@ -12,7 +12,5 @@ public class UserStatusUpdateDTO {
     private String username;
 
     @NotNull(message = "Status cannot be null")
-    @NotBlank(message = "Status cannot be blank")
-    @Pattern(regexp = "ACTIVE|SUSPENDED", message = "Invalid user status")
-    private String status;
+    private Boolean isActive;
 }

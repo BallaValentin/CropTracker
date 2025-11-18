@@ -6,8 +6,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -65,14 +68,14 @@ public class GeneralExceptionHandler {
         return new ErrorResponseDTO(timestamp, statusCode, message, path);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(LockedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
     public ErrorResponseDTO handleRefreshTokenException(
-            RuntimeException exception, HttpServletRequest request
+            LockedException exception, HttpServletRequest request
     ) {
         LocalDateTime timestamp = LocalDateTime.now();
-        Integer statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        Integer statusCode = HttpStatus.FORBIDDEN.value();
         String message = exception.getMessage();
         String path = request.getRequestURI();
         return new ErrorResponseDTO(timestamp, statusCode, message, path);
@@ -82,7 +85,7 @@ public class GeneralExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
     public ErrorResponseDTO handleInvalidTokenException(
-            RuntimeException exception, HttpServletRequest request
+            InvalidTokenException exception, HttpServletRequest request
     ) {
         LocalDateTime timestamp = LocalDateTime.now();
         Integer statusCode = HttpStatus.UNAUTHORIZED.value();
@@ -95,7 +98,7 @@ public class GeneralExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public ErrorResponseDTO handleEntityNotFoundException(
-            RuntimeException exception, HttpServletRequest request
+            EntityNotFoundException exception, HttpServletRequest request
     ) {
         LocalDateTime timestamp = LocalDateTime.now();
         Integer statusCode = HttpStatus.NOT_FOUND.value();

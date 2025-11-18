@@ -55,26 +55,26 @@ function UsersListPage() {
     },
   });
 
-  const updateUserStatus = (selectedUser: AdminUser, userStatus: string) => {
+  const updateUserStatus = (selectedUser: AdminUser, userStatus: boolean) => {
     console.log(JSON.stringify(user));
 
-    mutate({ username: selectedUser.username, status: userStatus });
+    mutate({ username: selectedUser.username, isActive: userStatus });
 
     setUsers((prev) =>
       prev?.map((user) =>
         user.username === selectedUser.username
-          ? { ...user, status: isActive ? "ACTIVE" : "SUSPENDED" }
+          ? { ...user, isActive: isActive }
           : user
       )
     );
   };
 
   const suspendUser = (selectedUser: AdminUser) => {
-    updateUserStatus(selectedUser, "SUSPENDED");
+    updateUserStatus(selectedUser, false);
   };
 
   const addBackUser = (selectedUser: AdminUser) => {
-    updateUserStatus(selectedUser, "ACTIVE");
+    updateUserStatus(selectedUser, true);
   };
 
   const openDialog = (selectedUser: AdminUser, newStatus: boolean) => {
@@ -132,25 +132,16 @@ function UsersListPage() {
               gap: 1,
             }}
           >
-            {params.row.status === "ACTIVE" ? (
+            {
               <>
                 <Button
-                  onClick={() => openDialog(params.row, false)}
-                  color="error"
+                  onClick={() => openDialog(params.row, !params.row.isActive)}
+                  color={params.row.isActive ? "error" : "success"}
                 >
-                  Suspend
+                  {params.row.isActive ? "Suspend" : "Add Back"}
                 </Button>
               </>
-            ) : (
-              <>
-                <Button
-                  onClick={() => openDialog(params.row, true)}
-                  color="success"
-                >
-                  Add Back
-                </Button>
-              </>
-            )}
+            }
             <Button color="primary">Edit role</Button>
           </Box>
         ),
