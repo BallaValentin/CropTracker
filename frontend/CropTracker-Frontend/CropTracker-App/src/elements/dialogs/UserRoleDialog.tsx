@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { AdminUser } from "../../interfaces/response/AdminUser";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface UserRoleDialogProps {
   user: AdminUser | null;
@@ -30,12 +30,18 @@ function UserRoleDialog({
 }: UserRoleDialogProps) {
   const allRoles = ["Admin", "Farmer", "Day laborer"];
   const roleNames = ["ADMIN", "FARMER", "DAY_LABORER"];
-  const userRoles = user?.roles || [];
+  const userRoles = useMemo(() => user?.roles || [], [user?.roles]);
 
   const [choosenRoles, setChoosenRoles] = useState<string[]>(userRoles);
   const [error, setError] = useState<string | null>(null);
 
+  console.log(choosenRoles);
+
   const zip = (a: string[], b: string[]) => a.map((value, i) => [value, b[i]]);
+
+  useEffect(() => {
+    setChoosenRoles(userRoles);
+  }, [userRoles]);
 
   const handleCheck = (
     event: React.ChangeEvent<HTMLInputElement>,
