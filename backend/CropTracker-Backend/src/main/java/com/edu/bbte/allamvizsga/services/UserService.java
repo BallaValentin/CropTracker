@@ -132,7 +132,13 @@ public class UserService {
     }
 
     public void updateUserStatus(User user, Boolean isActive) {
-        userRepository.updateStatus(isActive, user.getUid());
+        user.setIsActive(isActive);
+        userRepository.save(user);
+    }
+
+    public void updateUserRoles(User user, Collection<Role> roles) {
+        user.setRoles(roles);
+        userRepository.save(user);
     }
 
     public void updatePassword(User user, String newPassword) {

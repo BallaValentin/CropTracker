@@ -7,7 +7,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import type { AdminUser } from "../../interfaces/AdminUser";
+import type { AdminUser } from "../../interfaces/response/AdminUser";
 
 interface UserStatusDialogProps {
   isPending: boolean;

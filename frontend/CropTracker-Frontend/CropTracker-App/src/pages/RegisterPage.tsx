@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "../services/AuthService";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
-import type { RegisterData } from "../interfaces/RegisterData";
+import type { RegisterData } from "../interfaces/request/RegisterData";
 
 function RegisterPage() {
   const navigate = useNavigate();

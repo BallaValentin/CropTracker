@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import type { UserData } from "../../interfaces/UserData";
 import { useState } from "react";
-import { type UserUpdates } from "../../interfaces/UserUpdates";
+import { type UserUpdates } from "../../interfaces/request/UserUpdates";
 
 interface EditUserFormProps {
   onSubmit: (userUpdates: UserUpdates) => void;

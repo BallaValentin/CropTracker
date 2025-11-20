@@ -8,7 +8,7 @@ import {
   Button,
   Link,
 } from "@mui/material";
-import type { LoginData } from "../../interfaces/LoginData";
+import type { LoginData } from "../../interfaces/request/LoginData";
 import { useState } from "react";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 

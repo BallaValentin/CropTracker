@@ -1,10 +1,13 @@
 package com.edu.bbte.allamvizsga.controllers;
 
+import com.edu.bbte.allamvizsga.dto.request.UserRoleUpdatesDTO;
 import com.edu.bbte.allamvizsga.dto.request.UserStatusUpdateDTO;
 import com.edu.bbte.allamvizsga.dto.response.AdminUserDTO;
+import com.edu.bbte.allamvizsga.exceptions.InvalidRoleException;
 import com.edu.bbte.allamvizsga.mappers.UserMapper;
 import com.edu.bbte.allamvizsga.model.Role;
 import com.edu.bbte.allamvizsga.model.User;
+import com.edu.bbte.allamvizsga.repository.RoleRepository;
 import com.edu.bbte.allamvizsga.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.relation.InvalidRoleInfoException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -37,6 +41,7 @@ import java.util.stream.Collectors;
 public class AdminController {
     private final UserService userService;
     private final UserMapper userMapper;
+    private final RoleRepository roleRepository;
 
     @GetMapping("/get-users")
     public ResponseEntity<Collection<AdminUserDTO>> getAllUsers() {
@@ -87,10 +92,22 @@ public class AdminController {
 
     @PutMapping("/set-status")
     public void setUserStatus(@Valid @RequestBody UserStatusUpdateDTO userStatusUpdate) {
-        log.info("Updating user status: {}", userStatusUpdate.toString());
         User user = userService.findUserByUsername(userStatusUpdate.getUsername());
 
         userService.updateUserStatus(user, userStatusUpdate.getIsActive());
+    }
+
+    @PutMapping("/set-roles")
+    public void setUserRoles(@Valid @RequestBody UserRoleUpdatesDTO userRoleUpdate) {
+        User user = userService.findUserByUsername(userRoleUpdate.getUsername());
+
+        Collection<Role> newRoles = userRoleUpdate.getRoles().stream()
+                .map(roleName -> roleRepository.findByName(roleName)
+                        .orElseThrow(() -> new InvalidRoleException("Invalid user role: " + roleName))
+                )
+                .collect(Collectors.toList());
+
+        userService.updateUserRoles(user, newRoles);
     }
 
 }

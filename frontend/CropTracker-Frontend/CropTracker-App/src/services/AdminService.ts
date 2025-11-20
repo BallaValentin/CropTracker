@@ -1,6 +1,7 @@
 import axios from "axios";
-import type { AdminUser } from "../interfaces/AdminUser";
-import type { UserStatusUpdate } from "../interfaces/UserStatusUpdate";
+import type { AdminUser } from "../interfaces/response/AdminUser";
+import type { UserStatusUpdate } from "../interfaces/request/UserStatusUpdate";
+import type { UserRoleUpdates } from "../interfaces/request/UserRoleUpdates";
 
 export const adminApi = axios.create({
     baseURL: "http://localhost:8080/api/admin",
@@ -35,6 +36,13 @@ export const getAvatar = async(userID: string): Promise<Blob> => {
 export const updateStatus = async(userStatusUpdate: UserStatusUpdate): Promise<void> => {
     console.log("Sending user update status request to server");
     await adminApi.put('/set-status', userStatusUpdate, {headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
+        }})
+}
+
+export const updateRoles = async(userRoleUpdates: UserRoleUpdates): Promise<void> => {
+    console.log("Sending user update roles request to server");
+    await adminApi.put('/set-roles', userRoleUpdates, {headers: {
             "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
         }})
 }

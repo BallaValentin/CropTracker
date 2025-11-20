@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "../services/AuthService";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
-import type { LoginData } from "../interfaces/LoginData";
+import type { LoginData } from "../interfaces/request/LoginData";
 import { fetchUserData } from "../services/UserService";
 import { queryClient } from "../query-client/QueryClient";
 import { useEffect, useState } from "react";
@@ -48,7 +48,10 @@ function LoginPage() {
     },
     onError: (err: AxiosError) => {
       if (err.response?.status == 400) {
-        setLoginError("Invalid username or password");
+        setLoginError("Invalid username or password.");
+      }
+      if (err.response?.status == 403) {
+        setLoginError("Failed to log in. Your account has been suspended.");
       }
     },
   });

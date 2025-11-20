@@ -13,7 +13,7 @@ import {
   Checkbox,
   Divider,
 } from "@mui/material";
-import type { RegisterData } from "../../interfaces/RegisterData";
+import type { RegisterData } from "../../interfaces/request/RegisterData";
 import { useState } from "react";
 import type { RegisterError } from "../../interfaces/RegisterError";
 

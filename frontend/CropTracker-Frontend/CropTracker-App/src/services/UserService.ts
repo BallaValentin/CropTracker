@@ -1,8 +1,8 @@
 import axios from "axios";
-import type { AvatarUpdates } from "../interfaces/AvatarUpdates";
+import type { AvatarUpdates } from "../interfaces/request/AvatarUpdates";
 import type { UserData } from "../interfaces/UserData";
-import type { UserUpdates } from "../interfaces/UserUpdates";
-import type { ChangePasswordData } from "../interfaces/ChangePasswordData";
+import type { UserUpdates } from "../interfaces/request/UserUpdates";
+import type { ChangePasswordData } from "../interfaces/request/ChangePasswordData";
 
 export const userApi = axios.create({
     baseURL: "http://localhost:8080/api/user",

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { getUsers } from "../services/AdminService"
 import { useNavigate } from "react-router-dom"
 import type { AxiosError } from "axios";
-import type { AdminUser } from "../interfaces/AdminUser";
+import type { AdminUser } from "../interfaces/response/AdminUser";
 import { getStatusMessage } from "../utils/GetStatusMessage";
 
 export const useAdminUsers = () => {

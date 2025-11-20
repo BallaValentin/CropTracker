@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import type { ChangePasswordData } from "../../interfaces/ChangePasswordData";
+import type { ChangePasswordData } from "../../interfaces/request/ChangePasswordData";
 import PersonIcon from "@mui/icons-material/Person";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";

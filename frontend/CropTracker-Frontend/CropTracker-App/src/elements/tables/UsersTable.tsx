@@ -1,6 +1,6 @@
 import { Box, Paper } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import type { AdminUser } from "../../interfaces/AdminUser";
+import type { AdminUser } from "../../interfaces/response/AdminUser";
 
 interface UsersTableProps {
   columns: GridColDef[];

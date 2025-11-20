@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { PasswordResetMail } from "../interfaces/PasswordResetMail";
+import type { PasswordResetMail } from "../interfaces/request/PasswordResetMail";
 
 export const mailApi = axios.create({
     baseURL: "http://localhost:8080/api/mail",

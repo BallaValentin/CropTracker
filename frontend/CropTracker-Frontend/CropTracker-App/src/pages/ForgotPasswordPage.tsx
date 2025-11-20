@@ -1,6 +1,6 @@
 import { Alert, Box } from "@mui/material";
 import ForgotPasswordForm from "../elements/forms/ForgotPasswordForm";
-import type { PasswordResetMail } from "../interfaces/PasswordResetMail";
+import type { PasswordResetMail } from "../interfaces/request/PasswordResetMail";
 import { useMutation } from "@tanstack/react-query";
 import { sendPasswordResetMail } from "../services/MailService";
 import { useNavigate } from "react-router-dom";

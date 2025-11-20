@@ -16,7 +16,7 @@ import EditUserForm from "../forms/EditUserForm";
 import { useMutation } from "@tanstack/react-query";
 import { updateProfile } from "../../services/UserService";
 import { queryClient } from "../../query-client/QueryClient";
-import type { UserUpdates } from "../../interfaces/UserUpdates";
+import type { UserUpdates } from "../../interfaces/request/UserUpdates";
 import type { AxiosError } from "axios";
 
 interface AccountDialogProps {

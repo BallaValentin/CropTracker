@@ -12,7 +12,7 @@ import { useState } from "react";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import PersonIcon from "@mui/icons-material/Person";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import type { PasswordResetMail } from "../../interfaces/PasswordResetMail";
+import type { PasswordResetMail } from "../../interfaces/request/PasswordResetMail";
 
 interface ForgotPasswordFormProps {
   onEmailSubmit: (verificationEmail: PasswordResetMail) => void;

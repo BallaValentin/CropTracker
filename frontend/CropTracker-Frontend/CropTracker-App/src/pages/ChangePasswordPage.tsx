@@ -1,6 +1,6 @@
 import { Alert, Box } from "@mui/material";
 import ChangePasswordForm from "../elements/forms/ChangePasswordForm";
-import type { ChangePasswordData } from "../interfaces/ChangePasswordData";
+import type { ChangePasswordData } from "../interfaces/request/ChangePasswordData";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { updatePassword } from "../services/UserService";

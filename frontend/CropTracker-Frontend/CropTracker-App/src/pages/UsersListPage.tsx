@@ -9,16 +9,18 @@ import MainContainer from "../elements/containers/MainContainer";
 import { useEffect, useState } from "react";
 import UserStatusDialog from "../elements/dialogs/UserStatusDialog";
 import { useMutation } from "@tanstack/react-query";
-import { updateStatus } from "../services/AdminService";
-import type { AdminUser } from "../interfaces/AdminUser";
+import { updateRoles, updateStatus } from "../services/AdminService";
+import type { AdminUser } from "../interfaces/response/AdminUser";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckIcon from "@mui/icons-material/Check";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
+import UserRoleDialog from "../elements/dialogs/UserRoleDialog";
 
 function UsersListPage() {
   const { data: user, isLoading } = useUserProfile();
   const { data: adminUsers, isLoading: isLoadingUsers } = useAdminUsers();
   const [statusDialogOpen, setStatusDialogOpen] = useState<boolean>(false);
+  const [rolesDialogOpen, setRolesDialogOpen] = useState<boolean>(false);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [dialogUser, setDialogUser] = useState<AdminUser | null>(null);
   const [isActive, setIsActive] = useState<boolean>(true);
@@ -29,11 +31,7 @@ function UsersListPage() {
     setUsers(adminUsers ?? []);
   }, [adminUsers]);
 
-  const handleClose = () => {
-    setStatusDialogOpen(false);
-  };
-
-  const { mutate, isPending } = useMutation({
+  const { mutate: mutateStatus, isPending: isStatusPending } = useMutation({
     mutationFn: updateStatus,
     onError: () => {
       if (isActive) {
@@ -56,9 +54,7 @@ function UsersListPage() {
   });
 
   const updateUserStatus = (selectedUser: AdminUser, userStatus: boolean) => {
-    console.log(JSON.stringify(user));
-
-    mutate({ username: selectedUser.username, isActive: userStatus });
+    mutateStatus({ username: selectedUser.username, isActive: userStatus });
 
     setUsers((prev) =>
       prev?.map((user) =>
@@ -69,6 +65,40 @@ function UsersListPage() {
     );
   };
 
+  const { mutate: mutateRoles, isPending: isRolesPending } = useMutation({
+    mutationFn: updateRoles,
+    onError: () => {
+      setError("Failed to update user roles");
+      setRolesDialogOpen(false);
+      setTimeout(() => setError(null), 7000);
+    },
+    onSuccess: () => {
+      setSuccess("User roles have been successfully updated");
+      setRolesDialogOpen(false);
+      setTimeout(() => setSuccess(null), 7000);
+    },
+  });
+
+  const updateUserRoles = (
+    selectedUser: AdminUser | null,
+    choosenRoles: string[]
+  ) => {
+    console.log("Updating user roles...");
+    if (selectedUser) {
+      mutateRoles({ username: selectedUser.username, roles: choosenRoles });
+
+      setUsers((prev) =>
+        prev?.map((user) =>
+          user.username === selectedUser.username
+            ? { ...user, roles: choosenRoles }
+            : user
+        )
+      );
+    } else {
+      setError("Selected user is missing");
+    }
+  };
+
   const suspendUser = (selectedUser: AdminUser) => {
     updateUserStatus(selectedUser, false);
   };
@@ -77,10 +107,15 @@ function UsersListPage() {
     updateUserStatus(selectedUser, true);
   };
 
-  const openDialog = (selectedUser: AdminUser, newStatus: boolean) => {
+  const openStatusDialog = (selectedUser: AdminUser, newStatus: boolean) => {
     setStatusDialogOpen(true);
     setDialogUser(selectedUser);
     setIsActive(newStatus);
+  };
+
+  const openRolesDialog = (selectedUser: AdminUser) => {
+    setRolesDialogOpen(true);
+    setDialogUser(selectedUser);
   };
 
   const columns: GridColDef[] = [
@@ -135,14 +170,18 @@ function UsersListPage() {
             {
               <>
                 <Button
-                  onClick={() => openDialog(params.row, !params.row.isActive)}
+                  onClick={() =>
+                    openStatusDialog(params.row, !params.row.isActive)
+                  }
                   color={params.row.isActive ? "error" : "success"}
                 >
                   {params.row.isActive ? "Suspend" : "Add Back"}
                 </Button>
               </>
             }
-            <Button color="primary">Edit role</Button>
+            <Button onClick={() => openRolesDialog(params.row)} color="primary">
+              Edit role
+            </Button>
           </Box>
         ),
     },
@@ -194,7 +233,7 @@ function UsersListPage() {
               isLoading={isLoadingUsers}
             />
             <UserStatusDialog
-              isPending={isPending}
+              isPending={isStatusPending}
               title={isActive ? "Add back user" : "Suspend user"}
               contentText={
                 isActive
@@ -203,9 +242,18 @@ function UsersListPage() {
               }
               actionText={isActive ? "Add Back" : "Suspend"}
               open={statusDialogOpen}
-              onClose={handleClose}
+              onClose={() => setStatusDialogOpen(false)}
               user={dialogUser}
               onAccept={isActive ? addBackUser : suspendUser}
+            />
+            <UserRoleDialog
+              user={dialogUser}
+              open={rolesDialogOpen}
+              isPending={isRolesPending}
+              onClose={() => setRolesDialogOpen(false)}
+              onAccept={(user, choosenRoles) =>
+                updateUserRoles(user, choosenRoles)
+              }
             />
           </ColumnCenterContainer>
         </Box>

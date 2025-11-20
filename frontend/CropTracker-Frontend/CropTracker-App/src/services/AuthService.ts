@@ -1,8 +1,8 @@
 import axios from "axios";
-import type { LoginData } from "../interfaces/LoginData";
-import type { LoginResponse } from "../interfaces/LoginResponse";
-import type { RegisterData } from "../interfaces/RegisterData";
-import type { RefreshTokenResponse } from "../interfaces/RefreshTokenResponse";
+import type { LoginData } from "../interfaces/request/LoginData";
+import type { LoginResponse } from "../interfaces/request/LoginResponse";
+import type { RegisterData } from "../interfaces/request/RegisterData";
+import type { RefreshTokenResponse } from "../interfaces/response/RefreshTokenResponse";
 
 export const authApi = axios.create({
     baseURL: "http://localhost:8080/api/auth",
