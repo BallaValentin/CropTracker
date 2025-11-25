@@ -5,6 +5,6 @@ export interface RegisterData {
     password: string,
     password2: string,
     email: string,
-    isFarmer: boolean,
-    isDayLaborer: boolean
+    isGrower: boolean,
+    isWorker: boolean
 }

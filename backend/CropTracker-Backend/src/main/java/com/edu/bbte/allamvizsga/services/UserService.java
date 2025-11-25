@@ -30,7 +30,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
 
-    public void createUser(User user, Boolean isFarmer, Boolean isDayLaborer) throws IOException {
+    public void createUser(User user, Boolean isGrower, Boolean isWorker) throws IOException {
 
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new InvalidSignupException("User with username " + user.getUsername() + " already exists");
@@ -40,23 +40,23 @@ public class UserService {
             throw new InvalidSignupException("User with email " + user.getEmail() + " already exists");
         }
 
-        if (!isFarmer && !isDayLaborer) {
+        if (!isGrower && !isWorker) {
             throw new InvalidSignupException("One of the roles must be chosen");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(new ArrayList<>());
 
-        if (isFarmer) {
-            Optional<Role> farmerRole = roleRepository.findByName("FARMER");
+        if (isGrower) {
+            Optional<Role> farmerRole = roleRepository.findByName("GROWER");
             if (farmerRole.isEmpty()) {
                 throw new RuntimeException("Role not found");
             }
             user.getRoles().add(farmerRole.get());
         }
 
-        if (isDayLaborer) {
-            Optional<Role> dayLaborerRole = roleRepository.findByName("DAY_LABORER");
+        if (isWorker) {
+            Optional<Role> dayLaborerRole = roleRepository.findByName("WORKER");
             if (dayLaborerRole.isEmpty()) {
                 throw new RuntimeException("Role not found");
             }

@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import type { RegisterData } from "../../interfaces/request/RegisterData";
 import { useState } from "react";
-import type { RegisterError } from "../../interfaces/RegisterError";
+import type { RegisterError } from "../../interfaces/response/RegisterError";
 
 interface RegisterFormProps {
   onSubmit: (registerData: RegisterData) => void;
@@ -30,8 +30,8 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     email: "",
     password: "",
     password2: "",
-    isFarmer: true,
-    isDayLaborer: false,
+    isGrower: true,
+    isWorker: false,
   });
 
   const [registerError, setRegisterError] = useState<RegisterError>({
@@ -90,7 +90,7 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
       isValid = false;
     }
 
-    if (!registerData.isDayLaborer && !registerData.isFarmer) {
+    if (!registerData.isWorker && !registerData.isGrower) {
       setRegisterError((prev) => ({ ...prev, roleError: true }));
       isValid = false;
     }
@@ -105,14 +105,14 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     }
   };
 
-  const toggleFarmer = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRegisterData((prev) => ({ ...prev, isFarmer: event.target.checked }));
+  const toggleGrower = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRegisterData((prev) => ({ ...prev, isGrower: event.target.checked }));
   };
 
-  const toggleDayLaborer = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const toggleWorker = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRegisterData((prev) => ({
       ...prev,
-      isDayLaborer: event.target.checked,
+      isWorker: event.target.checked,
     }));
   };
 
@@ -263,20 +263,20 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={registerData.isFarmer}
-                        onChange={toggleFarmer}
+                        checked={registerData.isGrower}
+                        onChange={toggleGrower}
                       />
                     }
-                    label="Farmer"
+                    label="Grower"
                   />
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={registerData.isDayLaborer}
-                        onChange={toggleDayLaborer}
+                        checked={registerData.isWorker}
+                        onChange={toggleWorker}
                       />
                     }
-                    label="Day laborer"
+                    label="Worker"
                   />
                 </FormGroup>
                 {registerError.roleError && (

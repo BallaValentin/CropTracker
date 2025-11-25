@@ -29,7 +29,7 @@ function UserRoleDialog({
   isPending,
 }: UserRoleDialogProps) {
   const allRoles = ["Admin", "Farmer", "Day laborer"];
-  const roleNames = ["ADMIN", "FARMER", "DAY_LABORER"];
+  const roleNames = ["ADMIN", "GROWER", "WORKER"];
   const userRoles = useMemo(() => user?.roles || [], [user?.roles]);
 
   const [choosenRoles, setChoosenRoles] = useState<string[]>(userRoles);

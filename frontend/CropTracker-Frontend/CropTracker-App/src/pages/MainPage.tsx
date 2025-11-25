@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, GlobalStyles, Typography } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import ProgressCircle from "../elements/progress/ProgressCircle";
@@ -18,14 +18,17 @@ function MainPage() {
   }
 
   return (
-    <Box>
-      <MainHeader userData={user} authenticated={authenticated} />
-      <MainContainer hasDrawer={authenticated}>
-        <ColumnCenterContainer>
-          <Typography variant="h2">Welcome to Crop Tracker!</Typography>
-        </ColumnCenterContainer>
-      </MainContainer>
-    </Box>
+    <>
+      <GlobalStyles styles={{ body: { margin: 0 } }} />
+      <Box sx={{ bgcolor: "#d0edc5ff" }}>
+        <MainHeader userData={user} authenticated={authenticated} />
+        <MainContainer hasDrawer={authenticated}>
+          <ColumnCenterContainer>
+            <Typography variant="h2">Welcome to Crop Tracker!</Typography>
+          </ColumnCenterContainer>
+        </MainContainer>
+      </Box>
+    </>
   );
 }
 

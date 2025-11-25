@@ -36,6 +36,6 @@ public class RegisterRequestDTO {
             message = "Invalid email pattern")
     private String email;
 
-    private Boolean isFarmer;
-    private Boolean isDayLaborer;
+    private Boolean isGrower;
+    private Boolean isWorker;
 }

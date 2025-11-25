@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  CircularProgress,
   FormControl,
   Grid,
   TextField,
@@ -68,14 +67,7 @@ function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
               type="submit"
               sx={{ mt: 2 }}
             >
-              {isUpdating ? (
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <CircularProgress />
-                  Updating Profile
-                </Box>
-              ) : (
-                "Save Changes"
-              )}
+              {isUpdating ? "Updating profile..." : "Update profile"}
             </Button>
           </FormControl>
         </form>

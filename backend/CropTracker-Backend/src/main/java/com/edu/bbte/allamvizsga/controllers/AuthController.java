@@ -82,7 +82,7 @@ public class AuthController {
 
         User user = userMapper.registerDtoToModel(registerRequest);
         user.setIsActive(Boolean.TRUE);
-        userService.createUser(user, registerRequest.getIsFarmer(), registerRequest.getIsDayLaborer());
+        userService.createUser(user, registerRequest.getIsGrower(), registerRequest.getIsWorker());
         userMapper.registerDtoToModel(registerRequest);
     }
 
