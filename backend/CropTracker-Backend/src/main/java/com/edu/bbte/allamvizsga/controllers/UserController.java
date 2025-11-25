@@ -38,23 +38,17 @@ public class UserController {
     private final UserMapper userMapper;
     private final ResetPasswordTokenService resetPasswordTokenService;
 
-    protected User extractUser(String authorizationHeader) {
-        String accessToken = authorizationHeader.substring(7);
-        UUID uid = jwtUtil.getUid(accessToken);
-        return userService.findUserById(uid);
-    }
-
     @PutMapping("/change-avatar")
     public void changeAvatar(@Valid @RequestBody AvatarUpdatesDTO avatarUpdates,
                              @RequestHeader("Authorization") String authorizationHeader) throws IOException {
-        User user = extractUser(authorizationHeader);
+        User user = userService.extractUser(authorizationHeader);
         userService.changeAvatar(user, avatarUpdates.getNewAvatarSrc());
     }
 
     @GetMapping("/fetch-user-data")
     public ResponseEntity<UserDataDTO> fetchUserData(
             @RequestHeader("Authorization") String authorizationHeader) throws IOException {
-        User user = extractUser(authorizationHeader);
+        User user = userService.extractUser(authorizationHeader);
         UserDataDTO userData = userMapper.modelToUserData(user);
 
         return ResponseEntity.ok(userData);
@@ -64,7 +58,7 @@ public class UserController {
     public ResponseEntity<Resource> getAvatar(
             @RequestHeader("Authorization") String authorizationHeader) throws MalformedURLException {
 
-        User user = extractUser(authorizationHeader);
+        User user = userService.extractUser(authorizationHeader);
         UUID userID = user.getUid();
 
         String uploadDir = "./images/" + userID + "/profile.png";
@@ -83,7 +77,7 @@ public class UserController {
             @RequestBody UserUpdateDTO userUpdates) {
 
         log.info("Extracting user");
-        User user = extractUser(authorizationHeader);
+        User user = userService.extractUser(authorizationHeader);
         log.info("Updating user");
         User updatedUser = userService.updateUser(user, userUpdates);
         log.info("Mapping response");

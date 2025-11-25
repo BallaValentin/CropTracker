@@ -3,6 +3,7 @@ package com.edu.bbte.allamvizsga.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 import java.util.Collection;
 
 @EqualsAndHashCode(callSuper = true)
@@ -21,6 +22,11 @@ public class User extends BaseEntity{
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id")
                ,inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Collection<Role> roles;
+
+    @Column
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private Collection<Plot> plots;
 
     @Column(unique = true, nullable = false)
     private String email;

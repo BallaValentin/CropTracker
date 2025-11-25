@@ -4,7 +4,6 @@ import com.edu.bbte.allamvizsga.dto.request.RegisterRequestDTO;
 import com.edu.bbte.allamvizsga.dto.response.LoginResponseDTO;
 import com.edu.bbte.allamvizsga.dto.response.RefreshTokenResponseDTO;
 import com.edu.bbte.allamvizsga.exceptions.RefreshTokenException;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import com.edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import com.edu.bbte.allamvizsga.mappers.UserMapper;

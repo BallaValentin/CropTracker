@@ -6,6 +6,7 @@ import com.edu.bbte.allamvizsga.model.Role;
 import com.edu.bbte.allamvizsga.model.User;
 import com.edu.bbte.allamvizsga.repository.RoleRepository;
 import com.edu.bbte.allamvizsga.repository.UserRepository;
+import com.edu.bbte.allamvizsga.util.JwtUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
+    private final JwtUtil jwtUtil;
 
     public void createUser(User user, Boolean isGrower, Boolean isWorker) throws IOException {
 
@@ -144,5 +146,11 @@ public class UserService {
     public void updatePassword(User user, String newPassword) {
         String encodedPassword = passwordEncoder.encode(newPassword);
         userRepository.updatePassword(encodedPassword, user.getUid());
+    }
+
+    public User extractUser(String authorizationHeader) {
+        String accessToken = authorizationHeader.substring(7);
+        UUID uid = jwtUtil.getUid(accessToken);
+        return findUserById(uid);
     }
 }
