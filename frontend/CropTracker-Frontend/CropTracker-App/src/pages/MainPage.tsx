@@ -10,7 +10,7 @@ function MainPage() {
   let authenticated: boolean = true;
 
   if (isLoading) {
-    return <ProgressCircle />;
+    return <ProgressCircle loadingMessage="Loading your profile" />;
   }
 
   if (error) {

@@ -23,7 +23,7 @@ import AccountDialog from "../dialogs/AccountDialog";
 import { getAvatar, updateAvatar } from "../../services/UserService";
 import MenuIcon from "@mui/icons-material/Menu";
 import MainDrawer from "../drawers/MainDrawer";
-import type { UserData } from "../../interfaces/UserData";
+import type { UserData } from "../../interfaces/response/UserData";
 import { queryClient } from "../../query-client/QueryClient";
 import { useDrawer } from "../../contexts/DrawerProvider";
 

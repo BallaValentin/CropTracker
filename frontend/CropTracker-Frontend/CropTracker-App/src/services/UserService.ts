@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { AvatarUpdates } from "../interfaces/request/AvatarUpdates";
-import type { UserData } from "../interfaces/UserData";
+import type { UserData } from "../interfaces/response/UserData";
 import type { UserUpdates } from "../interfaces/request/UserUpdates";
 import type { ChangePasswordData } from "../interfaces/request/ChangePasswordData";
 

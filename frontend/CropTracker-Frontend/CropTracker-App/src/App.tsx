@@ -9,6 +9,7 @@ import { DrawerProvider } from "./contexts/DrawerProvider";
 import ErrorPage from "./pages/ErrorPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import PlotsListPage from "./pages/PlotsListPage";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
               <Route path="/signup" element={<RegisterPage />} />
               <Route path="/" element={<MainPage />} />
               <Route path="/show-users" element={<UsersListPage />} />
+              <Route path="/show-plots" element={<PlotsListPage />} />
               <Route path="/error" element={<ErrorPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/change-password" element={<ChangePasswordPage />} />

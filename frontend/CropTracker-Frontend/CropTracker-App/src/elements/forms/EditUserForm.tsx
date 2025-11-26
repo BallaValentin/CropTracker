@@ -6,7 +6,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { UserData } from "../../interfaces/UserData";
+import type { UserData } from "../../interfaces/response/UserData";
 import { useState } from "react";
 import { type UserUpdates } from "../../interfaces/request/UserUpdates";
 

@@ -12,15 +12,16 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/plot")
 @CrossOrigin(value = "http://localhost:5174")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
+@PreAuthorize("hasRole('GROWER')")
 public class PlotController {
     private final PlotService plotService;
     private final UserService userService;

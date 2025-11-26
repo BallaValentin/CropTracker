@@ -1,4 +1,5 @@
-import type { Role } from "./Role";
+import type { Plot } from "../Plot";
+import type { Role } from "../Role";
 
 export interface UserData {
     username: string,
@@ -6,4 +7,5 @@ export interface UserData {
     firstName: string,
     lastName: string,
     email: string,
+    plots: Plot[]
 }

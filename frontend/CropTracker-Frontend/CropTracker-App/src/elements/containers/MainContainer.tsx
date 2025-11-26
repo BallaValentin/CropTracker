@@ -25,7 +25,7 @@ function MainContainer({ children, hasDrawer }: MainContainerProps) {
           flexGrow: 1,
           width: `calc(100%  - ${drawerWidth}px + 1px)`,
           ml: `${drawerWidth + 1}px`,
-          mt: 8.5,
+          mt: 7,
           transition: "all 0.3s ease",
         }}
       >

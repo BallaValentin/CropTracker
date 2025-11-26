@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import type { UserData } from "../../interfaces/UserData";
+import type { UserData } from "../../interfaces/response/UserData";
 import EditUserForm from "../forms/EditUserForm";
 import { useMutation } from "@tanstack/react-query";
 import { updateProfile } from "../../services/UserService";
