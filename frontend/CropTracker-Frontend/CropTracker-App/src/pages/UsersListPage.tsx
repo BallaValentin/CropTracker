@@ -188,7 +188,7 @@ function UsersListPage() {
   ];
 
   if (isLoading) {
-    return <ProgressCircle />;
+    return <ProgressCircle loadingMessage="Loading users..." />;
   }
 
   return (

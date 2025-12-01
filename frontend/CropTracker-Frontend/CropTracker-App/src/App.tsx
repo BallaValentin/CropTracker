@@ -10,6 +10,7 @@ import ErrorPage from "./pages/ErrorPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import PlotsListPage from "./pages/PlotsListPage";
+import CreatePlotPage from "./pages/CreatePlotPage";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Route path="/error" element={<ErrorPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/change-password" element={<ChangePasswordPage />} />
+              <Route path="/create-plot" element={<CreatePlotPage />} />
             </Routes>
           </Router>
         </QueryClientProvider>
