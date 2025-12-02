@@ -10,7 +10,6 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -119,4 +118,16 @@ public class GeneralExceptionHandler {
         return new ErrorResponseDTO(timestamp, statusCode, message, path);
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public ErrorResponseDTO handleForbiddenException(
+            ForbiddenException exception, HttpServletRequest request
+    ) {
+        LocalDateTime timestamp = LocalDateTime.now();
+        Integer statusCode = HttpStatus.FORBIDDEN.value();
+        String message = exception.getMessage();
+        String path = request.getRequestURI();
+        return new ErrorResponseDTO(timestamp, statusCode, message, path);
+    }
 }

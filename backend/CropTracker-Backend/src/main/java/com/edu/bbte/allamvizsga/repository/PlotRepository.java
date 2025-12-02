@@ -7,8 +7,10 @@ import org.springframework.stereotype.Repository;
 
 import java.rmi.server.UID;
 import java.util.Collection;
+import java.util.UUID;
 
 @Repository
 public interface PlotRepository extends JpaRepository<Plot, UID> {
     Collection<Plot> findAllByUser(User user);
+    Plot findByUid(UUID uid);
 }

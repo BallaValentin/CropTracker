@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Card,
+  Divider,
   Fab,
   Tooltip,
   Typography,
@@ -84,15 +85,21 @@ function PlotsListPage() {
             </ColumnCenterContainer>
           ) : (
             <>
-              <Typography
-                sx={{ textAlign: "center", mb: 5, mt: 10 }}
-                variant="h3"
-              >
+              <Typography sx={{ textAlign: "center", mt: 10 }} variant="h3">
                 My Plots
               </Typography>
+              <Divider />
               {plots.map((plot) => {
                 return (
-                  <Card>
+                  <Card
+                    elevation={6}
+                    sx={{
+                      mt: 5,
+                      cursor: "pointer",
+                      //border: "2px solid #e0dbdbff",
+                    }}
+                    onClick={() => navigate("/plot-details")}
+                  >
                     <Box sx={{ m: 1, textAlign: "center" }}>
                       <Typography variant="h5">{plot.name}</Typography>
                     </Box>
@@ -103,6 +110,7 @@ function PlotsListPage() {
                         color: "white",
                         bgcolor: "#7bbf8fff",
                       }}
+                      onClick={() => navigate(`/plot-details?id=${plot.uid}`)}
                     >
                       Details
                     </Button>

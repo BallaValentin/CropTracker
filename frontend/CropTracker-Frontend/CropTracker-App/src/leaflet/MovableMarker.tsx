@@ -19,7 +19,7 @@ function MovableMarker({
 
   return (
     <Marker position={{ lat: latitude, lng: longitude }}>
-      Here is your plot
+      Your plot is here
     </Marker>
   );
 }

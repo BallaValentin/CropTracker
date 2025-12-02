@@ -1,6 +1,7 @@
 package com.edu.bbte.allamvizsga.controllers;
 
 import com.edu.bbte.allamvizsga.dto.request.CreatePlotDTO;
+import com.edu.bbte.allamvizsga.dto.request.UpdatePlotDTO;
 import com.edu.bbte.allamvizsga.dto.response.GetPlotDTO;
 import com.edu.bbte.allamvizsga.mappers.PlotMapper;
 import com.edu.bbte.allamvizsga.model.Plot;
@@ -16,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/plot")
@@ -37,6 +39,16 @@ public class PlotController {
         plotService.createPlot(plot);
     }
 
+    @PutMapping("/update")
+    public void updatePlot(@Valid @RequestBody UpdatePlotDTO updatePlotDTO,
+                           @RequestParam(name = "id") String plotID,
+                           @RequestHeader("Authorization") String authorizationHeader) {
+        User user = userService.extractUser(authorizationHeader);
+        Plot plot = plotService.findPlotByUser(UUID.fromString(plotID), user);
+        plotMapper.updateModelFromUpdatePlotDto(updatePlotDTO, plot);
+        plotService.updatePlot(plot);
+    }
+
     @GetMapping("/findall")
     public ResponseEntity<Collection<GetPlotDTO>> getPlots(
             @RequestHeader("Authorization") String authorizationHeader) {
@@ -46,4 +58,13 @@ public class PlotController {
         Collection<GetPlotDTO> getPlotDTOS = plots.stream().map(plotMapper::modelToGetPlotDTO).toList();
         return ResponseEntity.ok(getPlotDTOS);
     }
+
+    @GetMapping("/findby")
+    public ResponseEntity<GetPlotDTO> getPlotById(
+            @RequestParam(name = "id") String plotId
+    ) {
+        UUID uid = UUID.fromString(plotId);
+        Plot plot = plotService.findById(uid);
+    }
+
 }
