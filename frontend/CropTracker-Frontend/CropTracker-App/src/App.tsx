@@ -29,7 +29,7 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/change-password" element={<ChangePasswordPage />} />
               <Route path="/create-plot" element={<CreatePlotPage />} />
-              <Route path="/plot-details" element={<PlotDetailsPage />} />
+              <Route path="/plot-details/:id" element={<PlotDetailsPage />} />
             </Routes>
           </Router>
         </QueryClientProvider>

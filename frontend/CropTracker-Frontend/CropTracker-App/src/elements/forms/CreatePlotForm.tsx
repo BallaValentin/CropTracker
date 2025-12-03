@@ -20,8 +20,8 @@ interface CreatePlotFormProps {
 function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
   const [createPlotData, setCreatePlotData] = useState<PostPlot>({
     name: "Unnamed Plot",
-    latitude: 51.505,
-    longitude: -0.09,
+    latitude: 0.0,
+    longitude: 0.0,
   });
 
   const changePlotName = (event: React.ChangeEvent<HTMLInputElement>) => {

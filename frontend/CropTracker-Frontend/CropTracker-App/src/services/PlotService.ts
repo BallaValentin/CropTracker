@@ -38,3 +38,14 @@ export const getPlots = async (): Promise<Plot[]> => {
 
     return response.data
 }
+
+export const getPlotById = async (plotId: string): Promise<Plot> => {
+    console.log("Sending get-plot request to server")
+    const response = await plotApi.get<Plot>(`/findby?id=${plotId}`, {
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+    })
+
+    return response.data
+}

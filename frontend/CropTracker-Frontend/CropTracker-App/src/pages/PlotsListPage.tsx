@@ -98,7 +98,7 @@ function PlotsListPage() {
                       cursor: "pointer",
                       //border: "2px solid #e0dbdbff",
                     }}
-                    onClick={() => navigate("/plot-details")}
+                    onClick={() => navigate(`/plot-details/${plot.uid}`)}
                   >
                     <Box sx={{ m: 1, textAlign: "center" }}>
                       <Typography variant="h5">{plot.name}</Typography>
@@ -110,7 +110,7 @@ function PlotsListPage() {
                         color: "white",
                         bgcolor: "#7bbf8fff",
                       }}
-                      onClick={() => navigate(`/plot-details?id=${plot.uid}`)}
+                      onClick={() => navigate(`/plot-details/${plot.uid}`)}
                     >
                       Details
                     </Button>
