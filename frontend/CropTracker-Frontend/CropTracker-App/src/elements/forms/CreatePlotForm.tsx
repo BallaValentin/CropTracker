@@ -8,9 +8,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { MapContainer, TileLayer } from "react-leaflet";
+import { FeatureGroup, MapContainer, Polygon, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import MovableMarker from "../../leaflet/MovableMarker";
+import ChangeView from "../../leaflet/ChangeView";
+import { EditControl } from "react-leaflet-draw";
+import L from "leaflet";
+import "leaflet-draw";
+import "leaflet-draw/dist/leaflet.draw.css";
 
 interface CreatePlotFormProps {
   isPending: boolean;
@@ -20,8 +24,16 @@ interface CreatePlotFormProps {
 function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
   const [createPlotData, setCreatePlotData] = useState<PostPlot>({
     name: "Unnamed Plot",
-    latitude: 0.0,
-    longitude: 0.0,
+    latitude: 51.505,
+    longitude: -0.09,
+    polygonPoints: [],
+  });
+
+  const blueCircleIcon = L.divIcon({
+    className: "custom-vertex-icon",
+    html: '<div style="background-color: blue; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white;"></div>',
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
   });
 
   const changePlotName = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,6 +43,27 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     onSubmit(createPlotData);
+  };
+
+  const handlePolygonCreated = (e: L.DrawEvents.Created) => {
+    const { layer, layerType } = e;
+    if (layerType === "polygon") {
+      const polygonLayer = layer as L.Polygon;
+      const rawLatLngs = polygonLayer.getLatLngs();
+      const latLngs = Array.isArray(rawLatLngs[0])
+        ? (rawLatLngs[0] as L.LatLng[])
+        : (rawLatLngs as L.LatLng[]);
+      const formattedPoints = latLngs.map((latLng: L.LatLng) => [
+        latLng.lat,
+        latLng.lng,
+      ]) as [number, number][];
+      setCreatePlotData((prev) => ({
+        ...prev,
+        polygonPoints: formattedPoints,
+      }));
+      console.log("Polygon points:", createPlotData.polygonPoints);
+      layer.remove();
+    }
   };
 
   useEffect(() => {
@@ -45,14 +78,6 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
       });
     }
   }, []);
-
-  const updateMapLocation = (latitude: number, longitude: number) => {
-    setCreatePlotData((prev) => ({
-      ...prev,
-      latitude: latitude,
-      longitude: longitude,
-    }));
-  };
 
   return (
     <>
@@ -78,26 +103,52 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
             </FormControl>
           </Grid>
 
-          <Box sx={{ mt: 2, height: 600, width: "100%" }}>
+          <Box sx={{ position: "relative", mt: 2, height: 600, width: "100%" }}>
             <MapContainer
               style={{ height: "100%" }}
-              center={{
-                lat: createPlotData.latitude,
-                lng: createPlotData.longitude,
-              }}
+              center={[createPlotData.latitude, createPlotData.longitude]}
               zoom={13}
             >
+              <ChangeView
+                center={[createPlotData.latitude, createPlotData.longitude]}
+                zoom={16}
+              />
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <MovableMarker
-                latitude={createPlotData.latitude}
-                longitude={createPlotData.longitude}
-                onLocationClick={(latitude, longitude) =>
-                  updateMapLocation(latitude, longitude)
-                }
-              />
+              <FeatureGroup>
+                <EditControl
+                  position="topright"
+                  onCreated={handlePolygonCreated}
+                  draw={{
+                    marker: true,
+                    polyline: false,
+                    circle: false,
+                    rectangle: false,
+                    circlemarker: false,
+                    polygon: {
+                      allowIntersection: false,
+                      drawError: {
+                        color: "#e1e100",
+                        message:
+                          "<strong>Error:<strong> shape edges cannot intersect!",
+                      },
+                      icon: blueCircleIcon,
+                      shapeOptions: {
+                        color: "#3388FF",
+                      },
+                    },
+                  }}
+                />
+                {createPlotData.polygonPoints.length > 0 && (
+                  <Polygon
+                    key={Date.now()}
+                    positions={createPlotData.polygonPoints}
+                    pathOptions={{ color: "blue" }}
+                  />
+                )}
+              </FeatureGroup>
             </MapContainer>
           </Box>
 

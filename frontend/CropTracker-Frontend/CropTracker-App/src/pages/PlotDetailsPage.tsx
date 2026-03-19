@@ -15,9 +15,9 @@ function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading, error } = useUserProfile();
   const [plotDetail, setPlotDetail] = useState<Plot>({
     uid: "",
-    name: "Unnamed Plot",
-    latitude: 0.0,
-    longitude: 0.0,
+    name: "Unnamed Field",
+    latitude: 51.505,
+    longitude: -0.09,
   });
   const { id } = useParams();
   const plotId: string = id || "0";

@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import {
   COLLAPSED_DRAWER_WIDTH,
   EXPANDED_DRAWER_WIDTH,
-} from "../../utils/constants";
+} from "../../utils/Constants";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
 import type { UserData } from "../../interfaces/response/UserData";

@@ -3,7 +3,7 @@ import { useDrawer } from "../../contexts/DrawerProvider";
 import {
   COLLAPSED_DRAWER_WIDTH,
   EXPANDED_DRAWER_WIDTH,
-} from "../../utils/constants";
+} from "../../utils/Constants";
 
 interface MainContainerProps {
   children: React.ReactNode;

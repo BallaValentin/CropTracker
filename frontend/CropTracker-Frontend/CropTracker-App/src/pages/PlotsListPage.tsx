@@ -50,7 +50,7 @@ function PlotsListPage() {
   }, [user, mutate]);
 
   if (isLoading) {
-    return <ProgressCircle loadingMessage="Loading users..." />;
+    return <ProgressCircle loadingMessage="Loading fields..." />;
   }
 
   if (error) {
@@ -80,7 +80,7 @@ function PlotsListPage() {
           {plots.length === 0 ? (
             <ColumnCenterContainer>
               <Typography variant="h4">
-                You don`t have any plots added yet
+                You don`t have any fields added yet
               </Typography>
             </ColumnCenterContainer>
           ) : (
