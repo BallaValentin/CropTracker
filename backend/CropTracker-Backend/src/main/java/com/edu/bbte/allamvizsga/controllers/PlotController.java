@@ -36,7 +36,7 @@ public class PlotController {
         User user = userService.extractUser(authorizationHeader);
         Plot plot = plotMapper.createPlotDTOtoModel(createPlotDTO);
         plot.setUser(user);
-        plotService.createPlot(plot);
+        plotService.createPlot(plot, createPlotDTO.getPolygonPoints());
     }
 
     @PutMapping("/update")
@@ -65,6 +65,8 @@ public class PlotController {
     ) {
         UUID uid = UUID.fromString(plotId);
         Plot plot = plotService.findById(uid);
+        GetPlotDTO getPlotDTO = plotMapper.modelToGetPlotDTO(plot);
+        return ResponseEntity.ok(getPlotDTO);
     }
 
 }

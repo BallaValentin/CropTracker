@@ -3,6 +3,7 @@ package com.edu.bbte.allamvizsga.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.locationtech.jts.geom.Polygon;
 
 import java.math.BigDecimal;
 
@@ -23,4 +24,7 @@ public class Plot extends BaseEntity{
 
     @Column(nullable = false)
     private BigDecimal longitude;
+    
+    @Column(columnDefinition = "POLYGON")
+    private Polygon polygon;
 }

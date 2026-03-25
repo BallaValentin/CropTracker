@@ -1,11 +1,16 @@
 package com.edu.bbte.allamvizsga.services;
 
+import com.edu.bbte.allamvizsga.dto.LatLngObject;
 import com.edu.bbte.allamvizsga.exceptions.ForbiddenException;
 import com.edu.bbte.allamvizsga.model.Plot;
 import com.edu.bbte.allamvizsga.model.User;
 import com.edu.bbte.allamvizsga.repository.PlotRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +22,16 @@ import java.util.UUID;
 public class PlotService {
     private final PlotRepository plotRepository;
 
-    public void createPlot(Plot plot) {
+    public void createPlot(Plot plot, Collection<LatLngObject> polygonPoints) {
+        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+
+        Coordinate[] coords = polygonPoints.stream().map(point ->
+                new Coordinate(Double.parseDouble(String.valueOf(point.getLng())),
+                        Double.parseDouble(String.valueOf(point.getLat())))).toArray(Coordinate[]::new);
+
+        Polygon polygon = geometryFactory.createPolygon(coords);
+
+        plot.setPolygon(polygon);
         plotRepository.save(plot);
     }
 
