@@ -15,6 +15,8 @@ import { EditControl } from "react-leaflet-draw";
 import L from "leaflet";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
+import type { LatLngObject } from "../../interfaces/LatLngObject";
+import { blueCircleIcon } from "../icons/BlueCircleIcon";
 
 interface CreatePlotFormProps {
   isPending: boolean;
@@ -27,13 +29,6 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
     latitude: 51.505,
     longitude: -0.09,
     polygonPoints: [],
-  });
-
-  const blueCircleIcon = L.divIcon({
-    className: "custom-vertex-icon",
-    html: '<div style="background-color: blue; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white;"></div>',
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
   });
 
   const changePlotName = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,15 +48,17 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
       const latLngs = Array.isArray(rawLatLngs[0])
         ? (rawLatLngs[0] as L.LatLng[])
         : (rawLatLngs as L.LatLng[]);
-      const formattedPoints = latLngs.map((latLng: L.LatLng) => [
-        latLng.lat,
-        latLng.lng,
-      ]) as [number, number][];
+      const formattedPoints: LatLngObject[] = latLngs.map(
+        (latLng: L.LatLng) => ({
+          lat: latLng.lat,
+          lng: latLng.lng,
+        }),
+      );
       setCreatePlotData((prev) => ({
         ...prev,
         polygonPoints: formattedPoints,
       }));
-      console.log("Polygon points:", createPlotData.polygonPoints);
+
       layer.remove();
     }
   };

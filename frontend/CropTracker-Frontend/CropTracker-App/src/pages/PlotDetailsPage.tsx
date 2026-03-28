@@ -1,15 +1,20 @@
 import { Box, Typography } from "@mui/material";
+import { useParams } from "react-router-dom";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, FeatureGroup, Polygon, TileLayer } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import ChangeView from "../leaflet/ChangeView";
+import { EditControl } from "react-leaflet-draw";
+import "leaflet-draw";
+import "leaflet-draw/dist/leaflet.draw.css";
 import { useQuery } from "@tanstack/react-query";
 import { getPlotById } from "../services/PlotService";
 import type { Plot } from "../interfaces/Plot";
-import ChangeView from "../leaflet/ChangeView";
+import { blueCircleIcon } from "../elements/icons/BlueCircleIcon";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading, error } = useUserProfile();
@@ -18,6 +23,7 @@ function PlotDetailsPage() {
     name: "Unnamed Field",
     latitude: 51.505,
     longitude: -0.09,
+    polygonPoints: [],
   });
   const { id } = useParams();
   const plotId: string = id || "0";
@@ -44,6 +50,8 @@ function PlotDetailsPage() {
     return <ProgressCircle loadingMessage="Loading your data..." />;
   }
 
+  console.log("Plot details:", plotDetail.polygonPoints);
+
   return (
     <>
       <Box>
@@ -67,17 +75,38 @@ function PlotDetailsPage() {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <Marker
-                position={{
-                  lat: plotDetail.latitude,
-                  lng: plotDetail.longitude,
-                }}
-                ref={(marker) => {
-                  marker?.openPopup();
-                }}
-              >
-                <Popup>Your plot is here</Popup>
-              </Marker>
+              <FeatureGroup>
+                <EditControl
+                  position="topright"
+                  draw={{
+                    marker: true,
+                    polyline: false,
+                    circle: false,
+                    rectangle: false,
+                    circlemarker: false,
+                    polygon: {
+                      allowIntersection: false,
+                      drawError: {
+                        color: "#e1e100",
+                        message:
+                          "<strong>Error:<strong> shape edges cannot intersect!",
+                      },
+                      icon: blueCircleIcon,
+                      shapeOptions: {
+                        color: "#3388FF",
+                      },
+                    },
+                  }}
+                />
+                {plotDetail?.polygonPoints &&
+                  plotDetail.polygonPoints.length > 0 && (
+                    <Polygon
+                      key={JSON.stringify(plotDetail.polygonPoints)}
+                      positions={plotDetail.polygonPoints}
+                      pathOptions={{ color: "blue" }}
+                    />
+                  )}
+              </FeatureGroup>
             </MapContainer>
           </Box>
         </MainContainer>

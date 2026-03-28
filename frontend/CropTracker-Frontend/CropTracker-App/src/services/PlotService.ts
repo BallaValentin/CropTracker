@@ -11,7 +11,8 @@ export const plotApi = axios.create({
 })
 
 export const createPlot = async(postPlot: PostPlot): Promise<void> => {
-    console.log("Sending create-plot request to server")
+    console.log("Sending create-plot request to server");
+    console.log("PostPlot data:", postPlot.polygonPoints);
     await plotApi.post<void>("/create", postPlot, {
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
