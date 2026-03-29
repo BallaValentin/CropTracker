@@ -8,7 +8,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { MapContainer, Marker, Polygon, TileLayer } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  Polygon,
+  TileLayer,
+  LayersControl,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import ChangeView from "../../leaflet/ChangeView";
 import L from "leaflet";
@@ -107,19 +113,33 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
               center={[createPlotData.latitude, createPlotData.longitude]}
               zoom={13}
             >
-              <ChangeView
-                center={[createPlotData.latitude, createPlotData.longitude]}
-                zoom={16}
-              />
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
+              <LayersControl position="topright">
+                <LayersControl.BaseLayer checked name="OpenStreetMap">
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                </LayersControl.BaseLayer>
 
-              <MapEventsHelper
-                onPolygonCreated={handlePolygonCreated}
-                onMarkerCreated={handleMarkerCreated}
-              />
+                <LayersControl.BaseLayer name="SatelliteView">
+                  <TileLayer
+                    attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+                    url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                  />
+                </LayersControl.BaseLayer>
+
+                <ChangeView
+                  center={[createPlotData.latitude, createPlotData.longitude]}
+                  zoom={16}
+                />
+
+                <LayersControl.Overlay checked name="Draw tools">
+                  <MapEventsHelper
+                    onPolygonCreated={handlePolygonCreated}
+                    onMarkerCreated={handleMarkerCreated}
+                  />
+                </LayersControl.Overlay>
+              </LayersControl>
 
               {markerAdded && (
                 <Marker
