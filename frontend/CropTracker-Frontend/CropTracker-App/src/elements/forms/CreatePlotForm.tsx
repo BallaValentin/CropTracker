@@ -15,6 +15,7 @@ import {
   TileLayer,
   Tooltip,
   LayersControl,
+  LayerGroup,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import ChangeView from "../../leaflet/ChangeView";
@@ -127,10 +128,20 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
                 </LayersControl.BaseLayer>
 
                 <LayersControl.BaseLayer name="SatelliteView">
-                  <TileLayer
-                    attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
-                    url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                  />
+                  <LayerGroup>
+                    <TileLayer
+                      attribution="Tiles &copy; Esri..."
+                      url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                      maxNativeZoom={18}
+                      maxZoom={20}
+                    />
+
+                    <TileLayer
+                      url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+                      maxNativeZoom={18}
+                      maxZoom={20}
+                    />
+                  </LayerGroup>
                 </LayersControl.BaseLayer>
 
                 <ChangeView
