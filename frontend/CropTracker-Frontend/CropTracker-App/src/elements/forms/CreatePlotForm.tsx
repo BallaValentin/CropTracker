@@ -13,6 +13,7 @@ import {
   Marker,
   Polygon,
   TileLayer,
+  Tooltip,
   LayersControl,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -36,6 +37,8 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
     polygonPoints: [],
   });
 
+  const [plotArea, setPlotArea] = useState<number>(0);
+
   const [markerAdded, setMarkerAdded] = useState(false);
 
   const changePlotName = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +50,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
     onSubmit(createPlotData);
   };
 
-  const handlePolygonCreated = (rawLatLngs: L.LatLng[]) => {
+  const handlePolygonCreated = (rawLatLngs: L.LatLng[], area: number) => {
     const latLngs = Array.isArray(rawLatLngs[0])
       ? (rawLatLngs[0] as L.LatLng[])
       : (rawLatLngs as L.LatLng[]);
@@ -59,6 +62,8 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
       ...prev,
       polygonPoints: formattedPoints,
     }));
+
+    setPlotArea(area);
   };
 
   const handleMarkerCreated = (rawLatLng: L.LatLng) => {
@@ -143,17 +148,33 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
 
               {markerAdded && (
                 <Marker
-                  key={Date.now()}
+                  key={crypto.randomUUID()}
                   position={[createPlotData.latitude, createPlotData.longitude]}
                 />
               )}
 
               {createPlotData.polygonPoints.length > 0 && (
                 <Polygon
-                  key={Date.now()}
+                  key={crypto.randomUUID()}
                   positions={createPlotData.polygonPoints}
                   pathOptions={{ color: "blue" }}
-                />
+                  eventHandlers={{
+                    mouseover: (e) => {
+                      const layer = e.target;
+                      layer.setStyle({ fillOpacity: 0.7 });
+                      layer.openTooltip();
+                    },
+                    mouseout: (e) => {
+                      const layer = e.target;
+                      layer.setStyle({ fillOpacity: 0.2 });
+                      layer.closeTooltip();
+                    },
+                  }}
+                >
+                  <Tooltip direction="top" className="area-tooltip" opacity={1}>
+                    Area: {(plotArea / 10000).toFixed(2)} ha
+                  </Tooltip>
+                </Polygon>
               )}
             </MapContainer>
           </Box>
