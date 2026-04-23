@@ -12,10 +12,8 @@ import {
   MapContainer,
   Marker,
   Polygon,
-  TileLayer,
   Tooltip,
   LayersControl,
-  LayerGroup,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import ChangeView from "../../leaflet/ChangeView";
@@ -24,6 +22,7 @@ import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import type { LatLngObject } from "../../interfaces/LatLngObject";
 import MapEventsHelper from "../../utils/MapEventsHelper";
+import CustomLayers from "../../leaflet/CustomLayers";
 
 interface CreatePlotFormProps {
   isPending: boolean;
@@ -120,29 +119,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
               zoom={13}
             >
               <LayersControl position="topright">
-                <LayersControl.BaseLayer checked name="OpenStreetMap">
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                </LayersControl.BaseLayer>
-
-                <LayersControl.BaseLayer name="SatelliteView">
-                  <LayerGroup>
-                    <TileLayer
-                      attribution="Tiles &copy; Esri..."
-                      url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                      maxNativeZoom={18}
-                      maxZoom={20}
-                    />
-
-                    <TileLayer
-                      url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-                      maxNativeZoom={18}
-                      maxZoom={20}
-                    />
-                  </LayerGroup>
-                </LayersControl.BaseLayer>
+                <CustomLayers />
 
                 <ChangeView
                   center={[createPlotData.latitude, createPlotData.longitude]}

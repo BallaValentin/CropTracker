@@ -1,13 +1,4 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  Divider,
-  Fab,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Divider, Fab, Tooltip, Typography } from "@mui/material";
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
@@ -20,6 +11,7 @@ import { getPlots } from "../services/PlotService";
 import AddIcon from "@mui/icons-material/Add";
 import { useLocation, useNavigate } from "react-router-dom";
 import CheckIcon from "@mui/icons-material/Check";
+import PlotCard from "../elements/cards/PlotCard";
 
 function PlotsListPage() {
   const { data: user, isLoading, error } = useUserProfile();
@@ -80,7 +72,7 @@ function PlotsListPage() {
           {plots.length === 0 ? (
             <ColumnCenterContainer>
               <Typography variant="h4">
-                You don`t have any fields added yet
+                You don`t have any plots added yet
               </Typography>
             </ColumnCenterContainer>
           ) : (
@@ -90,32 +82,7 @@ function PlotsListPage() {
               </Typography>
               <Divider />
               {plots.map((plot) => {
-                return (
-                  <Card
-                    elevation={6}
-                    sx={{
-                      mt: 5,
-                      cursor: "pointer",
-                      //border: "2px solid #e0dbdbff",
-                    }}
-                    onClick={() => navigate(`/plot-details/${plot.uid}`)}
-                  >
-                    <Box sx={{ m: 1, textAlign: "center" }}>
-                      <Typography variant="h5">{plot.name}</Typography>
-                    </Box>
-                    <Button
-                      sx={{
-                        ml: 1,
-                        mb: 1,
-                        color: "white",
-                        bgcolor: "#7bbf8fff",
-                      }}
-                      onClick={() => navigate(`/plot-details/${plot.uid}`)}
-                    >
-                      Details
-                    </Button>
-                  </Card>
-                );
+                return <PlotCard key={plot.uid} plot={plot} />;
               })}
             </>
           )}
