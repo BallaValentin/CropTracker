@@ -71,4 +71,10 @@ public class PlotController {
         return ResponseEntity.ok(getPlotDTO);
     }
 
+    @DeleteMapping("/delete")
+    public void deletePlotById(@RequestParam(name = "id") String plotId) {
+        UUID uid = UUID.fromString(plotId);
+        plotService.deleteById(uid);
+    }
+
 }

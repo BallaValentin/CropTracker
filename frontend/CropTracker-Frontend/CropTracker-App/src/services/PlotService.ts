@@ -50,3 +50,14 @@ export const getPlotById = async (plotId: string): Promise<Plot> => {
 
     return response.data
 }
+
+export const deletePlotById = async (plotId: string): Promise<void> => {
+    console.log("Sending delete-plot request to server")
+    const response = await plotApi.delete<void>(`/delete?id=${plotId}`, {
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+    })
+
+    return response.data
+}

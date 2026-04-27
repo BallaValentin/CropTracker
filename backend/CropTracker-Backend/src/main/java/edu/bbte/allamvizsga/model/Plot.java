@@ -27,4 +27,7 @@ public class Plot extends BaseEntity{
     
     @Column(columnDefinition = "POLYGON")
     private Polygon polygonPoints;
+
+    @Column(nullable = false)
+    private Boolean isDeleted;
 }

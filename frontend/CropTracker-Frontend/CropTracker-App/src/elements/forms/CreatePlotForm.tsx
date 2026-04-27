@@ -68,6 +68,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
 
   const handleMarkerCreated = (rawLatLng: L.LatLng) => {
     setMarkerAdded(true);
+    console.log("Marker created at:", rawLatLng);
     setCreatePlotData((prev) => ({
       ...prev,
       latitude: rawLatLng.lat,

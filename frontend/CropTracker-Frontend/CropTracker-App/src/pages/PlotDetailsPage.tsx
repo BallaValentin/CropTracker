@@ -5,7 +5,13 @@ import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useEffect, useState } from "react";
-import { MapContainer, FeatureGroup, Polygon, TileLayer } from "react-leaflet";
+import {
+  MapContainer,
+  FeatureGroup,
+  Polygon,
+  TileLayer,
+  Marker,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import ChangeView from "../leaflet/ChangeView";
 import { EditControl } from "react-leaflet-draw";
@@ -49,8 +55,6 @@ function PlotDetailsPage() {
   if (isUserLoading || isPlotLoading) {
     return <ProgressCircle loadingMessage="Loading your data..." />;
   }
-
-  console.log("Plot details:", plotDetail.polygonPoints);
 
   return (
     <>
@@ -106,6 +110,9 @@ function PlotDetailsPage() {
                       pathOptions={{ color: "blue" }}
                     />
                   )}
+                <Marker
+                  position={[plotDetail.latitude, plotDetail.longitude]}
+                />
               </FeatureGroup>
             </MapContainer>
           </Box>

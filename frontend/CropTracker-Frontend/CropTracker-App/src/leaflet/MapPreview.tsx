@@ -16,6 +16,7 @@ function MapPreview({
   longitude,
   polygonPoints,
 }: MapPreviewProps) {
+  console.log("MapPreview props:", { latitude, longitude });
   return (
     <>
       <Box

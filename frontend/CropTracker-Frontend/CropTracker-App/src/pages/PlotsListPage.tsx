@@ -23,6 +23,7 @@ function PlotsListPage() {
 
   const { mutate } = useMutation({
     mutationFn: getPlots,
+    mutationKey: ["plots"],
     onSuccess: (response: Plot[]) => {
       setPlots(response);
     },
