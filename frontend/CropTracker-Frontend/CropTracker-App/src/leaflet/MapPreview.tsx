@@ -22,8 +22,8 @@ function MapPreview({
       <Box
         sx={{
           height: 300,
-          width: "97%",
-          margin: 3,
+          width: "95%",
+          margin: "0 auto",
           overflow: "hidden",
         }}
       >

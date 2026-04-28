@@ -1,15 +1,53 @@
 import DeleteIcon from "@mui/icons-material/Delete";
-import { IconButton } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
+import { useState } from "react";
 
 interface DeletePlotButtonProps {
   onDeleteButtonClicked: () => void;
 }
 
 function DeletePlotButton({ onDeleteButtonClicked }: DeletePlotButtonProps) {
+  const [deleteButtonHovered, setDeleteButtonHovered] = useState(false);
   return (
-    <IconButton onClick={onDeleteButtonClicked}>
-      <DeleteIcon color="error" />
-    </IconButton>
+    <Box
+      onMouseEnter={() => setDeleteButtonHovered(true)}
+      onMouseLeave={() => setDeleteButtonHovered(false)}
+      sx={{ display: "flex", alignItems: "center" }}
+    >
+      <Box
+        sx={{
+          height: 40,
+          display: "flex",
+          alignItems: "center",
+          bgcolor: "error.light",
+          color: "error.contrastText",
+          borderRadius: "20px 0 0 20px",
+          pr: "24px",
+          pl: deleteButtonHovered ? 2 : 0,
+          maxWidth: deleteButtonHovered ? 150 : 0,
+          opacity: deleteButtonHovered ? 1 : 0,
+          transition: "all 0.25s ease-in-out",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          mr: -2.5,
+        }}
+      >
+        <Typography variant="caption" sx={{ fontWeight: "bold", px: 1 }}>
+          Delete Plot
+        </Typography>
+      </Box>
+      <IconButton
+        color="error"
+        sx={{
+          bgcolor: "error.main",
+          color: "white",
+          "&:hover": { bgcolor: "error.dark" },
+        }}
+        onClick={onDeleteButtonClicked}
+      >
+        <DeleteIcon />
+      </IconButton>
+    </Box>
   );
 }
 

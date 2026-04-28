@@ -1,4 +1,4 @@
-import { Alert, Box, Divider, Fab, Tooltip, Typography } from "@mui/material";
+import { Alert, Box, Divider, Fab, Typography } from "@mui/material";
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
@@ -12,18 +12,20 @@ import AddIcon from "@mui/icons-material/Add";
 import { useLocation, useNavigate } from "react-router-dom";
 import CheckIcon from "@mui/icons-material/Check";
 import PlotCard from "../elements/cards/PlotCard";
+import { useUserPlots } from "../hooks/UseUserPlots";
 
 function PlotsListPage() {
   const { data: user, isLoading, error } = useUserProfile();
+  const { data: userPlots } = useUserPlots();
   const [plots, setPlots] = useState<Plot[]>([]);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [fabHovered, setFabHovered] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   let authenticated = true;
 
   const { mutate } = useMutation({
     mutationFn: getPlots,
-    mutationKey: ["plots"],
     onSuccess: (response: Plot[]) => {
       setPlots(response);
     },
@@ -40,7 +42,7 @@ function PlotsListPage() {
 
   useEffect(() => {
     mutate();
-  }, [user, mutate]);
+  }, [user, mutate, userPlots]);
 
   if (isLoading) {
     return <ProgressCircle loadingMessage="Loading fields..." />;
@@ -82,21 +84,52 @@ function PlotsListPage() {
                 My Plots
               </Typography>
               <Divider />
-              {plots.map((plot) => {
-                return <PlotCard key={plot.uid} plot={plot} />;
-              })}
+              <Box sx={{ mb: 10 }}>
+                {plots.map((plot) => {
+                  return <PlotCard key={plot.uid} plot={plot} />;
+                })}
+              </Box>
             </>
           )}
-          <Box sx={{ position: "fixed", bottom: 16, right: 16, zIndex: 1300 }}>
-            <Tooltip title="Add new plot" placement="left-start">
-              <Fab
-                color="success"
-                aria-label="add"
-                onClick={() => navigate("/create-plot")}
-              >
-                <AddIcon />
-              </Fab>
-            </Tooltip>
+          <Box
+            sx={{
+              position: "fixed",
+              display: "flex",
+              bottom: 16,
+              right: 16,
+              zIndex: 1300,
+            }}
+            onMouseEnter={() => setFabHovered(true)}
+            onMouseLeave={() => setFabHovered(false)}
+          >
+            <Box
+              sx={{
+                height: 56,
+                display: "flex",
+                alignItems: "center",
+                bgcolor: "#c9e2cc",
+                borderRadius: "28px 0 0 28px",
+                pl: fabHovered ? 3 : 0,
+                pr: "32px",
+                maxWidth: fabHovered ? "200px" : 0,
+                opacity: fabHovered ? 1 : 0,
+                transition: "all 0.3s ease-in-out",
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                mr: -3,
+              }}
+            >
+              <Typography variant="button" sx={{ fontWeight: "bold" }}>
+                Add Plot
+              </Typography>
+            </Box>
+            <Fab
+              color="success"
+              aria-label="add"
+              onClick={() => navigate("/create-plot")}
+            >
+              <AddIcon />
+            </Fab>
           </Box>
         </MainContainer>
       </Box>

@@ -21,7 +21,7 @@ function PlotCard({ plot }: PlotCardProps) {
     mutationFn: deletePlotById,
     onSuccess: () => {
       console.log("Plot deleted successfully, refreshing plot list...");
-      queryClient.removeQueries({ queryKey: ["plots"] });
+      queryClient.invalidateQueries({ queryKey: ["plots"] });
     },
   });
 
@@ -45,7 +45,6 @@ function PlotCard({ plot }: PlotCardProps) {
         sx={{
           mt: 5,
           cursor: "pointer",
-          //border: "2px solid #e0dbdbff",
         }}
       >
         <Box sx={{ m: 1, textAlign: "center" }}>
@@ -59,11 +58,9 @@ function PlotCard({ plot }: PlotCardProps) {
           polygonPoints={plot.polygonPoints}
         />
 
-        <Box sx={{ display: "flex", width: "100%", alignItems: "center" }}>
+        <Box sx={{ display: "flex", m: 2, alignItems: "center" }}>
           <Button
             sx={{
-              ml: 1,
-              mb: 1,
               color: "white",
               bgcolor: "#7bbf8fff",
             }}
