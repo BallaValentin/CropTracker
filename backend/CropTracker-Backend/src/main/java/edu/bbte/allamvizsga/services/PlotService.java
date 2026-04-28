@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.UUID;
 
 @Slf4j
@@ -21,7 +22,38 @@ import java.util.UUID;
 public class PlotService {
     private final PlotRepository plotRepository;
 
+    protected Integer getNextNumber(String originalName) {
+        Collection<Plot> plotsWithSameName = plotRepository.findAll(
+                Specification.allOf(
+                        PlotSpecification.withNamePattern(originalName)
+                                .and(PlotSpecification.notDeleted())
+                )
+        );
+
+        return plotsWithSameName.stream().map(plot -> {
+            String name = plot.getName();
+            if(!name.contains("(")) {
+                return 1;
+            }
+            try {
+                return Integer.parseInt(name.substring(name.lastIndexOf("(") + 1,
+                        name.lastIndexOf(")")));
+            } catch (Exception e) {
+                return 1;
+            }
+        }).max(Comparator.naturalOrder())
+                .orElse(0) + 1;
+
+    }
+
     public void createPlot(Plot plot) {
+
+        Integer count = getNextNumber(plot.getName());
+
+        if (count > 1) {
+            plot.setName(plot.getName() + "(" + count + ")");
+        }
+
         plot.setIsDeleted(Boolean.FALSE);
         plotRepository.save(plot);
     }
