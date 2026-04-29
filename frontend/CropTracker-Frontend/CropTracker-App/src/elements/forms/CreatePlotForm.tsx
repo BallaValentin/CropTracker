@@ -5,6 +5,7 @@ import {
   Button,
   FormControl,
   Grid,
+  Paper,
   TextField,
   Typography,
 } from "@mui/material";
@@ -92,17 +93,30 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
   return (
     <>
       <Box>
+        <Typography
+          variant="h4"
+          component={"h1"}
+          sx={{
+            mb: 2,
+            mt: 2,
+            fontWeight: "bold",
+            color: "success.main",
+            letterSpacing: "0.02em",
+          }}
+        >
+          Create New Plot
+        </Typography>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+          Complete the details below to add this area to your collection.
+        </Typography>
+
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} sx={{ mb: 4 }}>
             <FormControl sx={{ mt: 2 }} fullWidth>
-              <Typography
-                sx={{ fontWeight: "bold" }}
-                variant="body1"
-                gutterBottom
-              >
-                Name of your plot
-              </Typography>
               <TextField
+                label="Plot Name"
+                color="success"
                 name="username"
                 value={createPlotData.name}
                 placeholder="Your username"
@@ -113,7 +127,35 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
             </FormControl>
           </Grid>
 
-          <Box sx={{ position: "relative", mt: 2, height: 600, width: "100%" }}>
+          <Typography
+            variant="body2"
+            sx={{
+              mb: 2,
+              color: "text.secondary",
+              fontStyle: "italic",
+              lineHeight: 1.6,
+            }}
+          >
+            Select the location and the outline of your plot on the map. You can
+            either place a marker to set the center of your plot or draw a
+            polygon to define its boundaries. If you draw a polygon, the center
+            will be calculated automatically.
+          </Typography>
+          <Paper
+            elevation={0}
+            sx={{
+              position: "relative",
+              overflow: "hidden",
+              mt: 2,
+              mb: 2,
+              height: 600,
+              width: "100%",
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 2,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+            }}
+          >
             <MapContainer
               style={{ height: "100%" }}
               center={[createPlotData.latitude, createPlotData.longitude]}
@@ -166,9 +208,16 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
                 </Polygon>
               )}
             </MapContainer>
-          </Box>
-
-          <Button disabled={isPending} color="success" type="submit">
+          </Paper>
+          <Button
+            disabled={isPending}
+            sx={{
+              bgcolor: "success.main",
+              "&:hover": { bgcolor: "success.dark" },
+              color: "white",
+            }}
+            type="submit"
+          >
             {isPending ? "Uploading Plot..." : "Upload Plot"}
           </Button>
         </form>

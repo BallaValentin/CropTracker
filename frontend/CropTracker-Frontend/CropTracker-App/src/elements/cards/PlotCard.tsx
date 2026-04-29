@@ -20,7 +20,6 @@ function PlotCard({ plot }: PlotCardProps) {
   const { mutate } = useMutation({
     mutationFn: deletePlotById,
     onSuccess: () => {
-      console.log("Plot deleted successfully, refreshing plot list...");
       queryClient.invalidateQueries({ queryKey: ["plots"] });
     },
   });
