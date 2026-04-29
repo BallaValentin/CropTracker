@@ -1,4 +1,4 @@
-import { Box, Card, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import MainHeader from "../elements/headers/MainHeader";
@@ -82,7 +82,7 @@ function PlotDetailsPage() {
             location and boundaries of your field.
           </Typography>
 
-          <Card
+          <Paper
             elevation={0}
             sx={{
               mt: 2,
@@ -122,7 +122,10 @@ function PlotDetailsPage() {
                 />
               </FeatureGroup>
             </MapContainer>
-          </Card>
+          </Paper>
+          <Button sx={{ mt: 3 }} variant="contained" color="success">
+            Update Plot
+          </Button>
         </MainContainer>
       </Box>
     </>

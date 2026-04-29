@@ -40,7 +40,7 @@ function DeletePlotButton({ onDeleteButtonClicked }: DeletePlotButtonProps) {
         color="error"
         sx={{
           bgcolor: "error.main",
-          color: "white",
+          color: "error.contrastText",
           "&:hover": { bgcolor: "error.dark" },
         }}
         onClick={onDeleteButtonClicked}

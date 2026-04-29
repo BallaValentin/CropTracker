@@ -1,4 +1,4 @@
-import { createContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 interface DrawerContextType {
   isDrawerExpanded: boolean;
@@ -19,4 +19,12 @@ export const DrawerProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </DrawerContext.Provider>
   );
+};
+
+export const useDrawer = (): DrawerContextType => {
+  const context = useContext(DrawerContext);
+  if (context === undefined) {
+    throw new Error("useDrawer must be used within a DrawerProvider");
+  }
+  return context;
 };

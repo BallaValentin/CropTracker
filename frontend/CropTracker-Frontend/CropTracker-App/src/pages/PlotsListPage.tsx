@@ -55,23 +55,21 @@ function PlotsListPage() {
   return (
     <>
       <Box>
-        {feedbackMessage && (
-          <Alert
-            icon={<CheckIcon fontSize="inherit" />}
-            sx={{
-              position: "absolute",
-              top: 8,
-              left: "1.25%",
-              width: "95%",
-              zIndex: 1200,
-            }}
-            severity="success"
-          >
-            {feedbackMessage}
-          </Alert>
-        )}
         <MainHeader userData={user} authenticated={authenticated} />
         <MainContainer hasDrawer={authenticated}>
+          {feedbackMessage && (
+            <Alert
+              icon={<CheckIcon fontSize="inherit" />}
+              sx={{
+                mt: 10,
+                mr: 1,
+              }}
+              severity="success"
+            >
+              {feedbackMessage}
+            </Alert>
+          )}
+
           {plots.length === 0 ? (
             <ColumnCenterContainer>
               <Typography variant="h4">
@@ -88,12 +86,17 @@ function PlotsListPage() {
                 component={"h1"}
                 color="success"
                 letterSpacing={"0.02em"}
-                sx={{ mt: 10, fontWeight: "bold" }}
+                sx={{ mt: feedbackMessage ? 0 : 16, fontWeight: "bold" }}
                 variant="h3"
               >
                 My Fields
               </Typography>
-              <Divider />
+              <Divider
+                sx={{
+                  height: 3,
+                  backgroundColor: "success.secondary",
+                }}
+              />
               <Box sx={{ mb: 10 }}>
                 {plots.map((plot) => {
                   return <PlotCard key={plot.uid} plot={plot} />;
@@ -117,7 +120,8 @@ function PlotsListPage() {
                 height: 56,
                 display: "flex",
                 alignItems: "center",
-                bgcolor: "#c9e2cc",
+                bgcolor: "success.light",
+                color: "success.contrastText",
                 borderRadius: "28px 0 0 28px",
                 pl: fabHovered ? 3 : 0,
                 pr: "32px",
@@ -135,6 +139,7 @@ function PlotsListPage() {
             </Box>
             <Fab
               color="success"
+              sx={{ "&:hover": { bgcolor: "success.dark" } }}
               aria-label="add"
               onClick={() => navigate("/create-plot")}
             >

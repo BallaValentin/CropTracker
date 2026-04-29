@@ -69,7 +69,8 @@ function PlotCard({ plot }: PlotCardProps) {
           <Button
             sx={{
               color: "white",
-              bgcolor: "#7bbf8fff",
+              bgcolor: "success.main",
+              "&:hover": { bgcolor: "success.dark" },
             }}
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.stopPropagation();

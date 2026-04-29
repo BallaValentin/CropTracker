@@ -213,6 +213,10 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
             sx={{
               bgcolor: "success.main",
               "&:hover": { bgcolor: "success.dark" },
+              "&:disabled": {
+                bgcolor: "success.light",
+                color: "success.contrastText",
+              },
               color: "white",
             }}
             type="submit"
