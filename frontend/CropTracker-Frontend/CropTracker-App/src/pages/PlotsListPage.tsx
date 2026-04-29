@@ -75,13 +75,23 @@ function PlotsListPage() {
           {plots.length === 0 ? (
             <ColumnCenterContainer>
               <Typography variant="h4">
-                You don`t have any plots added yet
+                You haven't added any fields yet.
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
+                Click the button below to create your first plot and start
+                tracking your crops!
               </Typography>
             </ColumnCenterContainer>
           ) : (
             <>
-              <Typography sx={{ textAlign: "center", mt: 10 }} variant="h3">
-                My Plots
+              <Typography
+                component={"h1"}
+                color="success"
+                letterSpacing={"0.02em"}
+                sx={{ mt: 10, fontWeight: "bold" }}
+                variant="h3"
+              >
+                My Fields
               </Typography>
               <Divider />
               <Box sx={{ mb: 10 }}>

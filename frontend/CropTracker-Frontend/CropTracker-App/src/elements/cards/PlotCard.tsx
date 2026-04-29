@@ -44,10 +44,18 @@ function PlotCard({ plot }: PlotCardProps) {
         sx={{
           mt: 5,
           cursor: "pointer",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+          transition: "transform 0.2s",
+          "&:hover": {
+            transform: "translateY(-4px)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
+          },
         }}
       >
         <Box sx={{ m: 1, textAlign: "center" }}>
-          <Typography variant="h5">{plot.name}</Typography>
+          <Typography variant="h5" component={"h2"} sx={{ fontWeight: "bold" }}>
+            {plot.name}
+          </Typography>
         </Box>
 
         <MapPreview

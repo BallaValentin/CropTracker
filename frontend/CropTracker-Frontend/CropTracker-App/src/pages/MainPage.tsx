@@ -24,7 +24,9 @@ function MainPage() {
         <MainHeader userData={user} authenticated={authenticated} />
         <MainContainer hasDrawer={authenticated}>
           <ColumnCenterContainer>
-            <Typography variant="h2">Welcome to Crop Tracker!</Typography>
+            <Typography variant="h2" component={"h1"}>
+              Welcome to Crop Tracker!
+            </Typography>
           </ColumnCenterContainer>
         </MainContainer>
       </Box>

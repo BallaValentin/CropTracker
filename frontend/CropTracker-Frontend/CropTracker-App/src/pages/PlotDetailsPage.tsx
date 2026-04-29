@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Card, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import MainHeader from "../elements/headers/MainHeader";
@@ -14,13 +14,11 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import ChangeView from "../leaflet/ChangeView";
-import { EditControl } from "react-leaflet-draw";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { useQuery } from "@tanstack/react-query";
 import { getPlotById } from "../services/PlotService";
 import type { Plot } from "../interfaces/Plot";
-import { blueCircleIcon } from "../elements/icons/BlueCircleIcon";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading, error } = useUserProfile();
@@ -61,11 +59,42 @@ function PlotDetailsPage() {
       <Box>
         <MainHeader userData={user} authenticated={authenticated} />
         <MainContainer hasDrawer={authenticated}>
-          <Typography variant="h2" sx={{ textAlign: "center" }}>
+          <Typography
+            variant="h4"
+            component={"h1"}
+            sx={{
+              mb: 2,
+              color: "success.main",
+              fontWeight: "bold",
+              letterSpacing: "0.02em",
+              lineHeight: 1.6,
+            }}
+          >
             {plotDetail.name}
           </Typography>
 
-          <Box sx={{ mt: 2, height: 600, width: "100%" }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mb: 4, fontStyle: "italic" }}
+          >
+            Here you can view the details of your plot. The map below shows the
+            location and boundaries of your field.
+          </Typography>
+
+          <Card
+            elevation={0}
+            sx={{
+              mt: 2,
+              height: 600,
+              width: "100%",
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 2,
+              overflow: "hidden",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.0.05)",
+            }}
+          >
             <MapContainer
               style={{ height: "100%" }}
               center={[plotDetail.latitude, plotDetail.longitude]}
@@ -80,28 +109,6 @@ function PlotDetailsPage() {
                 url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
               <FeatureGroup>
-                <EditControl
-                  position="topright"
-                  draw={{
-                    marker: true,
-                    polyline: false,
-                    circle: false,
-                    rectangle: false,
-                    circlemarker: false,
-                    polygon: {
-                      allowIntersection: false,
-                      drawError: {
-                        color: "#e1e100",
-                        message:
-                          "<strong>Error:<strong> shape edges cannot intersect!",
-                      },
-                      icon: blueCircleIcon,
-                      shapeOptions: {
-                        color: "#3388FF",
-                      },
-                    },
-                  }}
-                />
                 {plotDetail?.polygonPoints &&
                   plotDetail.polygonPoints.length > 0 && (
                     <Polygon
@@ -115,7 +122,7 @@ function PlotDetailsPage() {
                 />
               </FeatureGroup>
             </MapContainer>
-          </Box>
+          </Card>
         </MainContainer>
       </Box>
     </>

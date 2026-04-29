@@ -32,7 +32,7 @@ interface CreatePlotFormProps {
 
 function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
   const [createPlotData, setCreatePlotData] = useState<PostPlot>({
-    name: "Unnamed Plot",
+    name: "Unnamed Field",
     latitude: 51.505,
     longitude: -0.09,
     polygonPoints: [],
@@ -98,7 +98,6 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
           component={"h1"}
           sx={{
             mb: 2,
-            mt: 2,
             fontWeight: "bold",
             color: "success.main",
             letterSpacing: "0.02em",
@@ -115,7 +114,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
           <Grid container spacing={2} sx={{ mb: 4 }}>
             <FormControl sx={{ mt: 2 }} fullWidth>
               <TextField
-                label="Plot Name"
+                label="Field Name"
                 color="success"
                 name="username"
                 value={createPlotData.name}
