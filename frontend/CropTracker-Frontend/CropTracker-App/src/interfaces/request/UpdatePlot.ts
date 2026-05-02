@@ -2,8 +2,7 @@ import type { LatLngObject } from "../LatLngObject";
 
 export interface UpdatePlot {
     name: string,
-    latitude: number,
-    longitude: number,
+    markerPosition: LatLngObject,
     polygonPoints: LatLngObject[],
     area: number
 }

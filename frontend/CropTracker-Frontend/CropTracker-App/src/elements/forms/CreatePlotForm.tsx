@@ -24,8 +24,10 @@ interface CreatePlotFormProps {
 function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
   const [createPlotData, setCreatePlotData] = useState<PostPlot>({
     name: "Unnamed Field",
-    latitude: 51.505,
-    longitude: -0.09,
+    markerPosition: {
+      lat: 51.505,
+      lng: -0.09,
+    },
     polygonPoints: [],
     area: 0,
   });
@@ -133,8 +135,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
             plot={{
               uid: "",
               name: createPlotData.name,
-              latitude: createPlotData.latitude,
-              longitude: createPlotData.longitude,
+              markerPosition: createPlotData.markerPosition,
               polygonPoints: createPlotData.polygonPoints,
               area: createPlotData.area,
             }}

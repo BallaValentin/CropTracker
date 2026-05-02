@@ -16,8 +16,10 @@ function UpdatePlotPage() {
   const [plotDetail, setPlotDetail] = useState<Plot>({
     uid: "",
     name: "Unnamed Field",
-    latitude: 51.505,
-    longitude: -0.09,
+    markerPosition: {
+      lat: 51.505,
+      lng: -0.09,
+    },
     polygonPoints: [],
     area: 0,
   });

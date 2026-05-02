@@ -26,9 +26,12 @@ function PlotDetailsPage() {
   const [plotDetail, setPlotDetail] = useState<Plot>({
     uid: "",
     name: "Unnamed Field",
-    latitude: 51.505,
-    longitude: -0.09,
+    markerPosition: {
+      lat: 51.505,
+      lng: -0.09,
+    },
     polygonPoints: [],
+    area: 0,
   });
   const { id } = useParams();
   const navigate = useNavigate();
@@ -104,11 +107,17 @@ function PlotDetailsPage() {
           >
             <MapContainer
               style={{ height: "100%" }}
-              center={[plotDetail.latitude, plotDetail.longitude]}
+              center={[
+                plotDetail.markerPosition.lat,
+                plotDetail.markerPosition.lng,
+              ]}
               zoom={16}
             >
               <ChangeView
-                center={[plotDetail.latitude, plotDetail.longitude]}
+                center={[
+                  plotDetail.markerPosition.lat,
+                  plotDetail.markerPosition.lng,
+                ]}
                 zoom={16}
               />
 
@@ -120,13 +129,16 @@ function PlotDetailsPage() {
                 {plotDetail?.polygonPoints &&
                   plotDetail.polygonPoints.length > 0 && (
                     <Polygon
-                      key={JSON.stringify(plotDetail.polygonPoints)}
+                      key={plotDetail.uid}
                       positions={plotDetail.polygonPoints}
                       pathOptions={{ color: "blue" }}
                     />
                   )}
                 <Marker
-                  position={[plotDetail.latitude, plotDetail.longitude]}
+                  position={[
+                    plotDetail.markerPosition.lat,
+                    plotDetail.markerPosition.lng,
+                  ]}
                 />
               </FeatureGroup>
             </MapContainer>

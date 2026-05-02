@@ -3,8 +3,7 @@ import type { LatLngObject } from "../LatLngObject";
 
 export interface PostPlot {
     name: string,
-    latitude: number,
-    longitude: number,
+    markerPosition: LatLngObject,
     polygonPoints: LatLngObject[]
     area: number
 }

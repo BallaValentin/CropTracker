@@ -60,8 +60,8 @@ function PlotCard({ plot }: PlotCardProps) {
 
         <MapPreview
           uid={plot.uid}
-          latitude={plot.latitude}
-          longitude={plot.longitude}
+          latitude={plot.markerPosition.lat}
+          longitude={plot.markerPosition.lng}
           polygonPoints={plot.polygonPoints}
         />
 

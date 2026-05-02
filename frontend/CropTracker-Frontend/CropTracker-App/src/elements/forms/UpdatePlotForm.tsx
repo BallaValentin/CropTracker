@@ -23,8 +23,7 @@ interface UpdatePlotFormProps {
 function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
   const [plotUpdateData, setPlotUpdateData] = useState<UpdatePlot>({
     name: plot.name,
-    latitude: plot.latitude,
-    longitude: plot.longitude,
+    markerPosition: plot.markerPosition,
     polygonPoints: plot.polygonPoints,
     area: plot.area,
   });
@@ -32,15 +31,14 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
   useEffect(() => {
     setPlotUpdateData({
       name: plot.name,
-      latitude: plot.latitude,
-      longitude: plot.longitude,
+      markerPosition: plot.markerPosition,
       polygonPoints: plot.polygonPoints,
       area: plot.area,
     });
   }, [plot]);
 
   const [markerAdded, setMarkerAdded] = useState(
-    plot.latitude !== 0 && plot.longitude !== 0,
+    plot.markerPosition.lat !== 0 && plot.markerPosition.lng !== 0,
   );
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -135,8 +133,7 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
           plot={{
             uid: plot.uid,
             name: plotUpdateData.name,
-            latitude: plotUpdateData.latitude,
-            longitude: plotUpdateData.longitude,
+            markerPosition: plotUpdateData.markerPosition,
             polygonPoints: plotUpdateData.polygonPoints,
             area: plotUpdateData.area,
           }}

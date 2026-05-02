@@ -9,8 +9,7 @@ import java.util.Collection;
 @Data
 public class UpdatePlotDTO {
     private String name;
-    private BigDecimal latitude;
-    private BigDecimal longitude;
+    private LatLngObject markerPosition;
     private Collection<LatLngObject> polygonPoints;
     private Double area;
 }

@@ -73,8 +73,10 @@ function EditableMap({
         const rawLatLng = markerLayer.getLatLng();
         setPlotData((prev) => ({
           ...prev,
-          latitude: rawLatLng.lat,
-          longitude: rawLatLng.lng,
+          markerPosition: {
+            lat: rawLatLng.lat,
+            lng: rawLatLng.lng,
+          },
         }));
         onMarkerCreated(rawLatLng);
       }
@@ -115,7 +117,10 @@ function EditableMap({
         {markerAdded && (
           <Marker
             key={crypto.randomUUID()}
-            position={[plotData.latitude, plotData.longitude]}
+            position={[
+              plotData.markerPosition.lat,
+              plotData.markerPosition.lng,
+            ]}
           />
         )}
 
@@ -164,14 +169,14 @@ function EditableMap({
     >
       <MapContainer
         style={{ height: "100%" }}
-        center={[plotData.latitude, plotData.longitude]}
+        center={[plotData.markerPosition.lat, plotData.markerPosition.lng]}
         zoom={13}
       >
         <LayersControl position="topright">
           <CustomLayers />
 
           <ChangeView
-            center={[plotData.latitude, plotData.longitude]}
+            center={[plotData.markerPosition.lat, plotData.markerPosition.lng]}
             zoom={16}
           />
 
