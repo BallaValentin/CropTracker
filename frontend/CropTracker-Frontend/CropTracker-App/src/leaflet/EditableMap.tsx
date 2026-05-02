@@ -116,7 +116,7 @@ function EditableMap({
         />
         {markerAdded && (
           <Marker
-            key={crypto.randomUUID()}
+            key={plotData.uid ? "marker-" + plotData.uid : "default-marker"}
             position={[
               plotData.markerPosition.lat,
               plotData.markerPosition.lng,
@@ -126,7 +126,7 @@ function EditableMap({
 
         {plotData.polygonPoints.length > 0 && (
           <Polygon
-            key={crypto.randomUUID()}
+            key={plotData.uid ? "polygon-" + plotData.uid : "default-polygon"}
             positions={plotData.polygonPoints}
             pathOptions={{ color: "blue" }}
             eventHandlers={{

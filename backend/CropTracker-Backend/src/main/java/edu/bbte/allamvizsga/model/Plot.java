@@ -19,10 +19,10 @@ public class Plot extends BaseEntity{
     @JoinColumn(name="user_id", nullable=false)
     private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 18, scale = 15)
     private BigDecimal latitude;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 18, scale = 15)
     private BigDecimal longitude;
     
     @Column(columnDefinition = "POLYGON")

@@ -40,6 +40,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    console.log("Marker Position:", createPlotData.markerPosition);
     onSubmit(createPlotData);
   };
 
@@ -60,11 +61,12 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
 
   const handleMarkerCreated = (rawLatLng: L.LatLng) => {
     setMarkerAdded(true);
-    console.log("Marker created at:", rawLatLng);
     setCreatePlotData((prev) => ({
       ...prev,
-      latitude: rawLatLng.lat,
-      longitude: rawLatLng.lng,
+      markerPosition: {
+        lat: rawLatLng.lat,
+        lng: rawLatLng.lng,
+      },
     }));
   };
 
@@ -74,8 +76,10 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
         const { latitude, longitude } = pos.coords;
         setCreatePlotData((prev) => ({
           ...prev,
-          latitude: latitude,
-          longitude: longitude,
+          markerPosition: {
+            lat: latitude,
+            lng: longitude,
+          },
         }));
       });
     }

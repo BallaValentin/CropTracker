@@ -64,6 +64,8 @@ function PlotDetailsPage() {
     navigate("/update-plot/" + id);
   };
 
+  console.log("2-Marker Position:", plotDetail.markerPosition);
+
   return (
     <>
       <Box>
