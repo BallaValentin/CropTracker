@@ -11,7 +11,6 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.mapstruct.*;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +27,13 @@ public abstract class PlotMapper {
     public abstract GetPlotDTO modelToGetPlotDTO(Plot plot);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "polygonPoints", ignore = true)
     public abstract void updateModelFromUpdatePlotDto(UpdatePlotDTO updatePlotDTO, @MappingTarget Plot plot);
+
+    @AfterMapping
+    protected void handlePolygonUpdate(UpdatePlotDTO updatePlotDTO, @MappingTarget Plot plot) {
+        plot.setPolygonPoints(mapPointsToPolygon(updatePlotDTO.getPolygonPoints()));
+    }
 
     @Named("toPolygon")
     protected Polygon mapPointsToPolygon(Collection<LatLngObject> polygonPoints) {

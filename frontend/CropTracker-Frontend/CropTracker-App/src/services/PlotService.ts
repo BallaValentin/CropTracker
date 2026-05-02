@@ -22,7 +22,7 @@ export const createPlot = async(postPlot: PostPlot): Promise<void> => {
 
 export const updatePlot = async(updatePlot: UpdatePlot, plotId: string): Promise<void> => {
     console.log("Sending create-plot request to server")
-    await plotApi.post<void>(`/update?id=${plotId}`, updatePlot, {
+    await plotApi.put<void>(`/update?id=${plotId}`, updatePlot, {
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
         }

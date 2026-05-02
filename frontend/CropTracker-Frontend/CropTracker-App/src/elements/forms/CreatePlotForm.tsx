@@ -5,25 +5,16 @@ import {
   Button,
   FormControl,
   Grid,
-  Paper,
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  MapContainer,
-  Marker,
-  Polygon,
-  Tooltip,
-  LayersControl,
-} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import ChangeView from "../../leaflet/ChangeView";
 import L from "leaflet";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import type { LatLngObject } from "../../interfaces/LatLngObject";
-import MapEventsHelper from "../../utils/MapEventsHelper";
-import CustomLayers from "../../leaflet/CustomLayers";
+import EditableMap from "../../leaflet/EditableMap";
+import { calculateArea } from "../../utils/CalculatePlotArea";
 
 interface CreatePlotFormProps {
   isPending: boolean;
@@ -36,9 +27,8 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
     latitude: 51.505,
     longitude: -0.09,
     polygonPoints: [],
+    area: 0,
   });
-
-  const [plotArea, setPlotArea] = useState<number>(0);
 
   const [markerAdded, setMarkerAdded] = useState(false);
 
@@ -51,7 +41,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
     onSubmit(createPlotData);
   };
 
-  const handlePolygonCreated = (rawLatLngs: L.LatLng[], area: number) => {
+  const handlePolygonCreated = (rawLatLngs: L.LatLng[]) => {
     const latLngs = Array.isArray(rawLatLngs[0])
       ? (rawLatLngs[0] as L.LatLng[])
       : (rawLatLngs as L.LatLng[]);
@@ -62,9 +52,8 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
     setCreatePlotData((prev) => ({
       ...prev,
       polygonPoints: formattedPoints,
+      area: calculateArea(formattedPoints),
     }));
-
-    setPlotArea(area);
   };
 
   const handleMarkerCreated = (rawLatLng: L.LatLng) => {
@@ -140,74 +129,19 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
             polygon to define its boundaries. If you draw a polygon, the center
             will be calculated automatically.
           </Typography>
-          <Paper
-            elevation={0}
-            sx={{
-              position: "relative",
-              overflow: "hidden",
-              mt: 2,
-              mb: 2,
-              height: 600,
-              width: "100%",
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+          <EditableMap
+            plot={{
+              uid: "",
+              name: createPlotData.name,
+              latitude: createPlotData.latitude,
+              longitude: createPlotData.longitude,
+              polygonPoints: createPlotData.polygonPoints,
+              area: createPlotData.area,
             }}
-          >
-            <MapContainer
-              style={{ height: "100%" }}
-              center={[createPlotData.latitude, createPlotData.longitude]}
-              zoom={13}
-            >
-              <LayersControl position="topright">
-                <CustomLayers />
-
-                <ChangeView
-                  center={[createPlotData.latitude, createPlotData.longitude]}
-                  zoom={16}
-                />
-
-                <LayersControl.Overlay checked name="Draw tools">
-                  <MapEventsHelper
-                    onPolygonCreated={handlePolygonCreated}
-                    onMarkerCreated={handleMarkerCreated}
-                  />
-                </LayersControl.Overlay>
-              </LayersControl>
-
-              {markerAdded && (
-                <Marker
-                  key={crypto.randomUUID()}
-                  position={[createPlotData.latitude, createPlotData.longitude]}
-                />
-              )}
-
-              {createPlotData.polygonPoints.length > 0 && (
-                <Polygon
-                  key={crypto.randomUUID()}
-                  positions={createPlotData.polygonPoints}
-                  pathOptions={{ color: "blue" }}
-                  eventHandlers={{
-                    mouseover: (e) => {
-                      const layer = e.target;
-                      layer.setStyle({ fillOpacity: 0.7 });
-                      layer.openTooltip();
-                    },
-                    mouseout: (e) => {
-                      const layer = e.target;
-                      layer.setStyle({ fillOpacity: 0.2 });
-                      layer.closeTooltip();
-                    },
-                  }}
-                >
-                  <Tooltip direction="top" className="area-tooltip" opacity={1}>
-                    Area: {(plotArea / 10000).toFixed(2)} ha
-                  </Tooltip>
-                </Polygon>
-              )}
-            </MapContainer>
-          </Paper>
+            markerAdded={markerAdded}
+            onMarkerCreated={handleMarkerCreated}
+            onPolygonCreated={handlePolygonCreated}
+          />
           <Button
             disabled={isPending}
             sx={{

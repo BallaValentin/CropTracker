@@ -16,7 +16,6 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-@Slf4j
 public class ResetPasswordTokenService {
     private static final Logger log = LoggerFactory.getLogger(ResetPasswordTokenService.class);
     private final ResetPasswordTokenRepository resetPasswordTokenRepository;

@@ -5,5 +5,6 @@ export interface Plot {
     name: string,
     latitude: number,
     longitude: number,
-    polygonPoints: LatLngObject[]
+    polygonPoints: LatLngObject[],
+    area: number
 }

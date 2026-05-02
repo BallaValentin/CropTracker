@@ -21,4 +21,6 @@ public class CreatePlotDTO {
     private BigDecimal longitude;
     @NotNull(message = "Polygon cannot be null")
     private Collection<LatLngObject> polygonPoints;
+    @NotNull(message = "Polygon area cannot be null")
+    private Double area;
 }

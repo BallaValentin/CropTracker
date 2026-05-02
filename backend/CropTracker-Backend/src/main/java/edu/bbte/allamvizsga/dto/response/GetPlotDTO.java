@@ -14,4 +14,5 @@ public class GetPlotDTO {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private Collection<LatLngObject> polygonPoints;
+    private Double area;
 }

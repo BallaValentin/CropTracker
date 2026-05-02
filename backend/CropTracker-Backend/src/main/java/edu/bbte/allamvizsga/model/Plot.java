@@ -30,4 +30,7 @@ public class Plot extends BaseEntity{
 
     @Column(nullable = false)
     private Boolean isDeleted;
+
+    @Column(nullable = false)
+    private Double area;
 }

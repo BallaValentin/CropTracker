@@ -1,5 +1,5 @@
 import { Box, Button, Paper, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
@@ -9,8 +9,8 @@ import {
   MapContainer,
   FeatureGroup,
   Polygon,
-  TileLayer,
   Marker,
+  LayersControl,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import ChangeView from "../leaflet/ChangeView";
@@ -19,6 +19,7 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import { useQuery } from "@tanstack/react-query";
 import { getPlotById } from "../services/PlotService";
 import type { Plot } from "../interfaces/Plot";
+import CustomLayers from "../leaflet/CustomLayers";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading, error } = useUserProfile();
@@ -30,14 +31,16 @@ function PlotDetailsPage() {
     polygonPoints: [],
   });
   const { id } = useParams();
-  const plotId: string = id || "0";
+  const navigate = useNavigate();
   let authenticated = true;
 
   const { data: plotData, isLoading: isPlotLoading } = useQuery({
-    queryKey: [`plot-${plotId}`],
-    queryFn: () => getPlotById(plotId),
-    staleTime: 1000 * 60 * 60,
+    queryKey: ["plots", id],
+    queryFn: () => getPlotById(id || ""),
+    staleTime: 0,
+    enabled: !!id,
     refetchInterval: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
   });
 
   if (error) {
@@ -53,6 +56,10 @@ function PlotDetailsPage() {
   if (isUserLoading || isPlotLoading) {
     return <ProgressCircle loadingMessage="Loading your data..." />;
   }
+
+  const handleUpdateClick = () => {
+    navigate("/update-plot/" + id);
+  };
 
   return (
     <>
@@ -104,10 +111,11 @@ function PlotDetailsPage() {
                 center={[plotDetail.latitude, plotDetail.longitude]}
                 zoom={16}
               />
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
+
+              <LayersControl position="topright">
+                <CustomLayers />
+              </LayersControl>
+
               <FeatureGroup>
                 {plotDetail?.polygonPoints &&
                   plotDetail.polygonPoints.length > 0 && (
@@ -123,8 +131,21 @@ function PlotDetailsPage() {
               </FeatureGroup>
             </MapContainer>
           </Paper>
-          <Button sx={{ mt: 3 }} variant="contained" color="success">
-            Update Plot
+          <Typography
+            variant="body2"
+            sx={{ mt: 4, color: "text.secondary", fontStyle: "italic" }}
+          >
+            You can edit the details of your field or update its boundaries by
+            clicking the button below. This will take you to the edit page where
+            you can make changes to your field's information and shape.
+          </Typography>
+          <Button
+            sx={{ mt: 3 }}
+            variant="contained"
+            color="success"
+            onClick={handleUpdateClick}
+          >
+            Edit Field
           </Button>
         </MainContainer>
       </Box>

@@ -6,4 +6,5 @@ export interface PostPlot {
     latitude: number,
     longitude: number,
     polygonPoints: LatLngObject[]
+    area: number
 }
