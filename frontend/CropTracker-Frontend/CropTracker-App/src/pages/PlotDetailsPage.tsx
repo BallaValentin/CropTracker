@@ -88,7 +88,7 @@ function PlotDetailsPage() {
             <Alert
               icon={<CheckIcon fontSize="inherit" />}
               severity="success"
-              sx={{ mb: 2, mt: 10 }}
+              sx={{ mt: 10 }}
             >
               {feedbackMessage}
             </Alert>
@@ -97,7 +97,7 @@ function PlotDetailsPage() {
             variant="h4"
             component={"h1"}
             sx={{
-              mt: feedbackMessage ? 0 : 18,
+              mt: feedbackMessage ? 0 : 16,
               mb: 2,
               color: "success.main",
               fontWeight: "bold",

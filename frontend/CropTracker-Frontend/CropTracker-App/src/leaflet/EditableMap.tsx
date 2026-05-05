@@ -16,34 +16,36 @@ import {
 import type { Plot } from "../interfaces/Plot";
 import { useEffect, useState } from "react";
 import L from "leaflet";
-import { calculateArea } from "../utils/CalculatePlotArea";
+import { calculatePolygonArea, isPointInPolygon } from "../utils/PolygonHelper";
 
 interface EditableMapProps {
   plot: Plot;
   markerAdded: boolean;
   onMarkerCreated: (latLng: L.LatLng) => void;
+  onMarkerDeleted: () => void;
   onPolygonCreated: (latLngs: L.LatLng[]) => void;
+  onPolygonDeleted: () => void;
 }
 
 function EditableMap({
   plot,
   markerAdded,
   onMarkerCreated,
+  onMarkerDeleted,
   onPolygonCreated,
+  onPolygonDeleted,
 }: EditableMapProps) {
   const [plotData, setPlotData] = useState<Plot>(plot);
+  const [viewCenter, setViewCenter] = useState<[number, number]>([
+    plot.markerPosition.lat,
+    plot.markerPosition.lng,
+  ]);
 
   useEffect(() => {
     setPlotData(plot);
   }, [plot]);
 
-  const DrawingTools = ({
-    onPolygonCreated,
-    onMarkerCreated,
-  }: {
-    onPolygonCreated: (latLngs: L.LatLng[]) => void;
-    onMarkerCreated: (latLng: L.LatLng) => void;
-  }) => {
+  const DrawingTools = () => {
     const map = useMap();
 
     const _onCreated = (e: DrawEvents.Created) => {
@@ -61,28 +63,78 @@ function EditableMap({
           lat: latLng.lat,
           lng: latLng.lng,
         }));
-        setPlotData((prev) => ({
-          ...prev,
-          polygonPoints: formattedPoints,
-          area: calculateArea(formattedPoints),
-        }));
 
-        onPolygonCreated(latLngs);
+        if (
+          isPointInPolygon(plotData.markerPosition, formattedPoints) ||
+          formattedPoints.length === 0
+        ) {
+          setPlotData((prev) => ({
+            ...prev,
+            polygonPoints: formattedPoints,
+            area: calculatePolygonArea(formattedPoints),
+          }));
+
+          onPolygonCreated(latLngs);
+        } else {
+          alert(
+            "The polygon must contain the marker. Please draw a polygon that includes the marker.",
+          );
+        }
       } else if (layerType === "marker") {
         const markerLayer = layer as L.Marker;
         const rawLatLng = markerLayer.getLatLng();
-        setPlotData((prev) => ({
-          ...prev,
-          markerPosition: {
-            lat: rawLatLng.lat,
-            lng: rawLatLng.lng,
-          },
-        }));
-        onMarkerCreated(rawLatLng);
+
+        if (
+          plotData.polygonPoints.length === 0 ||
+          isPointInPolygon(rawLatLng, plotData.polygonPoints)
+        ) {
+          setPlotData((prev) => ({
+            ...prev,
+            markerPosition: {
+              lat: rawLatLng.lat,
+              lng: rawLatLng.lng,
+            },
+          }));
+          setViewCenter([plot.markerPosition.lat, plot.markerPosition.lng]);
+          onMarkerCreated(rawLatLng);
+        } else {
+          alert(
+            "The marker must be placed inside the polygon. Please place the marker within the existing polygon.",
+          );
+        }
       }
 
       setTimeout(() => {
         layer.remove();
+        map.setView(currentCenter, currentZoom, { animate: false });
+      }, 10);
+    };
+
+    const _onDeleted = (e: DrawEvents.Deleted) => {
+      const { layers } = e;
+      const currentZoom = map.getZoom();
+      const currentCenter = map.getCenter();
+
+      layers.eachLayer((layer) => {
+        if (layer instanceof L.Polygon) {
+          console.log("Deleted polygon layer.");
+          setPlotData((prev) => ({
+            ...prev,
+            polygonPoints: [],
+            area: 0,
+          }));
+          onPolygonDeleted();
+        } else if (layer instanceof L.Marker) {
+          console.log("Deleted marker layer");
+          setPlotData((prev) => ({
+            ...prev,
+            markerPosition: { lat: 51.505, lng: -0.09 },
+          }));
+          onMarkerDeleted();
+        }
+      });
+
+      setTimeout(() => {
         map.setView(currentCenter, currentZoom, { animate: false });
       }, 10);
     };
@@ -92,6 +144,7 @@ function EditableMap({
         <EditControl
           position="topright"
           onCreated={_onCreated}
+          onDeleted={_onDeleted}
           draw={{
             marker: true,
             polyline: false,
@@ -167,24 +220,14 @@ function EditableMap({
         boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
       }}
     >
-      <MapContainer
-        style={{ height: "100%" }}
-        center={[plotData.markerPosition.lat, plotData.markerPosition.lng]}
-        zoom={13}
-      >
+      <MapContainer style={{ height: "100%" }} center={viewCenter} zoom={13}>
         <LayersControl position="topright">
           <CustomLayers />
 
-          <ChangeView
-            center={[plotData.markerPosition.lat, plotData.markerPosition.lng]}
-            zoom={16}
-          />
+          <ChangeView center={viewCenter} zoom={16} />
 
           <LayersControl.Overlay checked name="Draw tools">
-            <DrawingTools
-              onPolygonCreated={onPolygonCreated}
-              onMarkerCreated={onMarkerCreated}
-            />
+            <DrawingTools />
           </LayersControl.Overlay>
         </LayersControl>
       </MapContainer>

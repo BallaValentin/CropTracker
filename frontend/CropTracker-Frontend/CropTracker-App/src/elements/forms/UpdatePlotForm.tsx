@@ -12,7 +12,7 @@ import {
 import type { LatLngObject } from "../../interfaces/LatLngObject";
 import L from "leaflet";
 import EditableMap from "../../leaflet/EditableMap";
-import { calculateArea } from "../../utils/CalculatePlotArea";
+import { calculatePolygonArea } from "../../utils/PolygonHelper";
 
 interface UpdatePlotFormProps {
   plot: Plot;
@@ -65,7 +65,15 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
 
     setPlotUpdateData((prev) => ({
       ...prev,
-      area: calculateArea(formattedPoints),
+      area: calculatePolygonArea(formattedPoints),
+    }));
+  };
+
+  const handlePolygonDeleted = () => {
+    setPlotUpdateData((prev) => ({
+      ...prev,
+      polygonPoints: [],
+      area: 0,
     }));
   };
 
@@ -75,6 +83,14 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
       ...prev,
       latitude: rawLatLng.lat,
       longitude: rawLatLng.lng,
+    }));
+  };
+
+  const handleMarkerDeleted = () => {
+    setMarkerAdded(false);
+    setPlotUpdateData((prev) => ({
+      ...prev,
+      markerPosition: { lat: 51.505, lng: -0.09 },
     }));
   };
 
@@ -139,7 +155,9 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
           }}
           markerAdded={markerAdded}
           onMarkerCreated={handleMarkerCreated}
+          onMarkerDeleted={handleMarkerDeleted}
           onPolygonCreated={handlePolygonCreated}
+          onPolygonDeleted={handlePolygonDeleted}
         />
         <Button
           disabled={isPending}

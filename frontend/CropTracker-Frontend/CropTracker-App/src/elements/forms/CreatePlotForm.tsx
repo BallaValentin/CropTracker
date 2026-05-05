@@ -14,7 +14,7 @@ import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import type { LatLngObject } from "../../interfaces/LatLngObject";
 import EditableMap from "../../leaflet/EditableMap";
-import { calculateArea } from "../../utils/CalculatePlotArea";
+import { calculatePolygonArea } from "../../utils/PolygonHelper";
 
 interface CreatePlotFormProps {
   isPending: boolean;
@@ -55,7 +55,15 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
     setCreatePlotData((prev) => ({
       ...prev,
       polygonPoints: formattedPoints,
-      area: calculateArea(formattedPoints),
+      area: calculatePolygonArea(formattedPoints),
+    }));
+  };
+
+  const handlePolygonDeleted = () => {
+    setCreatePlotData((prev) => ({
+      ...prev,
+      polygonPoints: [],
+      area: 0,
     }));
   };
 
@@ -70,6 +78,13 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
     }));
   };
 
+  const handleMarkerDeleted = () => {
+    setMarkerAdded(false);
+    setCreatePlotData((prev) => ({
+      ...prev,
+      markerPosition: { lat: 51.505, lng: -0.09 },
+    }));
+  };
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
@@ -146,6 +161,8 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
             markerAdded={markerAdded}
             onMarkerCreated={handleMarkerCreated}
             onPolygonCreated={handlePolygonCreated}
+            onMarkerDeleted={handleMarkerDeleted}
+            onPolygonDeleted={handlePolygonDeleted}
           />
           <Button
             disabled={isPending}
