@@ -58,7 +58,12 @@ function UpdatePlotPage() {
     }) => updatePlot(plotUpdateData, id || ""),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["plots", id] });
-      navigate(`/plot-details/${id}`);
+      navigate(`/plot-details/${id}`, {
+        state: {
+          success: true,
+          message: "Plot has been successfully updated",
+        },
+      });
     },
   });
 

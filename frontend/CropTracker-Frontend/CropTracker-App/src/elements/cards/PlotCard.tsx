@@ -21,6 +21,12 @@ function PlotCard({ plot }: PlotCardProps) {
     mutationFn: deletePlotById,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["plots"] });
+      navigate("/show-plots", {
+        state: {
+          success: true,
+          message: "Plot has been successfully deleted",
+        },
+      });
     },
   });
 

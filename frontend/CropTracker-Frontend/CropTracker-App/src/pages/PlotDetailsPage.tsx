@@ -1,5 +1,5 @@
-import { Box, Button, Paper, Typography } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import { Alert, Box, Button, Paper, Typography } from "@mui/material";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
@@ -20,6 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getPlotById } from "../services/PlotService";
 import type { Plot } from "../interfaces/Plot";
 import CustomLayers from "../leaflet/CustomLayers";
+import CheckIcon from "@mui/icons-material/Check";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading, error } = useUserProfile();
@@ -33,8 +34,11 @@ function PlotDetailsPage() {
     polygonPoints: [],
     area: 0,
   });
-  const { id } = useParams();
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+
+  const location = useLocation();
   const navigate = useNavigate();
+  const { id } = useParams();
   let authenticated = true;
 
   const { data: plotData, isLoading: isPlotLoading } = useQuery({
@@ -45,6 +49,15 @@ function PlotDetailsPage() {
     refetchInterval: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    const { success, message } = location.state || {};
+    if (success && message) {
+      setFeedbackMessage(message);
+      const timer = setTimeout(() => setFeedbackMessage(null), 7000);
+      return () => clearTimeout(timer);
+    }
+  }, [location, navigate]);
 
   if (error) {
     authenticated = false;
@@ -71,10 +84,20 @@ function PlotDetailsPage() {
       <Box>
         <MainHeader userData={user} authenticated={authenticated} />
         <MainContainer hasDrawer={authenticated}>
+          {feedbackMessage && (
+            <Alert
+              icon={<CheckIcon fontSize="inherit" />}
+              severity="success"
+              sx={{ mb: 2, mt: 10 }}
+            >
+              {feedbackMessage}
+            </Alert>
+          )}
           <Typography
             variant="h4"
             component={"h1"}
             sx={{
+              mt: feedbackMessage ? 0 : 18,
               mb: 2,
               color: "success.main",
               fontWeight: "bold",

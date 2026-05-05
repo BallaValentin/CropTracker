@@ -32,9 +32,9 @@ function PlotsListPage() {
   });
 
   useEffect(() => {
-    const { createPlotSuccess } = location.state || {};
-    if (createPlotSuccess) {
-      setFeedbackMessage("New plot has been successfully added");
+    const { success, message } = location.state || {};
+    if (success && message) {
+      setFeedbackMessage(message);
       const timer = setTimeout(() => setFeedbackMessage(null), 7000);
       return () => clearTimeout(timer);
     }
@@ -71,15 +71,21 @@ function PlotsListPage() {
           )}
 
           {plots.length === 0 ? (
-            <ColumnCenterContainer>
-              <Typography variant="h4">
-                You haven't added any fields yet.
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-                Click the button below to create your first plot and start
-                tracking your crops!
-              </Typography>
-            </ColumnCenterContainer>
+            <Box sx={{ mt: feedbackMessage ? 0 : 16 }}>
+              <ColumnCenterContainer>
+                <Typography variant="h4">
+                  You haven't added any fields yet.
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ mt: 2 }}
+                >
+                  Click the button below to create your first plot and start
+                  tracking your crops!
+                </Typography>
+              </ColumnCenterContainer>
+            </Box>
           ) : (
             <>
               <Typography

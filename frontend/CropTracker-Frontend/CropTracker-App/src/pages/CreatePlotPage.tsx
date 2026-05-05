@@ -23,7 +23,8 @@ function CreatePlotPage() {
     onSuccess: () => {
       navigate("/show-plots", {
         state: {
-          createPlotSuccess: true,
+          success: true,
+          message: "New plot has been successfully added",
         },
       });
     },
