@@ -1,7 +1,15 @@
 import { Box } from "@mui/material";
-import { LayersControl, MapContainer, Marker, Polygon } from "react-leaflet";
+import {
+  LayersControl,
+  MapContainer,
+  Marker,
+  Polygon,
+  useMap,
+} from "react-leaflet";
 import CustomLayerControl from "./CustomLayers";
 import type { LatLngObject } from "../interfaces/LatLngObject";
+import L from "leaflet";
+import { useEffect } from "react";
 
 interface MapPreviewProps {
   uid: string;
@@ -9,8 +17,25 @@ interface MapPreviewProps {
   polygonPoints: LatLngObject[];
 }
 
+interface MapBoundsHelperProps {
+  polygonPoints: LatLngObject[];
+}
+
 function MapPreview({ uid, markerPosition, polygonPoints }: MapPreviewProps) {
-  console.log("MapPreview props:", { markerPosition });
+  const MapBoundsHelper = ({ polygonPoints }: MapBoundsHelperProps) => {
+    const map = useMap();
+    useEffect(() => {
+      if (polygonPoints && polygonPoints.length > 3) {
+        const polygon = new L.Polygon(polygonPoints);
+        const bounds = polygon.getBounds();
+
+        map.fitBounds(bounds, {
+          padding: [20, 20],
+        });
+      }
+    }, [polygonPoints, map]);
+    return null;
+  };
   return (
     <>
       <Box
@@ -29,6 +54,7 @@ function MapPreview({ uid, markerPosition, polygonPoints }: MapPreviewProps) {
           zoomControl={false}
           style={{ height: "100%", width: "100%" }}
         >
+          <MapBoundsHelper polygonPoints={polygonPoints} />
           <LayersControl position="topright">
             <CustomLayerControl />
           </LayersControl>
