@@ -16,7 +16,11 @@ import {
 import type { Plot } from "../interfaces/Plot";
 import { useEffect, useState } from "react";
 import L from "leaflet";
-import { calculatePolygonArea, isPointInPolygon } from "../utils/PolygonHelper";
+import {
+  calculatePolygonArea,
+  getPolygonCenter,
+  isPointInPolygon,
+} from "../utils/PolygonHelper";
 
 interface EditableMapProps {
   plot: Plot;
@@ -65,16 +69,32 @@ function EditableMap({
         }));
 
         if (
-          isPointInPolygon(plotData.markerPosition, formattedPoints) ||
-          formattedPoints.length === 0
+          !markerAdded ||
+          isPointInPolygon(plotData.markerPosition, formattedPoints)
         ) {
           setPlotData((prev) => ({
             ...prev,
             polygonPoints: formattedPoints,
             area: calculatePolygonArea(formattedPoints),
           }));
-
           onPolygonCreated(latLngs);
+
+          if (!markerAdded) {
+            const centerMarker = getPolygonCenter(formattedPoints);
+            setPlotData((prev) => ({
+              ...prev,
+              markerPosition: centerMarker,
+            }));
+
+            setViewCenter([centerMarker.lat, centerMarker.lng]);
+
+            const centerLatLng = new L.LatLng(
+              centerMarker.lat,
+              centerMarker.lng,
+            );
+            console.log("Center LatLng: ", centerLatLng);
+            onMarkerCreated(centerLatLng);
+          }
         } else {
           alert(
             "The polygon must contain the marker. Please draw a polygon that includes the marker.",
@@ -117,7 +137,6 @@ function EditableMap({
 
       layers.eachLayer((layer) => {
         if (layer instanceof L.Polygon) {
-          console.log("Deleted polygon layer.");
           setPlotData((prev) => ({
             ...prev,
             polygonPoints: [],
@@ -125,7 +144,6 @@ function EditableMap({
           }));
           onPolygonDeleted();
         } else if (layer instanceof L.Marker) {
-          console.log("Deleted marker layer");
           setPlotData((prev) => ({
             ...prev,
             markerPosition: { lat: 51.505, lng: -0.09 },

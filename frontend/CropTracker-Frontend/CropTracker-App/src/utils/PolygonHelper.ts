@@ -1,7 +1,8 @@
 import L from "leaflet";
+import type { LatLngObject } from "../interfaces/LatLngObject";
 
-export function isPointInPolygon(point: { lat: number; lng: number }, 
-    polygon: { lat: number; lng: number }[]): boolean {
+export function isPointInPolygon(point: LatLngObject, 
+    polygon: LatLngObject[]): boolean {
   let isInside = false;
   const { lat, lng } = point;
   const n = polygon.length;
@@ -15,7 +16,24 @@ export function isPointInPolygon(point: { lat: number; lng: number },
   return isInside;
 }
 
-export function calculatePolygonArea(polygon: { lat: number; lng: number }[]): number {
+export function getPolygonCenter(polygon: LatLngObject[]) : LatLngObject {
+  const centerPoint: LatLngObject = {
+    lat: 0,
+    lng: 0
+  }
+
+  polygon.forEach(point => {
+    centerPoint.lat += point.lat;
+    centerPoint.lng += point.lng;
+  })
+
+  centerPoint.lat /= polygon.length;
+  centerPoint.lng /= polygon.length;
+
+  return centerPoint;
+}
+
+export function calculatePolygonArea(polygon: LatLngObject[]): number {
   if (polygon.length < 3) return 0;
 
   return L.GeometryUtil.geodesicArea(polygon.map(point => L.latLng(point.lat, point.lng)));
