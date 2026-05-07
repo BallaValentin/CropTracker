@@ -1,30 +1,30 @@
 import { Box, Button, Card, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import type { Plot } from "../../interfaces/Plot";
+import type { GetCropFieldData } from "../../interfaces/response/GetCropFieldData";
 import MapPreview from "../../leaflet/MapPreview";
-import DeletePlotButton from "../buttons/DeletePlotButton";
+import DeletePlotButton from "../buttons/DeleteCropFieldButton";
 import DeletePlotDialog from "../dialogs/DeletePlotDialog";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { deletePlotById } from "../../services/PlotService";
+import { deleteCropFieldById } from "../../services/CropFieldService";
 import { queryClient } from "../../query-client/QueryClient";
 
-interface PlotCardProps {
-  plot: Plot;
+interface CropFieldCardProps {
+  cropField: GetCropFieldData;
 }
 
-function PlotCard({ plot }: PlotCardProps) {
+function PlotCard({ cropField }: CropFieldCardProps) {
   const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { mutate } = useMutation({
-    mutationFn: deletePlotById,
+    mutationFn: deleteCropFieldById,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["plots"] });
-      navigate("/show-plots", {
+      queryClient.invalidateQueries({ queryKey: ["cropfields"] });
+      navigate("/show-cropfields", {
         state: {
           success: true,
-          message: "Plot has been successfully deleted",
+          message: "Field has been successfully deleted",
         },
       });
     },
@@ -35,7 +35,7 @@ function PlotCard({ plot }: PlotCardProps) {
   };
 
   const handleConfirmDelete = () => {
-    mutate(plot.uid);
+    mutate(cropField.uid);
     setDeleteDialogOpen(false);
   };
 
@@ -60,14 +60,14 @@ function PlotCard({ plot }: PlotCardProps) {
       >
         <Box sx={{ m: 1, textAlign: "center" }}>
           <Typography variant="h5" component={"h2"} sx={{ fontWeight: "bold" }}>
-            {plot.name}
+            {cropField.name}
           </Typography>
         </Box>
 
         <MapPreview
-          uid={plot.uid}
-          markerPosition={plot.markerPosition}
-          polygonPoints={plot.polygonPoints}
+          uid={cropField.uid}
+          markerPosition={cropField.markerPosition}
+          polygonPoints={cropField.polygonPoints}
         />
 
         <Box sx={{ display: "flex", m: 2, alignItems: "center" }}>
@@ -79,7 +79,7 @@ function PlotCard({ plot }: PlotCardProps) {
             }}
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.stopPropagation();
-              navigate(`/plot-details/${plot.uid}`);
+              navigate(`/cropfield-details/${cropField.uid}`);
             }}
           >
             Details

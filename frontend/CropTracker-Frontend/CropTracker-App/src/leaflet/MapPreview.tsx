@@ -14,7 +14,7 @@ import { defaultMapPosition } from "../utils/Constants";
 
 interface MapPreviewProps {
   uid: string;
-  markerPosition: LatLngObject;
+  markerPosition: LatLngObject | null;
   polygonPoints: LatLngObject[];
 }
 

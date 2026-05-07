@@ -5,19 +5,19 @@ import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import { useEffect, useState } from "react";
-import type { Plot } from "../interfaces/Plot";
+import type { GetCropFieldData } from "../interfaces/response/GetCropFieldData";
 import { useMutation } from "@tanstack/react-query";
-import { getPlots } from "../services/PlotService";
+import { getCropFields } from "../services/CropFieldService";
 import AddIcon from "@mui/icons-material/Add";
 import { useLocation, useNavigate } from "react-router-dom";
 import CheckIcon from "@mui/icons-material/Check";
-import PlotCard from "../elements/cards/PlotCard";
-import { useUserPlots } from "../hooks/UseUserPlots";
+import { useUserCropFields } from "../hooks/UseUserCropFields";
+import CropFieldCard from "../elements/cards/CropFieldCard";
 
 function PlotsListPage() {
   const { data: user, isLoading, error } = useUserProfile();
-  const { data: userPlots } = useUserPlots();
-  const [plots, setPlots] = useState<Plot[]>([]);
+  const { data: userCropField } = useUserCropFields();
+  const [cropFields, setCropFields] = useState<GetCropFieldData[]>([]);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [fabHovered, setFabHovered] = useState(false);
   const navigate = useNavigate();
@@ -25,9 +25,9 @@ function PlotsListPage() {
   let authenticated = true;
 
   const { mutate } = useMutation({
-    mutationFn: getPlots,
-    onSuccess: (response: Plot[]) => {
-      setPlots(response);
+    mutationFn: getCropFields,
+    onSuccess: (response: GetCropFieldData[]) => {
+      setCropFields(response);
     },
   });
 
@@ -42,7 +42,7 @@ function PlotsListPage() {
 
   useEffect(() => {
     mutate();
-  }, [user, mutate, userPlots]);
+  }, [user, mutate, userCropField]);
 
   if (isLoading) {
     return <ProgressCircle loadingMessage="Loading fields..." />;
@@ -70,7 +70,7 @@ function PlotsListPage() {
             </Alert>
           )}
 
-          {plots.length === 0 ? (
+          {cropFields.length === 0 ? (
             <Box sx={{ mt: feedbackMessage ? 0 : 16 }}>
               <ColumnCenterContainer>
                 <Typography variant="h4">
@@ -81,7 +81,7 @@ function PlotsListPage() {
                   color="text.secondary"
                   sx={{ mt: 2 }}
                 >
-                  Click the button below to create your first plot and start
+                  Click the button below to create your first field and start
                   tracking your crops!
                 </Typography>
               </ColumnCenterContainer>
@@ -104,8 +104,10 @@ function PlotsListPage() {
                 }}
               />
               <Box sx={{ mb: 10 }}>
-                {plots.map((plot) => {
-                  return <PlotCard key={plot.uid} plot={plot} />;
+                {cropFields.map((cropField) => {
+                  return (
+                    <CropFieldCard key={cropField.uid} cropField={cropField} />
+                  );
                 })}
               </Box>
             </>
@@ -147,7 +149,7 @@ function PlotsListPage() {
               color="success"
               sx={{ "&:hover": { bgcolor: "success.dark" } }}
               aria-label="add"
-              onClick={() => navigate("/create-plot")}
+              onClick={() => navigate("/create-cropfield")}
             >
               <AddIcon />
             </Fab>

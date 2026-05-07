@@ -1,9 +1,8 @@
 import type { LatLngObject } from "../LatLngObject";
 
-
-export interface PostPlot {
+export interface UpdateCropFieldData {
     name: string,
     markerPosition: LatLngObject | null,
-    polygonPoints: LatLngObject[]
+    polygonPoints: LatLngObject[],
     area: number
 }

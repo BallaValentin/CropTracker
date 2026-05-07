@@ -1,4 +1,4 @@
-import type { Plot } from "../Plot";
+import type { Plot } from "./GetCropFieldData";
 import type { Role } from "../Role";
 
 export interface UserData {

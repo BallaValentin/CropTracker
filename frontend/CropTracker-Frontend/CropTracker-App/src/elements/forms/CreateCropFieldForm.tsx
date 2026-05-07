@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { PostPlot } from "../../interfaces/request/PostPlot";
+import type { CreateCropFieldData } from "../../interfaces/request/CreateCropFieldData";
 import {
   Box,
   Button,
@@ -17,29 +17,30 @@ import EditableMap from "../../leaflet/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import { defaultMapPosition } from "../../utils/Constants";
 
-interface CreatePlotFormProps {
+interface CreateCropFieldFormProps {
   isPending: boolean;
-  onSubmit: (createPlot: PostPlot) => void;
+  onSubmit: (createPlot: CreateCropFieldData) => void;
 }
 
-function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
-  const [createPlotData, setCreatePlotData] = useState<PostPlot>({
-    name: "Unnamed Field",
-    markerPosition: null,
-    polygonPoints: [],
-    area: 0,
-  });
+function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
+  const [createCropFieldData, setCreateCropFieldData] =
+    useState<CreateCropFieldData>({
+      name: "Unnamed Field",
+      markerPosition: null,
+      polygonPoints: [],
+      area: 0,
+    });
 
   const [markerAdded, setMarkerAdded] = useState(false);
 
   const changePlotName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCreatePlotData((prev) => ({ ...prev, name: event.target.value }));
+    setCreateCropFieldData((prev) => ({ ...prev, name: event.target.value }));
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("Marker Position:", createPlotData.markerPosition);
-    onSubmit(createPlotData);
+    console.log("Marker Position:", createCropFieldData.markerPosition);
+    onSubmit(createCropFieldData);
   };
 
   const handlePolygonCreated = (rawLatLngs: L.LatLng[]) => {
@@ -50,7 +51,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
       lat: latLng.lat,
       lng: latLng.lng,
     }));
-    setCreatePlotData((prev) => ({
+    setCreateCropFieldData((prev) => ({
       ...prev,
       polygonPoints: formattedPoints,
       area: calculatePolygonArea(formattedPoints),
@@ -58,7 +59,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
   };
 
   const handlePolygonDeleted = () => {
-    setCreatePlotData((prev) => ({
+    setCreateCropFieldData((prev) => ({
       ...prev,
       polygonPoints: [],
       area: 0,
@@ -67,7 +68,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
 
   const handleMarkerCreated = (rawLatLng: L.LatLng) => {
     setMarkerAdded(true);
-    setCreatePlotData((prev) => ({
+    setCreateCropFieldData((prev) => ({
       ...prev,
       markerPosition: {
         lat: rawLatLng.lat,
@@ -78,7 +79,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
 
   const handleMarkerDeleted = () => {
     setMarkerAdded(false);
-    setCreatePlotData((prev) => ({
+    setCreateCropFieldData((prev) => ({
       ...prev,
       markerPosition: defaultMapPosition,
     }));
@@ -87,7 +88,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         const { latitude, longitude } = pos.coords;
-        setCreatePlotData((prev) => ({
+        setCreateCropFieldData((prev) => ({
           ...prev,
           markerPosition: {
             lat: latitude,
@@ -125,7 +126,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
                 label="Field Name"
                 color="success"
                 name="username"
-                value={createPlotData.name}
+                value={createCropFieldData.name}
                 placeholder="Your username"
                 required
                 onChange={changePlotName}
@@ -149,13 +150,13 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
             will be calculated automatically.
           </Typography>
           <EditableMap
-            plot={{
+            cropField={{
               uid: "",
-              name: createPlotData.name,
+              name: createCropFieldData.name,
               markerPosition:
-                createPlotData.markerPosition || defaultMapPosition,
-              polygonPoints: createPlotData.polygonPoints,
-              area: createPlotData.area,
+                createCropFieldData.markerPosition || defaultMapPosition,
+              polygonPoints: createCropFieldData.polygonPoints,
+              area: createCropFieldData.area,
             }}
             markerAdded={markerAdded}
             onMarkerCreated={handleMarkerCreated}
@@ -176,7 +177,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
             }}
             type="submit"
           >
-            {isPending ? "Uploading Plot..." : "Upload Plot"}
+            {isPending ? "Uploading Field..." : "Create Field"}
           </Button>
         </form>
       </Box>

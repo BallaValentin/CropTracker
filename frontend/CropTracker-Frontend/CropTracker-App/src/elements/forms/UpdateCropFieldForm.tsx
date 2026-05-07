@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { Plot } from "../../interfaces/Plot";
-import type { UpdatePlot } from "../../interfaces/request/UpdatePlot";
+import type { GetCropFieldData } from "../../interfaces/response/GetCropFieldData";
+import type { UpdateCropFieldData } from "../../interfaces/request/UpdateCropFieldData";
 import {
   Box,
   Button,
@@ -14,41 +14,46 @@ import L from "leaflet";
 import EditableMap from "../../leaflet/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 
-interface UpdatePlotFormProps {
-  plot: Plot;
-  onUpdate: (updatedPlotData: UpdatePlot) => void;
+interface UpdateCropFieldFormProps {
+  cropField: GetCropFieldData;
+  onUpdate: (updatedGetCropFieldData: UpdateCropFieldData) => void;
   isPending: boolean;
 }
 
-function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
-  const [plotUpdateData, setPlotUpdateData] = useState<UpdatePlot>({
-    name: plot.name,
-    markerPosition: plot.markerPosition,
-    polygonPoints: plot.polygonPoints,
-    area: plot.area,
-  });
+function UpdateGetCropFieldForm({
+  cropField,
+  onUpdate,
+  isPending,
+}: UpdateCropFieldFormProps) {
+  const [cropFieldUpdateData, setCropFieldUpdateData] =
+    useState<UpdateCropFieldData>({
+      name: cropField.name,
+      markerPosition: cropField.markerPosition,
+      polygonPoints: cropField.polygonPoints,
+      area: cropField.area,
+    });
 
   const [markerAdded, setMarkerAdded] = useState<boolean>(
-    !!plot.markerPosition,
+    !!cropField.markerPosition,
   );
 
   useEffect(() => {
-    setPlotUpdateData({
-      name: plot.name,
-      markerPosition: plot.markerPosition,
-      polygonPoints: plot.polygonPoints,
-      area: plot.area,
+    setCropFieldUpdateData({
+      name: cropField.name,
+      markerPosition: cropField.markerPosition,
+      polygonPoints: cropField.polygonPoints,
+      area: cropField.area,
     });
-    setMarkerAdded(!!plot.markerPosition);
-  }, [plot]);
+    setMarkerAdded(!!cropField.markerPosition);
+  }, [cropField]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    onUpdate(plotUpdateData);
+    onUpdate(cropFieldUpdateData);
   };
 
-  const changePlotName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPlotUpdateData((prev) => ({ ...prev, name: event.target.value }));
+  const changeCropFieldName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCropFieldUpdateData((prev) => ({ ...prev, name: event.target.value }));
   };
 
   const handlePolygonCreated = (rawLatLngs: L.LatLng[]) => {
@@ -59,19 +64,19 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
       lat: latLng.lat,
       lng: latLng.lng,
     }));
-    setPlotUpdateData((prev) => ({
+    setCropFieldUpdateData((prev) => ({
       ...prev,
       polygonPoints: formattedPoints,
     }));
 
-    setPlotUpdateData((prev) => ({
+    setCropFieldUpdateData((prev) => ({
       ...prev,
       area: calculatePolygonArea(formattedPoints),
     }));
   };
 
   const handlePolygonDeleted = () => {
-    setPlotUpdateData((prev) => ({
+    setCropFieldUpdateData((prev) => ({
       ...prev,
       polygonPoints: [],
       area: 0,
@@ -79,7 +84,7 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
   };
 
   const handleMarkerCreated = (rawLatLng: L.LatLng) => {
-    setPlotUpdateData((prev) => ({
+    setCropFieldUpdateData((prev) => ({
       ...prev,
       markerPosition: {
         lat: rawLatLng.lat,
@@ -91,7 +96,7 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
 
   const handleMarkerDeleted = () => {
     setMarkerAdded(false);
-    setPlotUpdateData((prev) => ({
+    setCropFieldUpdateData((prev) => ({
       ...prev,
       markerPosition: null,
     }));
@@ -109,7 +114,7 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
           letterSpacing: "0.02em",
         }}
       >
-        Update Plot
+        Update crop field
       </Typography>
 
       <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
@@ -123,10 +128,10 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
               label="Field Name"
               color="success"
               name="username"
-              value={plotUpdateData.name}
+              value={cropFieldUpdateData.name}
               placeholder="Your username"
               required
-              onChange={changePlotName}
+              onChange={changeCropFieldName}
               fullWidth
             />
           </FormControl>
@@ -141,18 +146,18 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
             lineHeight: 1.6,
           }}
         >
-          Select the location and the outline of your plot on the map. You can
-          either place a marker to set the center of your plot or draw a polygon
-          to define its boundaries. If you draw a polygon, the center will be
-          calculated automatically.
+          Select the location and the outline of your GetCropField on the map.
+          You can either place a marker to set the center of your GetCropField
+          or draw a polygon to define its boundaries. If you draw a polygon, the
+          center will be calculated automatically.
         </Typography>
         <EditableMap
-          plot={{
-            uid: plot.uid,
-            name: plotUpdateData.name,
-            markerPosition: plotUpdateData.markerPosition,
-            polygonPoints: plotUpdateData.polygonPoints,
-            area: plotUpdateData.area,
+          cropField={{
+            uid: cropField.uid,
+            name: cropFieldUpdateData.name,
+            markerPosition: cropFieldUpdateData.markerPosition,
+            polygonPoints: cropFieldUpdateData.polygonPoints,
+            area: cropFieldUpdateData.area,
           }}
           markerAdded={markerAdded}
           onMarkerCreated={handleMarkerCreated}
@@ -180,4 +185,4 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
   );
 }
 
-export default UpdatePlotForm;
+export default UpdateGetCropFieldForm;

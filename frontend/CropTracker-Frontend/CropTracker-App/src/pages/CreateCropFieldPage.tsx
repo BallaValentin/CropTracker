@@ -3,13 +3,13 @@ import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
 import { useUserProfile } from "../hooks/UseUserProfile";
-import CreatePlotForm from "../elements/forms/CreatePlotForm";
 import { useMutation } from "@tanstack/react-query";
-import { createPlot } from "../services/PlotService";
+import { createCropField } from "../services/CropFieldService";
 import { useNavigate } from "react-router-dom";
-import type { PostPlot } from "../interfaces/request/PostPlot";
+import type { CreateCropFieldData } from "../interfaces/request/CreateCropFieldData";
+import CreateCropFieldForm from "../elements/forms/CreateCropFieldForm";
 
-function CreatePlotPage() {
+function CreateCropFieldPage() {
   const { data: user, isLoading, error } = useUserProfile();
   const navigate = useNavigate();
   let authenticated = true;
@@ -19,12 +19,12 @@ function CreatePlotPage() {
   }
 
   const { mutate, isPending } = useMutation({
-    mutationFn: createPlot,
+    mutationFn: createCropField,
     onSuccess: () => {
-      navigate("/show-plots", {
+      navigate("/show-cropfields", {
         state: {
           success: true,
-          message: "New plot has been successfully added",
+          message: "New field has been successfully added",
         },
       });
     },
@@ -34,8 +34,8 @@ function CreatePlotPage() {
     return <ProgressCircle loadingMessage="Loading your data..." />;
   }
 
-  const sendCreatePlot = (postPlot: PostPlot) => {
-    mutate(postPlot);
+  const createNewCropField = (createCropFieldData: CreateCropFieldData) => {
+    mutate(createCropFieldData);
   };
 
   return (
@@ -43,10 +43,10 @@ function CreatePlotPage() {
       <Box>
         <MainHeader userData={user} authenticated={authenticated} />
         <MainContainer hasDrawer={authenticated}>
-          <CreatePlotForm
+          <CreateCropFieldForm
             isPending={isPending}
-            onSubmit={(postPlotData) => {
-              sendCreatePlot(postPlotData);
+            onSubmit={(createCropFieldData) => {
+              createNewCropField(createCropFieldData);
             }}
           />
         </MainContainer>
@@ -55,4 +55,4 @@ function CreatePlotPage() {
   );
 }
 
-export default CreatePlotPage;
+export default CreateCropFieldPage;

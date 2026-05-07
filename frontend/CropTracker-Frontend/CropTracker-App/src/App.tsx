@@ -9,10 +9,10 @@ import { DrawerProvider } from "./contexts/DrawerProvider";
 import ErrorPage from "./pages/ErrorPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import PlotsListPage from "./pages/PlotsListPage";
-import CreatePlotPage from "./pages/CreatePlotPage";
-import PlotDetailsPage from "./pages/PlotDetailsPage";
-import UpdatePlotPage from "./pages/UpdatePlotPage";
+import UpdateCropFieldPage from "./pages/UpdateCropFieldPage";
+import CreateCropFieldPage from "./pages/CreateCropFieldPage";
+import CropFieldDetailsPage from "./pages/CropFieldDetailsPage";
+import CropFieldListPage from "./pages/CropFieldListPage";
 
 function App() {
   return (
@@ -25,13 +25,22 @@ function App() {
               <Route path="/signup" element={<RegisterPage />} />
               <Route path="/" element={<MainPage />} />
               <Route path="/show-users" element={<UsersListPage />} />
-              <Route path="/show-plots" element={<PlotsListPage />} />
+              <Route path="/show-cropfields" element={<CropFieldListPage />} />
               <Route path="/error" element={<ErrorPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/change-password" element={<ChangePasswordPage />} />
-              <Route path="/create-plot" element={<CreatePlotPage />} />
-              <Route path="/plot-details/:id" element={<PlotDetailsPage />} />
-              <Route path="/update-plot/:id" element={<UpdatePlotPage />} />
+              <Route
+                path="/create-cropfield"
+                element={<CreateCropFieldPage />}
+              />
+              <Route
+                path="/cropfield-details/:id"
+                element={<CropFieldDetailsPage />}
+              />
+              <Route
+                path="/update-cropfield/:id"
+                element={<UpdateCropFieldPage />}
+              />
             </Routes>
           </Router>
         </QueryClientProvider>

@@ -1,12 +1,12 @@
 package edu.bbte.allamvizsga.controllers;
 
-import edu.bbte.allamvizsga.dto.request.CreatePlotDTO;
-import edu.bbte.allamvizsga.dto.request.UpdatePlotDTO;
-import edu.bbte.allamvizsga.dto.response.GetPlotDTO;
-import edu.bbte.allamvizsga.mappers.PlotMapper;
-import edu.bbte.allamvizsga.model.Plot;
+import edu.bbte.allamvizsga.dto.request.CreateCropFieldDTO;
+import edu.bbte.allamvizsga.dto.request.UpdateCropFieldDTO;
+import edu.bbte.allamvizsga.dto.response.GetCropFieldDTO;
+import edu.bbte.allamvizsga.mappers.CropFieldMapper;
+import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.User;
-import edu.bbte.allamvizsga.services.PlotService;
+import edu.bbte.allamvizsga.services.CropFieldService;
 import edu.bbte.allamvizsga.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -21,60 +21,60 @@ import java.util.Collection;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/plot")
+@RequestMapping("/api/cropfield")
 @CrossOrigin(value = "http://localhost:5174")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @PreAuthorize("hasRole('GROWER')")
 @Slf4j
-public class PlotController {
-    private final PlotService plotService;
+public class CropFieldController {
+    private final CropFieldService cropFieldService;
     private final UserService userService;
-    private final PlotMapper plotMapper;
+    private final CropFieldMapper cropFieldMapper;
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createPlot(@Valid @RequestBody CreatePlotDTO createPlotDTO,
+    public void createPlot(@Valid @RequestBody CreateCropFieldDTO createCropFieldDTO,
                            @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        Plot plot = plotMapper.createPlotDTOtoModel(createPlotDTO);
-        plot.setUser(user);
-        plotService.createPlot(plot);
+        CropField cropField = cropFieldMapper.createPlotDTOtoModel(createCropFieldDTO);
+        cropField.setUser(user);
+        cropFieldService.createPlot(cropField);
     }
 
     @PutMapping("/update")
-    public void updatePlot(@Valid @RequestBody UpdatePlotDTO updatePlotDTO,
+    public void updatePlot(@Valid @RequestBody UpdateCropFieldDTO updateCropFieldDTO,
                            @RequestParam(name = "id") String plotID,
                            @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        Plot plot = plotService.findPlotByUser(UUID.fromString(plotID), user);
-        plotMapper.updateModelFromUpdatePlotDto(updatePlotDTO, plot);
-        plotService.updatePlot(plot);
+        CropField cropField = cropFieldService.findPlotByUser(UUID.fromString(plotID), user);
+        cropFieldMapper.updateModelFromUpdatePlotDto(updateCropFieldDTO, cropField);
+        cropFieldService.updatePlot(cropField);
     }
 
     @GetMapping("/findall")
-    public ResponseEntity<Collection<GetPlotDTO>> getPlots(
+    public ResponseEntity<Collection<GetCropFieldDTO>> getPlots(
             @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        Collection<Plot> plots = plotService.getPlots(user);
+        Collection<CropField> cropFields = cropFieldService.getPlots(user);
 
-        Collection<GetPlotDTO> getPlotDTOS = plots.stream().map(plotMapper::modelToGetPlotDTO).toList();
-        return ResponseEntity.ok(getPlotDTOS);
+        Collection<GetCropFieldDTO> getCropFieldDTOS = cropFields.stream().map(cropFieldMapper::modelToGetCropFieldDTO).toList();
+        return ResponseEntity.ok(getCropFieldDTOS);
     }
 
     @GetMapping("/findby")
-    public ResponseEntity<GetPlotDTO> getPlotById(
+    public ResponseEntity<GetCropFieldDTO> getPlotById(
             @RequestParam(name = "id") String plotId
     ) {
         UUID uid = UUID.fromString(plotId);
-        Plot plot = plotService.findById(uid);
-        GetPlotDTO getPlotDTO = plotMapper.modelToGetPlotDTO(plot);
-        return ResponseEntity.ok(getPlotDTO);
+        CropField cropField = cropFieldService.findById(uid);
+        GetCropFieldDTO getCropFieldDTO = cropFieldMapper.modelToGetCropFieldDTO(cropField);
+        return ResponseEntity.ok(getCropFieldDTO);
     }
 
     @DeleteMapping("/delete")
     public void deletePlotById(@RequestParam(name = "id") String plotId) {
         UUID uid = UUID.fromString(plotId);
-        plotService.deleteById(uid);
+        cropFieldService.deleteById(uid);
     }
 
 }

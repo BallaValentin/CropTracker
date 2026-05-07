@@ -9,9 +9,9 @@ import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name="plot")
+@Table(name="cropfield")
 @Data
-public class Plot extends BaseEntity{
+public class CropField extends BaseEntity{
     @Column(nullable = false)
     private String name;
 
@@ -19,10 +19,10 @@ public class Plot extends BaseEntity{
     @JoinColumn(name="user_id", nullable=false)
     private User user;
 
-    @Column(nullable = false, precision = 18, scale = 15)
+    @Column(precision = 18, scale = 15)
     private BigDecimal latitude;
 
-    @Column(nullable = false, precision = 18, scale = 15)
+    @Column(precision = 18, scale = 15)
     private BigDecimal longitude;
     
     @Column(columnDefinition = "POLYGON")

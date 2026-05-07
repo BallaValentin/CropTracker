@@ -1,9 +1,9 @@
 package edu.bbte.allamvizsga.services;
 
 import edu.bbte.allamvizsga.exceptions.ForbiddenException;
-import edu.bbte.allamvizsga.model.Plot;
+import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.User;
-import edu.bbte.allamvizsga.repository.PlotRepository;
+import edu.bbte.allamvizsga.repository.CropFieldRepository;
 import edu.bbte.allamvizsga.specifications.PlotSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -19,11 +19,11 @@ import java.util.UUID;
 @Slf4j
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-public class PlotService {
-    private final PlotRepository plotRepository;
+public class CropFieldService {
+    private final CropFieldRepository cropFieldRepository;
 
     protected Integer getNextNumber(String originalName) {
-        Collection<Plot> plotsWithSameName = plotRepository.findAll(
+        Collection<CropField> plotsWithSameName = cropFieldRepository.findAll(
                 Specification.allOf(
                         PlotSpecification.withNamePattern(originalName)
                                 .and(PlotSpecification.notDeleted())
@@ -46,36 +46,36 @@ public class PlotService {
 
     }
 
-    public void createPlot(Plot plot) {
+    public void createPlot(CropField cropField) {
 
-        Integer count = getNextNumber(plot.getName());
+        Integer count = getNextNumber(cropField.getName());
 
         if (count > 1) {
-            plot.setName(plot.getName() + "(" + count + ")");
+            cropField.setName(cropField.getName() + "(" + count + ")");
         }
 
-        plot.setIsDeleted(Boolean.FALSE);
-        plotRepository.save(plot);
+        cropField.setIsDeleted(Boolean.FALSE);
+        cropFieldRepository.save(cropField);
     }
 
-    public Plot findPlotByUser(UUID plotId, User user) {
-        Plot plot = plotRepository.findByUid(plotId);
-        if (plot == null) {
+    public CropField findPlotByUser(UUID plotId, User user) {
+        CropField cropField = cropFieldRepository.findByUid(plotId);
+        if (cropField == null) {
             throw new EntityNotFoundException("Couldn't find plot with id");
         }
 
-        if (plot.getUser() != user) {
+        if (cropField.getUser() != user) {
             throw new ForbiddenException("Couldn't access this plot because you are not it's owner");
         }
-        return plot;
+        return cropField;
     }
 
-    public void updatePlot(Plot plot) {
-        plotRepository.save(plot);
+    public void updatePlot(CropField cropField) {
+        cropFieldRepository.save(cropField);
     }
 
-    public Collection<Plot> getPlots(User user) {
-        return plotRepository.findAll(
+    public Collection<CropField> getPlots(User user) {
+        return cropFieldRepository.findAll(
                 Specification.allOf(PlotSpecification
                         .byUser(user))
                         .and(PlotSpecification.notDeleted())
@@ -83,15 +83,15 @@ public class PlotService {
         );
     }
 
-    public Plot findById(UUID uid) {
-        Plot plot = plotRepository.findByUid(uid);
-        if (plot == null || plot.getIsDeleted()) {
+    public CropField findById(UUID uid) {
+        CropField cropField = cropFieldRepository.findByUid(uid);
+        if (cropField == null || cropField.getIsDeleted()) {
             throw new EntityNotFoundException("Couldn't find plot with id");
         }
-        return plot;
+        return cropField;
     }
 
     public void deleteById(UUID uid) {
-        plotRepository.softDeleteById(uid);
+        cropFieldRepository.softDeleteById(uid);
     }
 }

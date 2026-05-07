@@ -78,12 +78,12 @@ function MainDrawer({ userData }: MainDrawerProps) {
           )}
           {userRoles.findIndex((role) => role.name === "GROWER") > -1 && (
             <ListItem key={"show-plots"} disablePadding>
-              <ListItemButton onClick={() => navigate("/show-plots")}>
+              <ListItemButton onClick={() => navigate("/show-cropfields")}>
                 <ListItemIcon>
                   <AgricultureIcon />
                 </ListItemIcon>
                 {(isDrawerExpanded || hovered) && (
-                  <ListItemText>Show Plots</ListItemText>
+                  <ListItemText>Show Fields</ListItemText>
                 )}
               </ListItemButton>
             </ListItem>

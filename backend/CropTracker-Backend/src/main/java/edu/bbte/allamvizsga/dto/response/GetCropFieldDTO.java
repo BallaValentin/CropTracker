@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 @Data
-public class GetPlotDTO {
+public class GetCropFieldDTO {
     private UUID uid;
     private String name;
     private LatLngObject markerPosition;

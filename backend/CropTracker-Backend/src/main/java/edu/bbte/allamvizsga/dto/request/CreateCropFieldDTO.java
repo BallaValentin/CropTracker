@@ -9,12 +9,11 @@ import lombok.Data;
 import java.util.Collection;
 
 @Data
-public class CreatePlotDTO {
-    @NotNull(message = "Plot name cannot be null")
-    @NotBlank(message = "Plot name cannot be blank")
+public class CreateCropFieldDTO {
+    @NotNull(message = "Crop field name cannot be null")
+    @NotBlank(message = "Crop field name cannot be blank")
     @Pattern(regexp = "^[a-zA-Z0-9_ -]+$", message = "Invalid name pattern")
     private String name;
-    @NotNull(message = "Plot marker position cannot be null")
     private LatLngObject markerPosition;
     @NotNull(message = "Polygon cannot be null")
     private Collection<LatLngObject> polygonPoints;

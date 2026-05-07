@@ -1,6 +1,6 @@
 package edu.bbte.allamvizsga.repository;
 
-import edu.bbte.allamvizsga.model.Plot;
+import edu.bbte.allamvizsga.model.CropField;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface PlotRepository extends JpaRepository<Plot, UID>, JpaSpecificationExecutor<Plot> {
-    List<Plot> findAll();
-    Plot findByUid(UUID uid);
+public interface CropFieldRepository extends JpaRepository<CropField, UID>, JpaSpecificationExecutor<CropField> {
+    List<CropField> findAll();
+    CropField findByUid(UUID uid);
 
     @Modifying
     @Transactional
-    @Query("UPDATE Plot p SET p.isDeleted = true WHERE p.uid = :uid")
+    @Query("UPDATE CropField p SET p.isDeleted = true WHERE p.uid = :uid")
     void softDeleteById(UUID uid);
 }

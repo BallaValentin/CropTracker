@@ -1,6 +1,6 @@
-import type { LatLngObject } from "./LatLngObject";
+import type { LatLngObject } from "../LatLngObject";
 
-export interface Plot {
+export interface GetCropFieldData {
     uid: string,
     name: string,
     markerPosition: LatLngObject | null,

@@ -26,7 +26,7 @@ public class User extends BaseEntity{
     @Column
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,
             fetch = FetchType.LAZY)
-    private Collection<Plot> plots;
+    private Collection<CropField> cropFields;
 
     @Column(unique = true, nullable = false)
     private String email;

@@ -17,15 +17,15 @@ import ChangeView from "../leaflet/ChangeView";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { useQuery } from "@tanstack/react-query";
-import { getPlotById } from "../services/PlotService";
-import type { Plot } from "../interfaces/Plot";
+import type { GetCropFieldData } from "../interfaces/response/GetCropFieldData";
 import CustomLayers from "../leaflet/CustomLayers";
 import CheckIcon from "@mui/icons-material/Check";
 import { defaultMapPosition } from "../utils/Constants";
+import { getCropFieldById } from "../services/CropFieldService";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading, error } = useUserProfile();
-  const [plotDetail, setPlotDetail] = useState<Plot>({
+  const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldData>({
     uid: "",
     name: "Unnamed Field",
     markerPosition: {
@@ -44,7 +44,7 @@ function PlotDetailsPage() {
 
   const { data: plotData, isLoading: isPlotLoading } = useQuery({
     queryKey: ["plots", id],
-    queryFn: () => getPlotById(id || ""),
+    queryFn: () => getCropFieldById(id || ""),
     staleTime: 0,
     enabled: !!id,
     refetchInterval: 1000 * 60 * 60,
@@ -66,7 +66,7 @@ function PlotDetailsPage() {
 
   useEffect(() => {
     if (plotData) {
-      setPlotDetail(plotData);
+      setCropFieldDetail(plotData);
     }
   }, [plotData]);
 
@@ -75,10 +75,8 @@ function PlotDetailsPage() {
   }
 
   const handleUpdateClick = () => {
-    navigate("/update-plot/" + id);
+    navigate("/update-cropfield/" + id);
   };
-
-  console.log("2-Marker Position:", plotDetail.markerPosition);
 
   return (
     <>
@@ -106,7 +104,7 @@ function PlotDetailsPage() {
               lineHeight: 1.6,
             }}
           >
-            {plotDetail.name}
+            {cropFieldDetail.name}
           </Typography>
 
           <Typography
@@ -114,7 +112,7 @@ function PlotDetailsPage() {
             color="text.secondary"
             sx={{ mb: 4, fontStyle: "italic" }}
           >
-            Here you can view the details of your plot. The map below shows the
+            Here you can view the details of your field. The map below shows the
             location and boundaries of your field.
           </Typography>
 
@@ -134,10 +132,10 @@ function PlotDetailsPage() {
             <MapContainer
               style={{ height: "100%" }}
               center={
-                plotDetail.markerPosition
+                cropFieldDetail.markerPosition
                   ? [
-                      plotDetail.markerPosition.lat,
-                      plotDetail.markerPosition.lng,
+                      cropFieldDetail.markerPosition.lat,
+                      cropFieldDetail.markerPosition.lng,
                     ]
                   : [defaultMapPosition.lat, defaultMapPosition.lng]
               }
@@ -145,10 +143,10 @@ function PlotDetailsPage() {
             >
               <ChangeView
                 center={
-                  plotDetail.markerPosition
+                  cropFieldDetail.markerPosition
                     ? [
-                        plotDetail.markerPosition.lat,
-                        plotDetail.markerPosition.lng,
+                        cropFieldDetail.markerPosition.lat,
+                        cropFieldDetail.markerPosition.lng,
                       ]
                     : [defaultMapPosition.lat, defaultMapPosition.lng]
                 }
@@ -160,19 +158,19 @@ function PlotDetailsPage() {
               </LayersControl>
 
               <FeatureGroup>
-                {plotDetail?.polygonPoints &&
-                  plotDetail.polygonPoints.length > 0 && (
+                {cropFieldDetail?.polygonPoints &&
+                  cropFieldDetail.polygonPoints.length > 0 && (
                     <Polygon
-                      key={plotDetail.uid}
-                      positions={plotDetail.polygonPoints}
+                      key={cropFieldDetail.uid}
+                      positions={cropFieldDetail.polygonPoints}
                       pathOptions={{ color: "blue" }}
                     />
                   )}
-                {plotDetail.markerPosition && (
+                {cropFieldDetail.markerPosition && (
                   <Marker
                     position={[
-                      plotDetail.markerPosition.lat,
-                      plotDetail.markerPosition.lng,
+                      cropFieldDetail.markerPosition.lat,
+                      cropFieldDetail.markerPosition.lng,
                     ]}
                   />
                 )}
