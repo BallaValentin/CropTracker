@@ -21,6 +21,7 @@ import {
   getPolygonCenter,
   isPointInPolygon,
 } from "../utils/PolygonHelper";
+import { defaultMapPosition } from "../utils/Constants";
 
 interface EditableMapProps {
   plot: Plot;
@@ -40,10 +41,11 @@ function EditableMap({
   onPolygonDeleted,
 }: EditableMapProps) {
   const [plotData, setPlotData] = useState<Plot>(plot);
-  const [viewCenter, setViewCenter] = useState<[number, number]>([
-    plot.markerPosition.lat,
-    plot.markerPosition.lng,
-  ]);
+  const [viewCenter, setViewCenter] = useState<[number, number]>(
+    plot.markerPosition
+      ? [plot.markerPosition.lat, plot.markerPosition.lng]
+      : [defaultMapPosition.lat, defaultMapPosition.lng],
+  );
 
   useEffect(() => {
     setPlotData(plot);
@@ -70,7 +72,8 @@ function EditableMap({
 
         if (
           !markerAdded ||
-          isPointInPolygon(plotData.markerPosition, formattedPoints)
+          (plotData.markerPosition &&
+            isPointInPolygon(plotData.markerPosition, formattedPoints))
         ) {
           setPlotData((prev) => ({
             ...prev,
@@ -115,7 +118,11 @@ function EditableMap({
               lng: rawLatLng.lng,
             },
           }));
-          setViewCenter([plot.markerPosition.lat, plot.markerPosition.lng]);
+          setViewCenter(
+            plot.markerPosition
+              ? [plot.markerPosition.lat, plot.markerPosition.lng]
+              : [defaultMapPosition.lat, defaultMapPosition.lng],
+          );
           onMarkerCreated(rawLatLng);
         } else {
           alert(
@@ -146,7 +153,7 @@ function EditableMap({
         } else if (layer instanceof L.Marker) {
           setPlotData((prev) => ({
             ...prev,
-            markerPosition: { lat: 51.505, lng: -0.09 },
+            markerPosition: defaultMapPosition,
           }));
           onMarkerDeleted();
         }
@@ -185,7 +192,7 @@ function EditableMap({
             },
           }}
         />
-        {markerAdded && (
+        {markerAdded && plotData.markerPosition && (
           <Marker
             key={plotData.uid ? "marker-" + plotData.uid : "default-marker"}
             position={[

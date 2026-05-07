@@ -21,6 +21,7 @@ import { getPlotById } from "../services/PlotService";
 import type { Plot } from "../interfaces/Plot";
 import CustomLayers from "../leaflet/CustomLayers";
 import CheckIcon from "@mui/icons-material/Check";
+import { defaultMapPosition } from "../utils/Constants";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading, error } = useUserProfile();
@@ -132,17 +133,25 @@ function PlotDetailsPage() {
           >
             <MapContainer
               style={{ height: "100%" }}
-              center={[
-                plotDetail.markerPosition.lat,
-                plotDetail.markerPosition.lng,
-              ]}
+              center={
+                plotDetail.markerPosition
+                  ? [
+                      plotDetail.markerPosition.lat,
+                      plotDetail.markerPosition.lng,
+                    ]
+                  : [defaultMapPosition.lat, defaultMapPosition.lng]
+              }
               zoom={16}
             >
               <ChangeView
-                center={[
-                  plotDetail.markerPosition.lat,
-                  plotDetail.markerPosition.lng,
-                ]}
+                center={
+                  plotDetail.markerPosition
+                    ? [
+                        plotDetail.markerPosition.lat,
+                        plotDetail.markerPosition.lng,
+                      ]
+                    : [defaultMapPosition.lat, defaultMapPosition.lng]
+                }
                 zoom={16}
               />
 
@@ -159,12 +168,14 @@ function PlotDetailsPage() {
                       pathOptions={{ color: "blue" }}
                     />
                   )}
-                <Marker
-                  position={[
-                    plotDetail.markerPosition.lat,
-                    plotDetail.markerPosition.lng,
-                  ]}
-                />
+                {plotDetail.markerPosition && (
+                  <Marker
+                    position={[
+                      plotDetail.markerPosition.lat,
+                      plotDetail.markerPosition.lng,
+                    ]}
+                  />
+                )}
               </FeatureGroup>
             </MapContainer>
           </Paper>

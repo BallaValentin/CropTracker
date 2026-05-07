@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import {
-  COLLAPSED_DRAWER_WIDTH,
-  EXPANDED_DRAWER_WIDTH,
+  collapsedDrawerWidth,
+  expandedDrawerWidth,
 } from "../../utils/Constants";
 
 interface MainContainerProps {
@@ -14,8 +14,8 @@ function MainContainer({ children, hasDrawer }: MainContainerProps) {
   const { isDrawerExpanded } = useDrawer();
   const drawerWidth = hasDrawer
     ? isDrawerExpanded
-      ? EXPANDED_DRAWER_WIDTH
-      : COLLAPSED_DRAWER_WIDTH
+      ? expandedDrawerWidth
+      : collapsedDrawerWidth
     : 0;
 
   return (

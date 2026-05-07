@@ -28,6 +28,10 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
     area: plot.area,
   });
 
+  const [markerAdded, setMarkerAdded] = useState<boolean>(
+    !!plot.markerPosition,
+  );
+
   useEffect(() => {
     setPlotUpdateData({
       name: plot.name,
@@ -35,11 +39,8 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
       polygonPoints: plot.polygonPoints,
       area: plot.area,
     });
+    setMarkerAdded(!!plot.markerPosition);
   }, [plot]);
-
-  const [markerAdded, setMarkerAdded] = useState(
-    plot.markerPosition.lat !== 0 && plot.markerPosition.lng !== 0,
-  );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -78,23 +79,23 @@ function UpdatePlotForm({ plot, onUpdate, isPending }: UpdatePlotFormProps) {
   };
 
   const handleMarkerCreated = (rawLatLng: L.LatLng) => {
-    setMarkerAdded(true);
     setPlotUpdateData((prev) => ({
       ...prev,
-      latitude: rawLatLng.lat,
-      longitude: rawLatLng.lng,
+      markerPosition: {
+        lat: rawLatLng.lat,
+        lng: rawLatLng.lng,
+      },
     }));
+    setMarkerAdded(true);
   };
 
   const handleMarkerDeleted = () => {
     setMarkerAdded(false);
     setPlotUpdateData((prev) => ({
       ...prev,
-      markerPosition: { lat: 51.505, lng: -0.09 },
+      markerPosition: null,
     }));
   };
-
-  console.log("UpdatePlotForm rendered with plot update data:", plotUpdateData);
 
   return (
     <Box>

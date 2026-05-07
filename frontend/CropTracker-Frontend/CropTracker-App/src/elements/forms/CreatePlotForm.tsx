@@ -15,6 +15,7 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import type { LatLngObject } from "../../interfaces/LatLngObject";
 import EditableMap from "../../leaflet/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
+import { defaultMapPosition } from "../../utils/Constants";
 
 interface CreatePlotFormProps {
   isPending: boolean;
@@ -24,10 +25,7 @@ interface CreatePlotFormProps {
 function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
   const [createPlotData, setCreatePlotData] = useState<PostPlot>({
     name: "Unnamed Field",
-    markerPosition: {
-      lat: 51.505,
-      lng: -0.09,
-    },
+    markerPosition: null,
     polygonPoints: [],
     area: 0,
   });
@@ -82,7 +80,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
     setMarkerAdded(false);
     setCreatePlotData((prev) => ({
       ...prev,
-      markerPosition: { lat: 51.505, lng: -0.09 },
+      markerPosition: defaultMapPosition,
     }));
   };
   useEffect(() => {
@@ -154,7 +152,8 @@ function CreatePlotForm({ isPending, onSubmit }: CreatePlotFormProps) {
             plot={{
               uid: "",
               name: createPlotData.name,
-              markerPosition: createPlotData.markerPosition,
+              markerPosition:
+                createPlotData.markerPosition || defaultMapPosition,
               polygonPoints: createPlotData.polygonPoints,
               area: createPlotData.area,
             }}

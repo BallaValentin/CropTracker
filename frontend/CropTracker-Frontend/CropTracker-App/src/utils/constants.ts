@@ -1,2 +1,6 @@
-export const EXPANDED_DRAWER_WIDTH: number = 240;
-export const COLLAPSED_DRAWER_WIDTH: number = 72;
+export const expandedDrawerWidth: number = 240;
+export const collapsedDrawerWidth: number = 72;
+export const defaultMapPosition = {
+    lat: 51.505,
+    lng: -0.09
+}

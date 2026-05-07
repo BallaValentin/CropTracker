@@ -13,8 +13,8 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import AgricultureIcon from "@mui/icons-material/Agriculture";
 import { useNavigate } from "react-router-dom";
 import {
-  COLLAPSED_DRAWER_WIDTH,
-  EXPANDED_DRAWER_WIDTH,
+  collapsedDrawerWidth,
+  expandedDrawerWidth,
 } from "../../utils/Constants";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
@@ -31,9 +31,7 @@ function MainDrawer({ userData }: MainDrawerProps) {
 
   const { isDrawerExpanded } = useDrawer();
   const drawerWidth =
-    isDrawerExpanded || hovered
-      ? EXPANDED_DRAWER_WIDTH
-      : COLLAPSED_DRAWER_WIDTH;
+    isDrawerExpanded || hovered ? expandedDrawerWidth : collapsedDrawerWidth;
 
   return (
     <Box>

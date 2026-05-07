@@ -10,6 +10,7 @@ import CustomLayerControl from "./CustomLayers";
 import type { LatLngObject } from "../interfaces/LatLngObject";
 import L from "leaflet";
 import { useEffect } from "react";
+import { defaultMapPosition } from "../utils/Constants";
 
 interface MapPreviewProps {
   uid: string;
@@ -47,7 +48,11 @@ function MapPreview({ uid, markerPosition, polygonPoints }: MapPreviewProps) {
         }}
       >
         <MapContainer
-          center={[markerPosition.lat, markerPosition.lng]}
+          center={
+            markerPosition
+              ? [markerPosition.lat, markerPosition.lng]
+              : [defaultMapPosition.lat, defaultMapPosition.lng]
+          }
           zoom={13}
           scrollWheelZoom={false}
           dragging={false}
@@ -65,10 +70,12 @@ function MapPreview({ uid, markerPosition, polygonPoints }: MapPreviewProps) {
             pathOptions={{ color: "blue" }}
           />
 
-          <Marker
-            key={uid ? "marker-" + uid : "default-marker"}
-            position={[markerPosition.lat, markerPosition.lng]}
-          />
+          {markerPosition != null && (
+            <Marker
+              key={uid ? "marker-" + uid : "default-marker"}
+              position={[markerPosition.lat, markerPosition.lng]}
+            />
+          )}
         </MapContainer>
       </Box>
     </>
