@@ -1,9 +1,9 @@
 package edu.bbte.allamvizsga.controllers;
 
-import edu.bbte.allamvizsga.dto.request.AvatarUpdatesDTO;
-import edu.bbte.allamvizsga.dto.request.ChangePasswordDTO;
-import edu.bbte.allamvizsga.dto.request.UserUpdateDTO;
-import edu.bbte.allamvizsga.dto.response.UserDataDTO;
+import edu.bbte.allamvizsga.dto.request.user.AvatarUpdatesDTO;
+import edu.bbte.allamvizsga.dto.request.user.ChangePasswordDTO;
+import edu.bbte.allamvizsga.dto.request.user.UserUpdateDTO;
+import edu.bbte.allamvizsga.dto.response.user.UserDataDTO;
 import edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import edu.bbte.allamvizsga.mappers.UserMapper;
 import edu.bbte.allamvizsga.model.ResetPasswordToken;

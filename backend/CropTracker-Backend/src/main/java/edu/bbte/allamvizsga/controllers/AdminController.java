@@ -1,8 +1,8 @@
 package edu.bbte.allamvizsga.controllers;
 
-import edu.bbte.allamvizsga.dto.request.UserRoleUpdatesDTO;
-import edu.bbte.allamvizsga.dto.request.UserStatusUpdateDTO;
-import edu.bbte.allamvizsga.dto.response.AdminUserDTO;
+import edu.bbte.allamvizsga.dto.request.user.UserRoleUpdatesDTO;
+import edu.bbte.allamvizsga.dto.request.user.UserStatusUpdateDTO;
+import edu.bbte.allamvizsga.dto.response.user.AdminUserDTO;
 import edu.bbte.allamvizsga.exceptions.InvalidRoleException;
 import edu.bbte.allamvizsga.mappers.UserMapper;
 import edu.bbte.allamvizsga.model.Role;

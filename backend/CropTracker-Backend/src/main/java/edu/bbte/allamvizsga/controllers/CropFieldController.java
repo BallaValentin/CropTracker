@@ -1,8 +1,8 @@
 package edu.bbte.allamvizsga.controllers;
 
-import edu.bbte.allamvizsga.dto.request.CreateCropFieldDTO;
-import edu.bbte.allamvizsga.dto.request.UpdateCropFieldDTO;
-import edu.bbte.allamvizsga.dto.response.GetCropFieldDTO;
+import edu.bbte.allamvizsga.dto.request.cropfield.CreateCropFieldDTO;
+import edu.bbte.allamvizsga.dto.request.cropfield.UpdateCropFieldDTO;
+import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldDTO;
 import edu.bbte.allamvizsga.mappers.CropFieldMapper;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.User;
@@ -33,47 +33,47 @@ public class CropFieldController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createPlot(@Valid @RequestBody CreateCropFieldDTO createCropFieldDTO,
+    public void createCropField(@Valid @RequestBody CreateCropFieldDTO createCropFieldDTO,
                            @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        CropField cropField = cropFieldMapper.createPlotDTOtoModel(createCropFieldDTO);
+        CropField cropField = cropFieldMapper.createCropFieldDTOtoModel(createCropFieldDTO);
         cropField.setUser(user);
-        cropFieldService.createPlot(cropField);
+        cropFieldService.createCropField(cropField);
     }
 
     @PutMapping("/update")
-    public void updatePlot(@Valid @RequestBody UpdateCropFieldDTO updateCropFieldDTO,
+    public void updateCropField(@Valid @RequestBody UpdateCropFieldDTO updateCropFieldDTO,
                            @RequestParam(name = "id") String plotID,
                            @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        CropField cropField = cropFieldService.findPlotByUser(UUID.fromString(plotID), user);
-        cropFieldMapper.updateModelFromUpdatePlotDto(updateCropFieldDTO, cropField);
-        cropFieldService.updatePlot(cropField);
+        CropField cropField = cropFieldService.findCropFieldByUser(UUID.fromString(plotID), user);
+        cropFieldMapper.updateModelFromUpdateCropFieldDto(updateCropFieldDTO, cropField);
+        cropFieldService.updateCropField(cropField);
     }
 
     @GetMapping("/findall")
-    public ResponseEntity<Collection<GetCropFieldDTO>> getPlots(
+    public ResponseEntity<Collection<GetCropFieldDTO>> getCropFields(
             @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        Collection<CropField> cropFields = cropFieldService.getPlots(user);
+        Collection<CropField> cropFields = cropFieldService.getCropFields(user);
 
         Collection<GetCropFieldDTO> getCropFieldDTOS = cropFields.stream().map(cropFieldMapper::modelToGetCropFieldDTO).toList();
         return ResponseEntity.ok(getCropFieldDTOS);
     }
 
     @GetMapping("/findby")
-    public ResponseEntity<GetCropFieldDTO> getPlotById(
-            @RequestParam(name = "id") String plotId
+    public ResponseEntity<GetCropFieldDTO> getCropFieldById(
+            @RequestParam(name = "id") String cropFieldId
     ) {
-        UUID uid = UUID.fromString(plotId);
+        UUID uid = UUID.fromString(cropFieldId);
         CropField cropField = cropFieldService.findById(uid);
         GetCropFieldDTO getCropFieldDTO = cropFieldMapper.modelToGetCropFieldDTO(cropField);
         return ResponseEntity.ok(getCropFieldDTO);
     }
 
     @DeleteMapping("/delete")
-    public void deletePlotById(@RequestParam(name = "id") String plotId) {
-        UUID uid = UUID.fromString(plotId);
+    public void deleteCropFieldById(@RequestParam(name = "id") String cropFieldId) {
+        UUID uid = UUID.fromString(cropFieldId);
         cropFieldService.deleteById(uid);
     }
 

@@ -1,6 +1,6 @@
 package edu.bbte.allamvizsga.services;
 
-import edu.bbte.allamvizsga.dto.request.UserUpdateDTO;
+import edu.bbte.allamvizsga.dto.request.user.UserUpdateDTO;
 import edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import edu.bbte.allamvizsga.model.Role;
 import edu.bbte.allamvizsga.model.User;

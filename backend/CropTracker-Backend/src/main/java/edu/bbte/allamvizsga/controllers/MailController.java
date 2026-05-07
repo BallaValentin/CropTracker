@@ -1,6 +1,6 @@
 package edu.bbte.allamvizsga.controllers;
 
-import edu.bbte.allamvizsga.dto.request.VerifyEmailDTO;
+import edu.bbte.allamvizsga.dto.request.user.VerifyEmailDTO;
 import edu.bbte.allamvizsga.model.ResetPasswordToken;
 import edu.bbte.allamvizsga.model.User;
 import edu.bbte.allamvizsga.services.MailService;

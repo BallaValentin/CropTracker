@@ -1,4 +1,4 @@
-package edu.bbte.allamvizsga.dto.request;
+package edu.bbte.allamvizsga.dto.request.user;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

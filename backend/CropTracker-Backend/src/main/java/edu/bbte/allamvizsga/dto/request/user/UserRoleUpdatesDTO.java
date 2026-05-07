@@ -1,16 +1,18 @@
-package edu.bbte.allamvizsga.dto.request;
+package edu.bbte.allamvizsga.dto.request.user;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.util.Collection;
+
 @Data
-public class UserStatusUpdateDTO {
+public class UserRoleUpdatesDTO {
     @NotNull(message = "Username cannot be null")
     @NotBlank(message = "Username cannot be blank")
     private String username;
 
-    @NotNull(message = "Status cannot be null")
-    private Boolean isActive;
+    @NotEmpty(message = "Roles cannot be empty")
+    private Collection<String> roles;
 }

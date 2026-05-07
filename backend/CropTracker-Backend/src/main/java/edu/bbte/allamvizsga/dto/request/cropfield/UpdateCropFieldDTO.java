@@ -1,14 +1,12 @@
-package edu.bbte.allamvizsga.dto.response;
+package edu.bbte.allamvizsga.dto.request.cropfield;
 
 import edu.bbte.allamvizsga.dto.LatLngObject;
 import lombok.Data;
 
 import java.util.Collection;
-import java.util.UUID;
 
 @Data
-public class GetCropFieldDTO {
-    private UUID uid;
+public class UpdateCropFieldDTO {
     private String name;
     private LatLngObject markerPosition;
     private Collection<LatLngObject> polygonPoints;

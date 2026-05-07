@@ -1,4 +1,4 @@
-package edu.bbte.allamvizsga.dto.response;
+package edu.bbte.allamvizsga.dto.response.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

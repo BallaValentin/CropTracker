@@ -1,8 +1,8 @@
 package edu.bbte.allamvizsga.controllers;
-import edu.bbte.allamvizsga.dto.request.LoginRequestDTO;
-import edu.bbte.allamvizsga.dto.request.RegisterRequestDTO;
-import edu.bbte.allamvizsga.dto.response.LoginResponseDTO;
-import edu.bbte.allamvizsga.dto.response.RefreshTokenResponseDTO;
+import edu.bbte.allamvizsga.dto.request.user.LoginRequestDTO;
+import edu.bbte.allamvizsga.dto.request.user.RegisterRequestDTO;
+import edu.bbte.allamvizsga.dto.response.user.LoginResponseDTO;
+import edu.bbte.allamvizsga.dto.response.user.RefreshTokenResponseDTO;
 import edu.bbte.allamvizsga.exceptions.RefreshTokenException;
 import org.springframework.http.ResponseEntity;
 import edu.bbte.allamvizsga.exceptions.InvalidSignupException;

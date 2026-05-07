@@ -4,7 +4,7 @@ import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.User;
 import org.springframework.data.jpa.domain.Specification;
 
-public class PlotSpecification {
+public class CropFieldSpecification {
     public static Specification<CropField> withNamePattern(String baseName) {
         return (((root, query, criteriaBuilder) ->
                 criteriaBuilder.or(

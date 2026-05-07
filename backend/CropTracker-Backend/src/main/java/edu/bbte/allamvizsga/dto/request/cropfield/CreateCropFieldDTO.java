@@ -1,4 +1,4 @@
-package edu.bbte.allamvizsga.dto.request;
+package edu.bbte.allamvizsga.dto.request.cropfield;
 
 import edu.bbte.allamvizsga.dto.LatLngObject;
 import jakarta.validation.constraints.NotBlank;

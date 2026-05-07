@@ -1,10 +1,10 @@
 package edu.bbte.allamvizsga.mappers;
 
-import edu.bbte.allamvizsga.dto.response.AdminUserDTO;
-import edu.bbte.allamvizsga.dto.request.LoginRequestDTO;
-import edu.bbte.allamvizsga.dto.request.RegisterRequestDTO;
-import edu.bbte.allamvizsga.dto.response.LoginResponseDTO;
-import edu.bbte.allamvizsga.dto.response.UserDataDTO;
+import edu.bbte.allamvizsga.dto.response.user.AdminUserDTO;
+import edu.bbte.allamvizsga.dto.request.user.LoginRequestDTO;
+import edu.bbte.allamvizsga.dto.request.user.RegisterRequestDTO;
+import edu.bbte.allamvizsga.dto.response.user.LoginResponseDTO;
+import edu.bbte.allamvizsga.dto.response.user.UserDataDTO;
 import edu.bbte.allamvizsga.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
