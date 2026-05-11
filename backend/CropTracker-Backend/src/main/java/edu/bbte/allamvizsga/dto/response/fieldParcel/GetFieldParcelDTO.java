@@ -9,5 +9,5 @@ import java.util.UUID;
 @Data
 public class GetFieldParcelDTO {
     private UUID uid;
-    Collection<LatLngObject> polygonPoints;
+    private Collection<LatLngObject> polygonPoints;
 }
