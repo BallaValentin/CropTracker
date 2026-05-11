@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Range;
 
+import java.util.Collection;
+
 @Entity
 @Table(name = "crop_cultivar")
 @Data
@@ -19,4 +21,8 @@ public class CropCultivar extends BaseEntity {
     @Range(min = 1, max = 10)
     private Integer droughtTolerance;
     private Double idealPhRange;
+
+    @Column
+    @OneToMany(mappedBy = "cropCultivar", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<FieldParcel> fieldParcels;
 }

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.locationtech.jts.geom.Polygon;
 
+import java.util.Collection;
+
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "field_parcel")
@@ -19,4 +21,8 @@ public class FieldParcel extends BaseEntity {
 
     @Column(nullable = false)
     private Double area;
+
+    @ManyToOne
+    @JoinColumn(name = "cultivar_id", nullable = false)
+    private CropCultivar cropCultivar;
 }

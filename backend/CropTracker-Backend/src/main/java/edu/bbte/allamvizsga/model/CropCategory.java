@@ -17,4 +17,12 @@ public class CropCategory extends BaseEntity {
     )
     private Collection<CropSpecie> cropSpecies;
 
+    public CropCategory(String categoryName) {
+        this.setCategoryName(categoryName);
+    }
+
+    public CropCategory() {
+
+    }
+
 }
