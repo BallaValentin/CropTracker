@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface FieldParcelRepository extends JpaRepository<FieldParcel, UID>, JpaSpecificationExecutor<FieldParcel> {
     FieldParcel findByUid(UUID uid);
 
-    void deleteByUid(UUID uid);
+    void deleteByUid(java.util.UUID uid);
 }
