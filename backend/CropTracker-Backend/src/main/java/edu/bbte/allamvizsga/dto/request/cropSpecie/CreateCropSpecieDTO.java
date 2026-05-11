@@ -8,8 +8,9 @@ import lombok.Data;
 public class CreateCropSpecieDTO {
     @NotNull(message = "Specie name cannot be null")
     @NotBlank(message = "Specie name cannot be blank")
-    private String specieName;
+    private String commonName;
     @NotNull(message = "Specie type name cannot be null")
     @NotBlank(message = "Specie type name cannot be blank")
     private String specieTypeName;
+    private String scientificName;
 }

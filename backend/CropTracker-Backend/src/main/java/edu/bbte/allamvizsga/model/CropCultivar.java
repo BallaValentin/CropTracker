@@ -12,7 +12,7 @@ import java.util.Collection;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class CropCultivar extends BaseEntity {
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String cultivarName;
     @ManyToOne
     @JoinColumn(name = "specie_id", nullable = false)

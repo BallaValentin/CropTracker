@@ -1,6 +1,7 @@
 package edu.bbte.allamvizsga.exceptions;
 
 import edu.bbte.allamvizsga.dto.response.ErrorResponseDTO;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,18 @@ public class GeneralExceptionHandler {
         LocalDateTime timestamp = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String error = exception.getBindingResult().getAllErrors().getFirst().getDefaultMessage();
+        String path = request.getRequestURI();
+        return new ErrorResponseDTO(timestamp, statusCode, error, path);
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorResponseDTO handleEntityExists(
+            EntityExistsException exception, HttpServletRequest request) {
+        LocalDateTime timestamp = LocalDateTime.now();
+        Integer statusCode = HttpStatus.BAD_REQUEST.value();
+        String error = exception.getMessage();
         String path = request.getRequestURI();
         return new ErrorResponseDTO(timestamp, statusCode, error, path);
     }
