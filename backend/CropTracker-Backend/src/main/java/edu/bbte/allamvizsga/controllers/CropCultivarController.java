@@ -80,6 +80,10 @@ public class CropCultivarController {
     ) {
         Collection<CropCultivar> cropCultivars = cropCultivarService.findAllWithPattern(pattern);
 
-        return ResponseEntity.ok(cropCultivars.stream().map(cropCultivarMapper::modelToGetCropCultivar).toList());
+        return ResponseEntity.ok(cropCultivars.stream().map(cropCultivar -> {
+            GetCropCultivarDTO getCropCultivarDTO = cropCultivarMapper.modelToGetCropCultivar(cropCultivar);
+            getCropCultivarDTO.setSpecieName(cropCultivar.getCropSpecie().getCommonName());
+            return getCropCultivarDTO;
+        }).toList());
     }
 }

@@ -1,40 +1,34 @@
-import { Alert, Box, Button, Paper, Typography } from "@mui/material";
+import { Alert, Box, Button, Typography } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useEffect, useState } from "react";
-import {
-  MapContainer,
-  FeatureGroup,
-  Polygon,
-  Marker,
-  LayersControl,
-} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import ChangeView from "../leaflet/ChangeView";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { useQuery } from "@tanstack/react-query";
 import type { GetCropFieldData } from "../interfaces/response/GetCropFieldData";
-import CustomLayers from "../leaflet/CustomLayers";
 import CheckIcon from "@mui/icons-material/Check";
-import { defaultMapPosition } from "../utils/Constants";
 import { getCropFieldById } from "../services/CropFieldService";
+import { defaultMapPosition } from "../utils/Constants";
+import type { GetFieldParcelData } from "../interfaces/response/GetFieldParcelData";
+import CropFieldInfoPanel from "../elements/panels/CropFieldInfoPanel";
+import CreateFieldParcelForm from "../elements/forms/CreateFieldParcelForm";
+import type { CreateFieldParcelData } from "../interfaces/response/CreateFieldParcelData";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading, error } = useUserProfile();
   const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldData>({
     uid: "",
     name: "Unnamed Field",
-    markerPosition: {
-      lat: 51.505,
-      lng: -0.09,
-    },
+    markerPosition: defaultMapPosition,
     polygonPoints: [],
+    fieldParcels: [] as GetFieldParcelData[],
     area: 0,
   });
+  const [addParcel, setAddParcel] = useState<boolean>(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   const location = useLocation();
@@ -42,8 +36,8 @@ function PlotDetailsPage() {
   const { id } = useParams();
   let authenticated = true;
 
-  const { data: plotData, isLoading: isPlotLoading } = useQuery({
-    queryKey: ["plots", id],
+  const { data: plotData, isLoading: isCropFieldLoading } = useQuery({
+    queryKey: ["cropfields", id],
     queryFn: () => getCropFieldById(id || ""),
     staleTime: 0,
     enabled: !!id,
@@ -70,12 +64,22 @@ function PlotDetailsPage() {
     }
   }, [plotData]);
 
-  if (isUserLoading || isPlotLoading) {
+  if (isUserLoading || isCropFieldLoading) {
     return <ProgressCircle loadingMessage="Loading your data..." />;
   }
 
   const handleUpdateClick = () => {
     navigate("/update-cropfield/" + id);
+  };
+
+  const handleAddParcelClick = () => {
+    setAddParcel(true);
+  };
+
+  const createNewFieldParcel = (
+    createFieldParcelData: CreateFieldParcelData,
+  ) => {
+    console.log("Create field parcel data: ", createFieldParcelData);
   };
 
   return (
@@ -107,76 +111,18 @@ function PlotDetailsPage() {
             {cropFieldDetail.name}
           </Typography>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ mb: 4, fontStyle: "italic" }}
-          >
-            Here you can view the details of your field. The map below shows the
-            location and boundaries of your field.
-          </Typography>
+          {addParcel ? (
+            <CreateFieldParcelForm
+              onSubmit={createNewFieldParcel}
+              cropfield={cropFieldDetail}
+            />
+          ) : (
+            <CropFieldInfoPanel
+              cropFieldDetail={cropFieldDetail}
+              onAddParcelClick={handleAddParcelClick}
+            />
+          )}
 
-          <Paper
-            elevation={0}
-            sx={{
-              mt: 2,
-              height: 600,
-              width: "100%",
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-              overflow: "hidden",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.0.05)",
-            }}
-          >
-            <MapContainer
-              style={{ height: "100%" }}
-              center={
-                cropFieldDetail.markerPosition
-                  ? [
-                      cropFieldDetail.markerPosition.lat,
-                      cropFieldDetail.markerPosition.lng,
-                    ]
-                  : [defaultMapPosition.lat, defaultMapPosition.lng]
-              }
-              zoom={16}
-            >
-              <ChangeView
-                center={
-                  cropFieldDetail.markerPosition
-                    ? [
-                        cropFieldDetail.markerPosition.lat,
-                        cropFieldDetail.markerPosition.lng,
-                      ]
-                    : [defaultMapPosition.lat, defaultMapPosition.lng]
-                }
-                zoom={16}
-              />
-
-              <LayersControl position="topright">
-                <CustomLayers />
-              </LayersControl>
-
-              <FeatureGroup>
-                {cropFieldDetail?.polygonPoints &&
-                  cropFieldDetail.polygonPoints.length > 0 && (
-                    <Polygon
-                      key={cropFieldDetail.uid}
-                      positions={cropFieldDetail.polygonPoints}
-                      pathOptions={{ color: "blue" }}
-                    />
-                  )}
-                {cropFieldDetail.markerPosition && (
-                  <Marker
-                    position={[
-                      cropFieldDetail.markerPosition.lat,
-                      cropFieldDetail.markerPosition.lng,
-                    ]}
-                  />
-                )}
-              </FeatureGroup>
-            </MapContainer>
-          </Paper>
           <Typography
             variant="body2"
             sx={{ mt: 4, color: "text.secondary", fontStyle: "italic" }}

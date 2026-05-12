@@ -13,6 +13,7 @@ import type { LatLngObject } from "../../interfaces/LatLngObject";
 import L from "leaflet";
 import EditableMap from "../../leaflet/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
+import type { GetFieldParcelData } from "../../interfaces/response/GetFieldParcelData";
 
 interface UpdateCropFieldFormProps {
   cropField: GetCropFieldData;
@@ -158,6 +159,7 @@ function UpdateGetCropFieldForm({
             markerPosition: cropFieldUpdateData.markerPosition,
             polygonPoints: cropFieldUpdateData.polygonPoints,
             area: cropFieldUpdateData.area,
+            fieldParcels: [] as GetFieldParcelData[],
           }}
           markerAdded={markerAdded}
           onMarkerCreated={handleMarkerCreated}

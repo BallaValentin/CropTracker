@@ -50,6 +50,11 @@ function EditableMap({
 
   useEffect(() => {
     setCropFieldData(cropField);
+    setViewCenter(
+      cropField.markerPosition
+        ? [cropField.markerPosition.lat, cropField.markerPosition.lng]
+        : [defaultMapPosition.lat, defaultMapPosition.lng],
+    );
   }, [cropField]);
 
   const DrawingTools = () => {

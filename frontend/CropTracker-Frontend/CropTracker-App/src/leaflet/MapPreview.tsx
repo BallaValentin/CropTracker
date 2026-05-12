@@ -13,6 +13,11 @@ import { useEffect } from "react";
 import { defaultMapPosition } from "../utils/Constants";
 
 interface MapPreviewProps {
+  mapHeight: number;
+  isScrollable: boolean;
+  isDraggable: boolean;
+  isZoomable: boolean;
+  setBounds: boolean;
   uid: string;
   markerPosition: LatLngObject | null;
   polygonPoints: LatLngObject[];
@@ -22,11 +27,20 @@ interface MapBoundsHelperProps {
   polygonPoints: LatLngObject[];
 }
 
-function MapPreview({ uid, markerPosition, polygonPoints }: MapPreviewProps) {
+function MapPreview({
+  mapHeight,
+  isScrollable,
+  isDraggable,
+  isZoomable,
+  setBounds,
+  uid,
+  markerPosition,
+  polygonPoints,
+}: MapPreviewProps) {
   const MapBoundsHelper = ({ polygonPoints }: MapBoundsHelperProps) => {
     const map = useMap();
     useEffect(() => {
-      if (polygonPoints && polygonPoints.length > 3) {
+      if (setBounds && polygonPoints && polygonPoints.length > 3) {
         const polygon = new L.Polygon(polygonPoints);
         const bounds = polygon.getBounds();
 
@@ -41,8 +55,8 @@ function MapPreview({ uid, markerPosition, polygonPoints }: MapPreviewProps) {
     <>
       <Box
         sx={{
-          height: 300,
-          width: "95%",
+          height: mapHeight,
+          width: "100%",
           margin: "0 auto",
           overflow: "hidden",
         }}
@@ -54,9 +68,9 @@ function MapPreview({ uid, markerPosition, polygonPoints }: MapPreviewProps) {
               : [defaultMapPosition.lat, defaultMapPosition.lng]
           }
           zoom={13}
-          scrollWheelZoom={false}
-          dragging={false}
-          zoomControl={false}
+          scrollWheelZoom={isScrollable}
+          dragging={isDraggable}
+          zoomControl={isZoomable}
           style={{ height: "100%", width: "100%" }}
         >
           <MapBoundsHelper polygonPoints={polygonPoints} />

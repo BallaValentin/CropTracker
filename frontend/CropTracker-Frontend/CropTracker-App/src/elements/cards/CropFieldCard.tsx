@@ -64,11 +64,18 @@ function PlotCard({ cropField }: CropFieldCardProps) {
           </Typography>
         </Box>
 
-        <MapPreview
-          uid={cropField.uid}
-          markerPosition={cropField.markerPosition}
-          polygonPoints={cropField.polygonPoints}
-        />
+        <Box sx={{ width: "97.5%", margin: "auto" }}>
+          <MapPreview
+            mapHeight={300}
+            isDraggable={false}
+            isZoomable={false}
+            isScrollable={false}
+            setBounds={true}
+            uid={cropField.uid}
+            markerPosition={cropField.markerPosition}
+            polygonPoints={cropField.polygonPoints}
+          />
+        </Box>
 
         <Box sx={{ display: "flex", m: 2, alignItems: "center" }}>
           <Button
