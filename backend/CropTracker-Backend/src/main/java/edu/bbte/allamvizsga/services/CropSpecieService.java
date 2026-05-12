@@ -29,10 +29,20 @@ public class CropSpecieService {
         ));
     }
 
-    public Collection<CropSpecie> findAllWithPatter(String pattern) {
+    public Collection<CropSpecie> findAllWithPattern(String pattern) {
         return cropSpecieRepository.findAll(Specification.allOf(
                 CropSpecieSpecification.withPattern(pattern)
         ));
+    }
+
+    public CropSpecie findBySpecieName(String specieName) {
+        CropSpecie cropSpecie = cropSpecieRepository.findByCommonName(specieName);
+
+        if (cropSpecie == null) {
+            throw new EntityNotFoundException("Couldn`t find crop specie with " + specieName + " name");
+        }
+
+        return cropSpecie;
     }
 
     public void create(CropSpecie cropSpecie) {

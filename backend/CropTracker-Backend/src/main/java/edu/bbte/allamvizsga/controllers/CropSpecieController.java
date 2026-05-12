@@ -18,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.UUID;
 
 @RestController
@@ -74,7 +73,7 @@ public class CropSpecieController {
     public ResponseEntity<Collection<GetCropSpecieDTO>> findAllWithPattern(
             @RequestParam("pattern") String pattern
     ) {
-        Collection<CropSpecie> cropSpecies = cropSpecieService.findAllWithPatter(pattern);
+        Collection<CropSpecie> cropSpecies = cropSpecieService.findAllWithPattern(pattern);
 
         return ResponseEntity.ok(cropSpecies.stream().map(cropSpecieMapper::modelToGetCropSpecie).toList());
     }
