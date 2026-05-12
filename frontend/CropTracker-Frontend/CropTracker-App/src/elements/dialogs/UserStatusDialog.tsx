@@ -7,7 +7,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import type { AdminUser } from "../../interfaces/response/AdminUser";
+import type { GetAdminUserDTO } from "../../interfaces/response/GetAdminUserDTO";
 
 interface UserStatusDialogProps {
   isPending: boolean;
@@ -16,8 +16,8 @@ interface UserStatusDialogProps {
   actionText: string;
   open: boolean;
   onClose: () => void;
-  user: AdminUser | null;
-  onAccept: (user: AdminUser) => void;
+  user: GetAdminUserDTO | null;
+  onAccept: (user: GetAdminUserDTO) => void;
 }
 
 function UserStatusDialog({

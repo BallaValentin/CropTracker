@@ -1,6 +1,6 @@
 import type { LatLngObject } from "../LatLngObject";
 
-export interface CreateFieldParcelData {
+export interface CreateFieldParcelDTO {
     cropName: string,
     polygonPoints: LatLngObject[]
 }

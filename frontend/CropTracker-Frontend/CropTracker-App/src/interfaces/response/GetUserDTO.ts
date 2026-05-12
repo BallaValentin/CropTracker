@@ -1,11 +1,11 @@
-import type { Plot } from "./GetCropFieldData";
+import type { GetCropFieldDTO } from "./GetCropFieldDTO";
 import type { Role } from "../Role";
 
-export interface UserData {
+export interface GetUserDTO {
     username: string,
     roles: Role[],
     firstName: string,
     lastName: string,
     email: string,
-    plots: Plot[]
+    cropFields: GetCropFieldDTO[]
 }

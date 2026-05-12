@@ -18,10 +18,10 @@ import {
 } from "../../utils/Constants";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
-import type { UserData } from "../../interfaces/response/UserData";
+import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
 
 interface MainDrawerProps {
-  userData: UserData | undefined;
+  userData: GetUserDTO | undefined;
 }
 
 function MainDrawer({ userData }: MainDrawerProps) {

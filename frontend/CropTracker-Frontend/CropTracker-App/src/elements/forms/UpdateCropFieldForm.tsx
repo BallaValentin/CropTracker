@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { GetCropFieldData } from "../../interfaces/response/GetCropFieldData";
-import type { UpdateCropFieldData } from "../../interfaces/request/UpdateCropFieldData";
+import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
+import type { UpdateCropFieldDTO } from "../../interfaces/request/UpdateCropFieldDTO";
 import {
   Box,
   Button,
@@ -13,11 +13,11 @@ import type { LatLngObject } from "../../interfaces/LatLngObject";
 import L from "leaflet";
 import EditableMap from "../../leaflet/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
-import type { GetFieldParcelData } from "../../interfaces/response/GetFieldParcelData";
+import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 
 interface UpdateCropFieldFormProps {
-  cropField: GetCropFieldData;
-  onUpdate: (updatedGetCropFieldData: UpdateCropFieldData) => void;
+  cropField: GetCropFieldDTO;
+  onUpdate: (updatedGetCropFieldData: UpdateCropFieldDTO) => void;
   isPending: boolean;
 }
 
@@ -27,7 +27,7 @@ function UpdateGetCropFieldForm({
   isPending,
 }: UpdateCropFieldFormProps) {
   const [cropFieldUpdateData, setCropFieldUpdateData] =
-    useState<UpdateCropFieldData>({
+    useState<UpdateCropFieldDTO>({
       name: cropField.name,
       markerPosition: cropField.markerPosition,
       polygonPoints: cropField.polygonPoints,
@@ -159,7 +159,7 @@ function UpdateGetCropFieldForm({
             markerPosition: cropFieldUpdateData.markerPosition,
             polygonPoints: cropFieldUpdateData.polygonPoints,
             area: cropFieldUpdateData.area,
-            fieldParcels: [] as GetFieldParcelData[],
+            fieldParcels: [] as GetFieldParcelDTO[],
           }}
           markerAdded={markerAdded}
           onMarkerCreated={handleMarkerCreated}

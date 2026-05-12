@@ -1,6 +1,6 @@
 import type { LatLngObject } from "../LatLngObject";
 
-export interface GetFieldParcelData {
+export interface GetFieldParcelDTO {
     uid: string,
     polygonPoints: LatLngObject[]
 }

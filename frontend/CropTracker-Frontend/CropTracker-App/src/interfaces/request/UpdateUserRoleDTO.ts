@@ -1,4 +1,4 @@
-export interface UserRoleUpdates {
+export interface UpdateUserRoleDTO {
     username: string,
     roles: string[]
 }

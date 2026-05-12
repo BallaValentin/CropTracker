@@ -9,23 +9,23 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { useQuery } from "@tanstack/react-query";
-import type { GetCropFieldData } from "../interfaces/response/GetCropFieldData";
+import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import CheckIcon from "@mui/icons-material/Check";
 import { getCropFieldById } from "../services/CropFieldService";
 import { defaultMapPosition } from "../utils/Constants";
-import type { GetFieldParcelData } from "../interfaces/response/GetFieldParcelData";
+import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import CropFieldInfoPanel from "../elements/panels/CropFieldInfoPanel";
 import CreateFieldParcelForm from "../elements/forms/CreateFieldParcelForm";
-import type { CreateFieldParcelData } from "../interfaces/response/CreateFieldParcelData";
+import type { CreateFieldParcelDTO } from "../interfaces/response/CreateFieldParcelDTO";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading, error } = useUserProfile();
-  const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldData>({
+  const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldDTO>({
     uid: "",
     name: "Unnamed Field",
     markerPosition: defaultMapPosition,
     polygonPoints: [],
-    fieldParcels: [] as GetFieldParcelData[],
+    fieldParcels: [] as GetFieldParcelDTO[],
     area: 0,
   });
   const [addParcel, setAddParcel] = useState<boolean>(false);
@@ -77,7 +77,7 @@ function PlotDetailsPage() {
   };
 
   const createNewFieldParcel = (
-    createFieldParcelData: CreateFieldParcelData,
+    createFieldParcelData: CreateFieldParcelDTO,
   ) => {
     console.log("Create field parcel data: ", createFieldParcelData);
   };

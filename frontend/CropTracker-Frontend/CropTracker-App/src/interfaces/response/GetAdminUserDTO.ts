@@ -1,4 +1,4 @@
-export interface AdminUser {
+export interface GetAdminUserDTO {
     id: string
     username: string
     firstName: string

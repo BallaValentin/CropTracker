@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "../services/AuthService";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
-import type { RegisterData } from "../interfaces/request/RegisterData";
+import type { CreateUserDTO } from "../interfaces/request/CreateUserDTO";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ function RegisterPage() {
     },
   });
 
-  const handleRegister = (registerData: RegisterData) => {
+  const handleRegister = (registerData: CreateUserDTO) => {
     mutate(registerData);
   };
 

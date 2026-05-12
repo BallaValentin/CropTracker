@@ -5,7 +5,7 @@ import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import { useEffect, useState } from "react";
-import type { GetCropFieldData } from "../interfaces/response/GetCropFieldData";
+import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useMutation } from "@tanstack/react-query";
 import { getCropFields } from "../services/CropFieldService";
 import AddIcon from "@mui/icons-material/Add";
@@ -17,7 +17,7 @@ import CropFieldCard from "../elements/cards/CropFieldCard";
 function PlotsListPage() {
   const { data: user, isLoading, error } = useUserProfile();
   const { data: userCropField } = useUserCropFields();
-  const [cropFields, setCropFields] = useState<GetCropFieldData[]>([]);
+  const [cropFields, setCropFields] = useState<GetCropFieldDTO[]>([]);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [fabHovered, setFabHovered] = useState(false);
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ function PlotsListPage() {
 
   const { mutate } = useMutation({
     mutationFn: getCropFields,
-    onSuccess: (response: GetCropFieldData[]) => {
+    onSuccess: (response: GetCropFieldDTO[]) => {
       setCropFields(response);
     },
   });

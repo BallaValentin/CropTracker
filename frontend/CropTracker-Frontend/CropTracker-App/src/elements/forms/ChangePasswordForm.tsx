@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import type { ChangePasswordData } from "../../interfaces/request/ChangePasswordData";
+import type { ChangePasswordData } from "../../interfaces/request/UpdatePasswordDTO";
 import PersonIcon from "@mui/icons-material/Person";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -57,7 +57,7 @@ function ChangePasswordForm({
 
     if (
       !/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
-        changePasswordData.password1
+        changePasswordData.password1,
       )
     ) {
       setError((prev) => ({ ...prev, ["password1Error"]: true }));

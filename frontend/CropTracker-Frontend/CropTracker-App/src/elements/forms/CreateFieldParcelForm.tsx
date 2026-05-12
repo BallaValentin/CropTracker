@@ -1,12 +1,12 @@
 import { Autocomplete, Box, Paper, TextField } from "@mui/material";
-import type { GetCropFieldData } from "../../interfaces/response/GetCropFieldData";
+import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import { useCropSearch } from "../../hooks/UseCropSearch";
 import { useState } from "react";
-import type { CreateFieldParcelData } from "../../interfaces/response/CreateFieldParcelData";
+import type { CreateFieldParcelDTO } from "../../interfaces/response/CreateFieldParcelDTO";
 
 interface CreateFieldParcelFormProps {
-  onSubmit: (createFieldParcelData: CreateFieldParcelData) => void;
-  cropfield: GetCropFieldData;
+  onSubmit: (createFieldParcelData: CreateFieldParcelDTO) => void;
+  cropfield: GetCropFieldDTO;
 }
 
 function CreateFieldParcelForm({
@@ -14,7 +14,7 @@ function CreateFieldParcelForm({
   //cropfield,
 }: CreateFieldParcelFormProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [newFieldParcel, setNewFieldParcel] = useState<CreateFieldParcelData>({
+  const [newFieldParcel, setNewFieldParcel] = useState<CreateFieldParcelDTO>({
     cropName: "",
     polygonPoints: [],
   });

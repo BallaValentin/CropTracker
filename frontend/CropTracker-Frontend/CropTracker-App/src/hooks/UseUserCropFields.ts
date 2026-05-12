@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import type { GetCropFieldData } from "../interfaces/response/GetCropFieldData"
+import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO"
 import { getCropFields } from "../services/CropFieldService"
 import type { AxiosError } from "axios";
 
 export const useUserCropFields = () => {
-    const query = useQuery<GetCropFieldData[], AxiosError>({
+    const query = useQuery<GetCropFieldDTO[], AxiosError>({
         queryKey: ["cropfields"],
         queryFn: getCropFields,
         staleTime: 1000 * 60 * 60,

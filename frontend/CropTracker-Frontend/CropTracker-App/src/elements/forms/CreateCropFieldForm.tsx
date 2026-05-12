@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { CreateCropFieldData } from "../../interfaces/request/CreateCropFieldData";
+import type { CreateCropFieldDTO } from "../../interfaces/request/CreateCropFieldDTO";
 import {
   Box,
   Button,
@@ -19,12 +19,12 @@ import { defaultMapPosition } from "../../utils/Constants";
 
 interface CreateCropFieldFormProps {
   isPending: boolean;
-  onSubmit: (createPlot: CreateCropFieldData) => void;
+  onSubmit: (createPlot: CreateCropFieldDTO) => void;
 }
 
 function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
   const [createCropFieldData, setCreateCropFieldData] =
-    useState<CreateCropFieldData>({
+    useState<CreateCropFieldDTO>({
       name: "Unnamed Field",
       markerPosition: null,
       polygonPoints: [],

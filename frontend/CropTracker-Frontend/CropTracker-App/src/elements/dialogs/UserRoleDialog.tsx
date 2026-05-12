@@ -10,15 +10,15 @@ import {
   FormControlLabel,
   Typography,
 } from "@mui/material";
-import type { AdminUser } from "../../interfaces/response/AdminUser";
+import type { GetAdminUserDTO } from "../../interfaces/response/GetAdminUserDTO";
 import { useEffect, useMemo, useState } from "react";
 
 interface UserRoleDialogProps {
-  user: AdminUser | null;
+  user: GetAdminUserDTO | null;
   open: boolean;
   isPending: boolean;
   onClose: () => void;
-  onAccept: (user: AdminUser | null, choosenRoles: string[]) => void;
+  onAccept: (user: GetAdminUserDTO | null, choosenRoles: string[]) => void;
 }
 
 function UserRoleDialog({
@@ -45,13 +45,13 @@ function UserRoleDialog({
 
   const handleCheck = (
     event: React.ChangeEvent<HTMLInputElement>,
-    roleName: string
+    roleName: string,
   ) => {
     setError(null);
     setChoosenRoles((prev) =>
       event.target.checked
         ? [...prev, roleName]
-        : prev.filter((r) => r !== roleName)
+        : prev.filter((r) => r !== roleName),
     );
   };
 

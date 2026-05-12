@@ -8,15 +8,15 @@ import {
   getCropFieldById,
   updateCropField,
 } from "../services/CropFieldService";
-import type { GetCropFieldData } from "../interfaces/response/GetCropFieldData";
+import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useEffect, useState } from "react";
-import type { UpdateCropFieldData } from "../interfaces/request/UpdateCropFieldData";
+import type { UpdateCropFieldDTO } from "../interfaces/request/UpdateCropFieldDTO";
 import { queryClient } from "../query-client/QueryClient";
 import UpdateCropFieldForm from "../elements/forms/UpdateCropFieldForm";
 
 function UpdatePlotPage() {
   const { data: user, isLoading: isLoadingUser, error } = useUserProfile();
-  const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldData>({
+  const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldDTO>({
     uid: "",
     name: "Unnamed Field",
     markerPosition: {
@@ -24,6 +24,7 @@ function UpdatePlotPage() {
       lng: -0.09,
     },
     polygonPoints: [],
+    fieldParcels: [],
     area: 0,
   });
 
@@ -52,7 +53,7 @@ function UpdatePlotPage() {
       cropFieldUpdateData,
       id,
     }: {
-      cropFieldUpdateData: UpdateCropFieldData;
+      cropFieldUpdateData: UpdateCropFieldDTO;
       id: string;
     }) => updateCropField(cropFieldUpdateData, id || ""),
     onSuccess: () => {
@@ -66,7 +67,7 @@ function UpdatePlotPage() {
     },
   });
 
-  const handleOnUpdate = (cropFieldUpdateData: UpdateCropFieldData) => {
+  const handleOnUpdate = (cropFieldUpdateData: UpdateCropFieldDTO) => {
     mutate({ cropFieldUpdateData, id: id || "" });
   };
 

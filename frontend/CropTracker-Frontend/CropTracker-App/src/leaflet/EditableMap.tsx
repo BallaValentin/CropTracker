@@ -13,7 +13,7 @@ import {
   useMap,
   FeatureGroup,
 } from "react-leaflet";
-import type { GetCropFieldData } from "../interfaces/response/GetCropFieldData";
+import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useEffect, useState } from "react";
 import L from "leaflet";
 import {
@@ -24,7 +24,7 @@ import {
 import { defaultMapPosition } from "../utils/Constants";
 
 interface EditableMapProps {
-  cropField: GetCropFieldData;
+  cropField: GetCropFieldDTO;
   markerAdded: boolean;
   onMarkerCreated: (latLng: L.LatLng) => void;
   onMarkerDeleted: () => void;
@@ -41,7 +41,7 @@ function EditableMap({
   onPolygonDeleted,
 }: EditableMapProps) {
   const [cropFieldData, setCropFieldData] =
-    useState<GetCropFieldData>(cropField);
+    useState<GetCropFieldDTO>(cropField);
   const [viewCenter, setViewCenter] = useState<[number, number]>(
     cropField.markerPosition
       ? [cropField.markerPosition.lat, cropField.markerPosition.lng]

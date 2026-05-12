@@ -1,7 +1,7 @@
 import axios from "axios"
-import type { GetCropFieldData } from "../interfaces/response/GetCropFieldData"
-import type { CreateCropFieldData } from "../interfaces/request/CreateCropFieldData"
-import type { UpdateCropFieldData } from "../interfaces/request/UpdateCropFieldData"
+import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO"
+import type { CreateCropFieldDTO } from "../interfaces/request/CreateCropFieldDTO"
+import type { UpdateCropFieldDTO } from "../interfaces/request/UpdateCropFieldDTO"
 
 export const cropFieldApi = axios.create({
     baseURL: "http://localhost:8080/api/cropfield",
@@ -10,7 +10,7 @@ export const cropFieldApi = axios.create({
     }
 })
 
-export const createCropField = async(createCropField: CreateCropFieldData): Promise<void> => {
+export const createCropField = async(createCropField: CreateCropFieldDTO): Promise<void> => {
     console.log("Sending create-cropfield request to server");
     await cropFieldApi.post<void>("/create", createCropField, {
         headers: {
@@ -19,7 +19,7 @@ export const createCropField = async(createCropField: CreateCropFieldData): Prom
     })
 }
 
-export const updateCropField = async(updateCropField: UpdateCropFieldData, cropFieldId: string): Promise<void> => {
+export const updateCropField = async(updateCropField: UpdateCropFieldDTO, cropFieldId: string): Promise<void> => {
     console.log("Sending update-cropfield request to server")
     await cropFieldApi.put<void>(`/update?id=${cropFieldId}`, updateCropField, {
         headers: {
@@ -28,9 +28,9 @@ export const updateCropField = async(updateCropField: UpdateCropFieldData, cropF
     })
 }
 
-export const getCropFields = async (): Promise<GetCropFieldData[]> => {
+export const getCropFields = async (): Promise<GetCropFieldDTO[]> => {
     console.log("Sending get-cropfields request to server")
-    const response = await cropFieldApi.get<GetCropFieldData[]>("/findall", {
+    const response = await cropFieldApi.get<GetCropFieldDTO[]>("/findall", {
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
         }
@@ -39,9 +39,9 @@ export const getCropFields = async (): Promise<GetCropFieldData[]> => {
     return response.data
 }
 
-export const getCropFieldById = async (cropFieldId: string): Promise<GetCropFieldData> => {
+export const getCropFieldById = async (cropFieldId: string): Promise<GetCropFieldDTO> => {
     console.log("Sending get-cropfield request to server")
-    const response = await cropFieldApi.get<GetCropFieldData>(`/findby?id=${cropFieldId}`, {
+    const response = await cropFieldApi.get<GetCropFieldDTO>(`/findby?id=${cropFieldId}`, {
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
         }

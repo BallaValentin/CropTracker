@@ -1,5 +1,6 @@
 import axios from "axios";
-import type { PasswordResetMail } from "../interfaces/request/PasswordResetMail";
+import type { PasswordVerificationEmailDTO } from "../interfaces/request/PasswordVerificationEmailDTO";
+
 
 export const mailApi = axios.create({
     baseURL: "http://localhost:8080/api/mail",
@@ -8,7 +9,7 @@ export const mailApi = axios.create({
     }
 });
 
-export const sendPasswordResetMail = async(passwordResetMail: PasswordResetMail): Promise<void> => {
+export const sendPasswordResetMail = async(passwordResetMail: PasswordVerificationEmailDTO): Promise<void> => {
     console.log("Sending password reset email")
     await mailApi.post("/reset-password", passwordResetMail);
 } 

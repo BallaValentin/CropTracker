@@ -1,4 +1,4 @@
-export interface RegisterError {
+export interface RegisterErrorDTO {
     usernameError: boolean,
     firstNameError: boolean,
     lastNameError: boolean,

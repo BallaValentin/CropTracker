@@ -7,12 +7,12 @@ import {
   Typography,
 } from "@mui/material";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
-import type { GetCropFieldData } from "../../interfaces/response/GetCropFieldData";
+import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import MapPreview from "../../leaflet/MapPreview";
 import AddIcon from "@mui/icons-material/Add";
 
 interface CropFieldInfoPanelProps {
-  cropFieldDetail: GetCropFieldData;
+  cropFieldDetail: GetCropFieldDTO;
   onAddParcelClick: () => void;
 }
 

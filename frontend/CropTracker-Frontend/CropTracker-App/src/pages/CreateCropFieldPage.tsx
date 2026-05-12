@@ -6,7 +6,7 @@ import { useUserProfile } from "../hooks/UseUserProfile";
 import { useMutation } from "@tanstack/react-query";
 import { createCropField } from "../services/CropFieldService";
 import { useNavigate } from "react-router-dom";
-import type { CreateCropFieldData } from "../interfaces/request/CreateCropFieldData";
+import type { CreateCropFieldDTO } from "../interfaces/request/CreateCropFieldDTO";
 import CreateCropFieldForm from "../elements/forms/CreateCropFieldForm";
 
 function CreateCropFieldPage() {
@@ -34,7 +34,7 @@ function CreateCropFieldPage() {
     return <ProgressCircle loadingMessage="Loading your data..." />;
   }
 
-  const createNewCropField = (createCropFieldData: CreateCropFieldData) => {
+  const createNewCropField = (createCropFieldData: CreateCropFieldDTO) => {
     mutate(createCropFieldData);
   };
 

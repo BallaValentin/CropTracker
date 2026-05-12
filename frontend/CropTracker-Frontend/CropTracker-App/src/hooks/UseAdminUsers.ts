@@ -2,13 +2,13 @@ import { useQuery } from "@tanstack/react-query"
 import { getUsers } from "../services/AdminService"
 import { useNavigate } from "react-router-dom"
 import type { AxiosError } from "axios";
-import type { AdminUser } from "../interfaces/response/AdminUser";
+import type { GetAdminUserDTO } from "../interfaces/response/GetAdminUserDTO";
 import { getStatusMessage } from "../utils/GetStatusMessage";
 
 export const useAdminUsers = () => {
     const navigate = useNavigate();
 
-    const query = useQuery<AdminUser[], AxiosError>({
+    const query = useQuery<GetAdminUserDTO[], AxiosError>({
         queryKey: ["adminUsers"],
         queryFn: getUsers,
         staleTime: 1000 * 60 * 60,

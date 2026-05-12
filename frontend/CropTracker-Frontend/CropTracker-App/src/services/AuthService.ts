@@ -1,8 +1,8 @@
 import axios from "axios";
-import type { LoginData } from "../interfaces/request/LoginData";
-import type { LoginResponse } from "../interfaces/request/LoginResponse";
-import type { RegisterData } from "../interfaces/request/RegisterData";
-import type { RefreshTokenResponse } from "../interfaces/response/RefreshTokenResponse";
+import type { LoginUserDTO } from "../interfaces/request/LoginUserDTO";
+import type { CreateUserDTO } from "../interfaces/request/CreateUserDTO";
+import type { GetRefreshTokenDTO } from "../interfaces/response/GetRefreshTokenDTO";
+import type { LoginResponseDTO } from "../interfaces/response/LoginResponseDTO";
 
 export const authApi = axios.create({
     baseURL: "http://localhost:8080/api/auth",
@@ -12,9 +12,9 @@ export const authApi = axios.create({
     withCredentials: true
 });
 
-export const loginUser = async(loginData: LoginData): Promise<LoginResponse>  => {
+export const loginUser = async(loginData: LoginUserDTO): Promise<LoginResponseDTO>  => {
     console.log("Sending login request to server");
-    const response = await authApi.post<LoginResponse>("/login", loginData);
+    const response = await authApi.post<LoginResponseDTO>("/login", loginData);
     const {accessToken} = response.data;
     sessionStorage.setItem('accessToken', accessToken);
     return response.data;
@@ -26,15 +26,15 @@ export const logoutUser = async(): Promise<number> => {
     return response.status;
 }
 
-export const registerUser = async(registerData: RegisterData): Promise<number>  => {
+export const registerUser = async(registerData: CreateUserDTO): Promise<number>  => {
     console.log("Sending sign up request to server")
     const response = await authApi.post<number>("/register", registerData);
     return response.status;
 }
 
-export const refreshToken = async(): Promise<RefreshTokenResponse> => {
+export const refreshToken = async(): Promise<GetRefreshTokenDTO> => {
     console.log("Sending refresh-token request to server")
-    const response = await authApi.get<RefreshTokenResponse>("/refresh-token");
+    const response = await authApi.get<GetRefreshTokenDTO>("/refresh-token");
     return response.data;
 } 
 

@@ -1,4 +1,4 @@
-export interface UserStatusUpdate {
+export interface UpdateUserStatusDTO {
     isActive: boolean
     username: string
 }

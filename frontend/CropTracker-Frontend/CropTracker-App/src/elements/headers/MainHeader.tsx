@@ -23,12 +23,12 @@ import AccountDialog from "../dialogs/AccountDialog";
 import { getAvatar, updateAvatar } from "../../services/UserService";
 import MenuIcon from "@mui/icons-material/Menu";
 import MainDrawer from "../drawers/MainDrawer";
-import type { UserData } from "../../interfaces/response/UserData";
 import { queryClient } from "../../query-client/QueryClient";
 import { useDrawer } from "../../contexts/DrawerProvider";
+import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
 
 interface MainHeaderProps {
-  userData: UserData | undefined;
+  userData: GetUserDTO | undefined;
   authenticated: boolean;
 }
 

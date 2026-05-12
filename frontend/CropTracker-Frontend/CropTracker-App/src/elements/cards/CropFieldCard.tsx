@@ -1,6 +1,6 @@
 import { Box, Button, Card, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import type { GetCropFieldData } from "../../interfaces/response/GetCropFieldData";
+import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import MapPreview from "../../leaflet/MapPreview";
 import DeletePlotButton from "../buttons/DeleteCropFieldButton";
 import DeletePlotDialog from "../dialogs/DeletePlotDialog";
@@ -10,7 +10,7 @@ import { deleteCropFieldById } from "../../services/CropFieldService";
 import { queryClient } from "../../query-client/QueryClient";
 
 interface CropFieldCardProps {
-  cropField: GetCropFieldData;
+  cropField: GetCropFieldDTO;
 }
 
 function PlotCard({ cropField }: CropFieldCardProps) {

@@ -1,11 +1,11 @@
 import type { LatLngObject } from "../LatLngObject";
-import type { GetFieldParcelData } from "./GetFieldParcelData";
+import type {GetFieldParcelDTO } from "./GetFieldParcelDTO";
 
-export interface GetCropFieldData {
+export interface GetCropFieldDTO {
     uid: string,
     name: string,
     markerPosition: LatLngObject | null,
     polygonPoints: LatLngObject[],
     area: number,
-    fieldParcels: GetFieldParcelData[]
+    fieldParcels: GetFieldParcelDTO[]
 }

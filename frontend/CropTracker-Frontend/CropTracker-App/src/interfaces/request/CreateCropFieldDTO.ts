@@ -1,8 +1,9 @@
 import type { LatLngObject } from "../LatLngObject";
 
-export interface UpdateCropFieldData {
+
+export interface CreateCropFieldDTO {
     name: string,
     markerPosition: LatLngObject | null,
-    polygonPoints: LatLngObject[],
+    polygonPoints: LatLngObject[]
     area: number
 }
