@@ -199,8 +199,8 @@ function UsersListPage() {
 
   return (
     <Box>
-      <MainHeader userData={user} authenticated={true} />
-      <MainContainer hasDrawer={true}>
+      <MainHeader userData={user} />
+      <MainContainer hasDrawer={Boolean(user?.username)}>
         <Box sx={{ position: "relative" }}>
           {error && (
             <Alert

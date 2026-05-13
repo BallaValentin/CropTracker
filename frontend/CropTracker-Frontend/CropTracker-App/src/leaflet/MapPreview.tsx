@@ -51,6 +51,7 @@ function MapPreview({
     }, [polygonPoints, map]);
     return null;
   };
+
   return (
     <>
       <Box
@@ -62,8 +63,9 @@ function MapPreview({
         }}
       >
         <MapContainer
+          key={`${markerPosition?.lat}-${markerPosition?.lng}`}
           center={
-            markerPosition
+            markerPosition != null
               ? [markerPosition.lat, markerPosition.lng]
               : [defaultMapPosition.lat, defaultMapPosition.lng]
           }

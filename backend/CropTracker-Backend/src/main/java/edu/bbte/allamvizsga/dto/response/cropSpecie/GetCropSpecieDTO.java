@@ -9,4 +9,5 @@ public class GetCropSpecieDTO {
     private UUID uid;
     private String commonName;
     private String scientificName;
+    private UUID categoryId;
 }

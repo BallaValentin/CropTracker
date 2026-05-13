@@ -15,14 +15,13 @@ import { useUserCropFields } from "../hooks/UseUserCropFields";
 import CropFieldCard from "../elements/cards/CropFieldCard";
 
 function PlotsListPage() {
-  const { data: user, isLoading, error } = useUserProfile();
+  const { data: user, isLoading } = useUserProfile();
   const { data: userCropField } = useUserCropFields();
   const [cropFields, setCropFields] = useState<GetCropFieldDTO[]>([]);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [fabHovered, setFabHovered] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  let authenticated = true;
 
   const { mutate } = useMutation({
     mutationFn: getCropFields,
@@ -48,15 +47,11 @@ function PlotsListPage() {
     return <ProgressCircle loadingMessage="Loading fields..." />;
   }
 
-  if (error) {
-    authenticated = false;
-  }
-
   return (
     <>
       <Box>
-        <MainHeader userData={user} authenticated={authenticated} />
-        <MainContainer hasDrawer={authenticated}>
+        <MainHeader userData={user} />
+        <MainContainer hasDrawer={Boolean(user?.username)}>
           {feedbackMessage && (
             <Alert
               icon={<CheckIcon fontSize="inherit" />}

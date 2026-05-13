@@ -22,3 +22,17 @@ export const getCropCultivarsWithPattern = async (pattern: string): Promise<GetC
 
     return response.data
 }
+
+export const getCropCultivarsInSpecie = async (specieId: string): Promise<GetCropCultivarDTO[]> => {
+    console.log("Sending get-cropcultivars with patterb request to server")
+    const response = await cropCultivarApi.get<GetCropCultivarDTO[]>("/findall", {
+        params: {
+            specieId: specieId
+        },
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+    })
+
+    return response.data
+}

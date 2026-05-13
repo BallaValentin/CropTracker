@@ -19,7 +19,7 @@ import CreateFieldParcelForm from "../elements/forms/CreateFieldParcelForm";
 import type { CreateFieldParcelDTO } from "../interfaces/response/CreateFieldParcelDTO";
 
 function PlotDetailsPage() {
-  const { data: user, isLoading: isUserLoading, error } = useUserProfile();
+  const { data: user, isLoading: isUserLoading } = useUserProfile();
   const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldDTO>({
     uid: "",
     name: "Unnamed Field",
@@ -34,7 +34,6 @@ function PlotDetailsPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
-  let authenticated = true;
 
   const { data: plotData, isLoading: isCropFieldLoading } = useQuery({
     queryKey: ["cropfields", id],
@@ -53,10 +52,6 @@ function PlotDetailsPage() {
       return () => clearTimeout(timer);
     }
   }, [location, navigate]);
-
-  if (error) {
-    authenticated = false;
-  }
 
   useEffect(() => {
     if (plotData) {
@@ -85,8 +80,8 @@ function PlotDetailsPage() {
   return (
     <>
       <Box>
-        <MainHeader userData={user} authenticated={authenticated} />
-        <MainContainer hasDrawer={authenticated}>
+        <MainHeader userData={user} />
+        <MainContainer hasDrawer={Boolean(user?.username)}>
           {feedbackMessage && (
             <Alert
               icon={<CheckIcon fontSize="inherit" />}

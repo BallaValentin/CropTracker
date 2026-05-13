@@ -33,8 +33,9 @@ public class CropCultivarController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public void create(@Valid @RequestBody CreateCropCultivarDTO createCropCultivarDTO) {
-        String specieName = createCropCultivarDTO.getSpecieName();
-        CropSpecie cropSpecie = cropSpecieService.findBySpecieName(specieName);
+        String cropSpecieId = createCropCultivarDTO.getSpecieId();
+        UUID specieId = UUID.fromString(cropSpecieId);
+        CropSpecie cropSpecie = cropSpecieService.findByID(specieId);
         CropCultivar cropCultivar = cropCultivarMapper.createCropCultivarToModel(createCropCultivarDTO);
         cropCultivar.setCropSpecie(cropSpecie);
 
@@ -45,10 +46,11 @@ public class CropCultivarController {
     @PutMapping("/update")
     public void create(@Valid @RequestBody UpdateCropCultivarDTO updateCropCultivarDTO,
                        @RequestParam("id") String cropCultivarId) {
-        String specieName = updateCropCultivarDTO.getSpecieName();
+        String cropSpecieId = updateCropCultivarDTO.getSpecieId();
+        UUID specieId = UUID.fromString(cropSpecieId);
         UUID cultivarId = UUID.fromString(cropCultivarId);
 
-        CropSpecie cropSpecie = cropSpecieService.findBySpecieName(specieName);
+        CropSpecie cropSpecie = cropSpecieService.findByID(specieId);
         CropCultivar cropCultivar = cropCultivarMapper.updateCropCultivarToModel(updateCropCultivarDTO);
         cropCultivar.setCropSpecie(cropSpecie);
         cropCultivar.setUid(cultivarId);
@@ -64,14 +66,20 @@ public class CropCultivarController {
         cropCultivarService.delete(cultivarId);
     }
 
-    @GetMapping(value = "/findall", params = "specieName")
+    @GetMapping(value = "/findall", params = "specieId")
     public ResponseEntity<Collection<GetCropCultivarDTO>> findAllInSpecie(
-            @RequestParam("specieName") String specieName
+            @RequestParam("specieId") String cropSpecieId
     ) {
-        CropSpecie cropSpecie = cropSpecieService.findBySpecieName(specieName);
+        UUID specieId = UUID.fromString(cropSpecieId);
+        CropSpecie cropSpecie = cropSpecieService.findByID(specieId);
         Collection<CropCultivar> cropCultivars = cropCultivarService.findAllInSpecie(cropSpecie);
 
-        return ResponseEntity.ok(cropCultivars.stream().map(cropCultivarMapper::modelToGetCropCultivar).toList());
+        return ResponseEntity.ok(cropCultivars.stream().map(cropCultivar -> {
+            GetCropCultivarDTO getCropCultivarDTO = cropCultivarMapper.modelToGetCropCultivar(cropCultivar);
+            getCropCultivarDTO.setSpecieName(cropCultivar.getCropSpecie().getCommonName());
+            getCropCultivarDTO.setSpecieId(cropCultivar.getCropSpecie().getUid());
+            return getCropCultivarDTO;
+        }).toList());
     }
 
     @GetMapping(value = "/findall", params = "pattern")
@@ -83,6 +91,7 @@ public class CropCultivarController {
         return ResponseEntity.ok(cropCultivars.stream().map(cropCultivar -> {
             GetCropCultivarDTO getCropCultivarDTO = cropCultivarMapper.modelToGetCropCultivar(cropCultivar);
             getCropCultivarDTO.setSpecieName(cropCultivar.getCropSpecie().getCommonName());
+            getCropCultivarDTO.setSpecieId(cropCultivar.getCropSpecie().getUid());
             return getCropCultivarDTO;
         }).toList());
     }

@@ -35,11 +35,11 @@ public class CropSpecieService {
         ));
     }
 
-    public CropSpecie findBySpecieName(String specieName) {
-        CropSpecie cropSpecie = cropSpecieRepository.findByCommonName(specieName);
+    public CropSpecie findByID(UUID uid) {
+        CropSpecie cropSpecie = cropSpecieRepository.findByUid(uid);
 
         if (cropSpecie == null) {
-            throw new EntityNotFoundException("Couldn`t find crop specie with " + specieName + " name");
+            throw new EntityNotFoundException("Couldn`t find crop specie with id " + uid);
         }
 
         return cropSpecie;

@@ -39,7 +39,7 @@ public class DataInitializer {
     }
 
     private void createCropCategoryIfNotExist(CropCategoryRepository ccRepository, String categoryName) {
-        if (ccRepository.findByCategoryName(categoryName).isEmpty()) {
+        if (ccRepository.findByCategoryName(categoryName) == null) {
             CropCategory cropCategory = new CropCategory(categoryName);
             ccRepository.save(cropCategory);
 

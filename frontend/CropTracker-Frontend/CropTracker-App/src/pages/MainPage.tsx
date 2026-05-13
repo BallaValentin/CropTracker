@@ -6,23 +6,18 @@ import MainContainer from "../elements/containers/MainContainer";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 
 function MainPage() {
-  const { data: user, isLoading, error } = useUserProfile();
-  let authenticated: boolean = true;
+  const { data: user, isLoading } = useUserProfile();
 
   if (isLoading) {
     return <ProgressCircle loadingMessage="Loading your profile" />;
-  }
-
-  if (error) {
-    authenticated = false;
   }
 
   return (
     <>
       <GlobalStyles styles={{ body: { margin: 0 } }} />
       <Box sx={{ bgcolor: "#d0edc5ff" }}>
-        <MainHeader userData={user} authenticated={authenticated} />
-        <MainContainer hasDrawer={authenticated}>
+        <MainHeader userData={user} />
+        <MainContainer hasDrawer={Boolean(user?.username)}>
           <ColumnCenterContainer>
             <Typography variant="h2" component={"h1"}>
               Welcome to Crop Tracker!

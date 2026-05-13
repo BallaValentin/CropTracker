@@ -11,6 +11,6 @@ public class UpdateCropSpecieDTO {
     private String commonName;
     @NotNull(message = "Specie type name cannot be null")
     @NotBlank(message = "Specie type name cannot be blank")
-    private String specieTypeName;
+    private String categoryId;
     private String scientificName;
 }

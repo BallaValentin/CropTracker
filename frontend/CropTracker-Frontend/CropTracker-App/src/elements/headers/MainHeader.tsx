@@ -29,10 +29,9 @@ import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
 
 interface MainHeaderProps {
   userData: GetUserDTO | undefined;
-  authenticated: boolean;
 }
 
-function MainHeader({ userData, authenticated }: MainHeaderProps) {
+function MainHeader({ userData }: MainHeaderProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -44,7 +43,7 @@ function MainHeader({ userData, authenticated }: MainHeaderProps) {
   const { toggleDrawer } = useDrawer();
 
   useEffect(() => {
-    if (!authenticated) {
+    if (!userData?.username) {
       return;
     }
     const fetchAvatar = async () => {
@@ -54,7 +53,7 @@ function MainHeader({ userData, authenticated }: MainHeaderProps) {
     };
 
     fetchAvatar();
-  }, []);
+  }, [userData]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: logoutUser,
@@ -93,7 +92,7 @@ function MainHeader({ userData, authenticated }: MainHeaderProps) {
   });
 
   const handleLogout = () => {
-    if (authenticated) {
+    if (userData) {
       mutate();
     }
   };

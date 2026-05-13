@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -18,12 +19,11 @@ public class CropCategoryService {
         return cropCategoryRepository.findAll();
     }
 
-    public CropCategory findByName(String categoryName) {
-        CropCategory cropCategory = cropCategoryRepository.findByCategoryName(categoryName)
-                .orElse(null);
+    public CropCategory findByID(UUID categoryId) {
+        CropCategory cropCategory = cropCategoryRepository.findByUid(categoryId);
 
         if (cropCategory == null) {
-            throw new EntityNotFoundException("Couldn`t find category with name " + categoryName);
+            throw new EntityNotFoundException("Couldn`t find category with id " + categoryId);
         }
 
         return cropCategory;

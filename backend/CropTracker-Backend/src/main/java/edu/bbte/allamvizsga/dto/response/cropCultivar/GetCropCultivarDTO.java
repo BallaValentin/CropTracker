@@ -9,6 +9,7 @@ public class GetCropCultivarDTO {
     private UUID uid;
     private String cultivarName;
     private String specieName;
+    private UUID specieId;
     private Integer daysToMaturity;
     private Integer droughtTolerance;
     private Double idealPhRange;

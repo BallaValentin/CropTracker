@@ -13,6 +13,7 @@ import UpdateCropFieldPage from "./pages/UpdateCropFieldPage";
 import CreateCropFieldPage from "./pages/CreateCropFieldPage";
 import CropFieldDetailsPage from "./pages/CropFieldDetailsPage";
 import CropFieldListPage from "./pages/CropFieldListPage";
+import CropsListPage from "./pages/CropsListPage";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
                 path="/update-cropfield/:id"
                 element={<UpdateCropFieldPage />}
               />
+              <Route path="/show-crops" element={<CropsListPage />} />
             </Routes>
           </Router>
         </QueryClientProvider>

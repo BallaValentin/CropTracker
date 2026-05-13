@@ -10,13 +10,8 @@ import type { CreateCropFieldDTO } from "../interfaces/request/CreateCropFieldDT
 import CreateCropFieldForm from "../elements/forms/CreateCropFieldForm";
 
 function CreateCropFieldPage() {
-  const { data: user, isLoading, error } = useUserProfile();
+  const { data: user, isLoading } = useUserProfile();
   const navigate = useNavigate();
-  let authenticated = true;
-
-  if (error) {
-    authenticated = false;
-  }
 
   const { mutate, isPending } = useMutation({
     mutationFn: createCropField,
@@ -41,8 +36,8 @@ function CreateCropFieldPage() {
   return (
     <>
       <Box>
-        <MainHeader userData={user} authenticated={authenticated} />
-        <MainContainer hasDrawer={authenticated}>
+        <MainHeader userData={user} />
+        <MainContainer hasDrawer={Boolean(user?.username)}>
           <CreateCropFieldForm
             isPending={isPending}
             onSubmit={(createCropFieldData) => {

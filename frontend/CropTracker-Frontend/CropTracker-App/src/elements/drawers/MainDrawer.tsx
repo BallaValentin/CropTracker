@@ -19,6 +19,7 @@ import {
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
 import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
+import GrassIcon from "@mui/icons-material/Grass";
 
 interface MainDrawerProps {
   userData: GetUserDTO | undefined;
@@ -84,6 +85,18 @@ function MainDrawer({ userData }: MainDrawerProps) {
                 </ListItemIcon>
                 {(isDrawerExpanded || hovered) && (
                   <ListItemText>Show Fields</ListItemText>
+                )}
+              </ListItemButton>
+            </ListItem>
+          )}
+          {userRoles.findIndex((role) => role.name === "ADMIN") > -1 && (
+            <ListItem key={"show-crops"} disablePadding>
+              <ListItemButton onClick={() => navigate("/show-crops")}>
+                <ListItemIcon>
+                  <GrassIcon />
+                </ListItemIcon>
+                {(isDrawerExpanded || hovered) && (
+                  <ListItemText>Show All Crops</ListItemText>
                 )}
               </ListItemButton>
             </ListItem>

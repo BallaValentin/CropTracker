@@ -15,7 +15,7 @@ import { queryClient } from "../query-client/QueryClient";
 import UpdateCropFieldForm from "../elements/forms/UpdateCropFieldForm";
 
 function UpdatePlotPage() {
-  const { data: user, isLoading: isLoadingUser, error } = useUserProfile();
+  const { data: user, isLoading: isLoadingUser } = useUserProfile();
   const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldDTO>({
     uid: "",
     name: "Unnamed Field",
@@ -30,7 +30,6 @@ function UpdatePlotPage() {
 
   const { id } = useParams();
   const navigate = useNavigate();
-  let authenticated = true;
 
   const { data: cropField, isLoading: isCropFieldLoading } = useQuery({
     queryKey: ["plots", id],
@@ -79,16 +78,10 @@ function UpdatePlotPage() {
     return <ProgressCircle loadingMessage="Loading field details" />;
   }
 
-  if (error) {
-    authenticated = false;
-  }
-
-  console.log("Field details:", cropFieldDetail);
-
   return (
     <>
-      <MainHeader userData={user} authenticated={authenticated} />
-      <MainContainer hasDrawer={authenticated}>
+      <MainHeader userData={user} />
+      <MainContainer hasDrawer={Boolean(user?.username)}>
         <UpdateCropFieldForm
           cropField={cropFieldDetail}
           onUpdate={handleOnUpdate}
