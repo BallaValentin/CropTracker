@@ -31,7 +31,7 @@ public class CropCultivarService {
         ));
     }
 
-    public void create(CropCultivar cropCultivar) {
+    public CropCultivar create(CropCultivar cropCultivar) {
         CropCultivar cropCultivarWithName = cropCultivarRepository.findByCultivarName(
                 cropCultivar.getCultivarName()
         );
@@ -42,7 +42,7 @@ public class CropCultivarService {
             throw new EntityExistsException("Crop cultivar with name " + cropCultivar.getCultivarName() + " already exists");
         }
 
-        cropCultivarRepository.save(cropCultivar);
+        return cropCultivarRepository.save(cropCultivar);
     }
 
     public void update(CropCultivar cropCultivar) {

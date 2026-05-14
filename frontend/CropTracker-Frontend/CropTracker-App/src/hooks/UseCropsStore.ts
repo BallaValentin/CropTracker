@@ -2,7 +2,7 @@ import type { GetCropCategoryDTO } from "../interfaces/response/GetCropCategoryD
 import type { GetCropCultivarDTO } from "../interfaces/response/GetCropCultivarDTO";
 import type { GetCropSpecieDTO } from "../interfaces/response/GetCropSpecieDTO";
 import { create } from 'zustand';
-import { createCropSpecie, getCropSpecieInCategory } from "../services/CropSpecieService";
+import { createCropSpecie, deleteCropSpecie, getCropSpecieInCategory } from "../services/CropSpecieService";
 import { createCropCultivar, getCropCultivarsInSpecie } from "../services/CropCultivarService";
 import type { CreateCropSpecieDTO } from "../interfaces/request/CreateCropSpecieDTO";
 import type { CreateCropCultivarDTO } from "../interfaces/request/CreateCropCultivarDTO";
@@ -16,6 +16,7 @@ interface TreeState {
   setCategories: (data: GetCropCategoryDTO[]) => void;
   fetchSpecies: (categoryId: string) => Promise<void>;
   addSpecies: (data: CreateCropSpecieDTO) => void;
+  deleteSpecies: (specieId: string) => void;
   addCultivars: (data: CreateCropCultivarDTO) => void;
   fetchCultivars: (specieId: string) => Promise<void>;
 }
@@ -42,15 +43,30 @@ export const useCropsStore = create<TreeState>((set, get) => ({
   },
 
   addSpecies: async(newCropSpecie: CreateCropSpecieDTO) => {
-    await  createCropSpecie(newCropSpecie);
+    const createdSpecie = await  createCropSpecie(newCropSpecie);
+
+    set((s) => ({
+      species: {
+        ...s.species,
+        [createdSpecie.categoryId]: [
+          ...(s.species[createdSpecie.categoryId] || []),
+          createdSpecie
+        ]
+      }
+    }));
+
+  },
+
+  deleteSpecies: async(specieId: string) => {
+    await deleteCropSpecie(specieId);
 
     set((s) => {
       const newSpecies = {...s.species};
-      delete newSpecies[newCropSpecie.categoryId];
+      delete newSpecies[specieId]
       return {species: newSpecies}
-    });
-
-    await get().fetchSpecies;
+    })
+    
+    await get().species
   },
 
   fetchCultivars: async(specieId) => {
@@ -67,15 +83,17 @@ export const useCropsStore = create<TreeState>((set, get) => ({
   },
 
   addCultivars: async(newCropCultivar: CreateCropCultivarDTO) => {
-      await  createCropCultivar(newCropCultivar);
+    const createdCultivar = await  createCropCultivar(newCropCultivar);
 
-    set((s) => {
-      const newCultivars = {...s.cultivars};
-      delete newCultivars[newCropCultivar.specieId];
-      return {cultivars: newCultivars};
-    });
-
-    await get().fetchCultivars;
+    set((s) => ({
+      cultivars: {
+        ...s.cultivars,
+        [createdCultivar.specieId]: [
+          ...(s.cultivars[createdCultivar.specieId] || []),
+          createdCultivar
+        ]
+      }
+    }));
     },
 }));
 

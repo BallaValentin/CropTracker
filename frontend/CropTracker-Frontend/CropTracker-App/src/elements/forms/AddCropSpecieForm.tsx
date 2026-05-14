@@ -25,12 +25,18 @@ function AddCropSpecieForm({
 }: AddCropSpecieProps) {
   const [newCropSpecie, setNewCropSpecie] = useState<CreateCropSpecieDTO>({
     commonName: "",
-    scientificName: "",
+    scientificName: null,
     categoryId: categoryId,
   });
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    if (!newCropSpecie.scientificName) {
+      setNewCropSpecie((prev) => ({
+        ...prev,
+        scientificName: null,
+      }));
+    }
     onSubmit(newCropSpecie);
   };
 

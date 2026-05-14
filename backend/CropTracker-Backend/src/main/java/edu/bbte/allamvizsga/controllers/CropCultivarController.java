@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -32,19 +33,25 @@ public class CropCultivarController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
-    public void create(@Valid @RequestBody CreateCropCultivarDTO createCropCultivarDTO) {
+    public ResponseEntity<GetCropCultivarDTO> create(@Valid @RequestBody CreateCropCultivarDTO createCropCultivarDTO) {
         String cropSpecieId = createCropCultivarDTO.getSpecieId();
         UUID specieId = UUID.fromString(cropSpecieId);
         CropSpecie cropSpecie = cropSpecieService.findByID(specieId);
         CropCultivar cropCultivar = cropCultivarMapper.createCropCultivarToModel(createCropCultivarDTO);
         cropCultivar.setCropSpecie(cropSpecie);
 
-        cropCultivarService.create(cropCultivar);
+        CropCultivar createdCropCultivar = cropCultivarService.create(cropCultivar);
+
+        GetCropCultivarDTO getCropCultivarDTO = cropCultivarMapper.modelToGetCropCultivar(createdCropCultivar);
+        getCropCultivarDTO.setSpecieId(createdCropCultivar.getCropSpecie().getUid());
+        getCropCultivarDTO.setSpecieName(createdCropCultivar.getCropSpecie().getCommonName());
+
+        return new ResponseEntity<>(getCropCultivarDTO, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update")
-    public void create(@Valid @RequestBody UpdateCropCultivarDTO updateCropCultivarDTO,
+    public ResponseEntity<GetCropCultivarDTO> create(@Valid @RequestBody UpdateCropCultivarDTO updateCropCultivarDTO,
                        @RequestParam("id") String cropCultivarId) {
         String cropSpecieId = updateCropCultivarDTO.getSpecieId();
         UUID specieId = UUID.fromString(cropSpecieId);
@@ -56,6 +63,12 @@ public class CropCultivarController {
         cropCultivar.setUid(cultivarId);
 
         cropCultivarService.update(cropCultivar);
+
+        GetCropCultivarDTO getCropCultivarDTO = cropCultivarMapper.modelToGetCropCultivar(cropCultivar);
+        getCropCultivarDTO.setSpecieId(cropCultivar.getCropSpecie().getUid());
+        getCropCultivarDTO.setSpecieName(cropCultivar.getCropSpecie().getCommonName());
+
+        return new ResponseEntity<>(getCropCultivarDTO, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

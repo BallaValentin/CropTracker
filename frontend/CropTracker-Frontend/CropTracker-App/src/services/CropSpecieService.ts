@@ -24,9 +24,24 @@ export const getCropSpecieInCategory = async (categoryId: string): Promise<GetCr
     return response.data
 }
 
-export const createCropSpecie = async (createCropSpecieDTO: CreateCropSpecieDTO): Promise<void> => {
+export const createCropSpecie = async (createCropSpecieDTO: CreateCropSpecieDTO): Promise<GetCropSpecieDTO> => {
     console.log("Sending get-cropspecies with pattern request to server", createCropSpecieDTO)
-    const response = await cropSpecieApi.post<void>("/create", createCropSpecieDTO, {
+    
+    const response = await cropSpecieApi.post<GetCropSpecieDTO>("/create", createCropSpecieDTO, {
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+    });
+
+    return response.data;
+}
+
+export const deleteCropSpecie = async (cropSpecieId: string): Promise<void> => {
+    console.log(`Sending delete-cropspecies with ${cropSpecieId} id`)
+    const response = await cropSpecieApi.delete<void>("/delete", {
+        params: {
+            id: cropSpecieId
+        },
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
         }

@@ -45,7 +45,7 @@ public class CropSpecieService {
         return cropSpecie;
     }
 
-    public void create(CropSpecie cropSpecie) {
+    public CropSpecie create(CropSpecie cropSpecie) {
         if (cropSpecieRepository.findByCommonName(cropSpecie.getCommonName()) != null) {
             throw new EntityExistsException("Crop specie with name " + cropSpecie.getCommonName() + " already exists");
         }
@@ -54,7 +54,7 @@ public class CropSpecieService {
             throw new EntityExistsException("Crop specie with scientific name " + cropSpecie.getScientificName() + " already exists");
         }
 
-        cropSpecieRepository.save(cropSpecie);
+        return cropSpecieRepository.save(cropSpecie);
     }
 
     public void update(CropSpecie cropSpecie) {

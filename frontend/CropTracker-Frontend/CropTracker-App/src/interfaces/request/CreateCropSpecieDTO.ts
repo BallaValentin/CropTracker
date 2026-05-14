@@ -1,5 +1,5 @@
 export interface CreateCropSpecieDTO {
     commonName: string,
-    scientificName: string,
+    scientificName: string | null,
     categoryId: string
 }

@@ -38,12 +38,15 @@ export const getCropCultivarsInSpecie = async (specieId: string): Promise<GetCro
     return response.data;
 }
 
-export const createCropCultivar = async (createCropCultivarDTO: CreateCropCultivarDTO): Promise<void> => {
+export const createCropCultivar = async (createCropCultivarDTO: CreateCropCultivarDTO): Promise<GetCropCultivarDTO> => {
     console.log("Sending create-cropcultivar request to server: ", createCropCultivarDTO)
-    await cropCultivarApi.post<void>("/create", createCropCultivarDTO, {
+    
+    const response = await cropCultivarApi.post<GetCropCultivarDTO>("/create", createCropCultivarDTO, {
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
         }
-    })
+    });
+
+    return response.data;
 
 }
