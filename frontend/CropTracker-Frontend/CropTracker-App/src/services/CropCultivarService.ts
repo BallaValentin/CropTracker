@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { GetCropCultivarDTO } from "../interfaces/response/GetCropCultivarDTO";
+import type { CreateCropCultivarDTO } from "../interfaces/request/CreateCropCultivarDTO";
 
 export const cropCultivarApi = axios.create({
     baseURL: "http://localhost:8080/api/crop-cultivars",
@@ -10,7 +11,7 @@ export const cropCultivarApi = axios.create({
 });
 
 export const getCropCultivarsWithPattern = async (pattern: string): Promise<GetCropCultivarDTO[]> => {
-    console.log("Sending get-cropcultivars with patterb request to server")
+    console.log("Sending get-cropcultivars with pattern request to server")
     const response = await cropCultivarApi.get<GetCropCultivarDTO[]>("/findall", {
         params: {
             pattern: pattern
@@ -24,7 +25,7 @@ export const getCropCultivarsWithPattern = async (pattern: string): Promise<GetC
 }
 
 export const getCropCultivarsInSpecie = async (specieId: string): Promise<GetCropCultivarDTO[]> => {
-    console.log("Sending get-cropcultivars with patterb request to server")
+    console.log(`Sending get-cropcultivars with with specie ${specieId} request to server`)
     const response = await cropCultivarApi.get<GetCropCultivarDTO[]>("/findall", {
         params: {
             specieId: specieId
@@ -34,5 +35,15 @@ export const getCropCultivarsInSpecie = async (specieId: string): Promise<GetCro
         }
     })
 
-    return response.data
+    return response.data;
+}
+
+export const createCropCultivar = async (createCropCultivarDTO: CreateCropCultivarDTO): Promise<void> => {
+    console.log("Sending create-cropcultivar request to server: ", createCropCultivarDTO)
+    await cropCultivarApi.post<void>("/create", createCropCultivarDTO, {
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+    })
+
 }

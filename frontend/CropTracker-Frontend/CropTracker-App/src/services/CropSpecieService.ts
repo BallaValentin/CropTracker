@@ -11,7 +11,7 @@ export const cropSpecieApi = axios.create({
 });
 
 export const getCropSpecieInCategory = async (categoryId: string): Promise<GetCropSpecieDTO[]> => {
-    console.log("Sending get-cropcultivars with patterb request to server")
+    console.log("Sending get-cropspecies with patterb request to server")
     const response = await cropSpecieApi.get<GetCropSpecieDTO[]>("/findall", {
         params: {
             categoryId: categoryId,
@@ -25,7 +25,7 @@ export const getCropSpecieInCategory = async (categoryId: string): Promise<GetCr
 }
 
 export const createCropSpecie = async (createCropSpecieDTO: CreateCropSpecieDTO): Promise<void> => {
-    console.log("Sending get-cropcultivars with patterb request to server", createCropSpecieDTO)
+    console.log("Sending get-cropspecies with pattern request to server", createCropSpecieDTO)
     const response = await cropSpecieApi.post<void>("/create", createCropSpecieDTO, {
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`

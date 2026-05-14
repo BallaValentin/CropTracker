@@ -3,8 +3,9 @@ import type { GetCropCultivarDTO } from "../interfaces/response/GetCropCultivarD
 import type { GetCropSpecieDTO } from "../interfaces/response/GetCropSpecieDTO";
 import { create } from 'zustand';
 import { createCropSpecie, getCropSpecieInCategory } from "../services/CropSpecieService";
-import { getCropCultivarsInSpecie } from "../services/CropCultivarService";
+import { createCropCultivar, getCropCultivarsInSpecie } from "../services/CropCultivarService";
 import type { CreateCropSpecieDTO } from "../interfaces/request/CreateCropSpecieDTO";
+import type { CreateCropCultivarDTO } from "../interfaces/request/CreateCropCultivarDTO";
 
 interface TreeState {
   categories: GetCropCategoryDTO[]
@@ -15,6 +16,7 @@ interface TreeState {
   setCategories: (data: GetCropCategoryDTO[]) => void;
   fetchSpecies: (categoryId: string) => Promise<void>;
   addSpecies: (data: CreateCropSpecieDTO) => void;
+  addCultivars: (data: CreateCropCultivarDTO) => void;
   fetchCultivars: (specieId: string) => Promise<void>;
 }
 
@@ -48,7 +50,7 @@ export const useCropsStore = create<TreeState>((set, get) => ({
       return {species: newSpecies}
     });
 
-    await get().fetchSpecies
+    await get().fetchSpecies;
   },
 
   fetchCultivars: async(specieId) => {
@@ -62,7 +64,19 @@ export const useCropsStore = create<TreeState>((set, get) => ({
       loading: {...s.loading, [specieId]: false}
       
     }));
-  }, 
+  },
+
+  addCultivars: async(newCropCultivar: CreateCropCultivarDTO) => {
+      await  createCropCultivar(newCropCultivar);
+
+    set((s) => {
+      const newCultivars = {...s.cultivars};
+      delete newCultivars[newCropCultivar.specieId];
+      return {cultivars: newCultivars};
+    });
+
+    await get().fetchCultivars;
+    },
 }));
 
 

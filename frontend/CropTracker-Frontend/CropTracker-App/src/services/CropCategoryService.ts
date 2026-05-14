@@ -9,8 +9,8 @@ export const cropCultivarApi = axios.create({
     withCredentials: true
 });
 
-export const getCropCategories= async (): Promise<GetCropCategoryDTO[]> => {
-    console.log("Sending get-cropcultivars with patterb request to server")
+export const getCropCategories = async (): Promise<GetCropCategoryDTO[]> => {
+    console.log("Sending get-cropcategories with pattern request to server")
     const response = await cropCultivarApi.get<GetCropCategoryDTO[]>("/findall", {
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`

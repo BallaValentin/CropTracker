@@ -1,35 +1,105 @@
 import { TreeItem } from "@mui/x-tree-view";
 import { useCropsStore } from "../../hooks/UseCropsStore";
 import type { GetCropSpecieDTO } from "../../interfaces/response/GetCropSpecieDTO";
-import { CircularProgress } from "@mui/material";
+import { Box, CircularProgress, IconButton, Typography } from "@mui/material";
 import CultivarItem from "./CultivarItem";
 import type { GetCropCultivarDTO } from "../../interfaces/response/GetCropCultivarDTO";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import UpdateIcon from "@mui/icons-material/Update";
+import { useState } from "react";
+import AddCropCultivarForm from "../forms/AddCropCultivarForm";
+import type { CreateCropCultivarDTO } from "../../interfaces/request/CreateCropCultivarDTO";
 
 function SpecieItem(specie: GetCropSpecieDTO) {
   const emptyCultivarsList = [] as GetCropCultivarDTO[];
+
+  const [addCultivarOpen, setAddCultivarOpen] = useState<boolean>(false);
+  const [selectedSpecie, setSelectedSpecie] = useState<string>("");
+
   const cultivars = useCropsStore(
     (s) => s.cultivars[specie.uid] || emptyCultivarsList,
   );
   const loading = useCropsStore((s) => s.loading[specie.uid]);
   const fetchCultivars = useCropsStore((s) => s.fetchCultivars);
+  const addNewCultivar = useCropsStore((s) => s.addCultivars);
+
+  const handleClick = () => {
+    fetchCultivars(specie.uid);
+  };
+
+  const handleAddCultivarSetup = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    specieId: string,
+  ) => {
+    event.stopPropagation();
+    setAddCultivarOpen(true);
+    setSelectedSpecie(specieId);
+  };
+
+  const handleAddCultivarClose = () => {
+    setAddCultivarOpen(false);
+    setSelectedSpecie("");
+  };
+
+  const addCultivar = async (newCropCultivar: CreateCropCultivarDTO) => {
+    await addNewCultivar(newCropCultivar);
+    setAddCultivarOpen(false);
+    setSelectedSpecie("");
+  };
 
   return (
-    <TreeItem
-      itemId={specie.uid}
-      label={specie.commonName}
-      onClick={() => fetchCultivars}
-    >
-      {loading ? (
-        <TreeItem
-          itemId={`${specie.uid}-load`}
-          label={<CircularProgress size={16} />}
+    <Box>
+      <TreeItem
+        itemId={specie.uid}
+        label={
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography sx={{ fontWeight: "bold" }}>
+              {specie.commonName}
+            </Typography>
+            <Box sx={{ display: "flex" }}>
+              <IconButton
+                onClick={(event) => handleAddCultivarSetup(event, specie.uid)}
+              >
+                <AddIcon />
+              </IconButton>
+              <IconButton>
+                <DeleteIcon />
+              </IconButton>
+              <IconButton>
+                <UpdateIcon />
+              </IconButton>
+            </Box>
+          </Box>
+        }
+        onClick={handleClick}
+      >
+        {loading ? (
+          <TreeItem
+            itemId={`${specie.uid}-load`}
+            label={<CircularProgress size={16} />}
+          />
+        ) : (
+          cultivars.map((cultivar) => (
+            <CultivarItem key={cultivar.uid} {...cultivar} />
+          ))
+        )}
+      </TreeItem>
+      {addCultivarOpen && (
+        <AddCropCultivarForm
+          open={addCultivarOpen}
+          specieId={selectedSpecie}
+          onSubmit={addCultivar}
+          onClose={handleAddCultivarClose}
         />
-      ) : (
-        cultivars.map((cultivar) => (
-          <CultivarItem key={cultivar.uid} {...cultivar} />
-        ))
       )}
-    </TreeItem>
+    </Box>
   );
 }
 
