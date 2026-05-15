@@ -10,11 +10,16 @@ import UpdateIcon from "@mui/icons-material/Update";
 import { useState } from "react";
 import AddCropCultivarForm from "../forms/AddCropCultivarForm";
 import type { CreateCropCultivarDTO } from "../../interfaces/request/CreateCropCultivarDTO";
+import DeleteCropSpecieDialog from "../dialogs/DeleteCropSpecieDialog";
+import type { UpdateCropSpecieDTO } from "../../interfaces/request/UpdateCropSpecieDTO";
+import UpdateCropSpecieForm from "../forms/UpdateCropSpecieForm";
 
 function SpecieItem(specie: GetCropSpecieDTO) {
   const emptyCultivarsList = [] as GetCropCultivarDTO[];
 
   const [addCultivarOpen, setAddCultivarOpen] = useState<boolean>(false);
+  const [deleteSpecieOpen, setDeleteSpecieOpen] = useState<boolean>(false);
+  const [updateSpecieOpen, setUpdateSpecieOpen] = useState<boolean>(false);
   const [selectedSpecie, setSelectedSpecie] = useState<string>("");
 
   const cultivars = useCropsStore(
@@ -23,6 +28,8 @@ function SpecieItem(specie: GetCropSpecieDTO) {
   const loading = useCropsStore((s) => s.loading[specie.uid]);
   const fetchCultivars = useCropsStore((s) => s.fetchCultivars);
   const addNewCultivar = useCropsStore((s) => s.addCultivars);
+  const deleteSpecie = useCropsStore((s) => s.deleteSpecies);
+  const updateSpecie = useCropsStore((s) => s.updateSpecies);
 
   const handleClick = () => {
     fetchCultivars(specie.uid);
@@ -37,8 +44,22 @@ function SpecieItem(specie: GetCropSpecieDTO) {
     setSelectedSpecie(specieId);
   };
 
+  const handleUpdateSpecieSetup = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    specieId: string,
+  ) => {
+    event.stopPropagation();
+    setUpdateSpecieOpen(true);
+    setSelectedSpecie(specieId);
+  };
+
   const handleAddCultivarClose = () => {
     setAddCultivarOpen(false);
+    setSelectedSpecie("");
+  };
+
+  const handleUpdateSpecieClose = () => {
+    setUpdateSpecieOpen(false);
     setSelectedSpecie("");
   };
 
@@ -46,6 +67,28 @@ function SpecieItem(specie: GetCropSpecieDTO) {
     await addNewCultivar(newCropCultivar);
     setAddCultivarOpen(false);
     setSelectedSpecie("");
+  };
+
+  const handleUpdateSpecie = async (cropSpecieUpdates: UpdateCropSpecieDTO) => {
+    await updateSpecie(cropSpecieUpdates, specie.uid);
+    setUpdateSpecieOpen(false);
+    setSelectedSpecie("");
+  };
+
+  const handleDeleteSpecieSetup = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.stopPropagation();
+    setDeleteSpecieOpen(true);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteSpecieOpen(false);
+  };
+
+  const handleDelete = async () => {
+    await deleteSpecie(specie);
+    setDeleteSpecieOpen(false);
   };
 
   return (
@@ -69,10 +112,12 @@ function SpecieItem(specie: GetCropSpecieDTO) {
               >
                 <AddIcon />
               </IconButton>
-              <IconButton>
+              <IconButton onClick={(event) => handleDeleteSpecieSetup(event)}>
                 <DeleteIcon />
               </IconButton>
-              <IconButton>
+              <IconButton
+                onClick={(event) => handleUpdateSpecieSetup(event, specie.uid)}
+              >
                 <UpdateIcon />
               </IconButton>
             </Box>
@@ -97,6 +142,21 @@ function SpecieItem(specie: GetCropSpecieDTO) {
           specieId={selectedSpecie}
           onSubmit={addCultivar}
           onClose={handleAddCultivarClose}
+        />
+      )}
+      {deleteSpecieOpen && (
+        <DeleteCropSpecieDialog
+          dialogOpen={deleteSpecieOpen}
+          onDelete={handleDelete}
+          onCancel={handleDeleteCancel}
+        />
+      )}
+      {updateSpecieOpen && (
+        <UpdateCropSpecieForm
+          open={updateSpecieOpen}
+          cropSpecie={specie}
+          onSubmit={handleUpdateSpecie}
+          onClose={handleUpdateSpecieClose}
         />
       )}
     </Box>

@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { GetCropCultivarDTO } from "../interfaces/response/GetCropCultivarDTO";
 import type { CreateCropCultivarDTO } from "../interfaces/request/CreateCropCultivarDTO";
+import type { UpdateCropCultivarDTO } from "../interfaces/request/UpdateCropCultivarDTO";
 
 export const cropCultivarApi = axios.create({
     baseURL: "http://localhost:8080/api/crop-cultivars",
@@ -49,4 +50,30 @@ export const createCropCultivar = async (createCropCultivarDTO: CreateCropCultiv
 
     return response.data;
 
+}
+
+export const updateCropCultivar = async (updateCropCultivarDTO: UpdateCropCultivarDTO, cultivarId: string): Promise<GetCropCultivarDTO> => {
+    console.log("Sending update-cropcultivar request to server: ", updateCropCultivarDTO)
+    const response = await cropCultivarApi.put<GetCropCultivarDTO>("/update", updateCropCultivarDTO, {
+        params: {
+            id: cultivarId
+        },
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+    });
+
+    return response.data;
+}
+
+export const deleteCropCultivar = async (cultivarId: string): Promise<void> => {
+    console.log(`Sending delete-cropcultivar with id ${cultivarId} request to server`)
+    await cropCultivarApi.delete<void>("/delete", {
+        params: {
+            id: cultivarId
+        },
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+    });
 }

@@ -16,5 +16,6 @@ public class UpdateCropCultivarDTO {
     private Integer daysToMaturity;
     @Range(min = 1, max = 10, message = "Invalid drought tolerance range")
     private Integer droughtTolerance;
+    @Range(min = 4, max = 9, message = "Invalid ideal ph range")
     private Double idealPhRange;
 }
