@@ -1,5 +1,5 @@
 import { type DrawEvents } from "leaflet";
-import { blueCircleIcon } from "../elements/icons/BlueCircleIcon";
+import { circleIcon } from "../elements/icons/CircleIcon";
 import { EditControl } from "react-leaflet-draw";
 import CustomLayers from "./CustomLayers";
 import { Paper } from "@mui/material";
@@ -190,10 +190,10 @@ function EditableMap({
                 color: "#e1e100",
                 message: "<strong>Error:<strong> shape edges cannot intersect!",
               },
-              icon: blueCircleIcon,
+              icon: circleIcon({ color: "gray" }),
               shapeOptions: {
                 clickable: true,
-                color: "#3388FF",
+                color: "gray",
               },
             },
           }}
@@ -220,7 +220,7 @@ function EditableMap({
                 : "default-polygon"
             }
             positions={cropFieldData.polygonPoints}
-            pathOptions={{ color: "blue" }}
+            pathOptions={{ color: "gray" }}
             eventHandlers={{
               mouseover: (e) => {
                 const layer = e.target;

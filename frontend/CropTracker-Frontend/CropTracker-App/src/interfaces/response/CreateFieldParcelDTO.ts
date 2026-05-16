@@ -2,5 +2,6 @@ import type { LatLngObject } from "../LatLngObject";
 
 export interface CreateFieldParcelDTO {
     cropName: string,
-    polygonPoints: LatLngObject[]
+    polygonPoints: LatLngObject[],
+    overlayColor: string,
 }

@@ -83,7 +83,7 @@ function MapPreview({
           <Polygon
             key={uid ? "polygon-" + uid : "default-polygon"}
             positions={polygonPoints}
-            pathOptions={{ color: "blue" }}
+            pathOptions={{ color: "gray" }}
           />
 
           {markerPosition != null && (

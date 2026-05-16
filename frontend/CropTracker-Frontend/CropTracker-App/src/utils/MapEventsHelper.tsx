@@ -4,7 +4,7 @@ import type { DrawEvents } from "leaflet";
 import { EditControl } from "react-leaflet-draw";
 import { polygon as turfPolygon } from "@turf/helpers";
 import area from "@turf/area";
-import { blueCircleIcon } from "../elements/icons/BlueCircleIcon";
+import { blueCircleIcon } from "../elements/icons/CircleIcon";
 
 interface MapEventsHelperProps {
   onPolygonCreated: (rawLatLngs: L.LatLng[], area: number) => void;
