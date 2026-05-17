@@ -1,25 +1,23 @@
 import { Box } from "@mui/material";
-import {
-  FeatureGroup,
-  LayersControl,
-  MapContainer,
-  Polygon,
-} from "react-leaflet";
+import { LayersControl, MapContainer, Polygon } from "react-leaflet";
 import type { LatLngObject } from "../interfaces/LatLngObject";
 import { defaultMapPosition } from "../utils/Constants";
 import CustomLayers from "./CustomLayers";
-import { EditControl } from "react-leaflet-draw";
-import { circleIcon } from "../elements/icons/CircleIcon";
 import L from "leaflet";
 import * as turf from "@turf/turf";
 import SnapDrawing from "./SnapDrawing";
+import { useState } from "react";
+import FieldParcelDrawControl from "./ParcelDrawControl";
 
 interface AddParcelViewProps {
   polygonPoints: LatLngObject[];
+  parcelPolygonPoints: LatLngObject[];
   markerPosition: LatLngObject | null;
   uid: string;
   mapHeight: number;
   polygonColor: string;
+  onParcelAdded: (latLngs: LatLngObject[]) => void;
+  onParcelDeleted: () => void;
 }
 
 function AddParcelView({
@@ -28,7 +26,22 @@ function AddParcelView({
   uid,
   polygonPoints,
   polygonColor,
+  onParcelAdded,
+  onParcelDeleted,
+  parcelPolygonPoints,
 }: AddParcelViewProps) {
+  const [parcelCreated, setParcelCreated] = useState(false);
+
+  const onPolygonCreated = (latLngs: LatLngObject[]) => {
+    setParcelCreated(true);
+    onParcelAdded(latLngs);
+  };
+
+  const onPolygonDeleted = () => {
+    setParcelCreated(false);
+    onParcelDeleted();
+  };
+
   const snap = (point: LatLngObject, existingPolygon: LatLngObject[]) => {
     const tolerance = 5;
     const clickedPoint = turf.point([point.lng, point.lat]);
@@ -86,37 +99,24 @@ function AddParcelView({
           zoomControl={true}
           style={{ height: "100%", width: "100%" }}
         >
-          <FeatureGroup>
-            <EditControl
-              position="topright"
-              draw={{
-                marker: false,
-                polyline: false,
-                circle: false,
-                rectangle: false,
-                circlemarker: false,
-                polygon: {
-                  allowIntersection: false,
-                  showLength: true,
-                  metric: true,
-                  drawError: {
-                    color: "#e1e100",
-                    message:
-                      "<strong>Error:<strong> shape edges cannot intersect!",
-                  },
-                  icon: circleIcon({ color: polygonColor }),
-                  shapeOptions: {
-                    clickable: true,
-                    color: polygonColor,
-                  },
-                },
-              }}
-            />
-          </FeatureGroup>
+          <FieldParcelDrawControl
+            onPolygonCreated={onPolygonCreated}
+            onPolygonDeleted={onPolygonDeleted}
+            polygonColor={polygonColor}
+          />
           <SnapDrawing onSnap={snap} existingPolygon={polygonPoints} />
+
           <LayersControl position="topright">
             <CustomLayers />
           </LayersControl>
+
+          {parcelCreated && (
+            <Polygon
+              key={"new field parcel"}
+              positions={parcelPolygonPoints}
+              pathOptions={{ color: polygonColor }}
+            />
+          )}
 
           <Polygon
             key={uid ? "polygon-" + uid : "default-polygon"}

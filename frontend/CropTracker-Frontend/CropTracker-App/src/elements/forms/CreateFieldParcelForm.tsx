@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { CreateFieldParcelDTO } from "../../interfaces/response/CreateFieldParcelDTO";
 import AddParcelView from "../../leaflet/AddParcelsView";
 import { ChromePicker, type ColorResult } from "react-color";
+import type { LatLngObject } from "../../interfaces/LatLngObject";
 
 interface CreateFieldParcelFormProps {
   onSubmit: (createFieldParcelData: CreateFieldParcelDTO) => void;
@@ -43,6 +44,20 @@ function CreateFieldParcelForm({
     }));
   };
 
+  const handleFieldParcelPolygonCreated = (latLngs: LatLngObject[]) => {
+    setNewFieldParcel((prev) => ({
+      ...prev,
+      polygonPoints: latLngs,
+    }));
+  };
+
+  const handleFieldParcelPolygonDeleted = () => {
+    setNewFieldParcel((prev) => ({
+      ...prev,
+      polygonPoints: [],
+    }));
+  };
+
   return (
     <Box>
       <Paper
@@ -71,7 +86,10 @@ function CreateFieldParcelForm({
               markerPosition={cropfield.markerPosition}
               uid={cropfield.uid}
               mapHeight={500}
+              parcelPolygonPoints={newFieldParcel.polygonPoints}
               polygonColor={newFieldParcel.overlayColor}
+              onParcelAdded={handleFieldParcelPolygonCreated}
+              onParcelDeleted={handleFieldParcelPolygonDeleted}
             />
           </Box>
           <Box sx={{ flex: 1, p: 2 }}>
