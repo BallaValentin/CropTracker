@@ -132,6 +132,7 @@ function PlotDetailsPage() {
             <CreateFieldParcelForm
               isPending={isPending}
               onSubmit={createNewFieldParcel}
+              fieldParcels={fieldParcelsData || []}
               cropfield={cropFieldDetail}
             />
           ) : (

@@ -74,6 +74,7 @@ function PlotCard({ cropField }: CropFieldCardProps) {
             uid={cropField.uid}
             markerPosition={cropField.markerPosition}
             polygonPoints={cropField.polygonPoints}
+            fieldParcels={[]}
           />
         </Box>
 

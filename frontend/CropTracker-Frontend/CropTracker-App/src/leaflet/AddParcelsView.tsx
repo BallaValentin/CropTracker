@@ -8,6 +8,7 @@ import * as turf from "@turf/turf";
 import SnapDrawing from "./SnapDrawing";
 import { useState } from "react";
 import FieldParcelDrawControl from "./ParcelDrawControl";
+import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 
 interface AddParcelViewProps {
   polygonPoints: LatLngObject[];
@@ -18,6 +19,7 @@ interface AddParcelViewProps {
   polygonColor: string;
   onParcelAdded: (latLngs: LatLngObject[]) => void;
   onParcelDeleted: () => void;
+  fieldParcels: GetFieldParcelDTO[];
 }
 
 function AddParcelView({
@@ -29,6 +31,7 @@ function AddParcelView({
   onParcelAdded,
   onParcelDeleted,
   parcelPolygonPoints,
+  fieldParcels,
 }: AddParcelViewProps) {
   const [parcelCreated, setParcelCreated] = useState(false);
 
@@ -103,6 +106,7 @@ function AddParcelView({
             onPolygonCreated={onPolygonCreated}
             onPolygonDeleted={onPolygonDeleted}
             polygonColor={polygonColor}
+            fieldParcels={fieldParcels}
           />
           <SnapDrawing onSnap={snap} existingPolygon={polygonPoints} />
 
@@ -117,6 +121,14 @@ function AddParcelView({
               pathOptions={{ color: polygonColor }}
             />
           )}
+
+          {fieldParcels.map((parcel) => (
+            <Polygon
+              key={parcel.uid}
+              positions={parcel.polygonPoints}
+              pathOptions={{ color: parcel.polygonColor || "blue" }}
+            />
+          ))}
 
           <Polygon
             key={uid ? "polygon-" + uid : "default-polygon"}

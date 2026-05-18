@@ -14,17 +14,20 @@ import { ChromePicker, type ColorResult } from "react-color";
 import type { LatLngObject } from "../../interfaces/LatLngObject";
 import type { CreateFieldParcelDTO } from "../../interfaces/request/CreateFieldParcelDTO";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
+import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 
 interface CreateFieldParcelFormProps {
   onSubmit: (createFieldParcelData: CreateFieldParcelDTO) => void;
   isPending: boolean;
   cropfield: GetCropFieldDTO;
+  fieldParcels: GetFieldParcelDTO[];
 }
 
 function CreateFieldParcelForm({
   onSubmit,
   cropfield,
   isPending,
+  fieldParcels,
 }: CreateFieldParcelFormProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [newFieldParcel, setNewFieldParcel] = useState<CreateFieldParcelDTO>({
@@ -104,6 +107,7 @@ function CreateFieldParcelForm({
               polygonColor={newFieldParcel.polygonColor}
               onParcelAdded={handleFieldParcelPolygonCreated}
               onParcelDeleted={handleFieldParcelPolygonDeleted}
+              fieldParcels={fieldParcels}
             />
           </Box>
           <Box sx={{ flex: 1, p: 2 }}>
