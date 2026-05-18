@@ -45,6 +45,16 @@ public class CropCultivarService {
         return cropCultivarRepository.save(cropCultivar);
     }
 
+    public CropCultivar findByID(UUID uid) {
+        CropCultivar cropCultivar = cropCultivarRepository.findByUid(uid);
+
+        if (cropCultivar == null) {
+            throw new EntityNotFoundException("Couldn`t find crop cultivar with id: " + uid);
+        }
+
+        return cropCultivar;
+    }
+
     public void update(CropCultivar cropCultivar) {
         CropCultivar oldVersion = cropCultivarRepository.findByUid(cropCultivar.getUid());
 

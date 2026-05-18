@@ -22,6 +22,9 @@ public class FieldParcel extends BaseEntity {
     @Column(nullable = false)
     private Double area;
 
+    @Column(nullable = false)
+    private String polygonColor;
+
     @ManyToOne
     @JoinColumn(name = "cultivar_id", nullable = false)
     private CropCultivar cropCultivar;

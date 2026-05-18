@@ -1,46 +1,58 @@
-import { Autocomplete, Box, Paper, TextField, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import { useCropSearch } from "../../hooks/UseCropSearch";
 import { useState } from "react";
-import type { CreateFieldParcelDTO } from "../../interfaces/response/CreateFieldParcelDTO";
 import AddParcelView from "../../leaflet/AddParcelsView";
 import { ChromePicker, type ColorResult } from "react-color";
 import type { LatLngObject } from "../../interfaces/LatLngObject";
+import type { CreateFieldParcelDTO } from "../../interfaces/request/CreateFieldParcelDTO";
+import { calculatePolygonArea } from "../../utils/PolygonHelper";
 
 interface CreateFieldParcelFormProps {
   onSubmit: (createFieldParcelData: CreateFieldParcelDTO) => void;
+  isPending: boolean;
   cropfield: GetCropFieldDTO;
 }
 
 function CreateFieldParcelForm({
   onSubmit,
   cropfield,
+  isPending,
 }: CreateFieldParcelFormProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [newFieldParcel, setNewFieldParcel] = useState<CreateFieldParcelDTO>({
-    cropName: "",
-    polygonPoints: [],
-    overlayColor: "#ff0000",
+    cropFieldId: cropfield.uid,
+    cropCultivarId: "",
+    area: 0,
+    polygonPoints: [] as LatLngObject[],
+    polygonColor: "#ff0000",
   });
 
-  const { data: crops, isPending } = useCropSearch(searchTerm);
+  const { data: crops } = useCropSearch(searchTerm);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     onSubmit(newFieldParcel);
   };
 
-  const handleCropSelect = (newCropName: string) => {
+  const handleCropSelect = (cropCultivarId: string) => {
     setNewFieldParcel((prev) => ({
       ...prev,
-      cropName: newCropName,
+      cropCultivarId: cropCultivarId || "",
     }));
   };
 
   const changeOverlayColor = (color: ColorResult) => {
     setNewFieldParcel((prev) => ({
       ...prev,
-      overlayColor: color.hex,
+      polygonColor: color.hex,
     }));
   };
 
@@ -48,6 +60,7 @@ function CreateFieldParcelForm({
     setNewFieldParcel((prev) => ({
       ...prev,
       polygonPoints: latLngs,
+      area: calculatePolygonArea(latLngs),
     }));
   };
 
@@ -55,6 +68,7 @@ function CreateFieldParcelForm({
     setNewFieldParcel((prev) => ({
       ...prev,
       polygonPoints: [],
+      area: 0,
     }));
   };
 
@@ -87,7 +101,7 @@ function CreateFieldParcelForm({
               uid={cropfield.uid}
               mapHeight={500}
               parcelPolygonPoints={newFieldParcel.polygonPoints}
-              polygonColor={newFieldParcel.overlayColor}
+              polygonColor={newFieldParcel.polygonColor}
               onParcelAdded={handleFieldParcelPolygonCreated}
               onParcelDeleted={handleFieldParcelPolygonDeleted}
             />
@@ -104,7 +118,7 @@ function CreateFieldParcelForm({
                   setSearchTerm(newInputValue);
                 }}
                 onChange={(_event, newValue) => {
-                  handleCropSelect(newValue?.cultivarName || "");
+                  handleCropSelect(newValue?.uid || "");
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -114,14 +128,23 @@ function CreateFieldParcelForm({
                   />
                 )}
               />
+              <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
+                Select Overlay Color
+              </Typography>
+              <ChromePicker
+                color={newFieldParcel.polygonColor}
+                onChangeComplete={(color) => changeOverlayColor(color)}
+              />
+              <Button
+                type="submit"
+                disabled={isPending}
+                variant="contained"
+                color="success"
+                sx={{ mt: 3 }}
+              >
+                {isPending ? "Creating..." : "Create Field Parcel"}
+              </Button>
             </form>
-            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-              Select Overlay Color
-            </Typography>
-            <ChromePicker
-              color={newFieldParcel.overlayColor}
-              onChangeComplete={(color) => changeOverlayColor(color)}
-            />
           </Box>
         </Box>
       </Paper>

@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import CheckIcon from "@mui/icons-material/Check";
 import { getCropFieldById } from "../services/CropFieldService";
@@ -16,7 +16,9 @@ import { defaultMapPosition } from "../utils/Constants";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import CropFieldInfoPanel from "../elements/panels/CropFieldInfoPanel";
 import CreateFieldParcelForm from "../elements/forms/CreateFieldParcelForm";
-import type { CreateFieldParcelDTO } from "../interfaces/response/CreateFieldParcelDTO";
+import type { CreateFieldParcelDTO } from "../interfaces/request/CreateFieldParcelDTO";
+import { createFieldParcel } from "../services/FieldParcelService";
+import { useFieldParcels } from "../hooks/UseFieldParcels";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading } = useUserProfile();
@@ -25,15 +27,26 @@ function PlotDetailsPage() {
     name: "Unnamed Field",
     markerPosition: defaultMapPosition,
     polygonPoints: [],
-    fieldParcels: [] as GetFieldParcelDTO[],
     area: 0,
   });
+  const [fieldParcelsData, setFieldParcelsData] = useState<GetFieldParcelDTO[]>(
+    [],
+  );
   const [addParcel, setAddParcel] = useState<boolean>(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
+
+  const { data: fieldParcels, isLoading: isFieldParcelsLoading } =
+    useFieldParcels(id || "");
+
+  useEffect(() => {
+    if (fieldParcels) {
+      setFieldParcelsData(fieldParcels);
+    }
+  }, [fieldParcels]);
 
   const { data: plotData, isLoading: isCropFieldLoading } = useQuery({
     queryKey: ["cropfields", id],
@@ -42,6 +55,14 @@ function PlotDetailsPage() {
     enabled: !!id,
     refetchInterval: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: createFieldParcel,
+    onSuccess: () => {
+      setFeedbackMessage("Field parcel created successfully!");
+      setAddParcel(false);
+    },
   });
 
   useEffect(() => {
@@ -75,6 +96,7 @@ function PlotDetailsPage() {
     createFieldParcelData: CreateFieldParcelDTO,
   ) => {
     console.log("Create field parcel data: ", createFieldParcelData);
+    mutate(createFieldParcelData);
   };
 
   return (
@@ -108,12 +130,15 @@ function PlotDetailsPage() {
 
           {addParcel ? (
             <CreateFieldParcelForm
+              isPending={isPending}
               onSubmit={createNewFieldParcel}
               cropfield={cropFieldDetail}
             />
           ) : (
             <CropFieldInfoPanel
               cropFieldDetail={cropFieldDetail}
+              isLoading={isFieldParcelsLoading}
+              fieldParcels={fieldParcelsData || []}
               onAddParcelClick={handleAddParcelClick}
             />
           )}

@@ -5,10 +5,13 @@ import edu.bbte.allamvizsga.dto.request.fieldParcel.CreateFieldParcelDTO;
 import edu.bbte.allamvizsga.dto.request.fieldParcel.UpdateFieldParcelDTO;
 import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldDTO;
 import edu.bbte.allamvizsga.dto.response.fieldParcel.GetFieldParcelDTO;
+import edu.bbte.allamvizsga.exceptions.ForbiddenException;
 import edu.bbte.allamvizsga.mappers.FieldParcelMapper;
+import edu.bbte.allamvizsga.model.CropCultivar;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldParcel;
 import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.services.CropCultivarService;
 import edu.bbte.allamvizsga.services.CropFieldService;
 import edu.bbte.allamvizsga.services.FieldParcelService;
 import edu.bbte.allamvizsga.services.UserService;
@@ -30,19 +33,28 @@ import java.util.UUID;
 @PreAuthorize("hasRole('GROWER')")
 public class FieldParcelController {
     private final UserService userService;
-    private final CropFieldService cfService;
-    private final FieldParcelService fpService;
-    private final FieldParcelMapper fpMapper;
+    private final CropFieldService cropFieldService;
+    private final FieldParcelService fieldParcelService;
+    private final CropCultivarService cropCultivarService;
+    private final FieldParcelMapper fieldParcelMapper;
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void createFieldParcel(@Valid @RequestBody CreateFieldParcelDTO createFieldParcelDTO,
                                 @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        FieldParcel fieldParcel = fpMapper.createFieldParcelDTOtoModel(createFieldParcelDTO);
-        CropField cropField = cfService.findCropFieldByUser(createFieldParcelDTO.getCropFieldId(), user);
+
+        UUID cropFieldId = UUID.fromString(createFieldParcelDTO.getCropFieldId());
+        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
+
+        UUID cropCultivarId = UUID.fromString(createFieldParcelDTO.getCropCultivarId());
+        CropCultivar cropCultivar = cropCultivarService.findByID(cropCultivarId);
+
+        FieldParcel fieldParcel = fieldParcelMapper.createFieldParcelDTOtoModel(createFieldParcelDTO);
         fieldParcel.setCropField(cropField);
-        fpService.createFieldParcel(fieldParcel);
+        fieldParcel.setCropCultivar(cropCultivar);
+
+        fieldParcelService.createFieldParcel(fieldParcel);
     }
 
     @PutMapping("/update")
@@ -50,21 +62,31 @@ public class FieldParcelController {
                                 @RequestParam(name = "id") String fieldParcelID,
                                 @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        CropField cropField = cfService.findCropFieldByUser(updateFieldParcelDTO.getCropFieldId(), user);
-        FieldParcel fieldParcel = fpService.findByCropField(cropField, UUID.fromString(fieldParcelID));
-        fpMapper.updateModelFromUpdateFieldParcelDto(updateFieldParcelDTO, fieldParcel);
-        fpService.updateFieldParcel(fieldParcel);
+
+        CropField cropField = cropFieldService.findCropFieldByUser(updateFieldParcelDTO.getCropFieldId(), user);
+        FieldParcel fieldParcel = fieldParcelService.findByCropField(cropField, UUID.fromString(fieldParcelID));
+
+        fieldParcelMapper.updateModelFromUpdateFieldParcelDto(updateFieldParcelDTO, fieldParcel);
+        fieldParcelService.updateFieldParcel(fieldParcel);
     }
 
     @GetMapping("/findall")
     public ResponseEntity<Collection<GetFieldParcelDTO>> getCropFields(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestParam(name = "cropFieldId") String cropFieldId) {
+        System.out.println("RECEIVED: " + cropFieldId);
         User user = userService.extractUser(authorizationHeader);
-        CropField cropField = cfService.findCropFieldByUser(UUID.fromString(cropFieldId), user);
-        Collection<FieldParcel> fieldParcels = fpService.getFieldParcels(cropField);
 
-        Collection<GetFieldParcelDTO> getFieldParcelDTOS = fieldParcels.stream().map(fpMapper::modelToGetFieldParcelDTO).toList();
+        UUID fieldId = UUID.fromString(cropFieldId);
+        CropField cropField = cropFieldService.findById(fieldId);
+
+        if (user != cropField.getUser()) {
+            throw new ForbiddenException("You cannot request the field parcels of this crop field");
+        }
+
+        Collection<FieldParcel> fieldParcels = fieldParcelService.getFieldParcels(cropField);
+
+        Collection<GetFieldParcelDTO> getFieldParcelDTOS = fieldParcels.stream().map(fieldParcelMapper::modelToGetFieldParcelDTO).toList();
         return ResponseEntity.ok(getFieldParcelDTOS);
     }
 
@@ -72,13 +94,13 @@ public class FieldParcelController {
     public ResponseEntity<GetFieldParcelDTO> getCropFieldById(
             @RequestParam(name = "id") String fieldParcelId
     ) {
-        FieldParcel fieldParcel = fpService.findByID(UUID.fromString(fieldParcelId));
-        GetFieldParcelDTO getFieldParcelDTO = fpMapper.modelToGetFieldParcelDTO(fieldParcel);
+        FieldParcel fieldParcel = fieldParcelService.findByID(UUID.fromString(fieldParcelId));
+        GetFieldParcelDTO getFieldParcelDTO = fieldParcelMapper.modelToGetFieldParcelDTO(fieldParcel);
         return ResponseEntity.ok(getFieldParcelDTO);
     }
 
     @DeleteMapping("/delete")
     public void deleteCropFieldById(@RequestParam(name = "id") String fieldParcelId) {
-        fpService.deleteById(UUID.fromString(fieldParcelId));
+        fieldParcelService.deleteById(UUID.fromString(fieldParcelId));
     }
 }

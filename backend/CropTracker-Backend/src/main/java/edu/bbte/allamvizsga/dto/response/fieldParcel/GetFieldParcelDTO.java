@@ -10,4 +10,5 @@ import java.util.UUID;
 public class GetFieldParcelDTO {
     private UUID uid;
     private Collection<LatLngObject> polygonPoints;
+    private String polygonColor;
 }

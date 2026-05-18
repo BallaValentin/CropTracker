@@ -10,13 +10,18 @@ import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import MapPreview from "../../leaflet/MapPreview";
 import AddIcon from "@mui/icons-material/Add";
+import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 
 interface CropFieldInfoPanelProps {
+  isLoading: boolean;
   cropFieldDetail: GetCropFieldDTO;
+  fieldParcels: GetFieldParcelDTO[];
   onAddParcelClick: () => void;
 }
 
 function CropFieldInfoPanel({
+  isLoading,
+  fieldParcels,
   cropFieldDetail,
   onAddParcelClick,
 }: CropFieldInfoPanelProps) {
@@ -28,8 +33,6 @@ function CropFieldInfoPanel({
       </IconButton>
     );
   };
-
-  const parcels = cropFieldDetail.fieldParcels ?? [];
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -67,6 +70,7 @@ function CropFieldInfoPanel({
             uid={cropFieldDetail.uid}
             markerPosition={cropFieldDetail.markerPosition}
             polygonPoints={cropFieldDetail.polygonPoints}
+            fieldParcels={fieldParcels}
           />
         </Paper>
       </Box>
@@ -78,7 +82,7 @@ function CropFieldInfoPanel({
         >
           Here you can view the list of parcels of your field.
         </Typography>
-        {parcels.length > 0 ? (
+        {!isLoading && fieldParcels.length > 0 ? (
           <Box
             sx={{
               display: "flex",
@@ -88,8 +92,8 @@ function CropFieldInfoPanel({
             }}
           >
             <List>
-              {parcels.map((parcel, index) => (
-                <ListItem key={parcel.uid}>Parcel {index}</ListItem>
+              {fieldParcels.map((parcel, index) => (
+                <ListItem key={parcel.uid}>Parcel {index + 1}</ListItem>
               ))}
             </List>
             {cropFieldDetail.polygonPoints.length > 3 && <AddParcelButton />}

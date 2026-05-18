@@ -11,6 +11,7 @@ import type { LatLngObject } from "../interfaces/LatLngObject";
 import L from "leaflet";
 import { useEffect } from "react";
 import { defaultMapPosition } from "../utils/Constants";
+import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 
 interface MapPreviewProps {
   mapHeight: number;
@@ -21,6 +22,7 @@ interface MapPreviewProps {
   uid: string;
   markerPosition: LatLngObject | null;
   polygonPoints: LatLngObject[];
+  fieldParcels: GetFieldParcelDTO[];
 }
 
 interface MapBoundsHelperProps {
@@ -36,6 +38,7 @@ function MapPreview({
   uid,
   markerPosition,
   polygonPoints,
+  fieldParcels,
 }: MapPreviewProps) {
   const MapBoundsHelper = ({ polygonPoints }: MapBoundsHelperProps) => {
     const map = useMap();
@@ -79,6 +82,14 @@ function MapPreview({
           <LayersControl position="topright">
             <CustomLayerControl />
           </LayersControl>
+
+          {fieldParcels.map((parcel) => (
+            <Polygon
+              key={parcel.uid}
+              positions={parcel.polygonPoints}
+              pathOptions={{ color: parcel.polygonColor || "blue" }}
+            />
+          ))}
 
           <Polygon
             key={uid ? "polygon-" + uid : "default-polygon"}
