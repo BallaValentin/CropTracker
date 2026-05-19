@@ -22,6 +22,7 @@ function FieldParcelDrawControl({
   parentPolygon,
 }: DrawingToolsProps) {
   const map = useMap();
+
   const { _onCreated, _onDeleted } = useDrawHandler({
     onPolygonCreated,
     onPolygonDeleted,
@@ -31,6 +32,7 @@ function FieldParcelDrawControl({
 
   useEffect(() => {
     if (!map) return;
+
     map.on("pm:create", _onCreated);
     map.on("pm:remove", _onDeleted);
     map.pm.addControls({
@@ -64,7 +66,7 @@ function FieldParcelDrawControl({
       map.off("pm:remove", _onDeleted);
       map.pm.removeControls();
     };
-  }, [_onCreated, _onDeleted, map, polygonColor]);
+  }, [_onCreated, _onDeleted, map, polygonColor, fieldParcels, parentPolygon]);
 
   return null;
 }

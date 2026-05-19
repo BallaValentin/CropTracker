@@ -6,6 +6,7 @@ import CustomLayers from "./CustomLayers";
 import { useState } from "react";
 import FieldParcelDrawControl from "./ParcelDrawControl";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
+import L from "leaflet";
 
 interface AddParcelViewProps {
   polygonPoints: LatLngObject[];
@@ -90,6 +91,15 @@ function AddParcelView({
               key={parcel.uid}
               positions={parcel.polygonPoints}
               pathOptions={{ color: parcel.polygonColor || "blue" }}
+              eventHandlers={{
+                add: (e) => {
+                  const layer = e.target;
+                  layer.options.pmIgnore = true;
+                  if (layer.pm) {
+                    L.PM.reInitLayer(layer);
+                  }
+                },
+              }}
             />
           ))}
 
@@ -97,6 +107,15 @@ function AddParcelView({
             key={uid ? "polygon-" + uid : "default-polygon"}
             positions={polygonPoints}
             pathOptions={{ color: "gray" }}
+            eventHandlers={{
+              add: (e) => {
+                const layer = e.target;
+                layer.options.pmIgnore = true;
+                if (layer.pm) {
+                  L.PM.reInitLayer(layer);
+                }
+              },
+            }}
           />
         </MapContainer>
       </Box>
