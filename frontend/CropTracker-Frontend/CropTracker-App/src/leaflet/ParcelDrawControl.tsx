@@ -1,15 +1,17 @@
-import { FeatureGroup } from "react-leaflet";
-import { circleIcon } from "../elements/icons/CircleIcon";
-import { EditControl } from "react-leaflet-draw";
+import { useEffect } from "react";
 import { useDrawHandler } from "../hooks/UseDrawHandler";
 import type { LatLngObject } from "../interfaces/LatLngObject";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
+import "@geoman-io/leaflet-geoman-free";
+import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+import { useMap } from "react-leaflet";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
   onPolygonDeleted: () => void;
   polygonColor: string;
   fieldParcels: GetFieldParcelDTO[];
+  parentPolygon: LatLngObject[];
 }
 
 function FieldParcelDrawControl({
@@ -17,43 +19,54 @@ function FieldParcelDrawControl({
   onPolygonDeleted,
   polygonColor,
   fieldParcels,
+  parentPolygon,
 }: DrawingToolsProps) {
+  const map = useMap();
   const { _onCreated, _onDeleted } = useDrawHandler({
     onPolygonCreated,
     onPolygonDeleted,
     fieldParcels: fieldParcels,
+    parentPolygon: parentPolygon,
   });
 
-  return (
-    <FeatureGroup>
-      <EditControl
-        position="topright"
-        onCreated={_onCreated}
-        onDeleted={_onDeleted}
-        draw={{
-          marker: false,
-          polyline: false,
-          circle: false,
-          rectangle: false,
-          circlemarker: false,
-          polygon: {
-            allowIntersection: false,
-            showLength: true,
-            metric: true,
-            drawError: {
-              color: "#e1e100",
-              message: "<strong>Error:<strong> shape edges cannot intersect!",
-            },
-            icon: circleIcon({ color: polygonColor }),
-            shapeOptions: {
-              clickable: true,
-              color: polygonColor,
-            },
-          },
-        }}
-      />
-    </FeatureGroup>
-  );
+  useEffect(() => {
+    if (!map) return;
+    map.on("pm:create", _onCreated);
+    map.on("pm:remove", _onDeleted);
+    map.pm.addControls({
+      position: "topright",
+
+      drawMode: true,
+      drawControls: true,
+      editMode: true,
+      removalMode: true,
+
+      drawPolygon: true,
+      drawText: false,
+      drawRectangle: false,
+      drawCircle: false,
+      drawMarker: false,
+      drawPolyline: false,
+      drawCircleMarker: false,
+    });
+    map.pm.setPathOptions({
+      color: polygonColor,
+    });
+    map.pm.setGlobalOptions({
+      snappable: true,
+      snapDistance: 20,
+      allowSelfIntersection: false,
+      requireContainment: [],
+    });
+
+    return () => {
+      map.off("pm:create", _onCreated);
+      map.off("pm:remove", _onDeleted);
+      map.pm.removeControls();
+    };
+  }, [_onCreated, _onDeleted, map, polygonColor]);
+
+  return null;
 }
 
 export default FieldParcelDrawControl;

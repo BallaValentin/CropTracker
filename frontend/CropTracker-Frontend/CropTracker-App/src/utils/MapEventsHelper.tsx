@@ -4,7 +4,7 @@ import type { DrawEvents } from "leaflet";
 import { EditControl } from "react-leaflet-draw";
 import { polygon as turfPolygon } from "@turf/helpers";
 import area from "@turf/area";
-import { blueCircleIcon } from "../elements/icons/CircleIcon";
+import { circleIcon } from "../elements/icons/CircleIcon";
 
 interface MapEventsHelperProps {
   onPolygonCreated: (rawLatLngs: L.LatLng[], area: number) => void;
@@ -68,10 +68,10 @@ function MapEventsHelper({
               color: "#e1e100",
               message: "<strong>Error:<strong> shape edges cannot intersect!",
             },
-            icon: blueCircleIcon,
+            icon: circleIcon({ color: "gray" }),
             shapeOptions: {
               clickable: true,
-              color: "#3388FF",
+              color: "gray",
             },
           },
         }}

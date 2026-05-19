@@ -3,9 +3,6 @@ import { LayersControl, MapContainer, Polygon } from "react-leaflet";
 import type { LatLngObject } from "../interfaces/LatLngObject";
 import { defaultMapPosition } from "../utils/Constants";
 import CustomLayers from "./CustomLayers";
-import L from "leaflet";
-import * as turf from "@turf/turf";
-import SnapDrawing from "./SnapDrawing";
 import { useState } from "react";
 import FieldParcelDrawControl from "./ParcelDrawControl";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
@@ -45,40 +42,6 @@ function AddParcelView({
     onParcelDeleted();
   };
 
-  const snap = (point: LatLngObject, existingPolygon: LatLngObject[]) => {
-    const tolerance = 5;
-    const clickedPoint = turf.point([point.lng, point.lat]);
-    const polygonLatLngs = existingPolygon.map((coord) =>
-      L.latLng(coord.lat, coord.lng),
-    );
-    const polyline = turf.lineString(
-      polygonLatLngs.map((latLng) => [latLng.lng, latLng.lat]),
-    );
-
-    const closestPointOnBorder = turf.nearestPointOnLine(
-      polyline,
-      clickedPoint,
-    );
-
-    const distanceToBorder = turf.distance(clickedPoint, closestPointOnBorder, {
-      units: "meters",
-    });
-
-    const isInsidePolygon = turf.booleanPointInPolygon(
-      clickedPoint,
-      turf.polygon([polyline.geometry.coordinates]),
-    );
-
-    if (!isInsidePolygon || distanceToBorder <= tolerance) {
-      return new L.LatLng(
-        closestPointOnBorder.geometry.coordinates[1],
-        closestPointOnBorder.geometry.coordinates[0],
-      );
-    }
-
-    return new L.LatLng(point.lat, point.lng);
-  };
-
   return (
     <>
       <Box
@@ -107,8 +70,8 @@ function AddParcelView({
             onPolygonDeleted={onPolygonDeleted}
             polygonColor={polygonColor}
             fieldParcels={fieldParcels}
+            parentPolygon={polygonPoints}
           />
-          <SnapDrawing onSnap={snap} existingPolygon={polygonPoints} />
 
           <LayersControl position="topright">
             <CustomLayers />
