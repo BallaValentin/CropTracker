@@ -17,8 +17,12 @@ import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO
 import CropFieldInfoPanel from "../elements/panels/CropFieldInfoPanel";
 import CreateFieldParcelForm from "../elements/forms/CreateFieldParcelForm";
 import type { CreateFieldParcelDTO } from "../interfaces/request/CreateFieldParcelDTO";
-import { createFieldParcel } from "../services/FieldParcelService";
+import {
+  createFieldParcel,
+  deleteFieldParcel,
+} from "../services/FieldParcelService";
 import { useFieldParcels } from "../hooks/UseFieldParcels";
+import { queryClient } from "../query-client/QueryClient";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading } = useUserProfile();
@@ -65,6 +69,16 @@ function PlotDetailsPage() {
     },
   });
 
+  const { mutate: deleteMutate } = useMutation({
+    mutationFn: deleteFieldParcel,
+    onSuccess: () => {
+      setFeedbackMessage("Field parcel deleted successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["fieldParcels", id],
+      });
+    },
+  });
+
   useEffect(() => {
     const { success, message } = location.state || {};
     if (success && message) {
@@ -97,6 +111,10 @@ function PlotDetailsPage() {
   ) => {
     console.log("Create field parcel data: ", createFieldParcelData);
     mutate(createFieldParcelData);
+  };
+
+  const deleteSelectedParcel = (fieldParcelId: string) => {
+    deleteMutate(fieldParcelId);
   };
 
   return (
@@ -141,6 +159,7 @@ function PlotDetailsPage() {
               isLoading={isFieldParcelsLoading}
               fieldParcels={fieldParcelsData || []}
               onAddParcelClick={handleAddParcelClick}
+              onConfirmDelete={deleteSelectedParcel}
             />
           )}
 

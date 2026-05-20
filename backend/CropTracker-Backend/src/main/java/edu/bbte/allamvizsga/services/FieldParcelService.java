@@ -3,7 +3,6 @@ package edu.bbte.allamvizsga.services;
 import edu.bbte.allamvizsga.exceptions.ForbiddenException;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldParcel;
-import edu.bbte.allamvizsga.model.User;
 import edu.bbte.allamvizsga.repository.FieldParcelRepository;
 import edu.bbte.allamvizsga.specifications.FieldParcelSpecification;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,14 +18,14 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class FieldParcelService {
-    private final FieldParcelRepository fpRepository;
+    private final FieldParcelRepository fieldParcelRepository;
 
     public void createFieldParcel(FieldParcel fieldParcel) {
-        fpRepository.save(fieldParcel);
+        fieldParcelRepository.save(fieldParcel);
     }
 
     public Collection<FieldParcel> getFieldParcels(CropField cropField) {
-        return fpRepository.findAll(
+        return fieldParcelRepository.findAll(
                 Specification.allOf(
                         FieldParcelSpecification.byCropField(cropField)
                 )
@@ -34,11 +33,11 @@ public class FieldParcelService {
     }
 
     public FieldParcel findByID(UUID uid) {
-        return fpRepository.findByUid(uid);
+        return fieldParcelRepository.findByUid(uid);
     }
 
     public FieldParcel findByCropField(CropField cropField, UUID uid) {
-        FieldParcel fieldParcel = fpRepository.findByUid(uid);
+        FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
         if (fieldParcel == null) {
             throw new EntityNotFoundException("Couldn`t find field parcel");
         }
@@ -50,10 +49,10 @@ public class FieldParcelService {
     }
 
     public void updateFieldParcel(FieldParcel fieldParcel) {
-        fpRepository.save(fieldParcel);
+        fieldParcelRepository.save(fieldParcel);
     }
 
     public void deleteById(UUID uid) {
-        fpRepository.deleteByUid(uid);
+        fieldParcelRepository.deleteById(uid);
     }
 }

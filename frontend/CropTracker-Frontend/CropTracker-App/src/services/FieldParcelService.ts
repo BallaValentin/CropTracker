@@ -31,3 +31,15 @@ export const createFieldParcel = async(createFieldParcelDTO: CreateFieldParcelDT
             }
         });
 }
+
+export const deleteFieldParcel = async(fieldParcelId: string): Promise<void> => {
+    console.log("Sending create-field-parcel request to server");
+        await cropFieldApi.delete("/delete", {
+            params: {
+                id: fieldParcelId
+            },
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
+            }
+        });
+}
