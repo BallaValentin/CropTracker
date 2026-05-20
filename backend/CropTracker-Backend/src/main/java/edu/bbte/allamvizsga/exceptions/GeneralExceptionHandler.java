@@ -79,6 +79,18 @@ public class GeneralExceptionHandler {
         return new ErrorResponseDTO(timestamp, statusCode, error, path);
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorResponseDTO handleBadRequest(
+            BadRequestException exception, HttpServletRequest request) {
+        LocalDateTime timestamp = LocalDateTime.now();
+        Integer statusCode = HttpStatus.BAD_REQUEST.value();
+        String error = exception.getMessage();
+        String path = request.getRequestURI();
+        return new ErrorResponseDTO(timestamp, statusCode, error, path);
+    }
+
     @ExceptionHandler(RefreshTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody

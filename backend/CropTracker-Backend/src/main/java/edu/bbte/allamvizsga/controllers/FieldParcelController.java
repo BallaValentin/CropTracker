@@ -1,10 +1,9 @@
 package edu.bbte.allamvizsga.controllers;
 
-import edu.bbte.allamvizsga.dto.request.cropfield.UpdateCropFieldDTO;
 import edu.bbte.allamvizsga.dto.request.fieldParcel.CreateFieldParcelDTO;
 import edu.bbte.allamvizsga.dto.request.fieldParcel.UpdateFieldParcelDTO;
-import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldDTO;
 import edu.bbte.allamvizsga.dto.response.fieldParcel.GetFieldParcelDTO;
+import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.exceptions.ForbiddenException;
 import edu.bbte.allamvizsga.mappers.FieldParcelMapper;
 import edu.bbte.allamvizsga.model.CropCultivar;
@@ -17,12 +16,14 @@ import edu.bbte.allamvizsga.services.FieldParcelService;
 import edu.bbte.allamvizsga.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -59,15 +60,23 @@ public class FieldParcelController {
 
     @PutMapping("/update")
     public void updateCropField(@Valid @RequestBody UpdateFieldParcelDTO updateFieldParcelDTO,
-                                @RequestParam(name = "id") String fieldParcelID,
+                                @RequestParam(name = "id") String parcelId,
                                 @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
-        CropField cropField = cropFieldService.findCropFieldByUser(updateFieldParcelDTO.getCropFieldId(), user);
-        FieldParcel fieldParcel = fieldParcelService.findByCropField(cropField, UUID.fromString(fieldParcelID));
+        UUID cropFieldId = UUID.fromString(updateFieldParcelDTO.getCropFieldId());
+        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
 
-        fieldParcelMapper.updateModelFromUpdateFieldParcelDto(updateFieldParcelDTO, fieldParcel);
-        fieldParcelService.updateFieldParcel(fieldParcel);
+        UUID cropCultivarId = UUID.fromString(updateFieldParcelDTO.getCropCultivarId());
+        CropCultivar cropCultivar = cropCultivarService.findByID(cropCultivarId);
+
+        FieldParcel updatedFieldParcel = fieldParcelMapper.updateFieldParcelDTOtoModel(updateFieldParcelDTO);
+        updatedFieldParcel.setCropCultivar(cropCultivar);
+        updatedFieldParcel.setCropField(cropField);
+        UUID fieldParcelId = UUID.fromString(parcelId);
+        updatedFieldParcel.setUid(fieldParcelId);
+
+        fieldParcelService.updateFieldParcel(updatedFieldParcel);
     }
 
     @GetMapping("/findall")

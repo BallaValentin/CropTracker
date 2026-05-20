@@ -19,12 +19,18 @@ public abstract class FieldParcelMapper {
     @Mapping(target = "polygonPoints", source = "polygonPoints", qualifiedByName = "fromPolygon")
     public abstract GetFieldParcelDTO modelToGetFieldParcelDTO(FieldParcel fieldParcel);
 
+    @AfterMapping
+    protected void afterModelToGetFieldParcel(FieldParcel fieldParcel, @MappingTarget GetFieldParcelDTO getFieldParcelDTO) {
+        getFieldParcelDTO.setCropFieldId(fieldParcel.getCropField().getUid());
+        getFieldParcelDTO.setCultivarId(fieldParcel.getCropCultivar().getUid());
+    }
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "polygonPoints", ignore = true)
-    public abstract void updateModelFromUpdateFieldParcelDto(UpdateFieldParcelDTO updateCropFieldDTO, @MappingTarget FieldParcel fieldParcel);
+    public abstract FieldParcel updateFieldParcelDTOtoModel(UpdateFieldParcelDTO updateCropFieldDTO);
 
     @AfterMapping
-    protected void afterUpdateDTOMapping(UpdateFieldParcelDTO updateFieldParcelDTO, @MappingTarget FieldParcel fieldParcel) {
+    protected void afterUpdateDTOtoModel(UpdateFieldParcelDTO updateFieldParcelDTO, @MappingTarget FieldParcel fieldParcel) {
         fieldParcel.setPolygonPoints(polygonMapper.mapPointsToPolygon(updateFieldParcelDTO.getPolygonPoints()));
     }
 }
