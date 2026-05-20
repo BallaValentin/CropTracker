@@ -16,6 +16,7 @@ import MapPreview from "../../leaflet/MapPreview";
 import AddIcon from "@mui/icons-material/Add";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import DeleteIcon from "@mui/icons-material/Delete";
+import UpdateIcon from "@mui/icons-material/Update";
 import { useState } from "react";
 import DeleteFieldParcelDialog from "../dialogs/DeleteFieldParcelDialog";
 
@@ -24,6 +25,7 @@ interface CropFieldInfoPanelProps {
   cropFieldDetail: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
   onAddParcelClick: () => void;
+  onUpdateParcelClick: (fieldParcel: GetFieldParcelDTO) => void;
   onConfirmDelete: (fieldParcelId: string) => void;
 }
 
@@ -32,6 +34,7 @@ function CropFieldInfoPanel({
   fieldParcels,
   cropFieldDetail,
   onAddParcelClick,
+  onUpdateParcelClick,
   onConfirmDelete,
 }: CropFieldInfoPanelProps) {
   const AddParcelButton = () => {
@@ -64,6 +67,14 @@ function CropFieldInfoPanel({
   const handleParcelDeleteCancel = () => {
     setDeleteParcelOpen(false);
     setSelectedParcel("");
+  };
+
+  const handleParcelUpdateClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    fieldParcel: GetFieldParcelDTO,
+  ) => {
+    event.stopPropagation();
+    onUpdateParcelClick(fieldParcel);
   };
 
   return (
@@ -147,11 +158,20 @@ function CropFieldInfoPanel({
                       }}
                     >
                       <ListItemText primary={`Parcel ${index + 1}`} />
-                      <IconButton
-                        onClick={(e) => handleParcelDeleteClick(e, parcel.uid)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <IconButton
+                          onClick={(e) => handleParcelUpdateClick(e, parcel)}
+                        >
+                          <UpdateIcon />
+                        </IconButton>
+                        <IconButton
+                          onClick={(e) =>
+                            handleParcelDeleteClick(e, parcel.uid)
+                          }
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
                     </ListItemButton>
                   </ListItem>
                 ))}

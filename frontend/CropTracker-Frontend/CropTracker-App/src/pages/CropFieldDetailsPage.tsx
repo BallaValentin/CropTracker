@@ -20,9 +20,12 @@ import type { CreateFieldParcelDTO } from "../interfaces/request/CreateFieldParc
 import {
   createFieldParcel,
   deleteFieldParcel,
+  updateFieldParcel,
 } from "../services/FieldParcelService";
 import { useFieldParcels } from "../hooks/UseFieldParcels";
 import { queryClient } from "../query-client/QueryClient";
+import UpdateFieldParcelForm from "../elements/forms/UpdateFieldParcelForm";
+import type { UpdateFieldParcelDTO } from "../interfaces/request/UpdateFieldParcelDTO";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading } = useUserProfile();
@@ -37,7 +40,10 @@ function PlotDetailsPage() {
     [],
   );
   const [addParcel, setAddParcel] = useState<boolean>(false);
+  const [updateParcel, setUpdateParcel] = useState<boolean>(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [selectedFieldParcel, setSelectedFieldParcel] =
+    useState<GetFieldParcelDTO | null>(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -66,6 +72,20 @@ function PlotDetailsPage() {
     onSuccess: () => {
       setFeedbackMessage("Field parcel created successfully!");
       setAddParcel(false);
+    },
+  });
+
+  const { mutate: updateMutate, isPending: isUpdatePending } = useMutation({
+    mutationFn: ({
+      fieldParcelId,
+      updateFieldParcelData,
+    }: {
+      fieldParcelId: string;
+      updateFieldParcelData: UpdateFieldParcelDTO;
+    }) => updateFieldParcel(updateFieldParcelData, fieldParcelId),
+    onSuccess: () => {
+      setFeedbackMessage("Field parcel updated successfully!");
+      setUpdateParcel(false);
     },
   });
 
@@ -106,11 +126,24 @@ function PlotDetailsPage() {
     setAddParcel(true);
   };
 
+  const handleUpdateParcelClick = (fieldParcel: GetFieldParcelDTO) => {
+    setUpdateParcel(true);
+    setSelectedFieldParcel(fieldParcel);
+  };
+
   const createNewFieldParcel = (
     createFieldParcelData: CreateFieldParcelDTO,
   ) => {
     console.log("Create field parcel data: ", createFieldParcelData);
     mutate(createFieldParcelData);
+  };
+
+  const updateExistingFieldParcel = (
+    updateFieldParcelData: UpdateFieldParcelDTO,
+    fieldParcelId: string,
+  ) => {
+    console.log("Updating field parcel");
+    updateMutate({ fieldParcelId, updateFieldParcelData });
   };
 
   const deleteSelectedParcel = (fieldParcelId: string) => {
@@ -146,20 +179,37 @@ function PlotDetailsPage() {
             {cropFieldDetail.name}
           </Typography>
 
-          {addParcel ? (
+          {addParcel && (
             <CreateFieldParcelForm
               isPending={isPending}
               onSubmit={createNewFieldParcel}
               fieldParcels={fieldParcelsData || []}
               cropfield={cropFieldDetail}
             />
-          ) : (
+          )}
+
+          {updateParcel && selectedFieldParcel && (
+            <UpdateFieldParcelForm
+              isPending={isUpdatePending}
+              onSubmit={updateExistingFieldParcel}
+              fieldParcels={
+                fieldParcelsData.filter(
+                  (parcel) => parcel.uid != selectedFieldParcel.uid,
+                ) || []
+              }
+              cropfield={cropFieldDetail}
+              fieldParcelToUpdate={selectedFieldParcel}
+            />
+          )}
+
+          {!addParcel && !updateParcel && (
             <CropFieldInfoPanel
               cropFieldDetail={cropFieldDetail}
               isLoading={isFieldParcelsLoading}
               fieldParcels={fieldParcelsData || []}
               onAddParcelClick={handleAddParcelClick}
               onConfirmDelete={deleteSelectedParcel}
+              onUpdateParcelClick={handleUpdateParcelClick}
             />
           )}
 

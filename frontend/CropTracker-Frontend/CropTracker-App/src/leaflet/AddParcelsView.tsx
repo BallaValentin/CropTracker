@@ -31,7 +31,9 @@ function AddParcelView({
   parcelPolygonPoints,
   fieldParcels,
 }: AddParcelViewProps) {
-  const [parcelCreated, setParcelCreated] = useState(false);
+  const [parcelCreated, setParcelCreated] = useState<boolean>(
+    parcelPolygonPoints.length != 0,
+  );
 
   const onPolygonCreated = (latLngs: LatLngObject[]) => {
     setParcelCreated(true);
