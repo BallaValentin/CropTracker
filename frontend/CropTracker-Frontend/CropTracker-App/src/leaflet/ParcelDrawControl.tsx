@@ -8,24 +8,31 @@ import { useMap } from "react-leaflet";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
+  onPolygonUpdated: (polygon: LatLngObject[]) => void;
   onPolygonDeleted: () => void;
   polygonColor: string;
   fieldParcels: GetFieldParcelDTO[];
   parentPolygon: LatLngObject[];
+  allowCreate: boolean;
+  allowDelete: boolean;
 }
 
 function FieldParcelDrawControl({
   onPolygonCreated,
   onPolygonDeleted,
+  onPolygonUpdated,
   polygonColor,
   fieldParcels,
   parentPolygon,
+  allowCreate,
+  allowDelete,
 }: DrawingToolsProps) {
   const map = useMap();
 
-  const { _onCreated, _onDeleted } = useDrawHandler({
+  const { _onCreated, _onDeleted, _onUpdated } = useDrawHandler({
     onPolygonCreated,
     onPolygonDeleted,
+    onPolygonUpdated,
     fieldParcels: fieldParcels,
     parentPolygon: parentPolygon,
   });
@@ -34,16 +41,26 @@ function FieldParcelDrawControl({
     if (!map) return;
 
     map.on("pm:create", _onCreated);
+    map.on("pm:globaleditmodetoggled", (e) => {
+      console.log(e.enabled ? "Toogle enabled" : "Toggle disabled");
+      if (!e.enabled) {
+        const layersGroup = map.pm.getGeomanLayers(true) as L.FeatureGroup;
+
+        layersGroup.getLayers().forEach((layer) => {
+          _onUpdated(layer);
+        });
+      }
+    });
     map.on("pm:remove", _onDeleted);
     map.pm.addControls({
       position: "topright",
 
-      drawMode: true,
-      drawControls: true,
+      drawMode: allowCreate,
+      drawControls: allowCreate,
       editMode: true,
-      removalMode: true,
+      removalMode: allowDelete,
 
-      drawPolygon: true,
+      drawPolygon: allowCreate,
       drawText: false,
       drawRectangle: false,
       drawCircle: false,
@@ -63,10 +80,21 @@ function FieldParcelDrawControl({
 
     return () => {
       map.off("pm:create", _onCreated);
+      map.off("pm:globaleditmodetoggled");
       map.off("pm:remove", _onDeleted);
       map.pm.removeControls();
     };
-  }, [_onCreated, _onDeleted, map, polygonColor, fieldParcels, parentPolygon]);
+  }, [
+    _onCreated,
+    _onDeleted,
+    _onUpdated,
+    allowCreate,
+    allowDelete,
+    map,
+    polygonColor,
+    fieldParcels,
+    parentPolygon,
+  ]);
 
   return null;
 }

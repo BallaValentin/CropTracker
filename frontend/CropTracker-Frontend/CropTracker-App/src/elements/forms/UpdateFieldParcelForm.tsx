@@ -66,7 +66,10 @@ function UpdateFieldParcelForm({
     }));
   };
 
-  const handleFieldParcelPolygonCreated = (latLngs: LatLngObject[]) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleFieldParcelPolygonCreated = (_latLngs: LatLngObject[]) => {};
+
+  const handleFieldParcelPolygonUpdated = (latLngs: LatLngObject[]) => {
     setFieldParcelUpdate((prev) => ({
       ...prev,
       polygonPoints: latLngs,
@@ -74,13 +77,7 @@ function UpdateFieldParcelForm({
     }));
   };
 
-  const handleFieldParcelPolygonDeleted = () => {
-    setFieldParcelUpdate((prev) => ({
-      ...prev,
-      polygonPoints: [],
-      area: 0,
-    }));
-  };
+  const handleFieldParcelPolygonDeleted = () => {};
 
   return (
     <Box>
@@ -114,7 +111,10 @@ function UpdateFieldParcelForm({
               polygonColor={fieldParcelUpdate.polygonColor}
               onParcelAdded={handleFieldParcelPolygonCreated}
               onParcelDeleted={handleFieldParcelPolygonDeleted}
+              onParcelUpdated={handleFieldParcelPolygonUpdated}
               fieldParcels={fieldParcels}
+              allowCreate={false}
+              allowDelete={false}
             />
           </Box>
           <Box sx={{ flex: 1, p: 2 }}>

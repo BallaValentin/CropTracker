@@ -71,6 +71,9 @@ function PlotDetailsPage() {
     mutationFn: createFieldParcel,
     onSuccess: () => {
       setFeedbackMessage("Field parcel created successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["fieldParcels", id],
+      });
       setAddParcel(false);
     },
   });
@@ -85,6 +88,9 @@ function PlotDetailsPage() {
     }) => updateFieldParcel(updateFieldParcelData, fieldParcelId),
     onSuccess: () => {
       setFeedbackMessage("Field parcel updated successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["fieldParcels", id],
+      });
       setUpdateParcel(false);
     },
   });

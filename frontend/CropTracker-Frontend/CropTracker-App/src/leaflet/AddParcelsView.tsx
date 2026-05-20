@@ -16,8 +16,11 @@ interface AddParcelViewProps {
   mapHeight: number;
   polygonColor: string;
   onParcelAdded: (latLngs: LatLngObject[]) => void;
+  onParcelUpdated: (latLngs: LatLngObject[]) => void;
   onParcelDeleted: () => void;
   fieldParcels: GetFieldParcelDTO[];
+  allowCreate: boolean;
+  allowDelete: boolean;
 }
 
 function AddParcelView({
@@ -27,9 +30,12 @@ function AddParcelView({
   polygonPoints,
   polygonColor,
   onParcelAdded,
+  onParcelUpdated,
   onParcelDeleted,
   parcelPolygonPoints,
   fieldParcels,
+  allowCreate,
+  allowDelete,
 }: AddParcelViewProps) {
   const [parcelCreated, setParcelCreated] = useState<boolean>(
     parcelPolygonPoints.length != 0,
@@ -38,6 +44,10 @@ function AddParcelView({
   const onPolygonCreated = (latLngs: LatLngObject[]) => {
     setParcelCreated(true);
     onParcelAdded(latLngs);
+  };
+
+  const onPolygonUpdated = (latLngs: LatLngObject[]) => {
+    onParcelUpdated(latLngs);
   };
 
   const onPolygonDeleted = () => {
@@ -71,9 +81,12 @@ function AddParcelView({
           <FieldParcelDrawControl
             onPolygonCreated={onPolygonCreated}
             onPolygonDeleted={onPolygonDeleted}
+            onPolygonUpdated={onPolygonUpdated}
             polygonColor={polygonColor}
             fieldParcels={fieldParcels}
             parentPolygon={polygonPoints}
+            allowCreate={allowCreate}
+            allowDelete={allowDelete}
           />
 
           <LayersControl position="topright">

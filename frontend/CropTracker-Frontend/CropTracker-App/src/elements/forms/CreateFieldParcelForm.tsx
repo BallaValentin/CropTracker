@@ -67,6 +67,14 @@ function CreateFieldParcelForm({
     }));
   };
 
+  const handleFieldParcelPolygonUpdated = (latLngs: LatLngObject[]) => {
+    setNewFieldParcel((prev) => ({
+      ...prev,
+      polygonPoints: latLngs,
+      area: calculatePolygonArea(latLngs),
+    }));
+  };
+
   const handleFieldParcelPolygonDeleted = () => {
     setNewFieldParcel((prev) => ({
       ...prev,
@@ -106,8 +114,11 @@ function CreateFieldParcelForm({
               parcelPolygonPoints={newFieldParcel.polygonPoints}
               polygonColor={newFieldParcel.polygonColor}
               onParcelAdded={handleFieldParcelPolygonCreated}
+              onParcelUpdated={handleFieldParcelPolygonUpdated}
               onParcelDeleted={handleFieldParcelPolygonDeleted}
               fieldParcels={fieldParcels}
+              allowCreate={true}
+              allowDelete={true}
             />
           </Box>
           <Box sx={{ flex: 1, p: 2 }}>
