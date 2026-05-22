@@ -2,9 +2,14 @@ import {
   Autocomplete,
   Box,
   Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   TextField,
   Typography,
+  type SelectChangeEvent,
 } from "@mui/material";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import { useCropSearch } from "../../hooks/UseCropSearch";
@@ -23,6 +28,11 @@ interface CreateFieldParcelFormProps {
   fieldParcels: GetFieldParcelDTO[];
 }
 
+const LayoutTypes = {
+  SingleRow: "SINGLE-ROW",
+  TwinRow: "TWIN-ROW",
+} as const;
+
 function CreateFieldParcelForm({
   onSubmit,
   cropfield,
@@ -36,6 +46,14 @@ function CreateFieldParcelForm({
     area: 0,
     polygonPoints: [] as LatLngObject[],
     polygonColor: "#ff0000",
+    layoutType: "",
+    layoutParameters: {
+      bedSpacing: 10,
+      plantSpacing: 30,
+      rowSpacing: null,
+      azimuth: 0,
+      numberOfRows: 0,
+    },
   });
 
   const { data: crops } = useCropSearch(searchTerm);
@@ -83,6 +101,26 @@ function CreateFieldParcelForm({
     }));
   };
 
+  const handleLayoutChange = (event: SelectChangeEvent) => {
+    setNewFieldParcel((prev) => ({
+      ...prev,
+      layoutType: event.target.value,
+    }));
+  };
+
+  const handleLayoutParamsChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const { name, value } = event.target;
+    setNewFieldParcel((prev) => ({
+      ...prev,
+      layoutParameters: {
+        ...prev.layoutParameters,
+        [name]: value,
+      },
+    }));
+  };
+
   return (
     <Box>
       <Paper
@@ -90,7 +128,7 @@ function CreateFieldParcelForm({
         sx={{
           mb: 2,
           mt: 2,
-          height: 600,
+          height: 800,
           width: "100%",
           border: "1px solid",
           borderColor: "divider",
@@ -104,13 +142,13 @@ function CreateFieldParcelForm({
         >
           Create Field Parcel
         </Typography>
-        <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: "flex", height: "100%" }}>
           <Box sx={{ flex: 1, p: 2 }}>
             <AddParcelView
               polygonPoints={cropfield.polygonPoints}
               markerPosition={cropfield.markerPosition}
               uid={cropfield.uid}
-              mapHeight={500}
+              mapHeight={700}
               parcelPolygonPoints={newFieldParcel.polygonPoints}
               polygonColor={newFieldParcel.polygonColor}
               onParcelAdded={handleFieldParcelPolygonCreated}
@@ -121,8 +159,15 @@ function CreateFieldParcelForm({
               allowDelete={true}
             />
           </Box>
-          <Box sx={{ flex: 1, p: 2 }}>
-            <form onSubmit={handleSubmit}>
+          <Box sx={{ flex: 1, p: 2, height: 700 }}>
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               <Autocomplete
                 options={crops || []}
                 getOptionLabel={(option) =>
@@ -143,22 +188,82 @@ function CreateFieldParcelForm({
                   />
                 )}
               />
-              <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ mt: 2, mb: 1, fontWeight: "bold", fontStyle: "italic" }}
+              >
                 Select Overlay Color
               </Typography>
+
               <ChromePicker
                 color={newFieldParcel.polygonColor}
                 onChangeComplete={(color) => changeOverlayColor(color)}
               />
-              <Button
-                type="submit"
-                disabled={isPending}
-                variant="contained"
+
+              <FormControl sx={{ mt: 2, mb: 2, width: 200 }}>
+                <InputLabel
+                  color="success"
+                  id="layout-type-lavel"
+                  sx={{ mt: 2 }}
+                >
+                  Layout Type
+                </InputLabel>
+                <Select
+                  color="success"
+                  labelId="layout-type-label"
+                  label="Layout type"
+                  value={newFieldParcel.layoutType}
+                  onChange={handleLayoutChange}
+                  sx={{ mt: 2, mb: 2 }}
+                >
+                  <MenuItem value={LayoutTypes.SingleRow}>Single-Row</MenuItem>
+                  <MenuItem value={LayoutTypes.TwinRow}>Twin-Row</MenuItem>
+                </Select>
+              </FormControl>
+
+              <TextField
                 color="success"
-                sx={{ mt: 3 }}
+                name="numberOfRows"
+                type="number"
+                label="Number of Rows"
+                onChange={handleLayoutParamsChange}
+                sx={{ mb: 1 }}
+              />
+
+              <Box sx={{ display: "flex", gap: 1, mt: "auto" }}>
+                <TextField
+                  color="success"
+                  name="bedSpacing"
+                  type="number"
+                  label="Bed Spacing(cm)"
+                  onChange={handleLayoutParamsChange}
+                />
+                <TextField
+                  color="success"
+                  name="cropSpacing"
+                  type="number"
+                  label="Crop Spacing(cm)"
+                  onChange={handleLayoutParamsChange}
+                />
+              </Box>
+
+              <Box
+                sx={{
+                  mt: "auto",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
               >
-                {isPending ? "Creating..." : "Create Field Parcel"}
-              </Button>
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                  variant="contained"
+                  color="success"
+                  sx={{ mt: 3 }}
+                >
+                  {isPending ? "Creating..." : "Create Field Parcel"}
+                </Button>
+              </Box>
             </form>
           </Box>
         </Box>

@@ -1,4 +1,5 @@
 import type { LatLngObject } from "../LatLngObject";
+import type { LayoutParameters } from "../LayoutParameters";
 
 export interface CreateFieldParcelDTO {
     polygonPoints: LatLngObject[];
@@ -6,4 +7,6 @@ export interface CreateFieldParcelDTO {
     cropCultivarId: string;
     area: number;
     polygonColor: string;
+    layoutType: string
+    layoutParameters: LayoutParameters
 }
