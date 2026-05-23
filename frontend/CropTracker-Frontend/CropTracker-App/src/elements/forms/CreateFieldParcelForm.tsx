@@ -20,6 +20,7 @@ import type { LatLngObject } from "../../interfaces/LatLngObject";
 import type { CreateFieldParcelDTO } from "../../interfaces/request/CreateFieldParcelDTO";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
+import { LayoutTypes } from "../../utils/LayoutTypes";
 
 interface CreateFieldParcelFormProps {
   onSubmit: (createFieldParcelData: CreateFieldParcelDTO) => void;
@@ -27,11 +28,6 @@ interface CreateFieldParcelFormProps {
   cropfield: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
 }
-
-const LayoutTypes = {
-  SingleRow: "SINGLE-ROW",
-  TwinRow: "TWIN-ROW",
-} as const;
 
 function CreateFieldParcelForm({
   onSubmit,
@@ -157,6 +153,8 @@ function CreateFieldParcelForm({
               fieldParcels={fieldParcels}
               allowCreate={true}
               allowDelete={true}
+              rowDistance={newFieldParcel.layoutParameters.bedSpacing}
+              numberOfRows={newFieldParcel.layoutParameters.numberOfRows}
             />
           </Box>
           <Box sx={{ flex: 1, p: 2, height: 700 }}>

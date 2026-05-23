@@ -1,12 +1,13 @@
 import { Box } from "@mui/material";
-import { LayersControl, MapContainer, Polygon } from "react-leaflet";
+import { LayersControl, MapContainer, Polygon, Polyline } from "react-leaflet";
 import type { LatLngObject } from "../interfaces/LatLngObject";
 import { defaultMapPosition } from "../utils/Constants";
 import CustomLayers from "./CustomLayers";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FieldParcelDrawControl from "./ParcelDrawControl";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import L from "leaflet";
+import { getGeneratedRows } from "../utils/GenerateRows";
 
 interface AddParcelViewProps {
   polygonPoints: LatLngObject[];
@@ -21,6 +22,8 @@ interface AddParcelViewProps {
   fieldParcels: GetFieldParcelDTO[];
   allowCreate: boolean;
   allowDelete: boolean;
+  rowDistance: number;
+  numberOfRows: number;
 }
 
 function AddParcelView({
@@ -36,10 +39,25 @@ function AddParcelView({
   fieldParcels,
   allowCreate,
   allowDelete,
+  rowDistance,
+  numberOfRows,
 }: AddParcelViewProps) {
   const [parcelCreated, setParcelCreated] = useState<boolean>(
     parcelPolygonPoints.length != 0,
   );
+  const [referenceRow, setReferenceRow] = useState<LatLngObject[]>([]);
+  const [rows, setRows] = useState<LatLngObject[][]>([]);
+
+  useEffect(() => {
+    setRows(
+      getGeneratedRows(
+        parcelPolygonPoints,
+        referenceRow,
+        numberOfRows,
+        rowDistance,
+      ),
+    );
+  }, [referenceRow, parcelPolygonPoints, rowDistance, numberOfRows]);
 
   const onPolygonCreated = (latLngs: LatLngObject[]) => {
     setParcelCreated(true);
@@ -54,6 +72,12 @@ function AddParcelView({
     setParcelCreated(false);
     onParcelDeleted();
   };
+
+  const handleReferenceRowAdded = (refRow: LatLngObject[]) => {
+    setReferenceRow(refRow);
+  };
+
+  const parentPolygonRef = useRef<L.Polygon | null>(null);
 
   return (
     <>
@@ -87,22 +111,58 @@ function AddParcelView({
             parentPolygon={polygonPoints}
             allowCreate={allowCreate}
             allowDelete={allowDelete}
+            onReferenceRowAdded={handleReferenceRowAdded}
+            selectedParcel={parcelPolygonPoints}
           />
 
           <LayersControl position="topright">
             <CustomLayers />
           </LayersControl>
 
+          <Polygon
+            key={uid ? "polygon-" + uid : "default-polygon"}
+            positions={polygonPoints}
+            pathOptions={{ color: "gray", snapIgnore: false }}
+            eventHandlers={{
+              add: (e) => {
+                const layer = e.target;
+                layer.options.pmIgnore = true;
+                if (layer.pm) {
+                  L.PM.reInitLayer(layer);
+                }
+              },
+            }}
+          />
+
           {parcelCreated && (
             <Polygon
+              ref={parentPolygonRef}
               key={"new field parcel"}
               positions={parcelPolygonPoints}
               pathOptions={{ color: polygonColor }}
             />
           )}
 
+          {parcelCreated && referenceRow && (
+            <Polyline
+              positions={referenceRow}
+              pathOptions={{ color: "blue" }}
+            />
+          )}
+
+          {parcelCreated &&
+            referenceRow &&
+            rows.map((row) => (
+              <Polyline
+                snapIgnore={true}
+                positions={row}
+                pathOptions={{ color: "black" }}
+              />
+            ))}
+
           {fieldParcels.map((parcel) => (
             <Polygon
+              ref={parentPolygonRef}
               key={parcel.uid}
               positions={parcel.polygonPoints}
               pathOptions={{ color: parcel.polygonColor || "blue" }}
@@ -117,21 +177,6 @@ function AddParcelView({
               }}
             />
           ))}
-
-          <Polygon
-            key={uid ? "polygon-" + uid : "default-polygon"}
-            positions={polygonPoints}
-            pathOptions={{ color: "gray" }}
-            eventHandlers={{
-              add: (e) => {
-                const layer = e.target;
-                layer.options.pmIgnore = true;
-                if (layer.pm) {
-                  L.PM.reInitLayer(layer);
-                }
-              },
-            }}
-          />
         </MapContainer>
       </Box>
     </>

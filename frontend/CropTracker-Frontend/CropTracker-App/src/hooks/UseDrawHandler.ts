@@ -3,21 +3,26 @@ import type { LatLngObject } from "../interfaces/LatLngObject";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import * as turf from "@turf/turf";
 import { useMap } from "react-leaflet";
+import '@geoman-io/leaflet-geoman-free';
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
   onPolygonUpdated: (polygon: LatLngObject[]) => void;
   onPolygonDeleted: () => void;
+  onReferenceRowAdded: (row: LatLngObject[]) => void;
   fieldParcels: GetFieldParcelDTO[];
   parentPolygon: LatLngObject[];
+  selectedParcel: LatLngObject[];
 }
 
 export const useDrawHandler = ({
   onPolygonCreated,
   onPolygonUpdated,
   onPolygonDeleted,
+  onReferenceRowAdded,
   fieldParcels,
   parentPolygon,
+  selectedParcel
 }: DrawingToolsProps) => {
   const map = useMap();
 
@@ -112,6 +117,71 @@ export const useDrawHandler = ({
     }
   };
 
+  const clipLineToParcel = (polylineLayer: L.Polyline) => {
+    if (!selectedParcel) return null;
+
+    const rawLatLngs = polylineLayer.getLatLngs();
+    const lineLatLngs: L.LatLng[] = Array.isArray(rawLatLngs[0])
+    ? (rawLatLngs as L.LatLng[][]).flat()
+    : (rawLatLngs as L.LatLng[]);
+
+    const line = turf.lineString(lineLatLngs.map(point => [point.lng, point.lat]));
+
+    console.log("Selected parcel coords: ", selectedParcel);
+    const polygonCoords = selectedParcel.map(point => [point.lng, point.lat]);
+    const polygon = turf.polygon([polygonCoords]);
+    const polygonBoundary = turf.lineString(polygonCoords);
+
+    const inside = turf.booleanWithin(line, polygon);
+
+    if (inside) {
+      const formattedPoints = line.geometry.coordinates.map((point) => ({
+        lat: point[1],
+        lng: point[0]
+      }));
+      return {polylineLayer, formattedPoints};
+    }
+
+    const clippedPoints = lineLatLngs.map((point) => {
+      const turfPoint = turf.point([point.lng, point.lat]);
+
+      const inside = turf.booleanPointInPolygon(turfPoint, polygon);
+      if (inside) return point;
+
+      const snappedPoint = turf.nearestPointOnLine(polygonBoundary, turfPoint);
+      const [lat, lng] = snappedPoint.geometry.coordinates;
+      return new L.LatLng(lat, lng);
+
+    });
+  
+
+    polylineLayer.setLatLngs(clippedPoints);
+    const formattedPoints = clippedPoints as LatLngObject[];
+
+    return {polylineLayer, formattedPoints};
+  }
+
+  const _onDrawStart = (e: {workingLayer: L.Layer, shape: string}) => {
+    const {shape, workingLayer} = e;
+
+    if (shape !== 'Line') return;
+
+    const polylineLayer = workingLayer as L.Polyline;
+    polylineLayer.options.snapIgnore = true;
+
+    polylineLayer.on('pm:vertexadded', () => {
+      
+      if (polylineLayer.getLatLngs().length === 2) {
+        const drawContext = map.pm.Draw;
+        const finishFn = Reflect.get(drawContext.Line, '_finishShape') as (() => void) | undefined;
+
+        if (typeof finishFn === 'function') {
+          finishFn.call(drawContext.Line);
+        }
+      }
+    });
+  }
+
   const _onCreated = (e: { layer: L.Layer; shape: string }) => {
     map.pm.disableDraw();
 
@@ -137,24 +207,33 @@ export const useDrawHandler = ({
         }
       }
     }
+
+    else if (shape === "Line") {
+      let polylineLayer = layer as L.Polyline;
+
+      const clipLineResult = clipLineToParcel(polylineLayer);
+
+      if (clipLineResult) {
+        polylineLayer = clipLineResult.polylineLayer;
+        const formattedPoints = clipLineResult.formattedPoints;
+        onReferenceRowAdded(formattedPoints);
+      }
+    }
+
     removeLayer(layer, currentCenter, currentZoom);
   };
 
   const _onUpdated = (layer: L.Layer) => {
-    console.log("ON UPDATE EVENT START");
 
     if (layer instanceof L.Polygon) {
-      console.log("RECEIVED POLYGON");
       let polygonLayer = layer as L.Polygon;
       const croppedPolygonLayer = cropPolygonInside(polygonLayer);
-      console.log("CROPPED POLYGON");
 
       if (croppedPolygonLayer) {
         polygonLayer = croppedPolygonLayer;
         const overlapCroppedPolygonResult = cropOverlappinParts(polygonLayer);
         if (overlapCroppedPolygonResult) {
           polygonLayer = overlapCroppedPolygonResult.polygonLayer;
-          console.log("CROPPED COMMON PARTS");
           polygonLayer.redraw();
           onPolygonUpdated(overlapCroppedPolygonResult.formattedPoints);
         }
@@ -176,5 +255,5 @@ export const useDrawHandler = ({
     }, 10);
   };
 
-  return { _onCreated, _onUpdated, _onDeleted };
+  return { _onCreated, _onUpdated, _onDeleted, _onDrawStart };
 };

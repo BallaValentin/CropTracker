@@ -115,6 +115,8 @@ function UpdateFieldParcelForm({
               fieldParcels={fieldParcels}
               allowCreate={false}
               allowDelete={false}
+              rowDistance={0}
+              numberOfRows={0}
             />
           </Box>
           <Box sx={{ flex: 1, p: 2 }}>
