@@ -22,7 +22,8 @@ interface AddParcelViewProps {
   fieldParcels: GetFieldParcelDTO[];
   allowCreate: boolean;
   allowDelete: boolean;
-  rowDistance: number;
+  bedSpacing: number;
+  rowWidth: number;
   numberOfRows: number;
 }
 
@@ -39,7 +40,8 @@ function AddParcelView({
   fieldParcels,
   allowCreate,
   allowDelete,
-  rowDistance,
+  bedSpacing,
+  rowWidth,
   numberOfRows,
 }: AddParcelViewProps) {
   const [parcelCreated, setParcelCreated] = useState<boolean>(
@@ -54,10 +56,10 @@ function AddParcelView({
         parcelPolygonPoints,
         referenceRow,
         numberOfRows,
-        rowDistance,
-      ),
+        bedSpacing + rowWidth / 2,
+      ) || [],
     );
-  }, [referenceRow, parcelPolygonPoints, rowDistance, numberOfRows]);
+  }, [referenceRow, parcelPolygonPoints, bedSpacing, rowWidth, numberOfRows]);
 
   const onPolygonCreated = (latLngs: LatLngObject[]) => {
     setParcelCreated(true);
@@ -143,7 +145,7 @@ function AddParcelView({
             />
           )}
 
-          {parcelCreated && referenceRow && (
+          {parcelCreated && referenceRow && rows.length === 0 && (
             <Polyline
               positions={referenceRow}
               pathOptions={{ color: "blue" }}

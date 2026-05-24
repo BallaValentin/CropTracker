@@ -21,6 +21,8 @@ import type { CreateFieldParcelDTO } from "../../interfaces/request/CreateFieldP
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import { LayoutTypes } from "../../utils/LayoutTypes";
+import { cropWidthCm } from "../../utils/Constants";
+import { calculateRowWidth } from "../../utils/CalculateRowWidth";
 
 interface CreateFieldParcelFormProps {
   onSubmit: (createFieldParcelData: CreateFieldParcelDTO) => void;
@@ -46,9 +48,10 @@ function CreateFieldParcelForm({
     layoutParameters: {
       bedSpacing: 10,
       plantSpacing: 30,
-      rowSpacing: null,
-      azimuth: 0,
+      rowSpacing: 0,
       numberOfRows: 0,
+      marginSpacing: 0,
+      rowWidth: cropWidthCm,
     },
   });
 
@@ -98,23 +101,43 @@ function CreateFieldParcelForm({
   };
 
   const handleLayoutChange = (event: SelectChangeEvent) => {
-    setNewFieldParcel((prev) => ({
-      ...prev,
-      layoutType: event.target.value,
-    }));
+    setNewFieldParcel((prev) => {
+      const layoutParams = prev.layoutParameters;
+      const newLayoutType = event.target.value;
+
+      const newRowWidth = calculateRowWidth(layoutParams, newLayoutType);
+      console.log("New row width cm: ", newRowWidth);
+      return {
+        ...prev,
+        layoutType: newLayoutType,
+        layoutParameters: {
+          ...layoutParams,
+          rowWidth: newRowWidth,
+        },
+      };
+    });
   };
 
   const handleLayoutParamsChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = event.target;
-    setNewFieldParcel((prev) => ({
-      ...prev,
-      layoutParameters: {
-        ...prev.layoutParameters,
-        [name]: value,
-      },
-    }));
+    const numericValue = Number.parseInt(value) || 0;
+
+    setNewFieldParcel((prev) => {
+      const layoutType = prev.layoutType;
+      const nextParams = { ...prev.layoutParameters, [name]: numericValue };
+      const newRowWidth = calculateRowWidth(nextParams, layoutType);
+      console.log("New row width cm: ", newRowWidth);
+
+      return {
+        ...prev,
+        layoutParameters: {
+          ...nextParams,
+          rowWidth: newRowWidth,
+        },
+      };
+    });
   };
 
   return (
@@ -153,7 +176,8 @@ function CreateFieldParcelForm({
               fieldParcels={fieldParcels}
               allowCreate={true}
               allowDelete={true}
-              rowDistance={newFieldParcel.layoutParameters.bedSpacing}
+              bedSpacing={newFieldParcel.layoutParameters.bedSpacing}
+              rowWidth={newFieldParcel.layoutParameters.rowWidth}
               numberOfRows={newFieldParcel.layoutParameters.numberOfRows}
             />
           </Box>
@@ -236,11 +260,27 @@ function CreateFieldParcelForm({
                   label="Bed Spacing(cm)"
                   onChange={handleLayoutParamsChange}
                 />
+                {newFieldParcel.layoutType === LayoutTypes.TwinRow && (
+                  <TextField
+                    color="success"
+                    name="rowSpacing"
+                    type="number"
+                    label="Rows Distance(cm)"
+                    onChange={handleLayoutParamsChange}
+                  />
+                )}
                 <TextField
                   color="success"
                   name="cropSpacing"
                   type="number"
                   label="Crop Spacing(cm)"
+                  onChange={handleLayoutParamsChange}
+                />
+                <TextField
+                  color="success"
+                  name="marginSpacing"
+                  type="number"
+                  label="Row Margins(cm)"
                   onChange={handleLayoutParamsChange}
                 />
               </Box>
