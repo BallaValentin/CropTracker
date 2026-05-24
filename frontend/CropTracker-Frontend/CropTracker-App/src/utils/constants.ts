@@ -6,3 +6,6 @@ export const defaultMapPosition = {
 }
 
 export const cropWidthCm = 5;
+
+export const breakPointMedium = 20;
+export const breakPointHigh = 24;

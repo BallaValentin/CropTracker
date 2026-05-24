@@ -7,7 +7,10 @@ import { useEffect, useRef, useState } from "react";
 import FieldParcelDrawControl from "./ParcelDrawControl";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import L from "leaflet";
-import { getGeneratedRows } from "../utils/GenerateRows";
+import {
+  getGeneratedRectabgles,
+  getGeneratedRows,
+} from "../utils/GenerateShapesUtil";
 
 interface AddParcelViewProps {
   polygonPoints: LatLngObject[];
@@ -49,6 +52,7 @@ function AddParcelView({
   );
   const [referenceRow, setReferenceRow] = useState<LatLngObject[]>([]);
   const [rows, setRows] = useState<LatLngObject[][]>([]);
+  const [rowRectangles, setRowRectangles] = useState<LatLngObject[][]>([]);
 
   useEffect(() => {
     setRows(
@@ -60,6 +64,10 @@ function AddParcelView({
       ) || [],
     );
   }, [referenceRow, parcelPolygonPoints, bedSpacing, rowWidth, numberOfRows]);
+
+  useEffect(() => {
+    setRowRectangles(getGeneratedRectabgles(rows, rowWidth));
+  }, [rows, rowWidth]);
 
   const onPolygonCreated = (latLngs: LatLngObject[]) => {
     setParcelCreated(true);
@@ -115,6 +123,8 @@ function AddParcelView({
             allowDelete={allowDelete}
             onReferenceRowAdded={handleReferenceRowAdded}
             selectedParcel={parcelPolygonPoints}
+            rows={rows}
+            rowRectangles={rowRectangles}
           />
 
           <LayersControl position="topright">
@@ -151,16 +161,6 @@ function AddParcelView({
               pathOptions={{ color: "blue" }}
             />
           )}
-
-          {parcelCreated &&
-            referenceRow &&
-            rows.map((row) => (
-              <Polyline
-                snapIgnore={true}
-                positions={row}
-                pathOptions={{ color: "black" }}
-              />
-            ))}
 
           {fieldParcels.map((parcel) => (
             <Polygon

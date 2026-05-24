@@ -41,7 +41,55 @@ const extendLine = (originalLine: Feature<LineString>, scale: number) => {
     [extendedLng1, extendedLat1],
     [extendedLng2, extendedLat2]
 ]);
-} 
+}
+
+const lineToRectangle = (row: LatLngObject[], width: number) => {
+    const point1 = turf.point([row[0].lng, row[0].lat]);
+    const point2 = turf.point([row[1].lng, row[1].lat]);
+
+    const bearingAngle = turf.bearing(point1, point2);
+    const halfWidth = width / 2;
+
+    const point1Left = turf.destination(
+        point1,
+        halfWidth / 100,
+        bearingAngle - 90,
+        {units: "meters"}
+    );
+
+    const point1Right = turf.destination(
+        point1,
+        halfWidth / 100,
+        bearingAngle + 90,
+        {units: "meters"}
+    );
+
+    const point2Left = turf.destination(
+        point2,
+        halfWidth / 100,
+        bearingAngle - 90,
+        {units: "meters"}
+    );
+
+    const point2Right = turf.destination(
+        point2,
+        halfWidth / 100,
+        bearingAngle + 90,
+        {units: "meters"}
+    );
+
+    return [
+        {lat: point1Left.geometry.coordinates[1], lng: point1Left.geometry.coordinates[0]},
+        {lat: point1Right.geometry.coordinates[1], lng: point1Right.geometry.coordinates[0]},
+        {lat: point2Right.geometry.coordinates[1], lng: point2Right.geometry.coordinates[0]},
+        {lat: point2Left.geometry.coordinates[1], lng: point2Left.geometry.coordinates[0]},
+        {lat: point1Left.geometry.coordinates[1], lng: point1Left.geometry.coordinates[0]},
+    ]
+}
+
+export const getGeneratedRectabgles = (rows: LatLngObject[][], rowWidth: number) => {
+    return rows.map(row => lineToRectangle(row, rowWidth));
+}
 
 export const getGeneratedRows = (polygonCoords: LatLngObject[], 
     referenceRow: LatLngObject[], numberOfRows: number, rowDistance: number) => {
