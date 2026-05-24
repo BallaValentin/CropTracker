@@ -16,13 +16,13 @@ function CustomLayers() {
             attribution="Tiles &copy; Esri..."
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             maxNativeZoom={18}
-            maxZoom={20}
+            maxZoom={25}
           />
 
           <TileLayer
             url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
             maxNativeZoom={18}
-            maxZoom={20}
+            maxZoom={25}
           />
         </LayerGroup>
       </LayersControl.BaseLayer>
