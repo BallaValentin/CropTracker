@@ -1,6 +1,7 @@
 import * as turf from "@turf/turf";
 import type { LatLngObject } from "../interfaces/LatLngObject";
 import type { Feature, LineString } from "geojson";
+import { cropWidthCm } from "./Constants";
 
 
 const lineToLatLng = (line: Feature<LineString>) => {
@@ -85,6 +86,52 @@ const lineToRectangle = (row: LatLngObject[], width: number) => {
         {lat: point2Left.geometry.coordinates[1], lng: point2Left.geometry.coordinates[0]},
         {lat: point1Left.geometry.coordinates[1], lng: point1Left.geometry.coordinates[0]},
     ]
+}
+
+const getGeneratedCropsForRow = (row: LatLngObject[], rowWidth: number, rowMargin: number, rowSpacing: number, cropSpacing: number) => {
+    const lineCrops = [];
+    const rowLine = turf.lineString([[row[0].lng, row[0].lat], [row[1].lng, row[1].lat]]);
+    const length = turf.length(rowLine, {
+    units: "meters"
+    });
+    const bearing = turf.bearing(
+    turf.point(rowLine.geometry.coordinates[0]),
+    turf.point(rowLine.geometry.coordinates[1])
+    );
+
+    const minOffset = -(rowWidth / 2 - rowMargin - cropWidthCm / 2);
+    const maxOffset = -minOffset;
+    const step = rowSpacing + cropWidthCm;
+    
+    for (let offset = minOffset; offset <= maxOffset; offset += step) {
+        const offsetCrops = [];
+        for (let d = 0; d <= length; d += cropSpacing / 100) {
+            const center = turf.along( rowLine, d, { units: "meters" } ); 
+            const plant = turf.destination( center, Math.abs(offset) / 100, 
+            offset >= 0 ? bearing + 90 : bearing - 90, { units: "meters" } );
+            offsetCrops.push({
+                lat: plant.geometry.coordinates[1],
+                lng: plant.geometry.coordinates[0]
+            })
+        }
+        lineCrops.push(offsetCrops);
+    }
+
+    return lineCrops;
+}
+
+export const getGeneratedCrops = (rows: LatLngObject[][], rowWidth: number, rowMargin: number, rowSpacing: number, cropSpacing: number) => {
+    if (rows.length === 0 || rowWidth === 0 || cropSpacing === 0) {
+        return [];
+    }
+
+    const crops = rows.map(row => 
+        getGeneratedCropsForRow(row, rowWidth, rowMargin, rowSpacing, cropSpacing)
+    );
+
+    const cropFlat = crops.flat(3);
+    console.log("Number of crops: ", cropFlat);
+    return cropFlat;
 }
 
 export const getGeneratedRectabgles = (rows: LatLngObject[][], rowWidth: number) => {

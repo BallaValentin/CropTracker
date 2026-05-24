@@ -7,6 +7,7 @@ import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { useZoom } from "../hooks/UseMapZoom";
+import { cropWidthCm } from "../utils/Constants";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
@@ -19,6 +20,7 @@ interface DrawingToolsProps {
   selectedParcel: LatLngObject[];
   rows: LatLngObject[][];
   rowRectangles: LatLngObject[][];
+  crops: LatLngObject[];
   allowCreate: boolean;
   allowDelete: boolean;
 }
@@ -33,6 +35,7 @@ function FieldParcelDrawControl({
   parentPolygon,
   rows,
   rowRectangles,
+  crops,
   allowCreate,
   allowDelete,
   selectedParcel,
@@ -80,9 +83,27 @@ function FieldParcelDrawControl({
     );
   });
 
+  const highZoomGroupRef = useRef(L.layerGroup());
+
+  useEffect(() => {
+    const layerGroup = highZoomGroupRef.current;
+    layerGroup.clearLayers();
+
+    crops.map(
+      (crop) => {
+        L.circleMarker(crop, {
+          radius: cropWidthCm / 200,
+          color: "green",
+        }).addTo(layerGroup);
+      },
+      [crops],
+    );
+  });
+
   const { _onZoom } = useZoom({
     lowZoomGroup: lowZoomGroupRef.current,
     mediumZoomGroup: midZoomGroupRef.current,
+    highZoomGroup: highZoomGroupRef.current,
   });
 
   useEffect(() => {

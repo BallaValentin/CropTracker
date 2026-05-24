@@ -1,12 +1,13 @@
 import { useMap } from "react-leaflet";
-import { breakPointMedium } from "../utils/Constants";
+import { breakPointHigh, breakPointMedium } from "../utils/Constants";
 
 interface ZoomProps {
     lowZoomGroup: L.LayerGroup;
-    mediumZoomGroup: L.LayerGroup
+    mediumZoomGroup: L.LayerGroup;
+    highZoomGroup: L.LayerGroup
 };
 
-export const useZoom = ({lowZoomGroup, mediumZoomGroup}: ZoomProps) => {
+export const useZoom = ({lowZoomGroup, mediumZoomGroup, highZoomGroup}: ZoomProps) => {
     const map = useMap();
 
     const _onZoom = () => {
@@ -17,12 +18,19 @@ export const useZoom = ({lowZoomGroup, mediumZoomGroup}: ZoomProps) => {
             map.addLayer(lowZoomGroup);
         }
         map.removeLayer(mediumZoomGroup);
+        map.removeLayer(highZoomGroup);
     } 
     
-    else if (currentZoom >= breakPointMedium) {
+    else if (currentZoom >= breakPointMedium && currentZoom <= breakPointHigh) {
         map.removeLayer(lowZoomGroup);
+        map.removeLayer(highZoomGroup);
         if (!map.hasLayer(mediumZoomGroup)) {
             map.addLayer(mediumZoomGroup);
+        }
+    } else {
+        map.removeLayer(lowZoomGroup);
+        if (!map.hasLayer(highZoomGroup)) {
+            map.addLayer(highZoomGroup);
         }
     }
     }

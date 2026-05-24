@@ -8,6 +8,7 @@ import FieldParcelDrawControl from "./ParcelDrawControl";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import L from "leaflet";
 import {
+  getGeneratedCrops,
   getGeneratedRectabgles,
   getGeneratedRows,
 } from "../utils/GenerateShapesUtil";
@@ -27,6 +28,9 @@ interface AddParcelViewProps {
   allowDelete: boolean;
   bedSpacing: number;
   rowWidth: number;
+  rowSpacing: number;
+  cropSpacing: number;
+  rowMargin: number;
   numberOfRows: number;
 }
 
@@ -45,6 +49,9 @@ function AddParcelView({
   allowDelete,
   bedSpacing,
   rowWidth,
+  rowSpacing,
+  cropSpacing,
+  rowMargin,
   numberOfRows,
 }: AddParcelViewProps) {
   const [parcelCreated, setParcelCreated] = useState<boolean>(
@@ -53,6 +60,7 @@ function AddParcelView({
   const [referenceRow, setReferenceRow] = useState<LatLngObject[]>([]);
   const [rows, setRows] = useState<LatLngObject[][]>([]);
   const [rowRectangles, setRowRectangles] = useState<LatLngObject[][]>([]);
+  const [cropCoords, setCropCoords] = useState<LatLngObject[]>([]);
 
   useEffect(() => {
     setRows(
@@ -68,6 +76,12 @@ function AddParcelView({
   useEffect(() => {
     setRowRectangles(getGeneratedRectabgles(rows, rowWidth));
   }, [rows, rowWidth]);
+
+  useEffect(() => {
+    setCropCoords(
+      getGeneratedCrops(rows, rowWidth, rowMargin, rowSpacing, cropSpacing),
+    );
+  }, [cropSpacing, rowMargin, rowSpacing, rowWidth, rows]);
 
   const onPolygonCreated = (latLngs: LatLngObject[]) => {
     setParcelCreated(true);
@@ -125,6 +139,7 @@ function AddParcelView({
             selectedParcel={parcelPolygonPoints}
             rows={rows}
             rowRectangles={rowRectangles}
+            crops={cropCoords}
           />
 
           <LayersControl position="topright">

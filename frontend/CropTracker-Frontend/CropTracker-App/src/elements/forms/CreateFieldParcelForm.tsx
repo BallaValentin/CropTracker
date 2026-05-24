@@ -179,6 +179,9 @@ function CreateFieldParcelForm({
               bedSpacing={newFieldParcel.layoutParameters.bedSpacing}
               rowWidth={newFieldParcel.layoutParameters.rowWidth}
               numberOfRows={newFieldParcel.layoutParameters.numberOfRows}
+              rowSpacing={newFieldParcel.layoutParameters.rowSpacing}
+              cropSpacing={newFieldParcel.layoutParameters.plantSpacing}
+              rowMargin={newFieldParcel.layoutParameters.marginSpacing}
             />
           </Box>
           <Box sx={{ flex: 1, p: 2, height: 700 }}>
@@ -271,7 +274,7 @@ function CreateFieldParcelForm({
                 )}
                 <TextField
                   color="success"
-                  name="cropSpacing"
+                  name="plantSpacing"
                   type="number"
                   label="Crop Spacing(cm)"
                   onChange={handleLayoutParamsChange}
