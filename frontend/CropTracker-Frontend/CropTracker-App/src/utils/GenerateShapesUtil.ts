@@ -88,6 +88,21 @@ const lineToRectangle = (row: LatLngObject[], width: number) => {
     ]
 }
 
+const getGeneratedCropsForRowPart = (rowLine: Feature<LineString>, length: number, cropSpacing: number, offset: number, bearing: number ) => {
+    const offsetCrops = [];
+        for (let d = 0; d <= length; d += cropSpacing / 100) {
+            const center = turf.along(rowLine, d, { units: "meters" } ); 
+            const plant = turf.destination( center, Math.abs(offset) / 100, 
+            offset >= 0 ? bearing + 90 : bearing - 90, { units: "meters" } );
+            offsetCrops.push({
+                lat: plant.geometry.coordinates[1],
+                lng: plant.geometry.coordinates[0]
+            })
+        }
+        
+        return offsetCrops;
+}
+
 const getGeneratedCropsForRow = (row: LatLngObject[], rowWidth: number, rowMargin: number, rowSpacing: number, cropSpacing: number) => {
     const lineCrops = [];
     const rowLine = turf.lineString([[row[0].lng, row[0].lat], [row[1].lng, row[1].lat]]);
@@ -101,29 +116,21 @@ const getGeneratedCropsForRow = (row: LatLngObject[], rowWidth: number, rowMargi
 
     const minOffset = -(rowWidth / 2 - rowMargin - cropWidthCm / 2);
     const maxOffset = -minOffset;
-    const step = rowSpacing + cropWidthCm;
-    
-    for (let offset = minOffset; offset <= maxOffset; offset += step) {
-        const offsetCrops = [];
-        for (let d = 0; d <= length; d += cropSpacing / 100) {
-            const center = turf.along( rowLine, d, { units: "meters" } ); 
-            const plant = turf.destination( center, Math.abs(offset) / 100, 
-            offset >= 0 ? bearing + 90 : bearing - 90, { units: "meters" } );
-            offsetCrops.push({
-                lat: plant.geometry.coordinates[1],
-                lng: plant.geometry.coordinates[0]
-            })
-        }
-        lineCrops.push(offsetCrops);
-    }
 
+    if (rowSpacing === 0) {
+        return [getGeneratedCropsForRowPart(rowLine, length, cropSpacing, 0, bearing)];
+    }
+    
+    for (let offset = minOffset; offset <= maxOffset; offset += rowSpacing) {
+        lineCrops.push(getGeneratedCropsForRowPart(rowLine, length, cropSpacing, offset, bearing));
+    }
     return lineCrops;
 }
 
 export const getGeneratedCrops = (rows: LatLngObject[][], rowWidth: number, rowMargin: number, rowSpacing: number, cropSpacing: number) => {
-    if (rows.length === 0 || rowWidth === 0 || cropSpacing === 0) {
-        return [];
-    }
+    if (rows.length === 0 || rowWidth === 0 || cropSpacing === 0) return [];
+
+     if ((rowWidth / 2 - rowMargin - cropWidthCm / 2) !== 0 && rowSpacing === 0) return [];
 
     const crops = rows.map(row => 
         getGeneratedCropsForRow(row, rowWidth, rowMargin, rowSpacing, cropSpacing)
