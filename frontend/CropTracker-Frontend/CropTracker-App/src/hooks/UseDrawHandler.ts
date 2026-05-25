@@ -4,6 +4,7 @@ import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO
 import * as turf from "@turf/turf";
 import { useMap } from "react-leaflet";
 import '@geoman-io/leaflet-geoman-free';
+import { safetyThresholdMeters } from "../utils/Constants";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
@@ -127,7 +128,6 @@ export const useDrawHandler = ({
 
     const line = turf.lineString(lineLatLngs.map(point => [point.lng, point.lat]));
 
-    console.log("Selected parcel coords: ", selectedParcel);
     const polygonCoords = selectedParcel.map(point => [point.lng, point.lat]);
     const polygon = turf.polygon([polygonCoords]);
     const polygonBoundary = turf.lineString(polygonCoords);
@@ -142,22 +142,43 @@ export const useDrawHandler = ({
       return {polylineLayer, formattedPoints};
     }
 
-    const clippedPoints = lineLatLngs.map((point) => {
+    const point1 = turf.point(line.geometry.coordinates[0]);
+    const point2 = turf.point(line.geometry.coordinates[1]);
+    const bearing = turf.bearing(point1, point2);
+
+    const intersections = turf.lineIntersect(line, polygonBoundary);
+    
+    const pushedPoints = intersections.features.map(intersection => {
+      let pushedPoint = turf.destination(intersection, safetyThresholdMeters, bearing, {
+      units: "meters"
+      });
+
+      if (!turf.booleanPointInPolygon(pushedPoint, polygon)) {
+        pushedPoint = turf.destination(intersection, -safetyThresholdMeters, bearing, {
+          units: "meters"
+        });
+      }
+
+      const [lng, lat] = pushedPoint.geometry.coordinates;
+      return new L.LatLng(lat, lng);
+    });
+
+    if (pushedPoints.length === 2) {
+      polylineLayer.setLatLngs(pushedPoints);
+      const formattedPoints = pushedPoints.map(p => ({ lat: p.lat, lng: p.lng }));
+      return { polylineLayer, formattedPoints };
+    }
+
+      const formattedPoints = lineLatLngs.map((point) => {
       const turfPoint = turf.point([point.lng, point.lat]);
 
       const inside = turf.booleanPointInPolygon(turfPoint, polygon);
       if (inside) return point;
 
-      const snappedPoint = turf.nearestPointOnLine(polygonBoundary, turfPoint);
-      const [lat, lng] = snappedPoint.geometry.coordinates;
-      return new L.LatLng(lat, lng);
-
+      return pushedPoints[0];
     });
-  
 
-    polylineLayer.setLatLngs(clippedPoints);
-    const formattedPoints = clippedPoints as LatLngObject[];
-
+    polylineLayer.setLatLngs(formattedPoints);
     return {polylineLayer, formattedPoints};
   }
 
