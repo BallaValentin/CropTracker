@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useDrawHandler } from "../hooks/UseDrawHandler";
+import Flatbush from "flatbush";
 import type { LatLngObject } from "../interfaces/LatLngObject";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import "@geoman-io/leaflet-geoman-free";
@@ -7,7 +8,6 @@ import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { useZoom } from "../hooks/UseMapZoom";
-import { cropWidthCm } from "../utils/Constants";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
@@ -84,31 +84,40 @@ function FieldParcelDrawControl({
   });
 
   const highZoomGroupRef = useRef(L.layerGroup());
+  const spacialIndexRef = useRef<Flatbush | null>(null);
+  const cropsRef = useRef<LatLngObject[]>([]);
 
   useEffect(() => {
     const layerGroup = highZoomGroupRef.current;
     layerGroup.clearLayers();
 
-    crops.map(
-      (crop) => {
-        L.circleMarker(crop, {
-          radius: cropWidthCm / 200,
-          color: "green",
-        }).addTo(layerGroup);
-      },
-      [crops],
-    );
+    if (crops.length === 0) return;
+
+    const index = new Flatbush(crops.length);
+
+    crops.forEach((crop) => {
+      index.add(crop.lng, crop.lat, crop.lng, crop.lat);
+    });
+
+    index.finish();
+    console.log("Index length: ", index);
+
+    cropsRef.current = crops;
+    spacialIndexRef.current = index;
   });
 
-  const { _onZoom } = useZoom({
-    lowZoomGroup: lowZoomGroupRef.current,
-    mediumZoomGroup: midZoomGroupRef.current,
-    highZoomGroup: highZoomGroupRef.current,
+  const { _onZoom, _onMapViewChange } = useZoom({
+    lowZoomGroupRef: lowZoomGroupRef,
+    mediumZoomGroupRef: midZoomGroupRef,
+    highZoomGroupRef: highZoomGroupRef,
+    indexRef: spacialIndexRef,
+    cropsRef: cropsRef,
   });
 
   useEffect(() => {
     if (!map) return;
-
+    map.on("moveend", _onMapViewChange);
+    map.on("resize", _onMapViewChange);
     map.on("pm:drawstart", _onDrawStart);
     map.on("pm:create", _onCreated);
     map.on("zoomend", _onZoom);
@@ -155,6 +164,8 @@ function FieldParcelDrawControl({
     map.pm.disableDraw("Polygon");
 
     return () => {
+      map.off("moveend", _onMapViewChange);
+      map.off("resize", _onMapViewChange);
       map.off("zoomend", _onZoom);
       map.off("pm:create", _onCreated);
       map.off("pm:drawstart", _onDrawStart);
@@ -167,6 +178,7 @@ function FieldParcelDrawControl({
     _onDeleted,
     _onUpdated,
     _onDrawStart,
+    _onMapViewChange,
     allowCreate,
     allowDelete,
     map,
