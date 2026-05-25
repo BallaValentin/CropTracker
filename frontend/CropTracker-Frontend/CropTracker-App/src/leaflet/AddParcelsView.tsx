@@ -12,6 +12,7 @@ import {
   getGeneratedRectabgles,
   getGeneratedRows,
 } from "../utils/GenerateShapesUtil";
+import type { LayoutParameters } from "../interfaces/LayoutParameters";
 
 interface AddParcelViewProps {
   polygonPoints: LatLngObject[];
@@ -23,15 +24,11 @@ interface AddParcelViewProps {
   onParcelAdded: (latLngs: LatLngObject[]) => void;
   onParcelUpdated: (latLngs: LatLngObject[]) => void;
   onParcelDeleted: () => void;
+  onReferenceRowAdded: (referenceRow: LatLngObject[]) => void;
   fieldParcels: GetFieldParcelDTO[];
   allowCreate: boolean;
   allowDelete: boolean;
-  bedSpacing: number;
-  rowWidth: number;
-  rowSpacing: number;
-  cropSpacing: number;
-  rowMargin: number;
-  numberOfRows: number;
+  layoutParameters: LayoutParameters;
 }
 
 function AddParcelView({
@@ -43,45 +40,63 @@ function AddParcelView({
   onParcelAdded,
   onParcelUpdated,
   onParcelDeleted,
+  onReferenceRowAdded,
   parcelPolygonPoints,
   fieldParcels,
   allowCreate,
   allowDelete,
-  bedSpacing,
-  rowWidth,
-  rowSpacing,
-  cropSpacing,
-  rowMargin,
-  numberOfRows,
+  layoutParameters,
 }: AddParcelViewProps) {
   const [parcelCreated, setParcelCreated] = useState<boolean>(
     parcelPolygonPoints.length != 0,
   );
-  const [referenceRow, setReferenceRow] = useState<LatLngObject[]>([]);
+
   const [rows, setRows] = useState<LatLngObject[][]>([]);
   const [rowRectangles, setRowRectangles] = useState<LatLngObject[][]>([]);
   const [cropCoords, setCropCoords] = useState<LatLngObject[]>([]);
 
   useEffect(() => {
     setRows(
-      getGeneratedRows(
-        parcelPolygonPoints,
-        referenceRow,
-        numberOfRows,
-        bedSpacing + rowWidth / 2,
-      ) || [],
+      getGeneratedRows({
+        polygonCoords: parcelPolygonPoints,
+        referenceRow: layoutParameters.referenceRow,
+        numberOfRows: layoutParameters.numberOfRows,
+        rowDistance:
+          layoutParameters.bedSpacing + layoutParameters.rowWidth / 2,
+      }) || [],
     );
-  }, [referenceRow, parcelPolygonPoints, bedSpacing, rowWidth, numberOfRows]);
+  }, [
+    layoutParameters.bedSpacing,
+    layoutParameters.numberOfRows,
+    layoutParameters.referenceRow,
+    layoutParameters.rowWidth,
+    parcelPolygonPoints,
+  ]);
 
   useEffect(() => {
-    setRowRectangles(getGeneratedRectabgles(rows, rowWidth));
-  }, [rows, rowWidth]);
+    setRowRectangles(
+      getGeneratedRectabgles({ rows, rowWidth: layoutParameters.rowWidth }) ||
+        [],
+    );
+  }, [layoutParameters.rowWidth, rows]);
 
   useEffect(() => {
     setCropCoords(
-      getGeneratedCrops(rows, rowWidth, rowMargin, rowSpacing, cropSpacing),
+      getGeneratedCrops({
+        rows,
+        rowWidth: layoutParameters.rowWidth,
+        rowMargin: layoutParameters.marginSpacing,
+        rowSpacing: layoutParameters.rowSpacing,
+        cropSpacing: layoutParameters.plantSpacing,
+      }) || [],
     );
-  }, [cropSpacing, rowMargin, rowSpacing, rowWidth, rows]);
+  }, [
+    layoutParameters.marginSpacing,
+    layoutParameters.plantSpacing,
+    layoutParameters.rowSpacing,
+    layoutParameters.rowWidth,
+    rows,
+  ]);
 
   const onPolygonCreated = (latLngs: LatLngObject[]) => {
     setParcelCreated(true);
@@ -95,11 +110,6 @@ function AddParcelView({
   const onPolygonDeleted = () => {
     setParcelCreated(false);
     onParcelDeleted();
-  };
-
-  const handleReferenceRowAdded = (refRow: LatLngObject[]) => {
-    console.log("Reference row added or modified");
-    setReferenceRow(refRow);
   };
 
   const parentPolygonRef = useRef<L.Polygon | null>(null);
@@ -136,10 +146,9 @@ function AddParcelView({
             parentPolygon={polygonPoints}
             allowCreate={allowCreate}
             allowDelete={allowDelete}
-            onReferenceRowAdded={handleReferenceRowAdded}
-            onReferenceRowUpdated={handleReferenceRowAdded}
+            onReferenceRowAdded={onReferenceRowAdded}
             selectedParcel={parcelPolygonPoints}
-            referenceRow={referenceRow}
+            referenceRow={layoutParameters.referenceRow}
             rows={rows}
             rowRectangles={rowRectangles}
             crops={cropCoords}
@@ -173,14 +182,16 @@ function AddParcelView({
             />
           )}
 
-          {parcelCreated && referenceRow && rows.length === 0 && (
-            <Polyline
-              positions={referenceRow}
-              pathOptions={{ color: "blue" }}
-              // @ts-ignore
-              id={referenceLineId}
-            />
-          )}
+          {parcelCreated &&
+            layoutParameters.referenceRow &&
+            rows.length === 0 && (
+              <Polyline
+                positions={layoutParameters.referenceRow}
+                pathOptions={{ color: "blue" }}
+                // @ts-ignore
+                id={referenceLineId}
+              />
+            )}
 
           {fieldParcels.map((parcel) => (
             <Polygon

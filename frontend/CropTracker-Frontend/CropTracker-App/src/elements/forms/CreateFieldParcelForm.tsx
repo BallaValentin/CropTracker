@@ -46,6 +46,7 @@ function CreateFieldParcelForm({
     polygonColor: "#ff0000",
     layoutType: "",
     layoutParameters: {
+      referenceRow: [],
       bedSpacing: 10,
       plantSpacing: 30,
       rowSpacing: 0,
@@ -140,6 +141,16 @@ function CreateFieldParcelForm({
     });
   };
 
+  const handleReferenceRowAdded = (referenceRow: LatLngObject[]) => {
+    setNewFieldParcel((prev) => ({
+      ...prev,
+      layoutParameters: {
+        ...prev.layoutParameters,
+        referenceRow: referenceRow,
+      },
+    }));
+  };
+
   return (
     <Box>
       <Paper
@@ -176,12 +187,8 @@ function CreateFieldParcelForm({
               fieldParcels={fieldParcels}
               allowCreate={true}
               allowDelete={true}
-              bedSpacing={newFieldParcel.layoutParameters.bedSpacing}
-              rowWidth={newFieldParcel.layoutParameters.rowWidth}
-              numberOfRows={newFieldParcel.layoutParameters.numberOfRows}
-              rowSpacing={newFieldParcel.layoutParameters.rowSpacing}
-              cropSpacing={newFieldParcel.layoutParameters.plantSpacing}
-              rowMargin={newFieldParcel.layoutParameters.marginSpacing}
+              layoutParameters={newFieldParcel.layoutParameters}
+              onReferenceRowAdded={handleReferenceRowAdded}
             />
           </Box>
           <Box sx={{ flex: 1, p: 2, height: 700 }}>

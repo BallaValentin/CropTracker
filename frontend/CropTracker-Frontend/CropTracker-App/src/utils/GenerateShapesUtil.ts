@@ -127,7 +127,15 @@ const getGeneratedCropsForRow = (row: LatLngObject[], rowWidth: number, rowMargi
     return lineCrops;
 }
 
-export const getGeneratedCrops = (rows: LatLngObject[][], rowWidth: number, rowMargin: number, rowSpacing: number, cropSpacing: number) => {
+export interface GetGeneratedCropsParams {
+    rows: LatLngObject[][];
+    rowWidth: number;
+    rowSpacing: number;
+    rowMargin: number;
+    cropSpacing: number;
+}
+
+export const getGeneratedCrops = ({rows, rowWidth, rowMargin, rowSpacing, cropSpacing}: GetGeneratedCropsParams) => {
     if (rows.length === 0 || rowWidth === 0 || cropSpacing === 0) return [];
 
      if ((rowWidth / 2 - rowMargin - cropWidthCm / 2) !== 0 && rowSpacing === 0) return [];
@@ -141,17 +149,29 @@ export const getGeneratedCrops = (rows: LatLngObject[][], rowWidth: number, rowM
     return cropFlat;
 }
 
-export const getGeneratedRectabgles = (rows: LatLngObject[][], rowWidth: number) => {
+export interface GenerateRectanglesParams {
+    rows: LatLngObject[][];
+    rowWidth: number;
+}
+
+export const getGeneratedRectabgles = ({rows, rowWidth}: GenerateRectanglesParams) => {
     return rows.map(row => lineToRectangle(row, rowWidth));
 }
 
-export const getGeneratedRows = (polygonCoords: LatLngObject[], 
-    referenceRow: LatLngObject[], numberOfRows: number, rowDistance: number) => {
-    const generatedLines = [] as LatLngObject[][];
+export interface GenerateShapesParams {
+    polygonCoords: LatLngObject[];
+    referenceRow: LatLngObject[];
+    numberOfRows: number;
+    rowDistance: number;
+}
 
-    if (numberOfRows === 0 || rowDistance === 0 || !referenceRow || !polygonCoords) {
-        return generatedLines;
+export const getGeneratedRows = ({polygonCoords, referenceRow, numberOfRows, rowDistance}: GenerateShapesParams) => {
+
+    if (numberOfRows === 0 || rowDistance === 0 || !referenceRow || referenceRow.length < 2 || !polygonCoords) {
+        return [];
     }
+
+    const generatedLines: LatLngObject[][] = [];
 
     const polygon = turf.polygon([polygonCoords.map(point => [point.lng, point.lat])]);
     
@@ -164,7 +184,7 @@ export const getGeneratedRows = (polygonCoords: LatLngObject[],
         units: "meters"
     });
 
-    if (!safePolygon) return;
+    if (!safePolygon) return [];
 
     const safePolygonBoundaries = turf.polygonToLine(safePolygon) as Feature<LineString>;
     const massiveRefLine = extendLine(refLine, 10);

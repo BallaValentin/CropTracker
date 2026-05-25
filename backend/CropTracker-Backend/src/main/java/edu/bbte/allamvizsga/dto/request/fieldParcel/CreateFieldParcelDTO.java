@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.util.Collection;
+import java.util.Map;
 
 @Data
 public class CreateFieldParcelDTO {
@@ -23,4 +24,9 @@ public class CreateFieldParcelDTO {
     private String cropCultivarId;
     @NotNull(message = "Area cannot be null")
     private Double area;
+    @NotNull(message = "Layout type cannot be null")
+    @NotBlank(message = "Layout type cannot be blank")
+    private String layoutType;
+    @NotNull(message = "Layout parameters cannot be null")
+    private Map<String, Object> layoutParameters;
 }

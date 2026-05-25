@@ -14,7 +14,6 @@ interface DrawingToolsProps {
   onPolygonUpdated: (polygon: LatLngObject[]) => void;
   onPolygonDeleted: () => void;
   onReferenceRowAdded: (row: LatLngObject[]) => void;
-  onReferenceRowUpdated: (row: LatLngObject[]) => void;
   polygonColor: string;
   fieldParcels: GetFieldParcelDTO[];
   parentPolygon: LatLngObject[];
@@ -32,7 +31,6 @@ function FieldParcelDrawControl({
   onPolygonDeleted,
   onPolygonUpdated,
   onReferenceRowAdded,
-  onReferenceRowUpdated,
   polygonColor,
   fieldParcels,
   parentPolygon,
@@ -51,7 +49,6 @@ function FieldParcelDrawControl({
     onPolygonDeleted,
     onPolygonUpdated,
     onReferenceRowAdded,
-    onReferenceRowUpdated,
     fieldParcels: fieldParcels,
     parentPolygon: parentPolygon,
     referenceRow: referenceRow,

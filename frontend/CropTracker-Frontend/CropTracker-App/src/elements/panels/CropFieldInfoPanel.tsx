@@ -12,13 +12,19 @@ import {
 } from "@mui/material";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
-import MapPreview from "../../leaflet/MapPreview";
 import AddIcon from "@mui/icons-material/Add";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import DeleteIcon from "@mui/icons-material/Delete";
 import UpdateIcon from "@mui/icons-material/Update";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DeleteFieldParcelDialog from "../dialogs/DeleteFieldParcelDialog";
+import FieldDetailMapPreview from "../../leaflet/FieldDetailMapPreview";
+import type { LatLngObject } from "../../interfaces/LatLngObject";
+import {
+  getGeneratedCrops,
+  getGeneratedRectabgles,
+  getGeneratedRows,
+} from "../../utils/GenerateShapesUtil";
 
 interface CropFieldInfoPanelProps {
   isLoading: boolean;
@@ -37,6 +43,48 @@ function CropFieldInfoPanel({
   onUpdateParcelClick,
   onConfirmDelete,
 }: CropFieldInfoPanelProps) {
+  const [rows, setRows] = useState<LatLngObject[][][]>([]);
+  const [rowRectangles, setRowRectangles] = useState<LatLngObject[][]>([]);
+  const [cropCoords, setCropCoords] = useState<LatLngObject[]>([]);
+
+  useEffect(() => {
+    const currentRows =
+      fieldParcels.map((parcel) => {
+        return getGeneratedRows({
+          polygonCoords: parcel.polygonPoints,
+          referenceRow: parcel.layoutParameters.referenceRow,
+          numberOfRows: parcel.layoutParameters.numberOfRows,
+          rowDistance:
+            parcel.layoutParameters.bedSpacing +
+            parcel.layoutParameters.rowWidth / 2,
+        });
+      }) || [];
+    setRows(currentRows);
+  }, [fieldParcels]);
+
+  useEffect(() => {
+    const currentCropRectangles = fieldParcels.flatMap((parcel, index) => {
+      return getGeneratedRectabgles({
+        rows: rows[index] || [],
+        rowWidth: parcel.layoutParameters.rowWidth,
+      });
+    });
+    setRowRectangles(currentCropRectangles);
+  }, [fieldParcels, rows]);
+
+  useEffect(() => {
+    const currentCropCoords = fieldParcels.flatMap((parcel, index) => {
+      return getGeneratedCrops({
+        rows: rows[index] || [],
+        rowWidth: parcel.layoutParameters.rowWidth,
+        rowMargin: parcel.layoutParameters.marginSpacing,
+        rowSpacing: parcel.layoutParameters.rowSpacing,
+        cropSpacing: parcel.layoutParameters.plantSpacing,
+      });
+    });
+    setCropCoords(currentCropCoords);
+  }, [fieldParcels, rows]);
+
   const AddParcelButton = () => {
     return (
       <IconButton onClick={onAddParcelClick} size="small" color="success">
@@ -105,16 +153,15 @@ function CropFieldInfoPanel({
               boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
             }}
           >
-            <MapPreview
+            <FieldDetailMapPreview
               mapHeight={600}
-              isScrollable={true}
-              isDraggable={true}
-              isZoomable={true}
-              setBounds={false}
               uid={cropFieldDetail.uid}
               markerPosition={cropFieldDetail.markerPosition}
               polygonPoints={cropFieldDetail.polygonPoints}
               fieldParcels={fieldParcels}
+              rows={rows.flat()}
+              rowRectangles={rowRectangles}
+              cropCoords={cropCoords}
             />
           </Paper>
         </Box>

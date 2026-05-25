@@ -21,6 +21,7 @@ export const getFieldParcells = async(cropFieldId: string): Promise<GetFieldParc
             }
         });
 
+        console.log("Received field parcels from server: ", response.data)
         return response.data;
 }
 

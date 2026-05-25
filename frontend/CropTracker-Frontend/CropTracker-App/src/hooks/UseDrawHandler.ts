@@ -11,7 +11,6 @@ interface DrawingToolsProps {
   onPolygonUpdated: (polygon: LatLngObject[]) => void;
   onPolygonDeleted: () => void;
   onReferenceRowAdded: (row: LatLngObject[]) => void;
-  onReferenceRowUpdated: (row: LatLngObject[]) => void;
   fieldParcels: GetFieldParcelDTO[];
   parentPolygon: LatLngObject[];
   selectedParcel: LatLngObject[];
@@ -27,7 +26,6 @@ export const useDrawHandler = ({
   onPolygonUpdated,
   onPolygonDeleted,
   onReferenceRowAdded,
-  onReferenceRowUpdated,
   fieldParcels,
   parentPolygon,
   selectedParcel,
@@ -259,7 +257,7 @@ export const useDrawHandler = ({
           polygonLayer.redraw();
           onPolygonUpdated(overlapCroppedPolygonResult.formattedPoints);
           const clipLineResult = clipLineToParcel(referenceRow) as LatLngObject[];
-          onReferenceRowUpdated(clipLineResult);
+          onReferenceRowAdded(clipLineResult);
 
           map.eachLayer(mapLayer => {
             if (mapLayer instanceof L.Polyline && !(mapLayer instanceof L.Polygon)) {
