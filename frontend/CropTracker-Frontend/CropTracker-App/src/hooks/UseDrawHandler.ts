@@ -4,16 +4,22 @@ import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO
 import * as turf from "@turf/turf";
 import { useMap } from "react-leaflet";
 import '@geoman-io/leaflet-geoman-free';
-import { safetyThresholdMeters } from "../utils/Constants";
+import { referenceLineId, safetyThresholdMeters } from "../utils/Constants";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
   onPolygonUpdated: (polygon: LatLngObject[]) => void;
   onPolygonDeleted: () => void;
   onReferenceRowAdded: (row: LatLngObject[]) => void;
+  onReferenceRowUpdated: (row: LatLngObject[]) => void;
   fieldParcels: GetFieldParcelDTO[];
   parentPolygon: LatLngObject[];
   selectedParcel: LatLngObject[];
+  referenceRow: LatLngObject[];
+}
+
+interface CustomPolylineOptions extends L.PolylineOptions {
+  id?: string | number;
 }
 
 export const useDrawHandler = ({
@@ -21,9 +27,11 @@ export const useDrawHandler = ({
   onPolygonUpdated,
   onPolygonDeleted,
   onReferenceRowAdded,
+  onReferenceRowUpdated,
   fieldParcels,
   parentPolygon,
-  selectedParcel
+  selectedParcel,
+  referenceRow
 }: DrawingToolsProps) => {
   const map = useMap();
 
@@ -118,13 +126,8 @@ export const useDrawHandler = ({
     }
   };
 
-  const clipLineToParcel = (polylineLayer: L.Polyline) => {
+  const clipLineToParcel = (lineLatLngs: LatLngObject[]) => {
     if (!selectedParcel) return null;
-
-    const rawLatLngs = polylineLayer.getLatLngs();
-    const lineLatLngs: L.LatLng[] = Array.isArray(rawLatLngs[0])
-    ? (rawLatLngs as L.LatLng[][]).flat()
-    : (rawLatLngs as L.LatLng[]);
 
     const line = turf.lineString(lineLatLngs.map(point => [point.lng, point.lat]));
 
@@ -139,7 +142,7 @@ export const useDrawHandler = ({
         lat: point[1],
         lng: point[0]
       }));
-      return {polylineLayer, formattedPoints};
+      return formattedPoints;
     }
 
     const point1 = turf.point(line.geometry.coordinates[0]);
@@ -164,9 +167,8 @@ export const useDrawHandler = ({
     });
 
     if (pushedPoints.length === 2) {
-      polylineLayer.setLatLngs(pushedPoints);
       const formattedPoints = pushedPoints.map(p => ({ lat: p.lat, lng: p.lng }));
-      return { polylineLayer, formattedPoints };
+      return formattedPoints;
     }
 
       const formattedPoints = lineLatLngs.map((point) => {
@@ -178,8 +180,7 @@ export const useDrawHandler = ({
       return pushedPoints[0];
     });
 
-    polylineLayer.setLatLngs(formattedPoints);
-    return {polylineLayer, formattedPoints};
+    return formattedPoints;
   }
 
   const _onDrawStart = (e: {workingLayer: L.Layer, shape: string}) => {
@@ -230,14 +231,14 @@ export const useDrawHandler = ({
     }
 
     else if (shape === "Line") {
-      let polylineLayer = layer as L.Polyline;
+      const polylineLayer = layer as L.Polyline;
+      const lineLatLngs = polylineLayer.getLatLngs();
 
-      const clipLineResult = clipLineToParcel(polylineLayer);
+      const clipLineResult = clipLineToParcel(lineLatLngs as LatLngObject[]);
 
       if (clipLineResult) {
-        polylineLayer = clipLineResult.polylineLayer;
-        const formattedPoints = clipLineResult.formattedPoints;
-        onReferenceRowAdded(formattedPoints);
+        polylineLayer.setLatLngs(clipLineResult);
+        onReferenceRowAdded(clipLineResult);
       }
     }
 
@@ -257,7 +258,30 @@ export const useDrawHandler = ({
           polygonLayer = overlapCroppedPolygonResult.polygonLayer;
           polygonLayer.redraw();
           onPolygonUpdated(overlapCroppedPolygonResult.formattedPoints);
+          const clipLineResult = clipLineToParcel(referenceRow) as LatLngObject[];
+          onReferenceRowUpdated(clipLineResult);
+
+          map.eachLayer(mapLayer => {
+            if (mapLayer instanceof L.Polyline && !(mapLayer instanceof L.Polygon)) {
+              if ((mapLayer.options as CustomPolylineOptions).id === referenceLineId) {
+                mapLayer.setLatLngs(clipLineResult);
+                mapLayer.remove();
+                mapLayer.addTo(map);
+                mapLayer.redraw();
+              }
+            }
+          });
         }
+      }
+    } else if (layer instanceof L.Polyline) {
+      const polylineLayer = layer as L.Polyline;
+      const lineLatLngs = polylineLayer.getLatLngs();
+
+      const clipLineResult = clipLineToParcel(lineLatLngs as LatLngObject[]);
+
+      if (clipLineResult) {
+        polylineLayer.setLatLngs(clipLineResult);
+        onReferenceRowAdded(clipLineResult);
       }
     }
   };

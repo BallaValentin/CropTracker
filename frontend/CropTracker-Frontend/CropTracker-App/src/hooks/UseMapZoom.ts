@@ -70,7 +70,8 @@ export const useZoom = ({lowZoomGroupRef, mediumZoomGroupRef, highZoomGroupRef, 
 
                 L.circleMarker(crop, {
                     color: "green",
-                    radius: cropWidthCm / 200
+                    radius: cropWidthCm / 200,
+                    pmIgnore: true
                 }).addTo(highZoomGroup);
             }
         }

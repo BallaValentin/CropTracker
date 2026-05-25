@@ -14,6 +14,7 @@ interface DrawingToolsProps {
   onPolygonUpdated: (polygon: LatLngObject[]) => void;
   onPolygonDeleted: () => void;
   onReferenceRowAdded: (row: LatLngObject[]) => void;
+  onReferenceRowUpdated: (row: LatLngObject[]) => void;
   polygonColor: string;
   fieldParcels: GetFieldParcelDTO[];
   parentPolygon: LatLngObject[];
@@ -21,6 +22,7 @@ interface DrawingToolsProps {
   rows: LatLngObject[][];
   rowRectangles: LatLngObject[][];
   crops: LatLngObject[];
+  referenceRow: LatLngObject[];
   allowCreate: boolean;
   allowDelete: boolean;
 }
@@ -30,9 +32,11 @@ function FieldParcelDrawControl({
   onPolygonDeleted,
   onPolygonUpdated,
   onReferenceRowAdded,
+  onReferenceRowUpdated,
   polygonColor,
   fieldParcels,
   parentPolygon,
+  referenceRow,
   rows,
   rowRectangles,
   crops,
@@ -47,8 +51,10 @@ function FieldParcelDrawControl({
     onPolygonDeleted,
     onPolygonUpdated,
     onReferenceRowAdded,
+    onReferenceRowUpdated,
     fieldParcels: fieldParcels,
     parentPolygon: parentPolygon,
+    referenceRow: referenceRow,
     selectedParcel,
   });
 
@@ -61,6 +67,7 @@ function FieldParcelDrawControl({
     rows.forEach((row) => {
       L.polyline(row, {
         color: "black",
+        pmIgnore: true,
       }).addTo(layerGroup);
     });
   }, [rows]);
@@ -77,6 +84,7 @@ function FieldParcelDrawControl({
           color: "black",
           fillColor: "black",
           fillOpacity: 0.8,
+          pmIgnore: true,
         }).addTo(layerGroup);
       },
       [rowRectangles],
