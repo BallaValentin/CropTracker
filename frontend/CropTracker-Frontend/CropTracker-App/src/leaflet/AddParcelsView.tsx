@@ -188,14 +188,15 @@ function AddParcelView({
             <Polyline
               ref={lineRef}
               positions={layoutParameters.referenceRow}
-              pathOptions={{ color: "blue" }}
-              opacity={
-                parcelCreated &&
-                layoutParameters.referenceRow &&
-                rows.length === 0
-                  ? 1
-                  : 0
-              }
+              pathOptions={{
+                color: "blue",
+                opacity:
+                  parcelCreated &&
+                  layoutParameters.referenceRow &&
+                  rows.length === 0
+                    ? 1
+                    : 0,
+              }}
             />
           )}
 
