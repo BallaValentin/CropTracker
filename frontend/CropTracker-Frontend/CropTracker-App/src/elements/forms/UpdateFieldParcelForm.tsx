@@ -2,9 +2,14 @@ import {
   Autocomplete,
   Box,
   Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   TextField,
   Typography,
+  type SelectChangeEvent,
 } from "@mui/material";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import { useCropSearch } from "../../hooks/UseCropSearch";
@@ -15,6 +20,8 @@ import type { LatLngObject } from "../../interfaces/LatLngObject";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import type { UpdateFieldParcelDTO } from "../../interfaces/request/UpdateFieldParcelDTO";
+import { LayoutTypes } from "../../utils/LayoutTypes";
+import { calculateRowWidth } from "../../utils/CalculateRowWidth";
 
 interface UpdateFieldParcelFormProps {
   onSubmit: (
@@ -42,6 +49,8 @@ function UpdateFieldParcelForm({
       area: fieldParcelToUpdate.area,
       polygonPoints: fieldParcelToUpdate.polygonPoints,
       polygonColor: fieldParcelToUpdate.polygonColor,
+      layoutType: fieldParcelToUpdate.layoutType,
+      layoutParameters: fieldParcelToUpdate.layoutParameters,
     });
 
   const { data: crops } = useCropSearch(searchTerm);
@@ -69,6 +78,9 @@ function UpdateFieldParcelForm({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleFieldParcelPolygonCreated = (_latLngs: LatLngObject[]) => {};
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleFieldParcelPolygonDeleted = () => {};
+
   const handleFieldParcelPolygonUpdated = (latLngs: LatLngObject[]) => {
     setFieldParcelUpdate((prev) => ({
       ...prev,
@@ -77,7 +89,55 @@ function UpdateFieldParcelForm({
     }));
   };
 
-  const handleFieldParcelPolygonDeleted = () => {};
+  const handleLayoutChange = (event: SelectChangeEvent) => {
+    setFieldParcelUpdate((prev) => {
+      const layoutParams = prev.layoutParameters;
+      const newLayoutType = event.target.value;
+
+      const newRowWidth = calculateRowWidth(layoutParams, newLayoutType);
+      console.log("New row width cm: ", newRowWidth);
+      return {
+        ...prev,
+        layoutType: newLayoutType,
+        layoutParameters: {
+          ...layoutParams,
+          rowWidth: newRowWidth,
+        },
+      };
+    });
+  };
+
+  const handleLayoutParamsChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const { name, value } = event.target;
+    const numericValue = Number.parseInt(value) || 0;
+
+    setFieldParcelUpdate((prev) => {
+      const layoutType = prev.layoutType;
+      const nextParams = { ...prev.layoutParameters, [name]: numericValue };
+      const newRowWidth = calculateRowWidth(nextParams, layoutType);
+      console.log("New row width cm: ", newRowWidth);
+
+      return {
+        ...prev,
+        layoutParameters: {
+          ...nextParams,
+          rowWidth: newRowWidth,
+        },
+      };
+    });
+  };
+
+  const handleReferenceRowAdded = (referenceRow: LatLngObject[]) => {
+    setFieldParcelUpdate((prev) => ({
+      ...prev,
+      layoutParameters: {
+        ...prev.layoutParameters,
+        referenceRow: referenceRow,
+      },
+    }));
+  };
 
   return (
     <Box>
@@ -86,7 +146,7 @@ function UpdateFieldParcelForm({
         sx={{
           mb: 2,
           mt: 2,
-          height: 600,
+          height: 800,
           width: "100%",
           border: "1px solid",
           borderColor: "divider",
@@ -106,7 +166,7 @@ function UpdateFieldParcelForm({
               polygonPoints={cropfield.polygonPoints}
               markerPosition={cropfield.markerPosition}
               uid={cropfield.uid}
-              mapHeight={500}
+              mapHeight={700}
               parcelPolygonPoints={fieldParcelUpdate.polygonPoints}
               polygonColor={fieldParcelUpdate.polygonColor}
               onParcelAdded={handleFieldParcelPolygonCreated}
@@ -115,12 +175,19 @@ function UpdateFieldParcelForm({
               fieldParcels={fieldParcels}
               allowCreate={false}
               allowDelete={false}
-              rowDistance={0}
-              numberOfRows={0}
+              onReferenceRowAdded={handleReferenceRowAdded}
+              layoutParameters={fieldParcelUpdate.layoutParameters}
             />
           </Box>
           <Box sx={{ flex: 1, p: 2 }}>
-            <form onSubmit={handleSubmit}>
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               <Autocomplete
                 options={cropsList}
                 getOptionLabel={(option) =>
@@ -148,15 +215,92 @@ function UpdateFieldParcelForm({
                 color={fieldParcelUpdate.polygonColor}
                 onChangeComplete={(color) => changeOverlayColor(color)}
               />
-              <Button
-                type="submit"
-                disabled={isPending}
-                variant="contained"
+
+              <FormControl sx={{ mt: 2, mb: 2, width: 200 }}>
+                <InputLabel
+                  color="success"
+                  id="layout-type-lavel"
+                  sx={{ mt: 2 }}
+                >
+                  Layout Type
+                </InputLabel>
+                <Select
+                  color="success"
+                  labelId="layout-type-label"
+                  label="Layout type"
+                  value={fieldParcelUpdate.layoutType}
+                  onChange={handleLayoutChange}
+                  sx={{ mt: 2, mb: 2 }}
+                >
+                  <MenuItem value={LayoutTypes.SingleRow}>Single-Row</MenuItem>
+                  <MenuItem value={LayoutTypes.TwinRow}>Twin-Row</MenuItem>
+                </Select>
+              </FormControl>
+
+              <TextField
+                value={fieldParcelUpdate.layoutParameters.numberOfRows}
                 color="success"
-                sx={{ mt: 3 }}
+                name="numberOfRows"
+                type="number"
+                label="Number of Rows"
+                onChange={handleLayoutParamsChange}
+                sx={{ mb: 1 }}
+              />
+
+              <Box sx={{ display: "flex", gap: 1, mt: "auto" }}>
+                <TextField
+                  value={fieldParcelUpdate.layoutParameters.bedSpacing}
+                  color="success"
+                  name="bedSpacing"
+                  type="number"
+                  label="Bed Spacing(cm)"
+                  onChange={handleLayoutParamsChange}
+                />
+                {fieldParcelUpdate.layoutType === LayoutTypes.TwinRow && (
+                  <TextField
+                    value={fieldParcelUpdate.layoutParameters.rowSpacing}
+                    color="success"
+                    name="rowSpacing"
+                    type="number"
+                    label="Rows Distance(cm)"
+                    onChange={handleLayoutParamsChange}
+                  />
+                )}
+                <TextField
+                  value={fieldParcelUpdate.layoutParameters.plantSpacing}
+                  color="success"
+                  name="plantSpacing"
+                  type="number"
+                  label="Crop Spacing(cm)"
+                  onChange={handleLayoutParamsChange}
+                />
+                <TextField
+                  value={fieldParcelUpdate.layoutParameters.marginSpacing}
+                  color="success"
+                  name="marginSpacing"
+                  type="number"
+                  label="Row Margins(cm)"
+                  onChange={handleLayoutParamsChange}
+                />
+              </Box>
+
+              <Box
+                sx={{
+                  mt: "auto",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
               >
-                {isPending ? "Updating..." : "Update Field Parcel"}
-              </Button>
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                  variant="contained"
+                  color="success"
+                  sx={{ mt: 3 }}
+                >
+                  {isPending ? "Updating..." : "Update Field Parcel"}
+                </Button>
+              </Box>
             </form>
           </Box>
         </Box>

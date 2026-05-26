@@ -135,16 +135,17 @@ export const useDrawHandler = ({
 
     const inside = turf.booleanWithin(line, polygon);
 
+     const point1 = turf.point(line.geometry.coordinates[0]);
+    const point2 = turf.point(line.geometry.coordinates[line.geometry.coordinates.length - 1]);
+
     if (inside) {
-      const formattedPoints = line.geometry.coordinates.map((point) => ({
-        lat: point[1],
-        lng: point[0]
+      const formattedPoints = [point1, point2].map(point => ({
+        lat: point.geometry.coordinates[1],
+        lng: point.geometry.coordinates[0]
       }));
       return formattedPoints;
     }
 
-    const point1 = turf.point(line.geometry.coordinates[0]);
-    const point2 = turf.point(line.geometry.coordinates[1]);
     const bearing = turf.bearing(point1, point2);
 
     const intersections = turf.lineIntersect(line, polygonBoundary);
@@ -236,6 +237,9 @@ export const useDrawHandler = ({
 
       if (clipLineResult) {
         polylineLayer.setLatLngs(clipLineResult);
+        polylineLayer.remove();
+        polylineLayer.addTo(map);
+        polylineLayer.redraw();
         onReferenceRowAdded(clipLineResult);
       }
     }
@@ -275,10 +279,15 @@ export const useDrawHandler = ({
       const polylineLayer = layer as L.Polyline;
       const lineLatLngs = polylineLayer.getLatLngs();
 
+      console.log("Before: ", lineLatLngs);
       const clipLineResult = clipLineToParcel(lineLatLngs as LatLngObject[]);
+      console.log("After: ", clipLineResult);
 
       if (clipLineResult) {
         polylineLayer.setLatLngs(clipLineResult);
+        polylineLayer.remove();
+        polylineLayer.addTo(map);
+        polylineLayer.redraw();
         onReferenceRowAdded(clipLineResult);
       }
     }

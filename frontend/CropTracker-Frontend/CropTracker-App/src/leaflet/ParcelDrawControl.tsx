@@ -96,7 +96,11 @@ function FieldParcelDrawControl({
     const layerGroup = highZoomGroupRef.current;
     layerGroup.clearLayers();
 
-    if (crops.length === 0) return;
+    if (crops.length === 0) {
+      cropsRef.current = crops;
+      spacialIndexRef.current = null;
+      return;
+    }
 
     const index = new Flatbush(crops.length);
 

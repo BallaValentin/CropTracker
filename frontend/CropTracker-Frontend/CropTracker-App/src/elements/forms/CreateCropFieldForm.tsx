@@ -157,7 +157,6 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
                 createCropFieldData.markerPosition || defaultMapPosition,
               polygonPoints: createCropFieldData.polygonPoints,
               area: createCropFieldData.area,
-              fieldParcels: [],
             }}
             markerAdded={markerAdded}
             onMarkerCreated={handleMarkerCreated}
