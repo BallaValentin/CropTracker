@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { LayersControl, MapContainer, Polygon, Polyline } from "react-leaflet";
 import type { LatLngObject } from "../interfaces/LatLngObject";
-import { defaultMapPosition, referenceLineId } from "../utils/Constants";
+import { defaultMapPosition } from "../utils/Constants";
 import CustomLayers from "./CustomLayers";
 import { useEffect, useRef, useState } from "react";
 import FieldParcelDrawControl from "./ParcelDrawControl";
@@ -113,6 +113,7 @@ function AddParcelView({
   };
 
   const parentPolygonRef = useRef<L.Polygon | null>(null);
+  const lineRef = useRef<L.Polyline | null>(null);
 
   return (
     <>
@@ -148,6 +149,7 @@ function AddParcelView({
             allowDelete={allowDelete}
             onReferenceRowAdded={onReferenceRowAdded}
             selectedParcel={parcelPolygonPoints}
+            lineRef={lineRef}
             referenceRow={layoutParameters.referenceRow}
             rows={rows}
             rowRectangles={rowRectangles}
@@ -182,16 +184,20 @@ function AddParcelView({
             />
           )}
 
-          {parcelCreated &&
-            layoutParameters.referenceRow &&
-            rows.length === 0 && (
-              <Polyline
-                positions={layoutParameters.referenceRow}
-                pathOptions={{ color: "blue" }}
-                // @ts-ignore
-                id={referenceLineId}
-              />
-            )}
+          {parcelCreated && layoutParameters.referenceRow && (
+            <Polyline
+              ref={lineRef}
+              positions={layoutParameters.referenceRow}
+              pathOptions={{ color: "blue" }}
+              opacity={
+                parcelCreated &&
+                layoutParameters.referenceRow &&
+                rows.length === 0
+                  ? 1
+                  : 0
+              }
+            />
+          )}
 
           {fieldParcels.map((parcel) => (
             <Polygon

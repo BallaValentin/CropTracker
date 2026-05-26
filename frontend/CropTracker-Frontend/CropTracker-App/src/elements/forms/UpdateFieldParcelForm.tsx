@@ -78,7 +78,6 @@ function UpdateFieldParcelForm({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleFieldParcelPolygonCreated = (_latLngs: LatLngObject[]) => {};
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleFieldParcelPolygonDeleted = () => {};
 
   const handleFieldParcelPolygonUpdated = (latLngs: LatLngObject[]) => {

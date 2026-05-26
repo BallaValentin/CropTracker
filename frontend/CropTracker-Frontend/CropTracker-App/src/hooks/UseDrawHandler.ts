@@ -4,7 +4,7 @@ import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO
 import * as turf from "@turf/turf";
 import { useMap } from "react-leaflet";
 import '@geoman-io/leaflet-geoman-free';
-import { referenceLineId, safetyThresholdMeters } from "../utils/Constants";
+import { safetyThresholdMeters } from "../utils/Constants";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
@@ -15,10 +15,7 @@ interface DrawingToolsProps {
   parentPolygon: LatLngObject[];
   selectedParcel: LatLngObject[];
   referenceRow: LatLngObject[];
-}
-
-interface CustomPolylineOptions extends L.PolylineOptions {
-  id?: string | number;
+  lineRef: React.RefObject<L.Polyline | null>
 }
 
 export const useDrawHandler = ({
@@ -29,7 +26,7 @@ export const useDrawHandler = ({
   fieldParcels,
   parentPolygon,
   selectedParcel,
-  referenceRow
+  lineRef
 }: DrawingToolsProps) => {
   const map = useMap();
 
@@ -124,12 +121,10 @@ export const useDrawHandler = ({
     }
   };
 
-  const clipLineToParcel = (lineLatLngs: LatLngObject[]) => {
-    if (!selectedParcel) return null;
-
+  const clipLineToParcel = (lineLatLngs: LatLngObject[], polygonLatLngs: LatLngObject[]) => {
     const line = turf.lineString(lineLatLngs.map(point => [point.lng, point.lat]));
 
-    const polygonCoords = selectedParcel.map(point => [point.lng, point.lat]);
+    const polygonCoords = polygonLatLngs.map(point => [point.lng, point.lat]);
     const polygon = turf.polygon([polygonCoords]);
     const polygonBoundary = turf.lineString(polygonCoords);
 
@@ -231,9 +226,9 @@ export const useDrawHandler = ({
 
     else if (shape === "Line") {
       const polylineLayer = layer as L.Polyline;
-      const lineLatLngs = polylineLayer.getLatLngs();
+      const lineLatLngs = polylineLayer.getLatLngs() as LatLngObject[];
 
-      const clipLineResult = clipLineToParcel(lineLatLngs as LatLngObject[]);
+      const clipLineResult = clipLineToParcel(lineLatLngs, selectedParcel);
 
       if (clipLineResult) {
         polylineLayer.setLatLngs(clipLineResult);
@@ -260,34 +255,32 @@ export const useDrawHandler = ({
           polygonLayer = overlapCroppedPolygonResult.polygonLayer;
           polygonLayer.redraw();
           onPolygonUpdated(overlapCroppedPolygonResult.formattedPoints);
-          const clipLineResult = clipLineToParcel(referenceRow) as LatLngObject[];
-          onReferenceRowAdded(clipLineResult);
 
-          map.eachLayer(mapLayer => {
-            if (mapLayer instanceof L.Polyline && !(mapLayer instanceof L.Polygon)) {
-              if ((mapLayer.options as CustomPolylineOptions).id === referenceLineId) {
-                mapLayer.setLatLngs(clipLineResult);
-                mapLayer.remove();
-                mapLayer.addTo(map);
-                mapLayer.redraw();
-              }
+          if (lineRef.current) {
+            const latLngs = lineRef.current.getLatLngs() as LatLngObject[];
+            const clipLineResult = clipLineToParcel(latLngs, overlapCroppedPolygonResult.formattedPoints);
+            if (clipLineResult) {
+              lineRef.current.setLatLngs(clipLineResult);
+              lineRef.current.remove();
+              lineRef.current.addTo(map);
+              lineRef.current.redraw();
+            onReferenceRowAdded(clipLineResult);
             }
-          });
+          }
         }
       }
     } else if (layer instanceof L.Polyline) {
       const polylineLayer = layer as L.Polyline;
       const lineLatLngs = polylineLayer.getLatLngs();
 
-      console.log("Before: ", lineLatLngs);
-      const clipLineResult = clipLineToParcel(lineLatLngs as LatLngObject[]);
-      console.log("After: ", clipLineResult);
+      const clipLineResult = clipLineToParcel(lineLatLngs as LatLngObject[], selectedParcel);
 
       if (clipLineResult) {
         polylineLayer.setLatLngs(clipLineResult);
         polylineLayer.remove();
         polylineLayer.addTo(map);
         polylineLayer.redraw();
+        lineRef.current?.setLatLngs(clipLineResult);
         onReferenceRowAdded(clipLineResult);
       }
     }

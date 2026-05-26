@@ -22,6 +22,7 @@ interface DrawingToolsProps {
   rowRectangles: LatLngObject[][];
   crops: LatLngObject[];
   referenceRow: LatLngObject[];
+  lineRef: React.RefObject<L.Polyline | null>;
   allowCreate: boolean;
   allowDelete: boolean;
 }
@@ -41,6 +42,7 @@ function FieldParcelDrawControl({
   allowCreate,
   allowDelete,
   selectedParcel,
+  lineRef,
 }: DrawingToolsProps) {
   const map = useMap();
 
@@ -52,6 +54,7 @@ function FieldParcelDrawControl({
     fieldParcels: fieldParcels,
     parentPolygon: parentPolygon,
     referenceRow: referenceRow,
+    lineRef,
     selectedParcel,
   });
 
