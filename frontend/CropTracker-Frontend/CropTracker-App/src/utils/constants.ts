@@ -12,3 +12,14 @@ export const breakPointHigh = 22;
 export const safetyThresholdMeters = 0.1;
 
 export const referenceLineId = "reference-line";
+
+export const WorkTypes = {
+    Tillage: 'Tillage',
+    Sowing: 'Sowing',
+    Fertilization: 'Fertilization',
+    Spraying: 'Spraying',
+    Irrigation: 'Irrigation',
+    Scouting: 'Scouting',
+    Harvesting: 'Harvesting',
+    Maintenance: 'Maintenance'
+} as const;
