@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public class CropFieldService {
         Collection<String> sameNamesList = cropFieldRepository.findAll(
                 Specification.allOf(
                         CropFieldSpecification.byUser(user)
-                        .and(CropFieldSpecification.withNamePattern(originalName))
+                                .and(CropFieldSpecification.withNamePattern(originalName))
                                 .and(CropFieldSpecification.notDeleted())
                 )
         ).stream().map(CropField::getName).toList();
@@ -52,12 +53,13 @@ public class CropFieldService {
 
     public CropField findCropFieldByUser(UUID uid, User user) {
         CropField cropField = cropFieldRepository.findByUid(uid);
+
         if (cropField == null) {
             throw new EntityNotFoundException("Couldn't find plot with id");
         }
 
         if (cropField.getUser() != user ||
-        cropField.getIsDeleted()) {
+                cropField.getIsDeleted()) {
             throw new ForbiddenException("Couldn't access this plot because you are not it's owner");
         }
         return cropField;
@@ -70,8 +72,9 @@ public class CropFieldService {
     public Collection<CropField> getCropFields(User user) {
         return cropFieldRepository.findAll(
                 Specification.allOf(CropFieldSpecification
-                        .byUser(user))
-                        .and(CropFieldSpecification.notDeleted())
+                                .byUser(user))
+                        .and(CropFieldSpecification.notDeleted()),
+                Sort.by(Sort.Direction.DESC, "createdAt")
 
         );
     }

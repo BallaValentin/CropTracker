@@ -4,11 +4,13 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CollectionId;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.locationtech.jts.geom.Polygon;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 
@@ -40,4 +42,8 @@ public class FieldParcel extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "cultivar_id", nullable = false)
     private CropCultivar cropCultivar;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
 }

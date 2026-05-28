@@ -14,6 +14,7 @@ import CreateCropFieldPage from "./pages/CreateCropFieldPage";
 import CropFieldDetailsPage from "./pages/CropFieldDetailsPage";
 import CropFieldListPage from "./pages/CropFieldListPage";
 import CropsListPage from "./pages/CropsListPage";
+import AddFieldWorkPage from "./pages/AddFieldWorkPage";
 
 function App() {
   return (
@@ -43,6 +44,10 @@ function App() {
                 element={<UpdateCropFieldPage />}
               />
               <Route path="/show-crops" element={<CropsListPage />} />
+              <Route
+                path="/add-field-work/:id"
+                element={<AddFieldWorkPage />}
+              />
             </Routes>
           </Router>
         </QueryClientProvider>

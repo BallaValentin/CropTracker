@@ -156,6 +156,10 @@ function PlotDetailsPage() {
     deleteMutate(fieldParcelId);
   };
 
+  const handleAddFieldWorkClick = () => {
+    navigate(`/add-field-work/${id}`);
+  };
+
   return (
     <>
       <Box>
@@ -235,6 +239,11 @@ function PlotDetailsPage() {
           >
             Edit Field
           </Button>
+          <Box sx={{ display: "flex", mr: 3, justifyContent: "flex-end" }}>
+            <Button color="success" onClick={handleAddFieldWorkClick}>
+              Add Field Work
+            </Button>
+          </Box>
         </MainContainer>
       </Box>
     </>

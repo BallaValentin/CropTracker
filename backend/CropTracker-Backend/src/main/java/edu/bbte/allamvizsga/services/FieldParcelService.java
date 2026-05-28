@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -64,7 +65,7 @@ public class FieldParcelService {
         return fieldParcelRepository.findAll(
                 Specification.allOf(
                         FieldParcelSpecification.byCropField(cropField)
-                )
+                ), Sort.by(Sort.Direction.DESC, "createdAt")
         );
     }
 

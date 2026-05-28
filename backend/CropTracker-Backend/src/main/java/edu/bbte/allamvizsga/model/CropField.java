@@ -3,9 +3,11 @@ package edu.bbte.allamvizsga.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.CreationTimestamp;
 import org.locationtech.jts.geom.Polygon;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collection;
 
 @EqualsAndHashCode(callSuper = true)
@@ -38,4 +40,8 @@ public class CropField extends BaseEntity {
 
     @Column(nullable = false)
     private Double area;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
 }
