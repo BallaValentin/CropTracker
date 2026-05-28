@@ -145,7 +145,6 @@ export const getGeneratedCrops = ({rows, rowWidth, rowMargin, rowSpacing, cropSp
     );
 
     const cropFlat = crops.flat(3);
-    console.log("Number of crops: ", cropFlat);
     return cropFlat;
 }
 
@@ -194,7 +193,6 @@ export const getGeneratedRows = ({polygonCoords, referenceRow, numberOfRows, row
 
     const newLine = getSnappedLine(massiveRefLine, safePolygonBoundaries, 0);
     if (newLine) {
-        console.log("Push");
         generatedLines.push(newLine);
     }
 

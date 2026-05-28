@@ -58,6 +58,12 @@ function AddFieldWorkForm({ cropField, fieldParcels }: AddFieldWorkFormProps) {
     }
   };
 
+  const handleRowClick = (rowIndex: number) => {
+    const newAffectedRow = [...affectedRows];
+    newAffectedRow[rowIndex] = !affectedRows[rowIndex];
+    setAffectedRows(newAffectedRow);
+  };
+
   return (
     <Box>
       <Paper
@@ -88,6 +94,7 @@ function AddFieldWorkForm({ cropField, fieldParcels }: AddFieldWorkFormProps) {
               mapHeight={700}
               fieldParcels={fieldParcels}
               affectedRows={affectedRows}
+              onRowClick={handleRowClick}
             />
           </Box>
           <Box sx={{ flex: 1, p: 2 }}>

@@ -20,6 +20,7 @@ interface AddParcelViewProps {
   mapHeight: number;
   fieldParcels: GetFieldParcelDTO[];
   affectedRows: boolean[];
+  onRowClick: (rowIndex: number) => void;
 }
 
 function AddParcelView({
@@ -29,6 +30,7 @@ function AddParcelView({
   polygonPoints,
   fieldParcels,
   affectedRows,
+  onRowClick,
 }: AddParcelViewProps) {
   const parentPolygonRef = useRef<L.Polygon | null>(null);
   const [rows, setRows] = useState<LatLngObject[][][]>([]);
@@ -107,6 +109,7 @@ function AddParcelView({
             rowRectangles={rowRectangles}
             cropCoords={crops}
             affectedRows={affectedRows}
+            onRowClick={onRowClick}
           />
 
           <Polygon

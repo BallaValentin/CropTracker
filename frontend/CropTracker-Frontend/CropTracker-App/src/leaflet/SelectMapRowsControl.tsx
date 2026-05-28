@@ -11,51 +11,103 @@ interface ZoomControlProps {
   rowRectangles: LatLngObject[][];
   cropCoords: LatLngObject[];
   affectedRows: boolean[];
+  onRowClick: (rowIndex: number) => void;
 }
+
+type SelectShapeOptions = L.PolylineOptions & { rowIndex: number };
+type SelectPolygon = L.Polygon & { options: SelectShapeOptions };
+type SelectPolyline = L.Polyline & { options: SelectShapeOptions };
 
 function MapDetailZoomControl({
   rows,
   rowRectangles,
   cropCoords,
   affectedRows,
+  onRowClick,
 }: ZoomControlProps) {
   const map = useMap();
 
   const lowZoomGroupRef = useRef(L.layerGroup());
-  const mediumZoomGroupRef = useRef(L.layerGroup());
+  const mediumZoomGroupRef = useRef(L.featureGroup());
   const highZoomGroupRef = useRef(L.layerGroup());
   const indexRef = useRef<Flatbush | null>(null);
   const cropsRef = useRef<LatLngObject[]>([]);
+  const linesRef = useRef<SelectPolyline[]>([]);
+  const rectanglesRef = useRef<SelectPolygon[]>([]);
 
   useEffect(() => {
-    console.log("Rows updated");
     const layerGroup = lowZoomGroupRef.current;
     layerGroup.clearLayers();
     rows.forEach((row, index) => {
-      const isAffected = affectedRows[index];
+      const line = L.polyline(row, {
+        color: "black",
+        weight: 1,
+        rowIndex: index,
+      } as SelectShapeOptions).addTo(layerGroup);
 
-      L.polyline(row, {
-        color: isAffected ? "blue" : "black",
-        weight: isAffected ? 1.5 : 1,
-      }).addTo(layerGroup);
+      linesRef.current.push(line as SelectPolyline);
     });
-  }, [rows, affectedRows]);
+  }, [rows]);
 
   useEffect(() => {
     const layerGroup = mediumZoomGroupRef.current;
     layerGroup.clearLayers();
 
     rowRectangles.forEach((rectangle, index) => {
-      const isAffected = affectedRows[index];
+      const polygon = L.polygon(rectangle, {
+        color: "black",
+        weight: 1,
+        fillColor: "black",
+        fillOpacity: 0.75,
+        rowIndex: index,
+      } as SelectShapeOptions).addTo(layerGroup);
 
-      L.polygon(rectangle, {
+      rectanglesRef.current.push(polygon as SelectPolygon);
+    });
+
+    layerGroup.off("click");
+
+    layerGroup.on("click", (event: L.LeafletMouseEvent) => {
+      const clickedPolygon = event.layer as SelectPolygon;
+
+      if (
+        clickedPolygon.options &&
+        typeof clickedPolygon.options.rowIndex === "number"
+      ) {
+        const rowIndex = clickedPolygon.options.rowIndex;
+        onRowClick(rowIndex);
+      }
+    });
+
+    return () => {
+      layerGroup.off("click");
+    };
+  }, [rowRectangles, affectedRows, onRowClick]);
+
+  useEffect(() => {
+    const polygons = rectanglesRef.current;
+    const lines = linesRef.current;
+
+    lines.forEach((line) => {
+      const index = line.options.rowIndex;
+      const isAffected = affectedRows[index];
+      line.setStyle({
+        color: isAffected ? "blue" : "black",
+        weight: isAffected ? 1.5 : 1,
+      });
+    });
+
+    polygons.forEach((polygon) => {
+      const index = polygon.options.rowIndex;
+      const isAffected = affectedRows[index];
+      polygon.setStyle({
         color: isAffected ? "#2196f3" : "black",
         weight: isAffected ? 1.5 : 1,
-        fillColor: affectedRows[index] ? "#00b0ff" : "black",
+        fillColor: isAffected ? "#00b0ff" : "black",
         fillOpacity: isAffected ? 0.9 : 0.75,
-      }).addTo(layerGroup);
+      });
     });
-  }, [rowRectangles, affectedRows]);
+  }, [affectedRows]);
 
   useEffect(() => {
     const layerGroup = highZoomGroupRef.current;
