@@ -28,12 +28,14 @@ function MapDetailZoomControl({
   const map = useMap();
 
   const lowZoomGroupRef = useRef(L.layerGroup());
-  const mediumZoomGroupRef = useRef(L.featureGroup());
+  const mediumZoomGroupRef = useRef(L.layerGroup());
+  const mediumZoomSelectRef = useRef(L.featureGroup());
   const highZoomGroupRef = useRef(L.layerGroup());
   const indexRef = useRef<Flatbush | null>(null);
   const cropsRef = useRef<LatLngObject[]>([]);
   const linesRef = useRef<SelectPolyline[]>([]);
   const rectanglesRef = useRef<SelectPolygon[]>([]);
+  const selectRectanglesRef = useRef<SelectPolygon[]>([]);
 
   useEffect(() => {
     const layerGroup = lowZoomGroupRef.current;
@@ -51,6 +53,8 @@ function MapDetailZoomControl({
 
   useEffect(() => {
     const layerGroup = mediumZoomGroupRef.current;
+    const selectLayerGroup = mediumZoomSelectRef.current;
+    selectLayerGroup.clearLayers();
     layerGroup.clearLayers();
 
     rowRectangles.forEach((rectangle, index) => {
@@ -62,12 +66,21 @@ function MapDetailZoomControl({
         rowIndex: index,
       } as SelectShapeOptions).addTo(layerGroup);
 
+      const selectPolygon = L.polygon(rectangle, {
+        color: "#2196f3",
+        weight: 1.5,
+        fillColor: "#00b0ff",
+        fillOpacity: 0,
+        rowIndex: index,
+      } as SelectShapeOptions).addTo(selectLayerGroup);
+
       rectanglesRef.current.push(polygon as SelectPolygon);
+      selectRectanglesRef.current.push(selectPolygon as SelectPolygon);
     });
 
-    layerGroup.off("click");
+    selectLayerGroup.off("click");
 
-    layerGroup.on("click", (event: L.LeafletMouseEvent) => {
+    selectLayerGroup.on("click", (event: L.LeafletMouseEvent) => {
       const clickedPolygon = event.layer as SelectPolygon;
 
       if (
@@ -80,12 +93,12 @@ function MapDetailZoomControl({
     });
 
     return () => {
-      layerGroup.off("click");
+      selectLayerGroup.off("click");
     };
   }, [rowRectangles, affectedRows, onRowClick]);
 
   useEffect(() => {
-    const polygons = rectanglesRef.current;
+    const selectPolygons = selectRectanglesRef.current;
     const lines = linesRef.current;
 
     lines.forEach((line) => {
@@ -97,14 +110,14 @@ function MapDetailZoomControl({
       });
     });
 
-    polygons.forEach((polygon) => {
+    selectPolygons.forEach((polygon) => {
       const index = polygon.options.rowIndex;
       const isAffected = affectedRows[index];
       polygon.setStyle({
-        color: isAffected ? "#2196f3" : "black",
-        weight: isAffected ? 1.5 : 1,
-        fillColor: isAffected ? "#00b0ff" : "black",
-        fillOpacity: isAffected ? 0.9 : 0.75,
+        color: "#00f0ff",
+        weight: isAffected ? 2.5 : 0,
+        fillColor: "#00b0ff",
+        fillOpacity: isAffected ? 0.1 : 0,
       });
     });
   }, [affectedRows]);
@@ -130,6 +143,7 @@ function MapDetailZoomControl({
   const { _onZoom, _onMapViewChange } = useZoom({
     lowZoomGroupRef: lowZoomGroupRef,
     mediumZoomGroupRef: mediumZoomGroupRef,
+    mediumSelectZoomRef: mediumZoomSelectRef,
     highZoomGroupRef: highZoomGroupRef,
     indexRef: indexRef,
     cropsRef: cropsRef,
@@ -137,6 +151,13 @@ function MapDetailZoomControl({
 
   useEffect(() => {
     if (!map) return;
+
+    if (!map.getPane("cropPane")) {
+      map.createPane("cropPane");
+      map.getPane("cropPane")!.style.zIndex = "400";
+
+      L.svg({ pane: "cropPane" }).addTo(map);
+    }
 
     map.on("zoomend", _onZoom);
     map.on("moveend", _onMapViewChange);

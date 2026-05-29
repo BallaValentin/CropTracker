@@ -5,20 +5,25 @@ import type Flatbush from "flatbush";
 import L from "leaflet";
 
 interface ZoomProps {
-    lowZoomGroupRef: React.MutableRefObject<L.LayerGroup>;
-    mediumZoomGroupRef: React.MutableRefObject<L.LayerGroup>;
-    highZoomGroupRef: React.MutableRefObject<L.LayerGroup>;
-    indexRef: React.MutableRefObject<Flatbush | null>;
-    cropsRef: React.MutableRefObject<LatLngObject[]>;
+    lowZoomGroupRef: React.RefObject<L.LayerGroup>;
+    mediumZoomGroupRef: React.RefObject<L.LayerGroup>;
+    mediumSelectZoomRef: React.RefObject<L.LayerGroup> | null;
+    highZoomGroupRef: React.RefObject<L.LayerGroup>;
+    indexRef: React.RefObject<Flatbush | null>;
+    cropsRef: React.RefObject<LatLngObject[]>;
 };
 
-export const useZoom = ({lowZoomGroupRef, mediumZoomGroupRef, highZoomGroupRef, indexRef, cropsRef}: ZoomProps) => {
+export const useZoom = ({lowZoomGroupRef, mediumZoomGroupRef, mediumSelectZoomRef, highZoomGroupRef, indexRef, cropsRef}: ZoomProps) => {
     const map = useMap();
 
     const _onZoom = () => {
         const currentZoom = map.getZoom();
         const lowZoomGroup = lowZoomGroupRef.current;
         const mediumZoomGroup = mediumZoomGroupRef.current;
+        let mediumSelectZoom = null;
+        if (mediumSelectZoomRef) {
+            mediumSelectZoom = mediumSelectZoomRef.current;
+        }
         const highZoomGroup = highZoomGroupRef.current;
 
         if (currentZoom < breakPointMedium) {
@@ -26,6 +31,9 @@ export const useZoom = ({lowZoomGroupRef, mediumZoomGroupRef, highZoomGroupRef, 
             map.addLayer(lowZoomGroup);
         }
         map.removeLayer(mediumZoomGroup);
+        if (mediumSelectZoom) {
+            map.removeLayer(mediumSelectZoom);
+        }
         map.removeLayer(highZoomGroup);
     } 
     
@@ -34,6 +42,9 @@ export const useZoom = ({lowZoomGroupRef, mediumZoomGroupRef, highZoomGroupRef, 
         map.removeLayer(highZoomGroup);
         if (!map.hasLayer(mediumZoomGroup)) {
             map.addLayer(mediumZoomGroup);
+            if (mediumSelectZoom) {
+                map.addLayer(mediumSelectZoom);
+            }
         }
     } else {
         map.removeLayer(lowZoomGroup);
@@ -69,6 +80,7 @@ export const useZoom = ({lowZoomGroupRef, mediumZoomGroupRef, highZoomGroupRef, 
                 const crop = crops[cropIndex];
 
                 L.circleMarker(crop, {
+                    pane: "cropPane",
                     color: "green",
                     radius: cropWidthCm / 200,
                     pmIgnore: true

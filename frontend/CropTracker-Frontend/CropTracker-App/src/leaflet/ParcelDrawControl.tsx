@@ -121,6 +121,7 @@ function FieldParcelDrawControl({
   const { _onZoom, _onMapViewChange } = useZoom({
     lowZoomGroupRef: lowZoomGroupRef,
     mediumZoomGroupRef: midZoomGroupRef,
+    mediumSelectZoomRef: null,
     highZoomGroupRef: highZoomGroupRef,
     indexRef: spacialIndexRef,
     cropsRef: cropsRef,
@@ -128,6 +129,14 @@ function FieldParcelDrawControl({
 
   useEffect(() => {
     if (!map) return;
+
+    if (!map.getPane("cropPane")) {
+      map.createPane("cropPane");
+      map.getPane("cropPane")!.style.zIndex = "400";
+
+      L.svg({ pane: "cropPane" }).addTo(map);
+    }
+
     map.on("moveend", _onMapViewChange);
     map.on("resize", _onMapViewChange);
     map.on("pm:drawstart", _onDrawStart);

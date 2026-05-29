@@ -68,6 +68,7 @@ function MapDetailZoomControl({
   const { _onZoom, _onMapViewChange } = useZoom({
     lowZoomGroupRef: lowZoomGroupRef,
     mediumZoomGroupRef: mediumZoomGroupRef,
+    mediumSelectZoomRef: null,
     highZoomGroupRef: highZoomGroupRef,
     indexRef: indexRef,
     cropsRef: cropsRef,
@@ -75,6 +76,13 @@ function MapDetailZoomControl({
 
   useEffect(() => {
     if (!map) return;
+
+    if (!map.getPane("cropPane")) {
+      map.createPane("cropPane");
+      map.getPane("cropPane")!.style.zIndex = "1000";
+
+      L.svg({ pane: "cropPane" }).addTo(map);
+    }
 
     map.on("zoomend", _onZoom);
     map.on("moveend", _onMapViewChange);
