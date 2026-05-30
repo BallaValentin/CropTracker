@@ -159,7 +159,6 @@ function UpdateGetCropFieldForm({
             markerPosition: cropFieldUpdateData.markerPosition,
             polygonPoints: cropFieldUpdateData.polygonPoints,
             area: cropFieldUpdateData.area,
-            fieldParcels: [] as GetFieldParcelDTO[],
           }}
           markerAdded={markerAdded}
           onMarkerCreated={handleMarkerCreated}

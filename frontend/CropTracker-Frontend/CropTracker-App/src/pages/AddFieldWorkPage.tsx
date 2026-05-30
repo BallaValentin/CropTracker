@@ -12,12 +12,15 @@ import { useFieldParcels } from "../hooks/UseFieldParcels";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddFieldWorkForm from "../elements/forms/AddFieldWorkForm";
+import { type GetWorkTypeDTO } from "../interfaces/response/GetWorkTypeDTO";
+import { useWorkTypes } from "../hooks/UseWorkTypes";
 
 function AddFieldWorkPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [cropField, setCropField] = useState<GetCropFieldDTO | null>(null);
   const [fieldParcels, setFieldParcels] = useState<GetFieldParcelDTO[]>([]);
+  const [workTypes, setWorkTypes] = useState<GetWorkTypeDTO[]>([]);
 
   const { data: user, isLoading: isUserLoading } = useUserProfile();
 
@@ -29,6 +32,8 @@ function AddFieldWorkPage() {
     refetchInterval: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
   });
+
+  const { data: workTypesData, isLoading: isWorkTypesLoading } = useWorkTypes();
 
   const handleGoBack = () => {
     navigate(`/cropfield-details/${id}`);
@@ -49,7 +54,18 @@ function AddFieldWorkPage() {
     }
   }, [cropFieldData]);
 
-  if (isUserLoading || isCropFieldLoading || isFieldParcelsLoading) {
+  useEffect(() => {
+    if (workTypesData) {
+      setWorkTypes(workTypesData);
+    }
+  }, [workTypesData]);
+
+  if (
+    isUserLoading ||
+    isCropFieldLoading ||
+    isFieldParcelsLoading ||
+    isWorkTypesLoading
+  ) {
     return <ProgressCircle loadingMessage="Initializing data..." />;
   }
 
@@ -70,6 +86,7 @@ function AddFieldWorkPage() {
             <AddFieldWorkForm
               cropField={cropField}
               fieldParcels={fieldParcels}
+              workTypes={workTypes}
             />
           )}
         </MainContainer>
