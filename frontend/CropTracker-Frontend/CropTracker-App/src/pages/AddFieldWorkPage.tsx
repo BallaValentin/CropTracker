@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getCropFieldById } from "../services/CropFieldService";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useUserProfile } from "../hooks/UseUserProfile";
@@ -14,6 +14,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddFieldWorkForm from "../elements/forms/AddFieldWorkForm";
 import { type GetWorkTypeDTO } from "../interfaces/response/GetWorkTypeDTO";
 import { useWorkTypes } from "../hooks/UseWorkTypes";
+import { createFieldWork } from "../services/FieldWorkService";
+import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDTO";
 
 function AddFieldWorkPage() {
   const { id } = useParams();
@@ -32,6 +34,22 @@ function AddFieldWorkPage() {
     refetchInterval: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
   });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: createFieldWork,
+    onSuccess: () => {
+      navigate(`/cropfield-details/${id}`, {
+        state: {
+          showSuccessSnackbar: true,
+          successSnackbarMessage: "Field work created successfully!",
+        },
+      });
+    },
+  });
+
+  const handleCreateFieldWork = (createFieldWorkDTO: CreateFieldWorkDTO) => {
+    mutate(createFieldWorkDTO);
+  };
 
   const { data: workTypesData, isLoading: isWorkTypesLoading } = useWorkTypes();
 
@@ -82,11 +100,12 @@ function AddFieldWorkPage() {
             Back to {cropField?.name}
           </Button>
 
-          {cropField && fieldParcels && (
+          {cropField && fieldParcels && workTypes.length > 0 && (
             <AddFieldWorkForm
               cropField={cropField}
               fieldParcels={fieldParcels}
               workTypes={workTypes}
+              onSubmit={handleCreateFieldWork}
             />
           )}
         </MainContainer>

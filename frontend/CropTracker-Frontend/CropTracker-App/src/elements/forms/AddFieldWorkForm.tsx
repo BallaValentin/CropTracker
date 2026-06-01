@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   FormControl,
   InputLabel,
   MenuItem,
@@ -17,28 +18,47 @@ import type { StringNumber } from "../../interfaces/StringNumber";
 import StringNumberList from "../dynamicLists/StringNumberList";
 import SelectFieldRowsPanel from "../panels/SelectFieldRowsPanel";
 import SimpleTypeList from "../dynamicLists/SimpleTypeList";
+import type { CreateFieldWorkDTO } from "../../interfaces/request/CreateFieldWorkDTO";
 
 interface AddFieldWorkFormProps {
   cropField: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
   workTypes: GetWorkTypeDTO[];
+  onSubmit: (createFieldWorkDTO: CreateFieldWorkDTO) => void;
+  isPending: boolean;
 }
 
 function AddFieldWorkForm({
   cropField,
   fieldParcels,
   workTypes,
+  onSubmit,
+  isPending,
 }: AddFieldWorkFormProps) {
-  const [affectedRows, setAffectedRows] = useState<boolean[]>([]);
   const [rowRanges, setRowRanges] = useState<[number, number][]>([]);
   const [currentWorkTypeIndex, setCurrentWorkTypeIndex] = useState<number>(0);
-  const [workTiming, setWorkTiming] = useState<string>("Scheduled");
   const [activeFields, setActiveFields] = useState<FieldDefinition[]>(
-    workTypes[0]?.fieldDefinitions || [],
+    workTypes[0].fieldDefinitions || [],
   );
-  const [workParameters, setWorkParameters] = useState<
-    Record<string, string | number | string[] | number[] | StringNumber[]>
-  >({});
+
+  const toDateTimeLocal = (date: Date): string => {
+    const pad = (num: number) => num.toString().padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+      date.getDate(),
+    )}T${pad(date.getHours())}:${pad(date.getMinutes())}:00Z`;
+  };
+
+  const [createFieldWorkDTO, setCreateFieldWorkDTO] =
+    useState<CreateFieldWorkDTO>({
+      cropFieldId: cropField.uid,
+      fieldParcelIds: fieldParcels.map((parcel) => parcel.uid),
+      workTypeId: workTypes[0].uid,
+      startDate: toDateTimeLocal(new Date()),
+      endDate: toDateTimeLocal(new Date()),
+      workTiming: "Scheduled",
+      affectedRows: [],
+      parameters: {},
+    });
 
   useEffect(() => {
     let totalRows = 0;
@@ -50,7 +70,10 @@ function AddFieldWorkForm({
       newRowRanges.push([minRange, maxRange]);
     });
     setRowRanges(newRowRanges);
-    setAffectedRows(Array(totalRows).fill(false));
+    setCreateFieldWorkDTO((prev) => ({
+      ...prev,
+      affectedRows: Array(totalRows).fill(false),
+    }));
   }, [fieldParcels]);
 
   useEffect(() => {
@@ -75,11 +98,14 @@ function AddFieldWorkForm({
 
       return acc;
     }, {});
-    setWorkParameters(initialWorkParameters);
+    setCreateFieldWorkDTO((prev) => ({
+      ...prev,
+      parameters: initialWorkParameters,
+    }));
   }, [activeFields]);
 
   const handleParcelSelect = (index: number, checked: boolean) => {
-    const updatedRows = [...affectedRows];
+    const updatedRows = [...createFieldWorkDTO.affectedRows];
 
     if (rowRanges[index]) {
       const [start, end] = rowRanges[index];
@@ -88,33 +114,46 @@ function AddFieldWorkForm({
         updatedRows[i] = checked;
       }
 
-      setAffectedRows(updatedRows);
+      setCreateFieldWorkDTO((prev) => ({
+        ...prev,
+        affectedRows: updatedRows,
+      }));
     }
   };
 
   const handleRowClick = (rowIndex: number) => {
-    const newAffectedRow = [...affectedRows];
-    newAffectedRow[rowIndex] = !affectedRows[rowIndex];
-    setAffectedRows(newAffectedRow);
+    const newAffectedRow = [...createFieldWorkDTO.affectedRows];
+    newAffectedRow[rowIndex] = !createFieldWorkDTO.affectedRows[rowIndex];
+    setCreateFieldWorkDTO((prev) => ({
+      ...prev,
+      affectedRows: newAffectedRow,
+    }));
   };
 
   const handleWorkTypeChange = (event: SelectChangeEvent<number | "">) => {
     if (event.target.value !== "") {
       const index = event.target.value;
+      setCreateFieldWorkDTO((prev) => ({
+        ...prev,
+        workTypeId: workTypes[index].uid,
+      }));
       setCurrentWorkTypeIndex(index);
       setActiveFields(workTypes[index].fieldDefinitions);
     }
   };
 
   const handleWorkTimingChange = (event: SelectChangeEvent) => {
-    setWorkTiming(event.target.value);
+    setCreateFieldWorkDTO((prev) => ({
+      ...prev,
+      workTiming: event.target.value,
+    }));
   };
 
   const handleWorkParametersTextfieldChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = event.target;
-    setWorkParameters((prev) => ({
+    setCreateFieldWorkDTO((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -125,19 +164,32 @@ function AddFieldWorkForm({
     event: SelectChangeEvent,
   ) => {
     const { value } = event.target;
-    console.log(`New select value: ${value}`);
-    setWorkParameters((prev) => ({
+
+    setCreateFieldWorkDTO((prev) => ({
       ...prev,
-      [fieldName]: value,
+      parameters: {
+        ...prev.parameters,
+        [fieldName]: value,
+      },
+    }));
+  };
+
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setCreateFieldWorkDTO((prev) => ({
+      ...prev,
+      [name]: value,
     }));
   };
 
   const handleAddEntry = (field: FieldDefinition) => {
-    if (Array.isArray(workParameters[field.name])) {
+    if (Array.isArray(createFieldWorkDTO.parameters[field.name])) {
       let updatedEntries: StringNumber[] | string[] | number[];
 
       if (field.type === "stringNumber[]") {
-        const entries = workParameters[field.name] as StringNumber[];
+        const entries = createFieldWorkDTO.parameters[
+          field.name
+        ] as StringNumber[];
         const hasEmptyEntry = entries.some(
           (entry) => entry.numberValue === 0 && entry.textValue.trim() === "",
         );
@@ -146,18 +198,21 @@ function AddFieldWorkForm({
           ? [...entries]
           : [...entries, { textValue: "", numberValue: 0 }];
       } else if (field.type === "string[]") {
-        const entries = workParameters[field.name] as string[];
+        const entries = createFieldWorkDTO.parameters[field.name] as string[];
         const hasEmptyEntry = entries.some((entry) => entry.trim() === "");
         updatedEntries = hasEmptyEntry ? [...entries] : [...entries, ""];
       } else {
-        const entries = workParameters[field.name] as number[];
+        const entries = createFieldWorkDTO.parameters[field.name] as number[];
         const hasEmptyEntry = entries.some((entry) => entry === null);
         updatedEntries = hasEmptyEntry ? [...entries] : [...entries, 0];
       }
 
-      setWorkParameters((prev) => ({
+      setCreateFieldWorkDTO((prev) => ({
         ...prev,
-        [field.name]: updatedEntries,
+        parameters: {
+          ...prev.parameters,
+          [field.name]: updatedEntries,
+        },
       }));
     }
   };
@@ -167,55 +222,62 @@ function AddFieldWorkForm({
     index: number,
     updatedEntry: StringNumber | string | number,
   ) => {
-    if (Array.isArray(workParameters[field.name])) {
+    if (Array.isArray(createFieldWorkDTO.parameters[field.name])) {
       let updatedEntries: StringNumber[] | string[] | number[];
       if (field.type === "stringNumber[]") {
-        const entries = workParameters[field.name] as StringNumber[];
+        const entries = createFieldWorkDTO.parameters[
+          field.name
+        ] as StringNumber[];
         const item = updatedEntry as StringNumber;
         updatedEntries = entries.map((entry, i) =>
           i === index ? { ...item } : entry,
         );
       } else if (field.type === "string[]") {
-        const entries = workParameters[field.name] as string[];
+        const entries = createFieldWorkDTO.parameters[field.name] as string[];
         const item = updatedEntry as string;
         updatedEntries = entries.map((entry, i) =>
           i === index ? item : entry,
         );
       } else {
-        const entries = workParameters[field.name] as number[];
+        const entries = createFieldWorkDTO.parameters[field.name] as number[];
         const item = updatedEntry as number;
         updatedEntries = entries.map((entry, i) =>
           i === index ? item : entry,
         );
       }
 
-      setWorkParameters((prev) => ({
+      setCreateFieldWorkDTO((prev) => ({
         ...prev,
-        [field.name]: updatedEntries,
+        parameters: {
+          ...prev.parameters,
+          [field.name]: updatedEntries,
+        },
       }));
     }
   };
 
   const handleEntryRemoved = (field: FieldDefinition, index: number) => {
-    if (Array.isArray(workParameters[field.name])) {
+    if (Array.isArray(createFieldWorkDTO.parameters[field.name])) {
       let updatedEntries: StringNumber[] | string[] | number[];
 
       if (field.type === "stringNumber[]") {
-        const entries = workParameters[field.name] as StringNumber[];
+        const entries = createFieldWorkDTO.parameters[
+          field.name
+        ] as StringNumber[];
         updatedEntries = entries.filter((_, i) => i !== index);
 
         if (updatedEntries.length === 0) {
           updatedEntries.push({ textValue: "", numberValue: 0 });
         }
       } else if (field.type === "string[]") {
-        const entries = workParameters[field.name] as string[];
+        const entries = createFieldWorkDTO.parameters[field.name] as string[];
         updatedEntries = entries.filter((_, i) => i !== index);
 
         if (updatedEntries.length === 0) {
           updatedEntries.push("");
         }
       } else {
-        const entries = workParameters[field.name] as number[];
+        const entries = createFieldWorkDTO.parameters[field.name] as number[];
         updatedEntries = entries.filter((_, i) => i !== index);
 
         if (updatedEntries.length === 0) {
@@ -223,15 +285,19 @@ function AddFieldWorkForm({
         }
       }
 
-      setWorkParameters((prev) => ({
+      setCreateFieldWorkDTO((prev) => ({
         ...prev,
-        [field.name]: updatedEntries,
+        parameters: {
+          ...prev.parameters,
+          [field.name]: updatedEntries,
+        },
       }));
     }
   };
 
   const handleWorkSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    onSubmit(createFieldWorkDTO);
   };
 
   return (
@@ -307,7 +373,7 @@ function AddFieldWorkForm({
                   labelId="worktiming-select-label"
                   id="worktiming-select"
                   label="Work Timing"
-                  value={workTiming}
+                  value={createFieldWorkDTO.workTiming}
                   onChange={handleWorkTimingChange}
                   color="success"
                 >
@@ -320,30 +386,37 @@ function AddFieldWorkForm({
             <Box
               sx={{
                 mt: 2,
-                maxWidth: 400,
                 display: "flex",
-                flexDirection: "column",
-                gap: 2,
+                gap: 20,
               }}
             >
               <TextField
+                sx={{ flex: 1 }}
                 label="Select starting Date and Time"
+                name="startDate"
                 color="success"
                 type="datetime-local"
+                required
+                value={createFieldWorkDTO.startDate.slice(0, 16)}
                 defaultValue="2026-01-01T12:00"
+                onChange={handleDateChange}
                 fullWidth
               />
 
-              {workTiming === "Past" ? (
+              {createFieldWorkDTO.workTiming === "Past" ? (
                 <TextField
+                  sx={{ flex: 1 }}
                   label="Select ending Date and Time"
+                  value={createFieldWorkDTO.endDate?.slice(0, 16)}
+                  name="endDate"
                   color="success"
                   type="datetime-local"
                   defaultValue="2026-01-01T12:00"
+                  onChange={handleDateChange}
                   fullWidth
                 />
               ) : (
-                <Box sx={{ maxWidth: 400, flex: 1, display: "block" }} />
+                <Box sx={{ flex: 1, display: "block" }} />
               )}
             </Box>
           </Box>
@@ -401,7 +474,7 @@ function AddFieldWorkForm({
                       id={`${field.name}-select`}
                       label={field.name}
                       color="success"
-                      value={workParameters[field.name] || ""}
+                      value={createFieldWorkDTO.parameters[field.name] || ""}
                       onChange={(e) =>
                         handleWorkParametersSelectChange(
                           field.name,
@@ -421,7 +494,9 @@ function AddFieldWorkForm({
                 <Box sx={{ width: 800 }}>
                   <StringNumberList
                     entries={
-                      (workParameters[field.name] as StringNumber[]) || []
+                      (createFieldWorkDTO.parameters[
+                        field.name
+                      ] as StringNumber[]) || []
                     }
                     field={field}
                     onNewEntryAdded={handleAddEntry}
@@ -434,7 +509,10 @@ function AddFieldWorkForm({
               {field.type === "string[]" && (
                 <Box sx={{ width: 400 }}>
                   <SimpleTypeList
-                    entries={(workParameters[field.name] as string[]) || []}
+                    entries={
+                      (createFieldWorkDTO.parameters[field.name] as string[]) ||
+                      []
+                    }
                     field={field}
                     onNewEntryAdded={handleAddEntry}
                     onEntryChange={handleEntryChange}
@@ -446,7 +524,10 @@ function AddFieldWorkForm({
               {field.type === "number[]" && (
                 <Box sx={{ width: 400 }}>
                   <SimpleTypeList
-                    entries={(workParameters[field.name] as number[]) || []}
+                    entries={
+                      (createFieldWorkDTO.parameters[field.name] as number[]) ||
+                      []
+                    }
                     field={field}
                     onNewEntryAdded={handleAddEntry}
                     onEntryChange={handleEntryChange}
@@ -461,10 +542,20 @@ function AddFieldWorkForm({
         <SelectFieldRowsPanel
           cropField={cropField}
           fieldParcels={fieldParcels}
-          affectedRows={affectedRows}
+          affectedRows={createFieldWorkDTO.affectedRows}
           onParcelSelect={handleParcelSelect}
           onRowClick={handleRowClick}
         />
+
+        <Button
+          type="submit"
+          variant="contained"
+          color="success"
+          sx={{ mt: 3, alignSelf: "flex-end" }}
+          disabled={isPending}
+        >
+          {isPending ? "Saving..." : "Save Field Work"}
+        </Button>
       </form>
     </Box>
   );

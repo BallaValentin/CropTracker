@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface WorkTypesRepository extends JpaRepository<WorkTypes, UUID>, JpaSpecificationExecutor<WorkTypes> {
     WorkTypes findByNameAndIsSystemTrue(String workType);
+
+    WorkTypes findByUid(UUID uid);
 }

@@ -48,7 +48,6 @@ public class FieldParcelService {
                 if (parcel.getPolygonPoints().overlaps(fieldParcel.getPolygonPoints())) {
                     Geometry intersection = parcel.getPolygonPoints().intersection(fieldParcel.getPolygonPoints());
                     if (intersection.getArea() > areaTolerance) {
-                        System.out.println("Field parcel error");
                         throw new BadRequestException("Field parcel polygon shouldn`t intersect other polygon");
                     }
                 }
@@ -65,7 +64,7 @@ public class FieldParcelService {
         return fieldParcelRepository.findAll(
                 Specification.allOf(
                         FieldParcelSpecification.byCropField(cropField)
-                ), Sort.by(Sort.Direction.DESC, "createdAt")
+                ), Sort.by(Sort.Direction.ASC, "createdAt")
         );
     }
 
@@ -82,6 +81,20 @@ public class FieldParcelService {
                 cropField.getIsDeleted()) {
             throw new ForbiddenException("Couldn't access this plot because you are not it's owner");
         }
+        return fieldParcel;
+    }
+
+    public FieldParcel findByCropFieldAndUid(CropField cropField, UUID uid) {
+        FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
+
+        if (fieldParcel == null) {
+            throw new EntityNotFoundException("Couldn`t find filed parcel with id " + uid);
+        }
+
+        if (fieldParcel.getCropField() != cropField) {
+            throw new ForbiddenException("You have no access to this field parcel");
+        }
+
         return fieldParcel;
     }
 
