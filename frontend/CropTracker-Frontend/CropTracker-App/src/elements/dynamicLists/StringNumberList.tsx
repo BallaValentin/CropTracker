@@ -11,30 +11,27 @@ import {
 import type { FieldDefinition } from "../../interfaces/FieldDefinition";
 import type { StringNumber } from "../../interfaces/StringNumber";
 import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 import type React from "react";
 
 interface StringNumberListProps {
   entries: StringNumber[];
   field: FieldDefinition;
   onNewEntryAdded: (field: FieldDefinition) => void;
-  onEntryTextChange: (
+  onEntryChange: (
     field: FieldDefinition,
     index: number,
-    newText: string,
+    updatedEntry: StringNumber,
   ) => void;
-  onEntryNumberChange: (
-    field: FieldDefinition,
-    index: number,
-    newNumber: number,
-  ) => void;
+  onEntryRemoved: (field: FieldDefinition, index: number) => void;
 }
 
 function StringNumberList({
   entries,
   field,
   onNewEntryAdded,
-  onEntryTextChange,
-  onEntryNumberChange,
+  onEntryChange,
+  onEntryRemoved,
 }: StringNumberListProps) {
   const handleAddNewStringNumber = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -49,7 +46,10 @@ function StringNumberList({
     index: number,
   ) => {
     const newText = event.target.value;
-    onEntryTextChange(field, index, newText);
+    onEntryChange(field, index, {
+      textValue: newText,
+      numberValue: entries[index].numberValue,
+    });
   };
 
   const handleNumberChange = (
@@ -57,7 +57,20 @@ function StringNumberList({
     index: number,
   ) => {
     const newNumber = Number(event.target.value) || 0;
-    onEntryNumberChange(field, index, newNumber);
+    onEntryChange(field, index, {
+      textValue: entries[index].textValue,
+      numberValue: newNumber,
+    });
+  };
+
+  const handleEntryRemove = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    field: FieldDefinition,
+    index: number,
+  ) => {
+    event.stopPropagation();
+
+    onEntryRemoved(field, index);
   };
 
   return (
@@ -115,6 +128,9 @@ function StringNumberList({
                 }
               />
             </FormControl>
+            <IconButton onClick={(e) => handleEntryRemove(e, field, index)}>
+              <RemoveIcon />
+            </IconButton>
           </ListItem>
         ))}
       </List>

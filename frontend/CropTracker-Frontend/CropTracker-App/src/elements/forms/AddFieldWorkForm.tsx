@@ -16,6 +16,7 @@ import type { FieldDefinition } from "../../interfaces/FieldDefinition";
 import type { StringNumber } from "../../interfaces/StringNumber";
 import StringNumberList from "../dynamicLists/StringNumberList";
 import SelectFieldRowsPanel from "../panels/SelectFieldRowsPanel";
+import SimpleTypeList from "../dynamicLists/SimpleTypeList";
 
 interface AddFieldWorkFormProps {
   cropField: GetCropFieldDTO;
@@ -33,7 +34,7 @@ function AddFieldWorkForm({
   const [currentWorkTypeIndex, setCurrentWorkTypeIndex] = useState<number>(0);
   const [workTiming, setWorkTiming] = useState<string>("Scheduled");
   const [activeFields, setActiveFields] = useState<FieldDefinition[]>(
-    workTypes[0].fieldDefinitions || [],
+    workTypes[0]?.fieldDefinitions || [],
   );
   const [workParameters, setWorkParameters] = useState<
     Record<string, string | number | string[] | number[] | StringNumber[]>
@@ -131,64 +132,100 @@ function AddFieldWorkForm({
     }));
   };
 
-  const handleAddStringNumber = (field: FieldDefinition) => {
+  const handleAddEntry = (field: FieldDefinition) => {
     if (Array.isArray(workParameters[field.name])) {
-      const currentEntries = workParameters[field.name] as StringNumber[];
+      let updatedEntries: StringNumber[] | string[] | number[];
 
       if (field.type === "stringNumber[]") {
-        const hasEmptyEntry = currentEntries.some(
+        const entries = workParameters[field.name] as StringNumber[];
+        const hasEmptyEntry = entries.some(
           (entry) => entry.numberValue === 0 && entry.textValue.trim() === "",
         );
 
-        if (hasEmptyEntry) return;
-
-        setWorkParameters((prev) => ({
-          ...prev,
-          [field.name]: [...currentEntries, { textValue: "", numberValue: 0 }],
-        }));
+        updatedEntries = hasEmptyEntry
+          ? [...entries]
+          : [...entries, { textValue: "", numberValue: 0 }];
+      } else if (field.type === "string[]") {
+        const entries = workParameters[field.name] as string[];
+        const hasEmptyEntry = entries.some((entry) => entry.trim() === "");
+        updatedEntries = hasEmptyEntry ? [...entries] : [...entries, ""];
+      } else {
+        const entries = workParameters[field.name] as number[];
+        const hasEmptyEntry = entries.some((entry) => entry === null);
+        updatedEntries = hasEmptyEntry ? [...entries] : [...entries, 0];
       }
-    }
-  };
-
-  const handleNumberChange = (
-    field: FieldDefinition,
-    index: number,
-    newValue: number,
-  ) => {
-    if (
-      Array.isArray(workParameters[field.name]) &&
-      field.type === "stringNumber[]"
-    ) {
-      const currentEntries = workParameters[field.name] as StringNumber[];
-      const updatedEntries = currentEntries.map((entry, i) =>
-        i === index ? { ...entry, numberValue: newValue } : entry,
-      );
 
       setWorkParameters((prev) => ({
         ...prev,
-        [field.name]: [...updatedEntries],
+        [field.name]: updatedEntries,
       }));
     }
   };
 
-  const handleStringChange = (
+  const handleEntryChange = (
     field: FieldDefinition,
     index: number,
-    newValue: string,
+    updatedEntry: StringNumber | string | number,
   ) => {
-    if (
-      Array.isArray(workParameters[field.name]) &&
-      field.type === "stringNumber[]"
-    ) {
-      const currentEntries = workParameters[field.name] as StringNumber[];
-
-      const updatedEntries = currentEntries.map((entry, i) =>
-        i === index ? { ...entry, textValue: newValue } : entry,
-      );
+    if (Array.isArray(workParameters[field.name])) {
+      let updatedEntries: StringNumber[] | string[] | number[];
+      if (field.type === "stringNumber[]") {
+        const entries = workParameters[field.name] as StringNumber[];
+        const item = updatedEntry as StringNumber;
+        updatedEntries = entries.map((entry, i) =>
+          i === index ? { ...item } : entry,
+        );
+      } else if (field.type === "string[]") {
+        const entries = workParameters[field.name] as string[];
+        const item = updatedEntry as string;
+        updatedEntries = entries.map((entry, i) =>
+          i === index ? item : entry,
+        );
+      } else {
+        const entries = workParameters[field.name] as number[];
+        const item = updatedEntry as number;
+        updatedEntries = entries.map((entry, i) =>
+          i === index ? item : entry,
+        );
+      }
 
       setWorkParameters((prev) => ({
         ...prev,
-        [field.name]: [...updatedEntries],
+        [field.name]: updatedEntries,
+      }));
+    }
+  };
+
+  const handleEntryRemoved = (field: FieldDefinition, index: number) => {
+    if (Array.isArray(workParameters[field.name])) {
+      let updatedEntries: StringNumber[] | string[] | number[];
+
+      if (field.type === "stringNumber[]") {
+        const entries = workParameters[field.name] as StringNumber[];
+        updatedEntries = entries.filter((_, i) => i !== index);
+
+        if (updatedEntries.length === 0) {
+          updatedEntries.push({ textValue: "", numberValue: 0 });
+        }
+      } else if (field.type === "string[]") {
+        const entries = workParameters[field.name] as string[];
+        updatedEntries = entries.filter((_, i) => i !== index);
+
+        if (updatedEntries.length === 0) {
+          updatedEntries.push("");
+        }
+      } else {
+        const entries = workParameters[field.name] as number[];
+        updatedEntries = entries.filter((_, i) => i !== index);
+
+        if (updatedEntries.length === 0) {
+          updatedEntries.push(0);
+        }
+      }
+
+      setWorkParameters((prev) => ({
+        ...prev,
+        [field.name]: updatedEntries,
       }));
     }
   };
@@ -315,8 +352,8 @@ function AddFieldWorkForm({
         <Box
           sx={{
             mt: 3,
-            minWidth: 200,
-            maxWidth: 400,
+            minWidth: 400,
+            maxWidth: 800,
             display: "flex",
             flexDirection: "column",
             gap: 2.5,
@@ -325,56 +362,97 @@ function AddFieldWorkForm({
           {activeFields.map((field) => (
             <Box>
               {field.type === "string" && (
-                <FormControl fullWidth variant="outlined">
-                  <TextField
-                    label={field.name}
-                    color="success"
-                    type="string"
-                    fullWidth
-                    onChange={handleWorkParametersTextfieldChange}
-                  />
-                </FormControl>
+                <Box sx={{ width: 400 }}>
+                  <FormControl fullWidth variant="outlined">
+                    <TextField
+                      label={field.name}
+                      color="success"
+                      type="string"
+                      onChange={handleWorkParametersTextfieldChange}
+                    />
+                  </FormControl>
+                </Box>
               )}
 
               {field.type === "number" && (
-                <FormControl fullWidth variant="outlined">
-                  <TextField label={field.name} color="success" type="number" />
-                </FormControl>
+                <Box sx={{ width: 400 }}>
+                  <FormControl fullWidth variant="outlined">
+                    <TextField
+                      label={field.name}
+                      color="success"
+                      type="number"
+                      onChange={handleWorkParametersTextfieldChange}
+                    />
+                  </FormControl>
+                </Box>
               )}
 
               {field.type === "select" && (
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel id={`${field.name}-select-label`} color="success">
-                    {field.name}
-                  </InputLabel>
-                  <Select
-                    labelId={`${field.name}-select-label`}
-                    id={`${field.name}-select`}
-                    label={field.name}
-                    color="success"
-                    value={workParameters[field.name] || ""}
-                    onChange={(e) =>
-                      handleWorkParametersSelectChange(
-                        field.name,
-                        e as SelectChangeEvent<string>,
-                      )
-                    }
-                  >
-                    {field.options.map((option) => (
-                      <MenuItem value={option}>{option}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <Box sx={{ width: 400 }}>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel
+                      id={`${field.name}-select-label`}
+                      color="success"
+                    >
+                      {field.name}
+                    </InputLabel>
+                    <Select
+                      labelId={`${field.name}-select-label`}
+                      id={`${field.name}-select`}
+                      label={field.name}
+                      color="success"
+                      value={workParameters[field.name] || ""}
+                      onChange={(e) =>
+                        handleWorkParametersSelectChange(
+                          field.name,
+                          e as SelectChangeEvent<string>,
+                        )
+                      }
+                    >
+                      {field.options.map((option) => (
+                        <MenuItem value={option}>{option}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
               )}
 
               {field.type === "stringNumber[]" && (
-                <StringNumberList
-                  entries={(workParameters[field.name] as StringNumber[]) || []}
-                  field={field}
-                  onNewEntryAdded={handleAddStringNumber}
-                  onEntryTextChange={handleStringChange}
-                  onEntryNumberChange={handleNumberChange}
-                />
+                <Box sx={{ width: 800 }}>
+                  <StringNumberList
+                    entries={
+                      (workParameters[field.name] as StringNumber[]) || []
+                    }
+                    field={field}
+                    onNewEntryAdded={handleAddEntry}
+                    onEntryChange={handleEntryChange}
+                    onEntryRemoved={handleEntryRemoved}
+                  />
+                </Box>
+              )}
+
+              {field.type === "string[]" && (
+                <Box sx={{ width: 400 }}>
+                  <SimpleTypeList
+                    entries={(workParameters[field.name] as string[]) || []}
+                    field={field}
+                    onNewEntryAdded={handleAddEntry}
+                    onEntryChange={handleEntryChange}
+                    onEntryRemoved={handleEntryRemoved}
+                  />
+                </Box>
+              )}
+
+              {field.type === "number[]" && (
+                <Box sx={{ width: 400 }}>
+                  <SimpleTypeList
+                    entries={(workParameters[field.name] as number[]) || []}
+                    field={field}
+                    onNewEntryAdded={handleAddEntry}
+                    onEntryChange={handleEntryChange}
+                    onEntryRemoved={handleEntryRemoved}
+                  />
+                </Box>
               )}
             </Box>
           ))}
