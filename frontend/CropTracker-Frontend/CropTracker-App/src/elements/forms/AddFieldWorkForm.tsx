@@ -178,7 +178,7 @@ function AddFieldWorkForm({
     const { name, value } = event.target;
     setCreateFieldWorkDTO((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: value + ":00Z",
     }));
   };
 

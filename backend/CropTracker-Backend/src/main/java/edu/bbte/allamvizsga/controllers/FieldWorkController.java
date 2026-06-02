@@ -1,6 +1,7 @@
 package edu.bbte.allamvizsga.controllers;
 
 import edu.bbte.allamvizsga.dto.request.fieldWork.CreateFieldWorkDTO;
+import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
 import edu.bbte.allamvizsga.mappers.FieldWorkMapper;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldWork;
@@ -11,9 +12,11 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.UUID;
 
 @RestController
@@ -49,5 +52,26 @@ public class FieldWorkController {
 
         fieldWorkService.create(fieldWork);
 
+    }
+
+    @GetMapping("/findall")
+    public ResponseEntity<Collection<GetFieldWorkDTO>> findAll(@RequestHeader("Authorization")
+                                                               String authorizationHeader) {
+        User user = userService.extractUser(authorizationHeader);
+
+        Collection<FieldWork> fieldWorks = fieldWorkService.findall(user);
+
+        return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetFieldWork).toList());
+    }
+
+    @GetMapping("/findby")
+    public ResponseEntity<GetFieldWorkDTO> findById(@RequestHeader("Authorization")
+                                                    String authorizationHeader, @RequestParam("id") String id) {
+        User user = userService.extractUser(authorizationHeader);
+        UUID fieldWorkId = UUID.fromString(id);
+
+        FieldWork fieldWork = fieldWorkService.findById(fieldWorkId, user);
+
+        return ResponseEntity.ok(fieldWorkMapper.modelToGetFieldWork(fieldWork));
     }
 }

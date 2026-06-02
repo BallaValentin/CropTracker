@@ -1,6 +1,7 @@
 package edu.bbte.allamvizsga.mappers;
 
 import edu.bbte.allamvizsga.dto.request.fieldWork.CreateFieldWorkDTO;
+import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
 import edu.bbte.allamvizsga.model.FieldWork;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -22,5 +23,17 @@ public abstract class FieldWorkMapper {
         if (createFieldWorkDTO.getEndDate() != null) {
             fieldWork.setEndDate(Instant.parse(createFieldWorkDTO.getEndDate()));
         }
+    }
+
+    public abstract GetFieldWorkDTO modelToGetFieldWork(FieldWork fieldWork);
+
+    @AfterMapping
+    protected void afterModelToGet(FieldWork fieldWork, @MappingTarget GetFieldWorkDTO getFieldWorkDTO) {
+        getFieldWorkDTO.setCropFieldId(fieldWork.getCropField().getUid());
+        getFieldWorkDTO.setWorkTypeId(fieldWork.getWorkTypes().getUid());
+        getFieldWorkDTO.setWorkTypeName(fieldWork.getWorkTypes().getName());
+
+        getFieldWorkDTO.setStartDate(fieldWork.getStartDate().toString());
+        getFieldWorkDTO.setEndDate(fieldWork.getEndDate().toString());
     }
 }

@@ -15,6 +15,7 @@ interface FieldDetailMapPreviewProps {
   rows: LatLngObject[][];
   rowRectangles: LatLngObject[][];
   cropCoords: LatLngObject[];
+  affectedRows: boolean[];
 }
 
 function FieldDetailMapPreview({
@@ -26,7 +27,12 @@ function FieldDetailMapPreview({
   rows,
   rowRectangles,
   cropCoords,
+  affectedRows,
 }: FieldDetailMapPreviewProps) {
+  if (!affectedRows || !markerPosition) {
+    return null;
+  }
+
   return (
     <>
       <Box
@@ -38,7 +44,7 @@ function FieldDetailMapPreview({
         }}
       >
         <MapContainer
-          key={`${markerPosition?.lat}-${markerPosition?.lng}`}
+          key={`${markerPosition.lat}-${markerPosition.lng}`}
           center={
             markerPosition != null
               ? [markerPosition.lat, markerPosition.lng]
@@ -66,6 +72,7 @@ function FieldDetailMapPreview({
             rows={rows}
             rowRectangles={rowRectangles}
             cropCoords={cropCoords}
+            affectedRows={affectedRows}
           />
 
           <Polygon

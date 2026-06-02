@@ -40,8 +40,8 @@ function AddFieldWorkPage() {
     onSuccess: () => {
       navigate(`/cropfield-details/${id}`, {
         state: {
-          showSuccessSnackbar: true,
-          successSnackbarMessage: "Field work created successfully!",
+          success: true,
+          message: "Field work created successfully!",
         },
       });
     },
@@ -106,6 +106,7 @@ function AddFieldWorkPage() {
               fieldParcels={fieldParcels}
               workTypes={workTypes}
               onSubmit={handleCreateFieldWork}
+              isPending={isPending}
             />
           )}
         </MainContainer>

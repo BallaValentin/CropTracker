@@ -10,17 +10,20 @@ interface ZoomControlProps {
   rows: LatLngObject[][];
   rowRectangles: LatLngObject[][];
   cropCoords: LatLngObject[];
+  affectedRows: boolean[];
 }
 
 function MapDetailZoomControl({
   rows,
   rowRectangles,
   cropCoords,
+  affectedRows = [],
 }: ZoomControlProps) {
   const map = useMap();
 
   const lowZoomGroupRef = useRef(L.layerGroup());
   const mediumZoomGroupRef = useRef(L.layerGroup());
+  const mediumSelectZoomRef = useRef(L.layerGroup());
   const highZoomGroupRef = useRef(L.layerGroup());
   const indexRef = useRef<Flatbush | null>(null);
   const cropsRef = useRef<LatLngObject[]>([]);
@@ -29,23 +32,45 @@ function MapDetailZoomControl({
     const layerGroup = lowZoomGroupRef.current;
     layerGroup.clearLayers();
 
-    for (const rowLine of rows) {
-      L.polyline(rowLine, { color: "black" }).addTo(layerGroup);
-    }
-  }, [rows]);
+    rows.forEach((row, index) => {
+      let isAffected = false;
+      if (index < affectedRows.length) {
+        isAffected = affectedRows[index] || false;
+      }
+      L.polyline(row, {
+        color: isAffected ? "blue" : "black",
+        weight: isAffected ? 1.5 : 1,
+      }).addTo(layerGroup);
+    });
+  }, [affectedRows, rows]);
 
   useEffect(() => {
     const layerGroup = mediumZoomGroupRef.current;
+    const selectLayerGroup = mediumSelectZoomRef.current;
     layerGroup.clearLayers();
+    selectLayerGroup.clearLayers();
 
-    for (const rectangle of rowRectangles) {
+    rowRectangles.forEach((rectangle, index) => {
+      let isAffected = false;
+      if (index < affectedRows.length) {
+        isAffected = affectedRows[index] || false;
+      }
       L.polygon(rectangle, {
         color: "black",
         fillColor: "black",
         fillOpacity: 0.8,
       }).addTo(layerGroup);
-    }
-  }, [rowRectangles]);
+
+      if (isAffected) {
+        L.polygon(rectangle, {
+          color: "#00f0ff",
+          fillColor: "#00b0ff",
+          weight: 2.5,
+          fillOpacity: 0.1,
+        }).addTo(selectLayerGroup);
+      }
+    });
+  }, [rowRectangles, affectedRows]);
 
   useEffect(() => {
     const layerGroup = highZoomGroupRef.current;
@@ -68,7 +93,7 @@ function MapDetailZoomControl({
   const { _onZoom, _onMapViewChange } = useZoom({
     lowZoomGroupRef: lowZoomGroupRef,
     mediumZoomGroupRef: mediumZoomGroupRef,
-    mediumSelectZoomRef: null,
+    mediumSelectZoomRef: mediumSelectZoomRef,
     highZoomGroupRef: highZoomGroupRef,
     indexRef: indexRef,
     cropsRef: cropsRef,

@@ -162,6 +162,7 @@ function CropFieldInfoPanel({
               rows={rows.flat()}
               rowRectangles={rowRectangles}
               cropCoords={cropCoords}
+              affectedRows={[]}
             />
           </Paper>
         </Box>

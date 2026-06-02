@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDTO";
+import type { GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
 
 export const cropFieldApi = axios.create({
     baseURL: "http://localhost:8080/api/field-works",
@@ -15,4 +16,27 @@ export const createFieldWork = async(createFieldWorkDTO: CreateFieldWorkDTO): Pr
             "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
         }
     })
+}
+
+export const getFieldWorks = async(): Promise<GetFieldWorkDTO[]> => {
+    console.log("Sending get-field-works request to server");
+    const response = await cropFieldApi.get<GetFieldWorkDTO[]>("/findall", {
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
+        }
+    })
+    return response.data;
+}
+
+export const getFieldWork = async(fieldWorkId: string): Promise<GetFieldWorkDTO> => {
+    console.log("Sending get-field-work request to server");
+    const response = await cropFieldApi.get<GetFieldWorkDTO>('/findby', {
+        params: {
+            id: fieldWorkId
+        },
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
+        }
+    })
+    return response.data;
 }

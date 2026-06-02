@@ -20,6 +20,7 @@ import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
 import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
 import GrassIcon from "@mui/icons-material/Grass";
+import HistoryIcon from "@mui/icons-material/History";
 
 interface MainDrawerProps {
   userData: GetUserDTO | undefined;
@@ -96,7 +97,19 @@ function MainDrawer({ userData }: MainDrawerProps) {
                   <GrassIcon />
                 </ListItemIcon>
                 {(isDrawerExpanded || hovered) && (
-                  <ListItemText>Show All Crops</ListItemText>
+                  <ListItemText>Show Crops</ListItemText>
+                )}
+              </ListItemButton>
+            </ListItem>
+          )}
+          {userRoles.findIndex((role) => role.name === "GROWER") > -1 && (
+            <ListItem key={"work-history"} disablePadding>
+              <ListItemButton onClick={() => navigate("/work-history")}>
+                <ListItemIcon>
+                  <HistoryIcon />
+                </ListItemIcon>
+                {(isDrawerExpanded || hovered) && (
+                  <ListItemText>Work History</ListItemText>
                 )}
               </ListItemButton>
             </ListItem>
