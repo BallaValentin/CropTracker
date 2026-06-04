@@ -5,6 +5,7 @@ import type { LatLngObject } from "../interfaces/LatLngObject";
 import { defaultMapPosition } from "../utils/Constants";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import MapDetailZoomControl from "./MapDetailZoomControl";
+import MapBoundsHelper from "./MapBoundsHelper";
 
 interface FieldDetailMapPreviewProps {
   mapHeight: number;
@@ -29,10 +30,6 @@ function FieldDetailMapPreview({
   cropCoords,
   affectedRows,
 }: FieldDetailMapPreviewProps) {
-  if (!affectedRows || !markerPosition) {
-    return null;
-  }
-
   return (
     <>
       <Box
@@ -44,7 +41,7 @@ function FieldDetailMapPreview({
         }}
       >
         <MapContainer
-          key={`${markerPosition.lat}-${markerPosition.lng}`}
+          key={`${markerPosition?.lat}-${markerPosition?.lng}`}
           center={
             markerPosition != null
               ? [markerPosition.lat, markerPosition.lng]
@@ -56,6 +53,10 @@ function FieldDetailMapPreview({
           zoomControl={true}
           style={{ height: "100%", width: "100%" }}
         >
+          {polygonPoints && polygonPoints.length > 3 && (
+            <MapBoundsHelper polygonPoints={polygonPoints} />
+          )}
+
           <LayersControl position="topright">
             <CustomLayerControl />
           </LayersControl>
@@ -72,7 +73,7 @@ function FieldDetailMapPreview({
             rows={rows}
             rowRectangles={rowRectangles}
             cropCoords={cropCoords}
-            affectedRows={affectedRows}
+            affectedRows={affectedRows || []}
           />
 
           <Polygon
