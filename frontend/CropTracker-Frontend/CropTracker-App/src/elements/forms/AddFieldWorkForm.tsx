@@ -69,21 +69,30 @@ function AddFieldWorkForm({
       cropFieldId,
       numberOfDays,
       referenceDate,
+      selectedWorkTypes,
     }: {
       cropFieldId: string;
       numberOfDays: number;
       referenceDate: string;
-    }) => getPreviousRows(cropFieldId, numberOfDays, referenceDate),
+      selectedWorkTypes: string[];
+    }) =>
+      getPreviousRows(
+        cropFieldId,
+        numberOfDays,
+        referenceDate,
+        selectedWorkTypes,
+      ),
     onSuccess: (response: GetAffectedRowsDTO) => {
       setPreviousRows(response.affectedRows);
     },
   });
 
-  const handleRowsSearch = (days: number) => {
+  const handleRowsSearch = (days: number, selectedWorkTypes: string[]) => {
     mutate({
       cropFieldId: cropField.uid,
       numberOfDays: days,
       referenceDate: createFieldWorkDTO.startDate,
+      selectedWorkTypes: selectedWorkTypes,
     });
   };
 
@@ -570,6 +579,7 @@ function AddFieldWorkForm({
           cropField={cropField}
           fieldParcels={fieldParcels}
           affectedRows={createFieldWorkDTO.affectedRows}
+          workTypes={workTypes}
           onParcelSelect={handleParcelSelect}
           onRowClick={handleRowClick}
           previousRows={previousRows}

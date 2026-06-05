@@ -12,6 +12,7 @@ interface ZoomControlProps {
   cropCoords: LatLngObject[];
   affectedRows: boolean[];
   previousRows?: boolean[];
+  previousHidden?: boolean;
   onRowClick: (rowIndex: number) => void;
 }
 
@@ -25,6 +26,7 @@ function MapDetailZoomControl({
   cropCoords,
   affectedRows,
   previousRows = [],
+  previousHidden = true,
   onRowClick,
 }: ZoomControlProps) {
   const map = useMap();
@@ -51,7 +53,7 @@ function MapDetailZoomControl({
 
       linesRef.current.push(line as SelectPolyline);
     });
-  }, [rows, previousRows]);
+  }, [rows]);
 
   useEffect(() => {
     const layerGroup = mediumZoomGroupRef.current;
@@ -107,7 +109,7 @@ function MapDetailZoomControl({
     lines.forEach((line) => {
       const index = line.options.rowIndex;
       let previousSelected = false;
-      if (index < previousRows.length) {
+      if (index < previousRows.length && !previousHidden) {
         previousSelected = previousRows[index];
       }
       const isAffected = affectedRows[index];
@@ -124,7 +126,7 @@ function MapDetailZoomControl({
 
       line.setStyle({
         color: lineColor,
-        weight: isAffected ? 1.5 : 1,
+        weight: isAffected || previousSelected ? 1.5 : 1,
       });
     });
 
@@ -132,7 +134,7 @@ function MapDetailZoomControl({
       const index = polygon.options.rowIndex;
       const isAffected = affectedRows[index];
       let previousSelected = false;
-      if (index < previousRows.length) {
+      if (index < previousRows.length && !previousHidden) {
         previousSelected = previousRows[index];
       }
 
@@ -153,7 +155,7 @@ function MapDetailZoomControl({
         fillOpacity: isAffected || previousSelected ? 0.1 : 0,
       });
     });
-  }, [affectedRows, previousRows]);
+  }, [affectedRows, previousHidden, previousRows]);
 
   useEffect(() => {
     const layerGroup = highZoomGroupRef.current;

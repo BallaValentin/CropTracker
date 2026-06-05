@@ -16,14 +16,16 @@ import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO"
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import { useState } from "react";
 import SelectAffectedRowsDialog from "../dialogs/SelectAffectedRowsDialog";
+import type { GetWorkTypeDTO } from "../../interfaces/response/GetWorkTypeDTO";
 
 interface SelectFieldRowsPanelProps {
   cropField: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
   affectedRows: boolean[];
   previousRows: boolean[];
+  workTypes: GetWorkTypeDTO[];
   onParcelSelect: (index: number, checked: boolean) => void;
-  onRowsSearch: (rows: number) => void;
+  onRowsSearch: (rows: number, selectedWorkTypes: string[]) => void;
   onRowClick: (index: number) => void;
 }
 
@@ -32,11 +34,13 @@ function SelectFieldRowsPanel({
   fieldParcels,
   affectedRows,
   onParcelSelect,
+  workTypes,
   previousRows,
   onRowsSearch,
   onRowClick,
 }: SelectFieldRowsPanelProps) {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [hidden, setHidden] = useState<boolean>(false);
 
   const handleParcelSelect = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -51,15 +55,19 @@ function SelectFieldRowsPanel({
     setDialogOpen(true);
   };
 
-  const handleSelect = (days: number) => {
+  const handleSelect = (days: number, selectedWorkTypes: string[]) => {
     console.log("Number of days: ", days);
-    onRowsSearch(days);
+    onRowsSearch(days, selectedWorkTypes);
     console.log(previousRows);
     setDialogOpen(false);
   };
 
   const handleCancel = () => {
     setDialogOpen(false);
+  };
+
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setHidden(event.target.checked);
   };
 
   return (
@@ -93,9 +101,18 @@ function SelectFieldRowsPanel({
             affectedRows={affectedRows}
             onRowClick={onRowClick}
             previousRows={previousRows}
+            previousHidden={hidden}
           />
         </Box>
-        <Box sx={{ flex: 1, p: 2 }}>
+        <Box
+          sx={{
+            flex: 1,
+            p: 2,
+            display: "flex",
+            flexDirection: "column",
+            height: 700,
+          }}
+        >
           <Box
             sx={{
               display: "flex",
@@ -130,11 +147,15 @@ function SelectFieldRowsPanel({
                 </ListItem>
               ))}
             </List>
+            <Button onClick={handleShowPrevWorks} color="success">
+              Show affected rows from previous works
+            </Button>
+          </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <Button onClick={handleShowPrevWorks} color="success">
-                Show affected rows from previous works
-              </Button>
+          <Box sx={{ mt: "auto", display: "flex", justifyContent: "flex-end" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography>Hide previous affected rows</Typography>
+              <Checkbox onChange={handleCheck} />
             </Box>
           </Box>
         </Box>
@@ -143,6 +164,7 @@ function SelectFieldRowsPanel({
         <SelectAffectedRowsDialog
           onConfirmSelect={handleSelect}
           onConfirmCancel={handleCancel}
+          workTypes={workTypes}
           open={dialogOpen}
         />
       )}

@@ -42,14 +42,15 @@ export const getFieldWork = async(fieldWorkId: string): Promise<GetFieldWorkDTO>
     return response.data;
 }
 
-export const getPreviousRows = async(cropFieldId: string, numberOfDays: number, referenceDate: string): Promise<GetAffectedRowsDTO> => {
+export const getPreviousRows = async(cropFieldId: string, numberOfDays: number, referenceDate: string, selectedWorkTypes: string[]): Promise<GetAffectedRowsDTO> => {
     console.log("Sending get-previous-rows to server");
 
     const response = await cropFieldApi.get<GetAffectedRowsDTO>('/findRows', {
         params: {
             cropFieldId: cropFieldId,
             numberOfDays: numberOfDays,
-            referenceDate: referenceDate
+            referenceDate: referenceDate,
+            workTypes: selectedWorkTypes.join(",")
         },
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`

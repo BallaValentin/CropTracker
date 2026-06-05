@@ -80,14 +80,18 @@ public class FieldWorkController {
     public ResponseEntity<GetAffectedRowsDTO> findPreviousAffectedRows(@RequestHeader("Authorization") String authorizationHeader,
                                                                        @RequestParam("cropFieldId") String id,
                                                                        @RequestParam("numberOfDays") Integer numberOfDays,
-                                                                       @RequestParam("referenceDate") String refDateString) {
+                                                                       @RequestParam("referenceDate") String refDateString,
+                                                                       @RequestParam("workTypes") List<String> selectedWorkTypes) {
         User user = userService.extractUser(authorizationHeader);
         UUID cropFieldId = UUID.fromString(id);
 
         CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
         Instant refDate = Instant.parse(refDateString);
 
-        List<FieldWork> previousFieldWorks = fieldWorkService.findAllWithinPastDays(cropField, refDate, numberOfDays);
+        List<UUID> selectedWorkTypeIds = selectedWorkTypes.stream().map(UUID::fromString).toList();
+
+        List<FieldWork> previousFieldWorks = fieldWorkService.findAllWithinPastDays(
+                cropField, refDate, numberOfDays, selectedWorkTypeIds);
         GetAffectedRowsDTO affectedRowsDTO = new GetAffectedRowsDTO(Collections.emptyList());
 
         if (!previousFieldWorks.isEmpty()) {

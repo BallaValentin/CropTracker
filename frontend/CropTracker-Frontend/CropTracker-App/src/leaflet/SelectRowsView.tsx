@@ -22,6 +22,7 @@ interface AddParcelViewProps {
   fieldParcels: GetFieldParcelDTO[];
   affectedRows: boolean[];
   previousRows?: boolean[];
+  previousHidden?: boolean;
   onRowClick: (rowIndex: number) => void;
 }
 
@@ -33,6 +34,7 @@ function AddParcelView({
   fieldParcels,
   affectedRows,
   previousRows = [],
+  previousHidden = true,
   onRowClick,
 }: AddParcelViewProps) {
   const parentPolygonRef = useRef<L.Polygon | null>(null);
@@ -116,6 +118,7 @@ function AddParcelView({
             cropCoords={crops}
             affectedRows={affectedRows}
             previousRows={previousRows}
+            previousHidden={previousHidden}
             onRowClick={onRowClick}
           />
 
