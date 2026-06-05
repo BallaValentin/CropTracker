@@ -175,25 +175,25 @@ function FieldWorkDetailsPage() {
                     <Divider />
                     {value.map((element) => {
                       if (isStringNumber(element)) {
-                        const stringNumberElement = element as StringNumber;
+                        const snElement = element as StringNumber;
                         return (
                           <Box sx={{ display: "flex", gap: 5 }}>
                             <FieldInfoContainer>
                               <Typography>
-                                {stringNumberElement.textValue
-                                  ? stringNumberElement.textValue
-                                  : "N/A"}
+                                {snElement.textValue || "N/A"}
                               </Typography>
                             </FieldInfoContainer>
                             <FieldInfoContainer>
                               <Typography>
-                                {stringNumberElement.numberValue
-                                  ? stringNumberElement.numberValue
-                                  : "N/A"}
+                                {snElement.numberValue ?? "N/A"}
                               </Typography>
                             </FieldInfoContainer>
                           </Box>
                         );
+                      } else {
+                        <FieldInfoContainer>
+                          <Typography>{element || "N/A"}</Typography>
+                        </FieldInfoContainer>;
                       }
                     })}
                     <Divider />

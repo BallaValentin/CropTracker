@@ -11,6 +11,7 @@ interface ZoomControlProps {
   rowRectangles: LatLngObject[][];
   cropCoords: LatLngObject[];
   affectedRows: boolean[];
+  previousRows?: boolean[];
   onRowClick: (rowIndex: number) => void;
 }
 
@@ -23,6 +24,7 @@ function MapDetailZoomControl({
   rowRectangles,
   cropCoords,
   affectedRows,
+  previousRows = [],
   onRowClick,
 }: ZoomControlProps) {
   const map = useMap();
@@ -49,11 +51,12 @@ function MapDetailZoomControl({
 
       linesRef.current.push(line as SelectPolyline);
     });
-  }, [rows]);
+  }, [rows, previousRows]);
 
   useEffect(() => {
     const layerGroup = mediumZoomGroupRef.current;
     const selectLayerGroup = mediumZoomSelectRef.current;
+
     selectLayerGroup.clearLayers();
     layerGroup.clearLayers();
 
@@ -103,9 +106,24 @@ function MapDetailZoomControl({
 
     lines.forEach((line) => {
       const index = line.options.rowIndex;
+      let previousSelected = false;
+      if (index < previousRows.length) {
+        previousSelected = previousRows[index];
+      }
       const isAffected = affectedRows[index];
+
+      let lineColor = "black";
+
+      if (isAffected && previousSelected) {
+        lineColor = "purple";
+      } else if (isAffected) {
+        lineColor = "blue";
+      } else if (previousSelected) {
+        lineColor = "red";
+      }
+
       line.setStyle({
-        color: isAffected ? "blue" : "black",
+        color: lineColor,
         weight: isAffected ? 1.5 : 1,
       });
     });
@@ -113,14 +131,29 @@ function MapDetailZoomControl({
     selectPolygons.forEach((polygon) => {
       const index = polygon.options.rowIndex;
       const isAffected = affectedRows[index];
+      let previousSelected = false;
+      if (index < previousRows.length) {
+        previousSelected = previousRows[index];
+      }
+
+      let outlineColor = "#00f0ff";
+      let fillColor = "#00b0ff";
+
+      if (isAffected && previousSelected) {
+        outlineColor = "#ab47bc";
+        fillColor = "#e1bee7";
+      } else if (previousSelected) {
+        outlineColor = "#ef5350";
+        fillColor = "#ffcdd2";
+      }
       polygon.setStyle({
-        color: "#00f0ff",
-        weight: isAffected ? 2.5 : 0,
-        fillColor: "#00b0ff",
-        fillOpacity: isAffected ? 0.1 : 0,
+        color: outlineColor,
+        weight: isAffected || previousSelected ? 2.5 : 0,
+        fillColor: fillColor,
+        fillOpacity: isAffected || previousSelected ? 0.1 : 0,
       });
     });
-  }, [affectedRows]);
+  }, [affectedRows, previousRows]);
 
   useEffect(() => {
     const layerGroup = highZoomGroupRef.current;

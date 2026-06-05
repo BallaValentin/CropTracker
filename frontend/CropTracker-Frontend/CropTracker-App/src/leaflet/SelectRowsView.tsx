@@ -12,6 +12,7 @@ import {
   getGeneratedRows,
 } from "../utils/GenerateShapesUtil";
 import SelectMapRowsControl from "./SelectMapRowsControl";
+import MapBoundsHelper from "./MapBoundsHelper";
 
 interface AddParcelViewProps {
   polygonPoints: LatLngObject[];
@@ -20,6 +21,7 @@ interface AddParcelViewProps {
   mapHeight: number;
   fieldParcels: GetFieldParcelDTO[];
   affectedRows: boolean[];
+  previousRows?: boolean[];
   onRowClick: (rowIndex: number) => void;
 }
 
@@ -30,6 +32,7 @@ function AddParcelView({
   polygonPoints,
   fieldParcels,
   affectedRows,
+  previousRows = [],
   onRowClick,
 }: AddParcelViewProps) {
   const parentPolygonRef = useRef<L.Polygon | null>(null);
@@ -100,6 +103,9 @@ function AddParcelView({
           zoomControl={true}
           style={{ height: "100%", width: "100%" }}
         >
+          {polygonPoints && polygonPoints.length > 3 && (
+            <MapBoundsHelper polygonPoints={polygonPoints} />
+          )}
           <LayersControl position="topright">
             <CustomLayers />
           </LayersControl>
@@ -109,6 +115,7 @@ function AddParcelView({
             rowRectangles={rowRectangles}
             cropCoords={crops}
             affectedRows={affectedRows}
+            previousRows={previousRows}
             onRowClick={onRowClick}
           />
 

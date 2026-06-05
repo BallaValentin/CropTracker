@@ -2,6 +2,7 @@ package edu.bbte.allamvizsga.controllers;
 
 import edu.bbte.allamvizsga.dto.request.fieldWork.CreateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
+import edu.bbte.allamvizsga.dto.response.fieldWork.GetAffectedRowsDTO;
 import edu.bbte.allamvizsga.mappers.FieldWorkMapper;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldWork;
@@ -16,8 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
-import java.util.UUID;
+import java.time.Instant;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/field-works")
@@ -73,5 +74,35 @@ public class FieldWorkController {
         FieldWork fieldWork = fieldWorkService.findById(fieldWorkId, user);
 
         return ResponseEntity.ok(fieldWorkMapper.modelToGetFieldWork(fieldWork));
+    }
+
+    @GetMapping("/findRows")
+    public ResponseEntity<GetAffectedRowsDTO> findPreviousAffectedRows(@RequestHeader("Authorization") String authorizationHeader,
+                                                                       @RequestParam("cropFieldId") String id,
+                                                                       @RequestParam("numberOfDays") Integer numberOfDays,
+                                                                       @RequestParam("referenceDate") String refDateString) {
+        User user = userService.extractUser(authorizationHeader);
+        UUID cropFieldId = UUID.fromString(id);
+
+        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
+        Instant refDate = Instant.parse(refDateString);
+
+        List<FieldWork> previousFieldWorks = fieldWorkService.findAllWithinPastDays(cropField, refDate, numberOfDays);
+        GetAffectedRowsDTO affectedRowsDTO = new GetAffectedRowsDTO(Collections.emptyList());
+
+        if (!previousFieldWorks.isEmpty()) {
+            List<Boolean> masterRows = new ArrayList<>(previousFieldWorks.getFirst().getAffectedRows().stream().toList());
+
+            previousFieldWorks.forEach(fieldWork -> {
+                List<Boolean> rows = fieldWork.getAffectedRows().stream().toList();
+                for (int i = 0; i < fieldWork.getAffectedRows().size(); i++) {
+                    masterRows.set(i, masterRows.get(i) | rows.get(i));
+                }
+            });
+
+            affectedRowsDTO.setAffectedRows(masterRows);
+        }
+
+        return ResponseEntity.ok(affectedRowsDTO);
     }
 }

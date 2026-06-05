@@ -19,6 +19,9 @@ import StringNumberList from "../dynamicLists/StringNumberList";
 import SelectFieldRowsPanel from "../panels/SelectFieldRowsPanel";
 import SimpleTypeList from "../dynamicLists/SimpleTypeList";
 import type { CreateFieldWorkDTO } from "../../interfaces/request/CreateFieldWorkDTO";
+import { getPreviousRows } from "../../services/FieldWorkService";
+import type { GetAffectedRowsDTO } from "../../interfaces/response/GetAffectedRowsDTO";
+import { useMutation } from "@tanstack/react-query";
 
 interface AddFieldWorkFormProps {
   cropField: GetCropFieldDTO;
@@ -36,6 +39,7 @@ function AddFieldWorkForm({
   isPending,
 }: AddFieldWorkFormProps) {
   const [rowRanges, setRowRanges] = useState<[number, number][]>([]);
+  const [previousRows, setPreviousRows] = useState<boolean[]>([]);
   const [currentWorkTypeIndex, setCurrentWorkTypeIndex] = useState<number>(0);
   const [activeFields, setActiveFields] = useState<FieldDefinition[]>(
     workTypes[0].fieldDefinitions || [],
@@ -59,6 +63,29 @@ function AddFieldWorkForm({
       affectedRows: [],
       parameters: {},
     });
+
+  const { mutate } = useMutation({
+    mutationFn: ({
+      cropFieldId,
+      numberOfDays,
+      referenceDate,
+    }: {
+      cropFieldId: string;
+      numberOfDays: number;
+      referenceDate: string;
+    }) => getPreviousRows(cropFieldId, numberOfDays, referenceDate),
+    onSuccess: (response: GetAffectedRowsDTO) => {
+      setPreviousRows(response.affectedRows);
+    },
+  });
+
+  const handleRowsSearch = (days: number) => {
+    mutate({
+      cropFieldId: cropField.uid,
+      numberOfDays: days,
+      referenceDate: createFieldWorkDTO.startDate,
+    });
+  };
 
   useEffect(() => {
     let totalRows = 0;
@@ -545,17 +572,20 @@ function AddFieldWorkForm({
           affectedRows={createFieldWorkDTO.affectedRows}
           onParcelSelect={handleParcelSelect}
           onRowClick={handleRowClick}
+          previousRows={previousRows}
+          onRowsSearch={handleRowsSearch}
         />
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="success"
-          sx={{ mt: 3, alignSelf: "flex-end" }}
-          disabled={isPending}
-        >
-          {isPending ? "Saving..." : "Save Field Work"}
-        </Button>
+        <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="success"
+            disabled={isPending}
+          >
+            {isPending ? "Saving..." : "Save Field Work"}
+          </Button>
+        </Box>
       </form>
     </Box>
   );

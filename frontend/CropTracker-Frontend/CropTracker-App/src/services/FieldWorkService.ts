@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDTO";
 import type { GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
+import type { GetAffectedRowsDTO } from "../interfaces/response/GetAffectedRowsDTO";
 
 export const cropFieldApi = axios.create({
     baseURL: "http://localhost:8080/api/field-works",
@@ -38,5 +39,22 @@ export const getFieldWork = async(fieldWorkId: string): Promise<GetFieldWorkDTO>
             "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
         }
     })
+    return response.data;
+}
+
+export const getPreviousRows = async(cropFieldId: string, numberOfDays: number, referenceDate: string): Promise<GetAffectedRowsDTO> => {
+    console.log("Sending get-previous-rows to server");
+
+    const response = await cropFieldApi.get<GetAffectedRowsDTO>('/findRows', {
+        params: {
+            cropFieldId: cropFieldId,
+            numberOfDays: numberOfDays,
+            referenceDate: referenceDate
+        },
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
+        }
+    });
+
     return response.data;
 }
