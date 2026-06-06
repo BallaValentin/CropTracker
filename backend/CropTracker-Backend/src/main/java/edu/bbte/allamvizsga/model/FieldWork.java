@@ -22,7 +22,7 @@ public class FieldWork extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "worktypes_id", nullable = false)
-    private WorkTypes workTypes;
+    private WorkType workType;
 
     private String workTiming;
 

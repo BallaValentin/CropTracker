@@ -30,8 +30,8 @@ public abstract class FieldWorkMapper {
     @AfterMapping
     protected void afterModelToGet(FieldWork fieldWork, @MappingTarget GetFieldWorkDTO getFieldWorkDTO) {
         getFieldWorkDTO.setCropFieldId(fieldWork.getCropField().getUid());
-        getFieldWorkDTO.setWorkTypeId(fieldWork.getWorkTypes().getUid());
-        getFieldWorkDTO.setWorkTypeName(fieldWork.getWorkTypes().getName());
+        getFieldWorkDTO.setWorkTypeId(fieldWork.getWorkType().getUid());
+        getFieldWorkDTO.setWorkTypeName(fieldWork.getWorkType().getName());
 
         getFieldWorkDTO.setStartDate(fieldWork.getStartDate().toString());
         getFieldWorkDTO.setEndDate(fieldWork.getEndDate().toString());

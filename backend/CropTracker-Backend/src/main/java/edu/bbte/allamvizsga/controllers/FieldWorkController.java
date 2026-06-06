@@ -7,7 +7,7 @@ import edu.bbte.allamvizsga.mappers.FieldWorkMapper;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldWork;
 import edu.bbte.allamvizsga.model.User;
-import edu.bbte.allamvizsga.model.WorkTypes;
+import edu.bbte.allamvizsga.model.WorkType;
 import edu.bbte.allamvizsga.services.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -31,7 +31,7 @@ public class FieldWorkController {
     private final UserService userService;
     private final CropFieldService cropFieldService;
     private final FieldParcelService fieldParcelService;
-    private final WorkTypesService workTypesService;
+    private final WorkTypeService workTypesService;
     private final FieldWorkMapper fieldWorkMapper;
 
     @PostMapping("/create")
@@ -48,8 +48,8 @@ public class FieldWorkController {
         fieldWork.getFieldParcelIds().forEach(parcelId -> fieldParcelService.findByCropFieldAndUid(cropField, parcelId));
 
         UUID workTypesId = UUID.fromString(createFieldWorkDTO.getWorkTypeId());
-        WorkTypes workTypes = workTypesService.findByUser(user, workTypesId);
-        fieldWork.setWorkTypes(workTypes);
+        WorkType workType = workTypesService.findByUser(user, workTypesId);
+        fieldWork.setWorkType(workType);
 
         fieldWorkService.create(fieldWork);
 

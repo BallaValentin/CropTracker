@@ -22,12 +22,16 @@ import type { CreateFieldWorkDTO } from "../../interfaces/request/CreateFieldWor
 import { getPreviousRows } from "../../services/FieldWorkService";
 import type { GetAffectedRowsDTO } from "../../interfaces/response/GetAffectedRowsDTO";
 import { useMutation } from "@tanstack/react-query";
+import AddIcon from "@mui/icons-material/Add";
+import AddNewWorkTypeDialog from "../dialogs/AddNewWorkTypeDialog";
+import type { CreateWorkTypeDTO } from "../../interfaces/request/CreateWorkTypeDTO";
 
 interface AddFieldWorkFormProps {
   cropField: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
   workTypes: GetWorkTypeDTO[];
   onSubmit: (createFieldWorkDTO: CreateFieldWorkDTO) => void;
+  onWorkTypeAdded: (createWorkTypeDTO: CreateWorkTypeDTO) => void;
   isPending: boolean;
 }
 
@@ -36,6 +40,7 @@ function AddFieldWorkForm({
   fieldParcels,
   workTypes,
   onSubmit,
+  onWorkTypeAdded,
   isPending,
 }: AddFieldWorkFormProps) {
   const [rowRanges, setRowRanges] = useState<[number, number][]>([]);
@@ -44,6 +49,7 @@ function AddFieldWorkForm({
   const [activeFields, setActiveFields] = useState<FieldDefinition[]>(
     workTypes[0].fieldDefinitions || [],
   );
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
   const toDateTimeLocal = (date: Date): string => {
     const pad = (num: number) => num.toString().padStart(2, "0");
@@ -292,6 +298,20 @@ function AddFieldWorkForm({
     }
   };
 
+  const handleAddWorkType = (event: React.MouseEvent<HTMLLIElement>) => {
+    event.stopPropagation();
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const handleDialogConfirm = (createWorkTypeDTO: CreateWorkTypeDTO) => {
+    onWorkTypeAdded(createWorkTypeDTO);
+    setDialogOpen(false);
+  };
+
   const handleEntryRemoved = (field: FieldDefinition, index: number) => {
     if (Array.isArray(createFieldWorkDTO.parameters[field.name])) {
       let updatedEntries: StringNumber[] | string[] | number[];
@@ -392,12 +412,27 @@ function AddFieldWorkForm({
                   value={currentWorkTypeIndex}
                   onChange={handleWorkTypeChange}
                   color="success"
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  }}
                 >
                   {workTypes.map((workType, index) => (
                     <MenuItem key={workType.uid} value={index}>
                       {workType.name}
                     </MenuItem>
                   ))}
+
+                  <MenuItem
+                    onClickCapture={handleAddWorkType}
+                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                  >
+                    <AddIcon />
+                    <Typography>Add new work type</Typography>
+                  </MenuItem>
                 </Select>
               </FormControl>
 
@@ -597,6 +632,13 @@ function AddFieldWorkForm({
           </Button>
         </Box>
       </form>
+      {dialogOpen && (
+        <AddNewWorkTypeDialog
+          onConfirmAdd={handleDialogConfirm}
+          onConfirmCancel={handleDialogClose}
+          open={dialogOpen}
+        />
+      )}
     </Box>
   );
 }

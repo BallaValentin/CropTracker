@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 @Data
-public class GetWorkTypesDTO {
+public class GetWorkTypeDTO {
     private UUID uid;
     private String name;
     private Boolean isSystem;

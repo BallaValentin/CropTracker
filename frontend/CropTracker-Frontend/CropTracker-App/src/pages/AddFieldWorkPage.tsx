@@ -16,6 +16,9 @@ import { type GetWorkTypeDTO } from "../interfaces/response/GetWorkTypeDTO";
 import { useWorkTypes } from "../hooks/UseWorkTypes";
 import { createFieldWork } from "../services/FieldWorkService";
 import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDTO";
+import { createWorkType } from "../services/WorkTypeService";
+import { queryClient } from "../query-client/QueryClient";
+import type { CreateWorkTypeDTO } from "../interfaces/request/CreateWorkTypeDTO";
 
 function AddFieldWorkPage() {
   const { id } = useParams();
@@ -47,8 +50,19 @@ function AddFieldWorkPage() {
     },
   });
 
+  const { mutate: workTypeMutate } = useMutation({
+    mutationFn: createWorkType,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workTypes"] });
+    },
+  });
+
   const handleCreateFieldWork = (createFieldWorkDTO: CreateFieldWorkDTO) => {
     mutate(createFieldWorkDTO);
+  };
+
+  const handleCreateWorkType = (createWorkTypeDTO: CreateWorkTypeDTO) => {
+    workTypeMutate(createWorkTypeDTO);
   };
 
   const { data: workTypesData, isLoading: isWorkTypesLoading } = useWorkTypes();
@@ -106,6 +120,7 @@ function AddFieldWorkPage() {
               fieldParcels={fieldParcels}
               workTypes={workTypes}
               onSubmit={handleCreateFieldWork}
+              onWorkTypeAdded={handleCreateWorkType}
               isPending={isPending}
             />
           )}

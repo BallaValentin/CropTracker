@@ -3,7 +3,7 @@ package edu.bbte.allamvizsga.configurations;
 import edu.bbte.allamvizsga.model.CropCategory;
 import edu.bbte.allamvizsga.model.FieldDefinition;
 import edu.bbte.allamvizsga.model.Role;
-import edu.bbte.allamvizsga.model.WorkTypes;
+import edu.bbte.allamvizsga.model.WorkType;
 import edu.bbte.allamvizsga.repository.CropCategoryRepository;
 import edu.bbte.allamvizsga.repository.RoleRepository;
 import edu.bbte.allamvizsga.repository.WorkTypesRepository;
@@ -11,7 +11,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -102,8 +101,8 @@ public class DataInitializer {
 
     private void createWorkTypeIfNotExists(WorkTypesRepository workTypesRepository, String workTypeName, Collection<FieldDefinition> fieldDefinitions) {
         if (workTypesRepository.findByNameAndIsSystemTrue(workTypeName) == null) {
-            WorkTypes workTypes = new WorkTypes(workTypeName, fieldDefinitions);
-            workTypesRepository.save(workTypes);
+            WorkType workType = new WorkType(workTypeName, fieldDefinitions);
+            workTypesRepository.save(workType);
         }
 
     }

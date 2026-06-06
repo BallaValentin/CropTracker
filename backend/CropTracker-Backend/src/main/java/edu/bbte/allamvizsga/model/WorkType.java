@@ -9,10 +9,10 @@ import org.hibernate.type.SqlTypes;
 import java.util.Collection;
 
 @Entity
-@Table(name = "work_types")
+@Table(name = "work_type")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class WorkTypes extends BaseEntity {
+public class WorkType extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
@@ -25,11 +25,11 @@ public class WorkTypes extends BaseEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private Collection<FieldDefinition> fieldDefinitions;
 
-    public WorkTypes() {
+    public WorkType() {
 
     }
 
-    public WorkTypes(String name, Collection<FieldDefinition> fieldDefinitions) {
+    public WorkType(String name, Collection<FieldDefinition> fieldDefinitions) {
         this.name = name;
         this.isSystem = Boolean.TRUE;
         this.fieldDefinitions = fieldDefinitions;

@@ -1,20 +1,11 @@
 package edu.bbte.allamvizsga.dto.request.fieldWork;
 
-import edu.bbte.allamvizsga.model.CropField;
-import edu.bbte.allamvizsga.model.WorkTypes;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
-import java.util.UUID;
 
 @Data
 public class CreateFieldWorkDTO {

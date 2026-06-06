@@ -2,7 +2,7 @@ package edu.bbte.allamvizsga.specifications;
 
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldWork;
-import edu.bbte.allamvizsga.model.WorkTypes;
+import edu.bbte.allamvizsga.model.WorkType;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -26,7 +26,7 @@ public class FieldWorkSpecification {
             if (selectedWorkTypes == null || selectedWorkTypes.isEmpty()) {
                 return criteriaBuilder.conjunction();
             }
-            Join<WorkTypes, Object> workTypesJoin = root.join("workTypes");
+            Join<WorkType, Object> workTypesJoin = root.join("workTypes");
             return workTypesJoin.get("uid").in(selectedWorkTypes);
         };
     }
