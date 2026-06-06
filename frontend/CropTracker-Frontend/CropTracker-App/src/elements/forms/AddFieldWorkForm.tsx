@@ -64,7 +64,7 @@ function AddFieldWorkForm({
       fieldParcelIds: fieldParcels.map((parcel) => parcel.uid),
       workTypeId: workTypes[0].uid,
       startDate: toDateTimeLocal(new Date()),
-      endDate: toDateTimeLocal(new Date()),
+      endDate: "",
       workTiming: "Scheduled",
       affectedRows: [],
       parameters: {},
@@ -185,6 +185,19 @@ function AddFieldWorkForm({
   };
 
   const handleWorkTimingChange = (event: SelectChangeEvent) => {
+    const newWorkTiming = event.target.value;
+
+    if (newWorkTiming === "Past") {
+      setCreateFieldWorkDTO((prev) => ({
+        ...prev,
+        endDate: toDateTimeLocal(new Date()),
+      }));
+    } else {
+      setCreateFieldWorkDTO((prev) => ({
+        ...prev,
+        endDate: "",
+      }));
+    }
     setCreateFieldWorkDTO((prev) => ({
       ...prev,
       workTiming: event.target.value,

@@ -2,8 +2,8 @@ import { Box, Button, Card, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import MapPreview from "../../leaflet/MapPreview";
-import DeletePlotButton from "../buttons/DeleteCropFieldButton";
-import DeletePlotDialog from "../dialogs/DeletePlotDialog";
+import DeleteCropFieldButton from "../buttons/DeleteCropFieldButton";
+import DeleteCropFieldDialog from "../dialogs/DeleteCropFieldDialog";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { deleteCropFieldById } from "../../services/CropFieldService";
@@ -94,10 +94,12 @@ function PlotCard({ cropField }: CropFieldCardProps) {
           </Button>
 
           <Box sx={{ flexGrow: 1 }} />
-          <DeletePlotButton onDeleteButtonClicked={handleDeleteButtonClicked} />
+          <DeleteCropFieldButton
+            onDeleteButtonClicked={handleDeleteButtonClicked}
+          />
         </Box>
       </Card>
-      <DeletePlotDialog
+      <DeleteCropFieldDialog
         onConfirmDelete={handleConfirmDelete}
         onConfirmCancel={handleConfirmCancel}
         open={deleteDialogOpen}

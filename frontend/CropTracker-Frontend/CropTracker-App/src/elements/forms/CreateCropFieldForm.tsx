@@ -9,7 +9,6 @@ import {
   Typography,
 } from "@mui/material";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import type { LatLngObject } from "../../interfaces/LatLngObject";
@@ -43,18 +42,11 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
     onSubmit(createCropFieldData);
   };
 
-  const handlePolygonCreated = (rawLatLngs: L.LatLng[]) => {
-    const latLngs = Array.isArray(rawLatLngs[0])
-      ? (rawLatLngs[0] as L.LatLng[])
-      : (rawLatLngs as L.LatLng[]);
-    const formattedPoints: LatLngObject[] = latLngs.map((latLng: L.LatLng) => ({
-      lat: latLng.lat,
-      lng: latLng.lng,
-    }));
+  const handlePolygonCreated = (polygonPoints: LatLngObject[]) => {
     setCreateCropFieldData((prev) => ({
       ...prev,
-      polygonPoints: formattedPoints,
-      area: calculatePolygonArea(formattedPoints),
+      polygonPoints: polygonPoints,
+      area: calculatePolygonArea(polygonPoints),
     }));
   };
 
@@ -66,14 +58,11 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
     }));
   };
 
-  const handleMarkerCreated = (rawLatLng: L.LatLng) => {
+  const handleMarkerCreated = (markerPoint: LatLngObject) => {
     setMarkerAdded(true);
     setCreateCropFieldData((prev) => ({
       ...prev,
-      markerPosition: {
-        lat: rawLatLng.lat,
-        lng: rawLatLng.lng,
-      },
+      markerPosition: markerPoint,
     }));
   };
 

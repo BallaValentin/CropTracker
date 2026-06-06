@@ -3,10 +3,11 @@ import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO"
 import { getCropFields } from "../services/CropFieldService"
 import type { AxiosError } from "axios";
 
-export const useUserCropFields = () => {
+export const useUserCropFields = (enabled: boolean) => {
     const query = useQuery<GetCropFieldDTO[], AxiosError>({
         queryKey: ["cropfields"],
         queryFn: getCropFields,
+        enabled: enabled,
         staleTime: 1000 * 60 * 60,
         refetchInterval: 1000 * 60 * 60,
     })

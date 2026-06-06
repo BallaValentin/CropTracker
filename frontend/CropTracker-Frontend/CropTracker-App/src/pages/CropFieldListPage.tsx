@@ -6,29 +6,28 @@ import { useUserProfile } from "../hooks/UseUserProfile";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import { useEffect, useState } from "react";
 import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
-import { useMutation } from "@tanstack/react-query";
-import { getCropFields } from "../services/CropFieldService";
-import AddIcon from "@mui/icons-material/Add";
 import { useLocation, useNavigate } from "react-router-dom";
 import CheckIcon from "@mui/icons-material/Check";
+import AddIcon from "@mui/icons-material/Add";
 import { useUserCropFields } from "../hooks/UseUserCropFields";
 import CropFieldCard from "../elements/cards/CropFieldCard";
 
 function PlotsListPage() {
-  const { data: user, isLoading } = useUserProfile();
-  const { data: userCropField } = useUserCropFields();
   const [cropFields, setCropFields] = useState<GetCropFieldDTO[]>([]);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [fabHovered, setFabHovered] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { mutate } = useMutation({
-    mutationFn: getCropFields,
-    onSuccess: (response: GetCropFieldDTO[]) => {
-      setCropFields(response);
-    },
-  });
+  const { data: user, isLoading } = useUserProfile();
+  const { data: cropFieldsData, isLoading: isLoadingCropFields } =
+    useUserCropFields(user != null);
+
+  useEffect(() => {
+    if (cropFieldsData) {
+      setCropFields(cropFieldsData);
+    }
+  }, [cropFieldsData]);
 
   useEffect(() => {
     const { success, message } = location.state || {};
@@ -39,12 +38,17 @@ function PlotsListPage() {
     }
   }, [location, navigate]);
 
-  useEffect(() => {
-    mutate();
-  }, [user, mutate, userCropField]);
-
   if (isLoading) {
-    return <ProgressCircle loadingMessage="Loading fields..." />;
+    return <ProgressCircle loadingMessage="Initializing user data..." />;
+  }
+
+  if (isLoadingCropFields) {
+    <Box>
+      <MainHeader userData={user} />
+      <MainContainer hasDrawer={Boolean(user?.username)}>
+        <ProgressCircle loadingMessage="Loading fields..." />
+      </MainContainer>
+    </Box>;
   }
 
   return (
@@ -137,7 +141,7 @@ function PlotsListPage() {
               }}
             >
               <Typography variant="button" sx={{ fontWeight: "bold" }}>
-                Add Plot
+                Add Crop Field
               </Typography>
             </Box>
             <Fab

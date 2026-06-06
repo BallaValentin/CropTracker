@@ -1,20 +1,22 @@
 import { Box, Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
 
-interface DeletePlotDialogProps {
+interface DeleteCropFieldDialogProps {
   onConfirmDelete: () => void;
   onConfirmCancel: () => void;
   open: boolean;
 }
 
-function DeletePlotDialog({
+function DeleteCropFieldDialog({
   onConfirmDelete,
   onConfirmCancel,
   open,
-}: DeletePlotDialogProps) {
+}: DeleteCropFieldDialogProps) {
   return (
     <Box>
       <Dialog open={open} onClose={onConfirmCancel}>
-        <DialogTitle>Are you sure you want to delete this plot?</DialogTitle>
+        <DialogTitle>
+          Are you sure you want to delete this crop field?
+        </DialogTitle>
         <DialogActions>
           <Button onClick={onConfirmCancel} color="primary">
             Cancel
@@ -28,4 +30,4 @@ function DeletePlotDialog({
   );
 }
 
-export default DeletePlotDialog;
+export default DeleteCropFieldDialog;
