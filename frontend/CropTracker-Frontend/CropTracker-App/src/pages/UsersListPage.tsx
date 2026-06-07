@@ -15,9 +15,10 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckIcon from "@mui/icons-material/Check";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import UserRoleDialog from "../elements/dialogs/UserRoleDialog";
+import { useNavigate } from "react-router-dom";
 
 function UsersListPage() {
-  const { data: user, isLoading } = useUserProfile();
+  const { data: user, isLoading, error: userError } = useUserProfile();
   const { data: adminUsers, isLoading: isLoadingUsers } = useAdminUsers();
   const [statusDialogOpen, setStatusDialogOpen] = useState<boolean>(false);
   const [rolesDialogOpen, setRolesDialogOpen] = useState<boolean>(false);
@@ -26,6 +27,8 @@ function UsersListPage() {
   const [isActive, setIsActive] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     setUsers(adminUsers ?? []);
@@ -195,6 +198,12 @@ function UsersListPage() {
 
   if (isLoading) {
     return <ProgressCircle loadingMessage="Loading users..." />;
+  }
+
+  if (userError) {
+    if (userError.response?.status === 401) {
+      navigate("/?error=unauthorized");
+    }
   }
 
   return (

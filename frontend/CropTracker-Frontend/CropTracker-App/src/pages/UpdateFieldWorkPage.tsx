@@ -29,7 +29,11 @@ function UpdateFieldWorkPage() {
   const [fieldParcels, setFieldParcels] = useState<GetFieldParcelDTO[]>([]);
   const [workTypes, setWorkTypes] = useState<GetWorkTypeDTO[]>([]);
 
-  const { data: user, isLoading: isUserLoading } = useUserProfile();
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    error: userError,
+  } = useUserProfile();
 
   const { data: fieldWorkData, isLoading: isFieldWorkLoading } = useFieldWork(
     id || "",
@@ -114,6 +118,12 @@ function UpdateFieldWorkPage() {
     isWorkTypesLoading
   ) {
     return <ProgressCircle loadingMessage="Initializing data..." />;
+  }
+
+  if (userError) {
+    if (userError.response?.status === 401) {
+      navigate("/?error=unauthorized");
+    }
   }
 
   return (

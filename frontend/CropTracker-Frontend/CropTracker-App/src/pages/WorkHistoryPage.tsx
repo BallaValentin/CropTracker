@@ -14,13 +14,19 @@ import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer"
 import { useFieldWorks } from "../hooks/UseFieldWorks";
 import type { GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function WorkHistoryPage() {
-  const { data: userData, isLoading: isLoadingUser } = useUserProfile();
+  const {
+    data: userData,
+    isLoading: isLoadingUser,
+    error: userError,
+  } = useUserProfile();
   const { data: fieldWorks, isLoading: isLoadingFieldWorks } = useFieldWorks();
   const [fieldWorksByDate, setFieldWorksByDate] = useState<
     Record<string, GetFieldWorkDTO[]>
   >({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (fieldWorks) {
@@ -45,6 +51,12 @@ function WorkHistoryPage() {
       <MainHeader userData={userData} />
       <ProgressCircle loadingMessage="Loading work history..." />
     </MainContainer>;
+  }
+
+  if (userError) {
+    if (userError.response?.status === 401) {
+      navigate("/?error=unauthorized");
+    }
   }
 
   return (

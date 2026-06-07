@@ -4,9 +4,33 @@ import { useUserProfile } from "../hooks/UseUserProfile";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainContainer from "../elements/containers/MainContainer";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import InvalidAuthTokenDialog from "../elements/dialogs/InvalidAuthTokenDialog";
+import { useEffect, useState } from "react";
 
 function MainPage() {
   const { data: user, isLoading } = useUserProfile();
+  const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    setDialogOpen(searchParams.get("error") === "unauthorized");
+    console.log(searchParams);
+  }, [searchParams]);
+
+  const handleClose = () => {
+    setDialogOpen(false);
+    searchParams.delete("error");
+    setSearchParams(searchParams, { replace: true });
+  };
+
+  const handleConfirm = () => {
+    setDialogOpen(false);
+    searchParams.delete("error");
+    setSearchParams(searchParams, { replace: true });
+    navigate("/signin");
+  };
 
   if (isLoading) {
     return <ProgressCircle loadingMessage="Loading your profile" />;
@@ -24,6 +48,14 @@ function MainPage() {
             </Typography>
           </ColumnCenterContainer>
         </MainContainer>
+
+        {dialogOpen && (
+          <InvalidAuthTokenDialog
+            onConfirm={handleConfirm}
+            onConfirmCancel={handleClose}
+            open={dialogOpen}
+          />
+        )}
       </Box>
     </>
   );

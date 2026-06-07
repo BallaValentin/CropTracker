@@ -19,7 +19,7 @@ function PlotsListPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { data: user, isLoading } = useUserProfile();
+  const { data: user, isLoading, error: userError } = useUserProfile();
   const { data: cropFieldsData, isLoading: isLoadingCropFields } =
     useUserCropFields(user != null);
 
@@ -49,6 +49,12 @@ function PlotsListPage() {
         <ProgressCircle loadingMessage="Loading fields..." />
       </MainContainer>
     </Box>;
+  }
+
+  if (userError) {
+    if (userError.response?.status === 401) {
+      navigate("/?error=unauthorized");
+    }
   }
 
   return (

@@ -27,7 +27,11 @@ function AddFieldWorkPage() {
   const [fieldParcels, setFieldParcels] = useState<GetFieldParcelDTO[]>([]);
   const [workTypes, setWorkTypes] = useState<GetWorkTypeDTO[]>([]);
 
-  const { data: user, isLoading: isUserLoading } = useUserProfile();
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    error: userError,
+  } = useUserProfile();
 
   const { data: cropFieldData, isLoading: isCropFieldLoading } = useQuery({
     queryKey: ["cropfields", id],
@@ -92,6 +96,12 @@ function AddFieldWorkPage() {
       setWorkTypes(workTypesData);
     }
   }, [workTypesData]);
+
+  if (userError) {
+    if (userError.response?.status === 401) {
+      navigate("/?error=unauthorized");
+    }
+  }
 
   if (
     isUserLoading ||

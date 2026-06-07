@@ -30,7 +30,11 @@ import { useCropFieldWork } from "../hooks/UseCropFieldWorks";
 import CropFieldWorksPanel from "../elements/panels/CropFieldWorksPanel";
 
 function PlotDetailsPage() {
-  const { data: user, isLoading: isUserLoading } = useUserProfile();
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    error: userError,
+  } = useUserProfile();
   const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldDTO>({
     uid: "",
     name: "Unnamed Field",
@@ -197,6 +201,12 @@ function PlotDetailsPage() {
   const handleFieldWorkEditClick = (fieldWorkId: string) => {
     navigate(`/update-field-work/${fieldWorkId}`);
   };
+
+  if (userError) {
+    if (userError.response?.status === 401) {
+      navigate("/?error=unauthorized");
+    }
+  }
 
   return (
     <>

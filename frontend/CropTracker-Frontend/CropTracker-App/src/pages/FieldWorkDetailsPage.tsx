@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
@@ -27,7 +27,11 @@ function FieldWorkDetailsPage() {
   const [cropCoords, setCropCoords] = useState<LatLngObject[] | null>(null);
 
   const { id } = useParams();
-  const { data: userData, isLoading: isUserLoading } = useUserProfile();
+  const {
+    data: userData,
+    isLoading: isUserLoading,
+    error: userError,
+  } = useUserProfile();
   const { data: fieldWorkData, isLoading: isFieldWorkLoading } = useFieldWork(
     id || "",
     !!id && !!userData,
@@ -38,6 +42,8 @@ function FieldWorkDetailsPage() {
   );
   const { data: fieldParcelsData, isLoading: isFieldParcelsLoading } =
     useFieldParcels(fieldWorkData?.cropFieldId || "");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!fieldParcelsData || !cropFieldData) {
@@ -121,6 +127,12 @@ function FieldWorkDetailsPage() {
       "numberValue" in element
     );
   };
+
+  if (userError) {
+    if (userError.response?.status === 401) {
+      navigate("/?error=unauthorized");
+    }
+  }
 
   return (
     <MainContainer hasDrawer={userData != null}>

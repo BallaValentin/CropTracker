@@ -15,7 +15,11 @@ import { queryClient } from "../query-client/QueryClient";
 import UpdateCropFieldForm from "../elements/forms/UpdateCropFieldForm";
 
 function UpdatePlotPage() {
-  const { data: user, isLoading: isLoadingUser } = useUserProfile();
+  const {
+    data: user,
+    isLoading: isLoadingUser,
+    error: userError,
+  } = useUserProfile();
   const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldDTO>({
     uid: "",
     name: "Unnamed Field",
@@ -75,6 +79,12 @@ function UpdatePlotPage() {
 
   if (isCropFieldLoading) {
     return <ProgressCircle loadingMessage="Loading field details" />;
+  }
+
+  if (userError) {
+    if (userError.response?.status === 401) {
+      navigate("/?error=unauthorized");
+    }
   }
 
   return (
