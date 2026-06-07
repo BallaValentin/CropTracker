@@ -24,7 +24,6 @@ function UpdatePlotPage() {
       lng: -0.09,
     },
     polygonPoints: [],
-    fieldParcels: [],
     area: 0,
   });
 

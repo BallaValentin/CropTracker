@@ -30,4 +30,10 @@ public class FieldWorkSpecification {
             return workTypesJoin.get("uid").in(selectedWorkTypes);
         };
     }
+
+    public static Specification<FieldWork> byWorkTiming(String workTiming) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(
+                root.get("workTiming"), workTiming
+        );
+    }
 }

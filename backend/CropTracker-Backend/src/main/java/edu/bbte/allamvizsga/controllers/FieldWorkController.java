@@ -65,6 +65,19 @@ public class FieldWorkController {
         return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetFieldWork).toList());
     }
 
+    @GetMapping(value = "/findall", params = "cropFieldId")
+    public ResponseEntity<Collection<GetFieldWorkDTO>> findAllOfCropField(@RequestHeader("Authorization")
+                                                                          String authorizationHeader,
+                                                                          @RequestParam("cropFieldId") String fieldId) {
+        User user = userService.extractUser(authorizationHeader);
+        UUID cropFieldId = UUID.fromString(fieldId);
+        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
+
+        Collection<FieldWork> fieldWorks = fieldWorkService.findallByCropField(cropField);
+
+        return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetFieldWork).toList());
+    }
+
     @GetMapping("/findby")
     public ResponseEntity<GetFieldWorkDTO> findById(@RequestHeader("Authorization")
                                                     String authorizationHeader, @RequestParam("id") String id) {

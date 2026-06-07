@@ -34,6 +34,13 @@ public class FieldWorkService {
                 .stream().filter(fieldWork -> fieldWork.getCropField().getUser() == user).toList();
     }
 
+    public Collection<FieldWork> findallByCropField(CropField cropField) {
+        return fieldWorkRepository.findAll(Specification.allOf(
+                FieldWorkSpecification.byCropField(cropField)
+                        .and(FieldWorkSpecification.byWorkTiming("Scheduled"))
+        ), Sort.by(Sort.Direction.DESC, "startDate"));
+    }
+
     public List<FieldWork> findAllWithinPastDays(
             CropField cropField, Instant referenceDate, Integer numberOfDays, List<UUID> selectedWorkTypes) {
         if (referenceDate == null || numberOfDays == null || numberOfDays < 0) {

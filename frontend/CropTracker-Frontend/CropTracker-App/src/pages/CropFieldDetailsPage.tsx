@@ -4,7 +4,7 @@ import { useUserProfile } from "../hooks/UseUserProfile";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -26,6 +26,8 @@ import { useFieldParcels } from "../hooks/UseFieldParcels";
 import { queryClient } from "../query-client/QueryClient";
 import UpdateFieldParcelForm from "../elements/forms/UpdateFieldParcelForm";
 import type { UpdateFieldParcelDTO } from "../interfaces/request/UpdateFieldParcelDTO";
+import { useCropFieldWork } from "../hooks/UseCropFieldWorks";
+import CropFieldWorksPanel from "../elements/panels/CropFieldWorksPanel";
 
 function PlotDetailsPage() {
   const { data: user, isLoading: isUserLoading } = useUserProfile();
@@ -52,11 +54,39 @@ function PlotDetailsPage() {
   const { data: fieldParcels, isLoading: isFieldParcelsLoading } =
     useFieldParcels(id || "");
 
+  const { data: fieldWorksData, isLoading: isFieldWorksLoading } =
+    useCropFieldWork(id || "", !!id);
+
+  const toDateTimeLocal = (date: Date): string => {
+    const pad = (num: number) => num.toString().padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+      date.getDate(),
+    )}T${pad(date.getHours())}:${pad(date.getMinutes())}:00Z`;
+  };
+
   useEffect(() => {
     if (fieldParcels) {
       setFieldParcelsData(fieldParcels);
     }
   }, [fieldParcels]);
+
+  const { onGoingWorks, scheduledWorks } = useMemo(() => {
+    if (!fieldWorksData) return { onGoingWorks: [], scheduledWorks: [] };
+
+    const currentDate = toDateTimeLocal(new Date());
+    const onGoing = fieldWorksData.filter(
+      (fieldWork) =>
+        fieldWork.workTiming === "Scheduled" &&
+        fieldWork.startDate <= currentDate,
+    );
+    const scheduled = fieldWorksData.filter(
+      (fieldWork) =>
+        fieldWork.workTiming === "Scheduled" &&
+        fieldWork.startDate > currentDate,
+    );
+
+    return { onGoingWorks: onGoing, scheduledWorks: scheduled };
+  }, [fieldWorksData]);
 
   const { data: plotData, isLoading: isCropFieldLoading } = useQuery({
     queryKey: ["cropfields", id],
@@ -120,8 +150,8 @@ function PlotDetailsPage() {
     }
   }, [plotData]);
 
-  if (isUserLoading || isCropFieldLoading) {
-    return <ProgressCircle loadingMessage="Loading your data..." />;
+  if (isUserLoading || isCropFieldLoading || isFieldWorksLoading) {
+    return <ProgressCircle loadingMessage="Initializing data..." />;
   }
 
   const handleUpdateClick = () => {
@@ -158,6 +188,10 @@ function PlotDetailsPage() {
 
   const handleAddFieldWorkClick = () => {
     navigate(`/add-field-work/${id}`);
+  };
+
+  const handleFieldWorkDetailsClick = (fieldWorkId: string) => {
+    navigate(`/field-work-details/${fieldWorkId}`);
   };
 
   return (
@@ -222,6 +256,19 @@ function PlotDetailsPage() {
               onUpdateParcelClick={handleUpdateParcelClick}
             />
           )}
+
+          <CropFieldWorksPanel
+            fieldWorks={onGoingWorks}
+            title="Ongoing Works"
+            placeholderText="You have no ongoing works at the moment"
+            onDetailsClick={handleFieldWorkDetailsClick}
+          />
+          <CropFieldWorksPanel
+            fieldWorks={scheduledWorks}
+            title="Scheduled Works"
+            placeholderText="You have no works scheduled"
+            onDetailsClick={handleFieldWorkDetailsClick}
+          />
 
           <Typography
             variant="body2"

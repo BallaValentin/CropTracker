@@ -5,6 +5,7 @@ import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
 import edu.bbte.allamvizsga.model.FieldWork;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.time.Instant;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public abstract class FieldWorkMapper {
+    @Mapping(target = "endDate", ignore = true)
     public abstract FieldWork createFieldWorkToModel(CreateFieldWorkDTO createFieldWorkDTO);
 
     @AfterMapping
@@ -20,11 +22,12 @@ public abstract class FieldWorkMapper {
 
         fieldWork.setStartDate(Instant.parse(createFieldWorkDTO.getStartDate()));
 
-        if (createFieldWorkDTO.getEndDate() != null) {
+        if (!createFieldWorkDTO.getEndDate().isBlank()) {
             fieldWork.setEndDate(Instant.parse(createFieldWorkDTO.getEndDate()));
         }
     }
 
+    @Mapping(target = "endDate", ignore = true)
     public abstract GetFieldWorkDTO modelToGetFieldWork(FieldWork fieldWork);
 
     @AfterMapping
@@ -34,6 +37,10 @@ public abstract class FieldWorkMapper {
         getFieldWorkDTO.setWorkTypeName(fieldWork.getWorkType().getName());
 
         getFieldWorkDTO.setStartDate(fieldWork.getStartDate().toString());
-        getFieldWorkDTO.setEndDate(fieldWork.getEndDate().toString());
+        if (fieldWork.getEndDate() == null) {
+            getFieldWorkDTO.setEndDate("");
+        } else {
+            getFieldWorkDTO.setEndDate(fieldWork.getEndDate().toString());
+        }
     }
 }
