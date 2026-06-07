@@ -45,15 +45,20 @@ function MapDetailZoomControl({
     const layerGroup = lowZoomGroupRef.current;
     layerGroup.clearLayers();
     rows.forEach((row, index) => {
+      let isAffected = false;
+      if (affectedRows && index < affectedRows.length) {
+        isAffected = affectedRows[index];
+      }
+
       const line = L.polyline(row, {
-        color: "black",
-        weight: 1,
+        color: isAffected ? "blue" : "black",
+        weight: isAffected ? 1.5 : 1,
         rowIndex: index,
       } as SelectShapeOptions).addTo(layerGroup);
 
       linesRef.current.push(line as SelectPolyline);
     });
-  }, [rows]);
+  }, [rows, affectedRows]);
 
   useEffect(() => {
     const layerGroup = mediumZoomGroupRef.current;
@@ -71,11 +76,16 @@ function MapDetailZoomControl({
         rowIndex: index,
       } as SelectShapeOptions).addTo(layerGroup);
 
+      let isAffected = false;
+      if (affectedRows && index < affectedRows.length) {
+        isAffected = affectedRows[index];
+      }
+
       const selectPolygon = L.polygon(rectangle, {
-        color: "#2196f3",
-        weight: 1.5,
+        color: "#00f0ff",
+        weight: isAffected ? 2.5 : 0,
         fillColor: "#00b0ff",
-        fillOpacity: 0,
+        fillOpacity: isAffected ? 0.1 : 0,
         rowIndex: index,
       } as SelectShapeOptions).addTo(selectLayerGroup);
 

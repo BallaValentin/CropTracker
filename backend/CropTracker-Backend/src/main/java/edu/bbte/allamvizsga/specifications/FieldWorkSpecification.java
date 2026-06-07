@@ -26,7 +26,7 @@ public class FieldWorkSpecification {
             if (selectedWorkTypes == null || selectedWorkTypes.isEmpty()) {
                 return criteriaBuilder.conjunction();
             }
-            Join<WorkType, Object> workTypesJoin = root.join("workTypes");
+            Join<WorkType, Object> workTypesJoin = root.join("workType");
             return workTypesJoin.get("uid").in(selectedWorkTypes);
         };
     }
