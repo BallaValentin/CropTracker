@@ -56,7 +56,7 @@ function CropFieldInfoPanel({
           numberOfRows: parcel.layoutParameters.numberOfRows,
           rowDistance:
             parcel.layoutParameters.bedSpacing +
-            parcel.layoutParameters.rowWidth / 2,
+            parcel.layoutParameters.rowWidth,
         });
       }) || [];
     setRows(currentRows);

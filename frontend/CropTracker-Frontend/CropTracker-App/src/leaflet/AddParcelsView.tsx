@@ -56,15 +56,13 @@ function AddParcelView({
   const [cropCoords, setCropCoords] = useState<LatLngObject[]>([]);
 
   useEffect(() => {
-    setRows(
-      getGeneratedRows({
-        polygonCoords: parcelPolygonPoints,
-        referenceRow: layoutParameters.referenceRow,
-        numberOfRows: layoutParameters.numberOfRows,
-        rowDistance:
-          layoutParameters.bedSpacing + layoutParameters.rowWidth / 2,
-      }) || [],
-    );
+    const generatedRows = getGeneratedRows({
+      polygonCoords: parcelPolygonPoints,
+      referenceRow: layoutParameters.referenceRow,
+      numberOfRows: layoutParameters.numberOfRows,
+      rowDistance: layoutParameters.bedSpacing + layoutParameters.rowWidth,
+    });
+    setRows(generatedRows || []);
   }, [
     layoutParameters.bedSpacing,
     layoutParameters.numberOfRows,

@@ -23,3 +23,5 @@ export const WorkTypes = {
     Harvesting: 'Harvesting',
     Maintenance: 'Maintenance'
 } as const;
+
+export const maxLines = 10;

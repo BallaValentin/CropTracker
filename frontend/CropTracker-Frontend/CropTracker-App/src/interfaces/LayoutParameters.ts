@@ -7,5 +7,6 @@ export interface LayoutParameters {
     rowSpacing: number,
     marginSpacing: number,
     numberOfRows: number,
-    rowWidth: number
+    rowWidth: number,
+    linesPerRow: number
 }

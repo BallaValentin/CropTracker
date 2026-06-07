@@ -67,6 +67,7 @@ function FieldParcelDrawControl({
     rows.forEach((row) => {
       L.polyline(row, {
         color: "black",
+        weight: 1,
         pmIgnore: true,
       }).addTo(layerGroup);
     });

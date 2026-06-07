@@ -1,4 +1,4 @@
 export const LayoutTypes = {
   SingleRow: "SINGLE-ROW",
-  TwinRow: "TWIN-ROW",
+  MultiRow: "MULTI-ROW",
 } as const;

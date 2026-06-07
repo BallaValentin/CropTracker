@@ -21,8 +21,9 @@ import type { CreateFieldParcelDTO } from "../../interfaces/request/CreateFieldP
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import { LayoutTypes } from "../../utils/LayoutTypes";
-import { cropWidthCm } from "../../utils/Constants";
+import { cropWidthCm, maxLines } from "../../utils/Constants";
 import { calculateRowWidth } from "../../utils/CalculateRowWidth";
+import { getGeneratedRows } from "../../utils/GenerateShapesUtil";
 
 interface CreateFieldParcelFormProps {
   onSubmit: (createFieldParcelData: CreateFieldParcelDTO) => void;
@@ -44,14 +45,15 @@ function CreateFieldParcelForm({
     area: 0,
     polygonPoints: [] as LatLngObject[],
     polygonColor: "#ff0000",
-    layoutType: "",
+    layoutType: LayoutTypes.SingleRow,
     layoutParameters: {
       referenceRow: [],
       bedSpacing: 10,
       plantSpacing: 30,
-      rowSpacing: 0,
+      rowSpacing: 30,
       numberOfRows: 0,
-      marginSpacing: 0,
+      marginSpacing: 10,
+      linesPerRow: 1,
       rowWidth: cropWidthCm,
     },
   });
@@ -106,14 +108,15 @@ function CreateFieldParcelForm({
       const layoutParams = prev.layoutParameters;
       const newLayoutType = event.target.value;
 
-      const newRowWidth = calculateRowWidth(layoutParams, newLayoutType);
-      console.log("New row width cm: ", newRowWidth);
+      const newRowWidth = calculateRowWidth(layoutParams, newLayoutType, true);
+
       return {
         ...prev,
         layoutType: newLayoutType,
         layoutParameters: {
           ...layoutParams,
           rowWidth: newRowWidth,
+          linesPerRow: 1,
         },
       };
     });
@@ -123,13 +126,32 @@ function CreateFieldParcelForm({
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = event.target;
-    const numericValue = Number.parseInt(value) || 0;
+    let numericValue = Number.parseInt(value) || 0;
+
+    if (name === "linesPerRow") {
+      numericValue = Math.max(1, Math.min(numericValue, maxLines));
+    }
+
+    if (name === "numberOfRows") {
+      const actualRows = getGeneratedRows({
+        polygonCoords: newFieldParcel.polygonPoints,
+        referenceRow: newFieldParcel.layoutParameters.referenceRow,
+        numberOfRows: numericValue,
+        rowDistance:
+          newFieldParcel.layoutParameters.bedSpacing +
+          newFieldParcel.layoutParameters.rowWidth,
+      });
+
+      if (actualRows && actualRows.length > 0) {
+        console.log("ACTUAL: ", actualRows.length, " TARGET: ", numericValue);
+        numericValue = actualRows.length;
+      }
+    }
 
     setNewFieldParcel((prev) => {
       const layoutType = prev.layoutType;
       const nextParams = { ...prev.layoutParameters, [name]: numericValue };
-      const newRowWidth = calculateRowWidth(nextParams, layoutType);
-      console.log("New row width cm: ", newRowWidth);
+      const newRowWidth = calculateRowWidth(nextParams, layoutType, false);
 
       return {
         ...prev,
@@ -249,7 +271,7 @@ function CreateFieldParcelForm({
                   sx={{ mt: 2, mb: 2 }}
                 >
                   <MenuItem value={LayoutTypes.SingleRow}>Single-Row</MenuItem>
-                  <MenuItem value={LayoutTypes.TwinRow}>Twin-Row</MenuItem>
+                  <MenuItem value={LayoutTypes.MultiRow}>Multi-Row</MenuItem>
                 </Select>
               </FormControl>
 
@@ -258,32 +280,49 @@ function CreateFieldParcelForm({
                 name="numberOfRows"
                 type="number"
                 label="Number of Rows"
+                value={newFieldParcel.layoutParameters.numberOfRows}
                 onChange={handleLayoutParamsChange}
                 sx={{ mb: 1 }}
               />
 
               <Box sx={{ display: "flex", gap: 1, mt: "auto" }}>
+                {newFieldParcel.layoutType === LayoutTypes.MultiRow && (
+                  <TextField
+                    color="success"
+                    name="linesPerRow"
+                    type="number"
+                    label="Lines per Row"
+                    value={newFieldParcel.layoutParameters.linesPerRow}
+                    onChange={handleLayoutParamsChange}
+                  />
+                )}
+
                 <TextField
                   color="success"
                   name="bedSpacing"
                   type="number"
                   label="Bed Spacing(cm)"
+                  value={newFieldParcel.layoutParameters.bedSpacing}
                   onChange={handleLayoutParamsChange}
                 />
-                {newFieldParcel.layoutType === LayoutTypes.TwinRow && (
+
+                {newFieldParcel.layoutType === LayoutTypes.MultiRow && (
                   <TextField
                     color="success"
                     name="rowSpacing"
                     type="number"
                     label="Rows Distance(cm)"
+                    value={newFieldParcel.layoutParameters.rowSpacing}
                     onChange={handleLayoutParamsChange}
                   />
                 )}
+
                 <TextField
                   color="success"
                   name="plantSpacing"
                   type="number"
                   label="Crop Spacing(cm)"
+                  value={newFieldParcel.layoutParameters.plantSpacing}
                   onChange={handleLayoutParamsChange}
                 />
                 <TextField
@@ -291,6 +330,7 @@ function CreateFieldParcelForm({
                   name="marginSpacing"
                   type="number"
                   label="Row Margins(cm)"
+                  value={newFieldParcel.layoutParameters.marginSpacing}
                   onChange={handleLayoutParamsChange}
                 />
               </Box>

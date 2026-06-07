@@ -22,6 +22,8 @@ import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcel
 import type { UpdateFieldParcelDTO } from "../../interfaces/request/UpdateFieldParcelDTO";
 import { LayoutTypes } from "../../utils/LayoutTypes";
 import { calculateRowWidth } from "../../utils/CalculateRowWidth";
+import { maxLines } from "../../utils/Constants";
+import { getGeneratedRows } from "../../utils/GenerateShapesUtil";
 
 interface UpdateFieldParcelFormProps {
   onSubmit: (
@@ -52,7 +54,6 @@ function UpdateFieldParcelForm({
       layoutType: fieldParcelToUpdate.layoutType,
       layoutParameters: fieldParcelToUpdate.layoutParameters,
     });
-
   const { data: crops } = useCropSearch(searchTerm);
   const cropsList = crops || [];
 
@@ -93,14 +94,15 @@ function UpdateFieldParcelForm({
       const layoutParams = prev.layoutParameters;
       const newLayoutType = event.target.value;
 
-      const newRowWidth = calculateRowWidth(layoutParams, newLayoutType);
-      console.log("New row width cm: ", newRowWidth);
+      const newRowWidth = calculateRowWidth(layoutParams, newLayoutType, true);
+
       return {
         ...prev,
         layoutType: newLayoutType,
         layoutParameters: {
           ...layoutParams,
           rowWidth: newRowWidth,
+          linesPerRow: 1,
         },
       };
     });
@@ -110,13 +112,31 @@ function UpdateFieldParcelForm({
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = event.target;
-    const numericValue = Number.parseInt(value) || 0;
+    let numericValue = Number.parseInt(value) || 0;
+
+    if (name === "linesPerRow") {
+      numericValue = Math.max(1, Math.min(numericValue, maxLines));
+    }
+
+    if (name === "numberOfRows") {
+      const actualRows = getGeneratedRows({
+        polygonCoords: fieldParcelUpdate.polygonPoints,
+        referenceRow: fieldParcelUpdate.layoutParameters.referenceRow,
+        numberOfRows: numericValue,
+        rowDistance:
+          fieldParcelUpdate.layoutParameters.bedSpacing +
+          fieldParcelUpdate.layoutParameters.rowWidth,
+      });
+
+      if (actualRows && actualRows.length > 0) {
+        numericValue = actualRows.length;
+      }
+    }
 
     setFieldParcelUpdate((prev) => {
       const layoutType = prev.layoutType;
       const nextParams = { ...prev.layoutParameters, [name]: numericValue };
-      const newRowWidth = calculateRowWidth(nextParams, layoutType);
-      console.log("New row width cm: ", newRowWidth);
+      const newRowWidth = calculateRowWidth(nextParams, layoutType, false);
 
       return {
         ...prev,
@@ -232,7 +252,7 @@ function UpdateFieldParcelForm({
                   sx={{ mt: 2, mb: 2 }}
                 >
                   <MenuItem value={LayoutTypes.SingleRow}>Single-Row</MenuItem>
-                  <MenuItem value={LayoutTypes.TwinRow}>Twin-Row</MenuItem>
+                  <MenuItem value={LayoutTypes.MultiRow}>Multi-Row</MenuItem>
                 </Select>
               </FormControl>
 
@@ -247,6 +267,17 @@ function UpdateFieldParcelForm({
               />
 
               <Box sx={{ display: "flex", gap: 1, mt: "auto" }}>
+                {fieldParcelUpdate.layoutType === LayoutTypes.MultiRow && (
+                  <TextField
+                    color="success"
+                    name="linesPerRow"
+                    type="number"
+                    label="Lines per Row"
+                    value={fieldParcelUpdate.layoutParameters.linesPerRow}
+                    onChange={handleLayoutParamsChange}
+                  />
+                )}
+
                 <TextField
                   value={fieldParcelUpdate.layoutParameters.bedSpacing}
                   color="success"
@@ -255,7 +286,7 @@ function UpdateFieldParcelForm({
                   label="Bed Spacing(cm)"
                   onChange={handleLayoutParamsChange}
                 />
-                {fieldParcelUpdate.layoutType === LayoutTypes.TwinRow && (
+                {fieldParcelUpdate.layoutType === LayoutTypes.MultiRow && (
                   <TextField
                     value={fieldParcelUpdate.layoutParameters.rowSpacing}
                     color="success"
