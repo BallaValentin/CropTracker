@@ -41,6 +41,7 @@ function AddFieldWorkPage() {
   const { mutate, isPending } = useMutation({
     mutationFn: createFieldWork,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fieldWorks"] });
       navigate(`/cropfield-details/${id}`, {
         state: {
           success: true,

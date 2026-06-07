@@ -29,6 +29,20 @@ public class FieldWorkService {
         fieldWorkRepository.save(fieldWork);
     }
 
+    public void update(FieldWork fieldWork) {
+        FieldWork foundFieldWork = fieldWorkRepository.findByUid(fieldWork.getUid());
+
+        if (foundFieldWork == null) {
+            throw new EntityNotFoundException("Couldn`t find field work with id " + fieldWork.getUid());
+        }
+
+        if (fieldWork.getCropField() != foundFieldWork.getCropField()) {
+            throw new ForbiddenException("You have no access to this field work");
+        }
+
+        fieldWorkRepository.save(fieldWork);
+    }
+
     public Collection<FieldWork> findall(User user) {
         return fieldWorkRepository.findAll(Sort.by(Sort.Direction.DESC, "startDate"))
                 .stream().filter(fieldWork -> fieldWork.getCropField().getUser() == user).toList();

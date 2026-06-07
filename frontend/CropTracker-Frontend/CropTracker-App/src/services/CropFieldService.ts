@@ -50,6 +50,20 @@ export const getCropFieldById = async (cropFieldId: string): Promise<GetCropFiel
     return response.data
 }
 
+export const getCropFieldByFieldWorkId = async (fieldWorkId: string): Promise<GetCropFieldDTO> => {
+    console.log("Sending get-cropfield-by-field-work request to server")
+    const response = await cropFieldApi.get<GetCropFieldDTO>(`/findby`, {
+        params: {
+            fieldWorkId: fieldWorkId
+        },
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+    })
+
+    return response.data
+}
+
 export const deleteCropFieldById = async (cropFieldId: string): Promise<void> => {
     console.log("Sending delete-cropfield request to server")
     const response = await cropFieldApi.delete<void>(`/delete?id=${cropFieldId}`, {

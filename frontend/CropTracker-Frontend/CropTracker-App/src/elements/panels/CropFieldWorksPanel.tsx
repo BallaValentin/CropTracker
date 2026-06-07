@@ -15,6 +15,7 @@ interface CropFieldWorkPanelProps {
   title: string;
   placeholderText: string;
   onDetailsClick: (fieldWorkId: string) => void;
+  onEditClick: (fieldWorkId: string) => void;
 }
 
 function CropFieldWorksPanel({
@@ -22,6 +23,7 @@ function CropFieldWorksPanel({
   title,
   placeholderText,
   onDetailsClick,
+  onEditClick,
 }: CropFieldWorkPanelProps) {
   const handleDetailsClick = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -31,8 +33,12 @@ function CropFieldWorksPanel({
     onDetailsClick(fieldWorkId);
   };
 
-  const handleEditClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleEditClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    fieldWorkId: string,
+  ) => {
     event.stopPropagation();
+    onEditClick(fieldWorkId);
   };
   return (
     <Paper
@@ -81,7 +87,10 @@ function CropFieldWorksPanel({
                 >
                   Details
                 </Button>
-                <Button onClick={handleEditClick} color="success">
+                <Button
+                  onClick={(e) => handleEditClick(e, work.uid)}
+                  color="success"
+                >
                   Edit
                 </Button>
               </Box>

@@ -8,7 +8,7 @@ export interface GetFieldWorkDTO {
     workTiming: string;
     startDate: string;
     endDate: string;
-    parameters: Map<string, string | number | string[] | number[] | StringNumber[]>;
+    parameters: Record<string, string | number | string[] | number[] | StringNumber[]>;
     affectedRows: boolean[];
     fieldParcelIds: string[];
 }

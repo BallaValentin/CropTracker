@@ -194,6 +194,10 @@ function PlotDetailsPage() {
     navigate(`/field-work-details/${fieldWorkId}`);
   };
 
+  const handleFieldWorkEditClick = (fieldWorkId: string) => {
+    navigate(`/update-field-work/${fieldWorkId}`);
+  };
+
   return (
     <>
       <Box>
@@ -262,12 +266,15 @@ function PlotDetailsPage() {
             title="Ongoing Works"
             placeholderText="You have no ongoing works at the moment"
             onDetailsClick={handleFieldWorkDetailsClick}
+            onEditClick={handleFieldWorkEditClick}
           />
+
           <CropFieldWorksPanel
             fieldWorks={scheduledWorks}
             title="Scheduled Works"
             placeholderText="You have no works scheduled"
             onDetailsClick={handleFieldWorkDetailsClick}
+            onEditClick={handleFieldWorkEditClick}
           />
 
           <Typography

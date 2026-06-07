@@ -17,6 +17,7 @@ import CropsListPage from "./pages/CropsListPage";
 import AddFieldWorkPage from "./pages/AddFieldWorkPage";
 import WorkHistoryPage from "./pages/WorkHistoryPage";
 import FieldWorkDetailsPage from "./pages/FieldWorkDetailsPage";
+import UpdateFieldWorkPage from "./pages/UpdateFieldWorkPage";
 
 function App() {
   return (
@@ -49,6 +50,10 @@ function App() {
               <Route
                 path="/add-field-work/:id"
                 element={<AddFieldWorkPage />}
+              />
+              <Route
+                path="/update-field-work/:id"
+                element={<UpdateFieldWorkPage />}
               />
               <Route path="/work-history" element={<WorkHistoryPage />} />
               <Route

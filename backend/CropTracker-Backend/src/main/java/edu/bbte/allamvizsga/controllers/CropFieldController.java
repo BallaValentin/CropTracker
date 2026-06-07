@@ -7,8 +7,10 @@ import edu.bbte.allamvizsga.mappers.CropFieldMapper;
 import edu.bbte.allamvizsga.mappers.FieldParcelMapper;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldParcel;
+import edu.bbte.allamvizsga.model.FieldWork;
 import edu.bbte.allamvizsga.model.User;
 import edu.bbte.allamvizsga.services.CropFieldService;
+import edu.bbte.allamvizsga.services.FieldWorkService;
 import edu.bbte.allamvizsga.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -31,6 +33,7 @@ import java.util.UUID;
 public class CropFieldController {
     private final CropFieldService cropFieldService;
     private final UserService userService;
+    private final FieldWorkService fieldWorkService;
     private final CropFieldMapper cropFieldMapper;
     private final FieldParcelMapper fieldParcelMapper;
 
@@ -71,13 +74,32 @@ public class CropFieldController {
         return ResponseEntity.ok(getCropFieldDTOS);
     }
 
-    @GetMapping("/findby")
+    @GetMapping(value = "/findby", params = "id")
     public ResponseEntity<GetCropFieldDTO> getCropFieldById(
             @RequestParam(name = "id") String cropFieldId
     ) {
         UUID uid = UUID.fromString(cropFieldId);
         CropField cropField = cropFieldService.findById(uid);
         Collection<FieldParcel> fieldParcels = cropField.getFieldParcels();
+        GetCropFieldDTO getCropFieldDTO = cropFieldMapper.modelToGetCropFieldDTO(cropField);
+        getCropFieldDTO.setFieldParcelDTOS(fieldParcels.stream().map(fieldParcelMapper::modelToGetFieldParcelDTO)
+                .toList());
+        return ResponseEntity.ok(getCropFieldDTO);
+    }
+
+    @GetMapping(value = "/findby", params = "fieldWorkId")
+    public ResponseEntity<GetCropFieldDTO> getCropFieldByFieldWorkId(
+            @RequestParam(name = "fieldWorkId") String workId,
+            @RequestHeader("Authorization") String authorizationHeader
+    ) {
+        UUID uid = UUID.fromString(workId);
+        User user = userService.extractUser(authorizationHeader);
+
+        FieldWork fieldWork = fieldWorkService.findById(uid, user);
+        CropField cropField = fieldWork.getCropField();
+
+        Collection<FieldParcel> fieldParcels = cropField.getFieldParcels();
+
         GetCropFieldDTO getCropFieldDTO = cropFieldMapper.modelToGetCropFieldDTO(cropField);
         getCropFieldDTO.setFieldParcelDTOS(fieldParcels.stream().map(fieldParcelMapper::modelToGetFieldParcelDTO)
                 .toList());

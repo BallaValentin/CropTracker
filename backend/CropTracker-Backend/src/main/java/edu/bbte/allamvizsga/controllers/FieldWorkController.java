@@ -1,6 +1,7 @@
 package edu.bbte.allamvizsga.controllers;
 
 import edu.bbte.allamvizsga.dto.request.fieldWork.CreateFieldWorkDTO;
+import edu.bbte.allamvizsga.dto.request.fieldWork.UpdateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetAffectedRowsDTO;
 import edu.bbte.allamvizsga.mappers.FieldWorkMapper;
@@ -34,25 +35,41 @@ public class FieldWorkController {
     private final WorkTypeService workTypesService;
     private final FieldWorkMapper fieldWorkMapper;
 
-    @PostMapping("/create")
-    public void create(@Valid @RequestBody CreateFieldWorkDTO createFieldWorkDTO,
-                       @RequestHeader("Authorization") String authorizationHeader) {
-        FieldWork fieldWork = fieldWorkMapper.createFieldWorkToModel(createFieldWorkDTO);
-
+    protected void setupFieldWork(FieldWork fieldWork, String authorizationHeader, String fieldId, String workId) {
         User user = userService.extractUser(authorizationHeader);
 
-        UUID cropFieldId = UUID.fromString(createFieldWorkDTO.getCropFieldId());
+        UUID cropFieldId = UUID.fromString(fieldId);
         CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
         fieldWork.setCropField(cropField);
 
         fieldWork.getFieldParcelIds().forEach(parcelId -> fieldParcelService.findByCropFieldAndUid(cropField, parcelId));
 
-        UUID workTypesId = UUID.fromString(createFieldWorkDTO.getWorkTypeId());
+        UUID workTypesId = UUID.fromString(workId);
         WorkType workType = workTypesService.findByUser(user, workTypesId);
         fieldWork.setWorkType(workType);
+    }
+
+    @PostMapping("/create")
+    public void create(@Valid @RequestBody CreateFieldWorkDTO createFieldWorkDTO,
+                       @RequestHeader("Authorization") String authorizationHeader) {
+        FieldWork fieldWork = fieldWorkMapper.createFieldWorkToModel(createFieldWorkDTO);
+
+        setupFieldWork(fieldWork, authorizationHeader, createFieldWorkDTO.getCropFieldId(), createFieldWorkDTO.getWorkTypeId());
 
         fieldWorkService.create(fieldWork);
+    }
 
+    @PutMapping("/update")
+    public void update(@Valid @RequestBody UpdateFieldWorkDTO updateFieldWorkDTO,
+                       @RequestParam("fieldWorkId") String workId,
+                       @RequestHeader("Authorization") String authorizationHeader) {
+        FieldWork fieldWork = fieldWorkMapper.updateFieldWorkToModel(updateFieldWorkDTO);
+        UUID fieldWorkId = UUID.fromString(workId);
+        fieldWork.setUid(fieldWorkId);
+
+        setupFieldWork(fieldWork, authorizationHeader, updateFieldWorkDTO.getCropFieldId(), updateFieldWorkDTO.getWorkTypeId());
+
+        fieldWorkService.update(fieldWork);
     }
 
     @GetMapping("/findall")

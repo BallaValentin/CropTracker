@@ -2,6 +2,7 @@ import axios from "axios";
 import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDTO";
 import type { GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
 import type { GetAffectedRowsDTO } from "../interfaces/response/GetAffectedRowsDTO";
+import type { UpdateFieldWorkDTO } from "../interfaces/request/UpdateFieldWorkDTO";
 
 export const fieldWorkApi = axios.create({
     baseURL: "http://localhost:8080/api/field-works",
@@ -13,6 +14,18 @@ export const fieldWorkApi = axios.create({
 export const createFieldWork = async(createFieldWorkDTO: CreateFieldWorkDTO): Promise<void> => {
     console.log("Sending create-field-work request to server");
     await fieldWorkApi.post<void>("/create", createFieldWorkDTO, {
+        headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
+        }
+    })
+}
+
+export const updateFieldWork = async(updateFieldWorkDTO: UpdateFieldWorkDTO, fieldWorkId: string): Promise<void> => {
+    console.log("Sending update-field-work request to server");
+    await fieldWorkApi.put<void>("/update", updateFieldWorkDTO, {
+        params: {
+            fieldWorkId: fieldWorkId
+        },
         headers: {
             "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
         }
@@ -39,6 +52,7 @@ export const getFieldWorksByCropField = async(cropFieldId: string): Promise<GetF
             "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
         }
     })
+    console.log("Received: ", response.data)
     return response.data;
 }
 

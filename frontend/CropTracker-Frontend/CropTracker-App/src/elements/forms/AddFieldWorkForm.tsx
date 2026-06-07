@@ -210,7 +210,10 @@ function AddFieldWorkForm({
     const { name, value } = event.target;
     setCreateFieldWorkDTO((prev) => ({
       ...prev,
-      [name]: value,
+      parameters: {
+        ...prev.parameters,
+        [name]: value,
+      },
     }));
   };
 
@@ -523,6 +526,7 @@ function AddFieldWorkForm({
                   <FormControl fullWidth variant="outlined">
                     <TextField
                       label={field.name}
+                      name={field.name}
                       color="success"
                       type="string"
                       onChange={handleWorkParametersTextfieldChange}
@@ -536,6 +540,7 @@ function AddFieldWorkForm({
                   <FormControl fullWidth variant="outlined">
                     <TextField
                       label={field.name}
+                      name={field.name}
                       color="success"
                       type="number"
                       onChange={handleWorkParametersTextfieldChange}
