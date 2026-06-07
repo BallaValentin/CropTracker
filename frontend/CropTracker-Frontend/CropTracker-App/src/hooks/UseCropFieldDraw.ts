@@ -70,6 +70,37 @@ export const useCropFieldDraw = ({markerAdded, cropFieldData, onPolygonCreated, 
       }, 10);
     };
 
+    const _onUpdated = (layer: L.Layer) => {
+        
+        if (layer instanceof L.Polygon) {
+
+            const polygonLayer = layer as L.Polygon;
+            const rawLatLngs = polygonLayer.getLatLngs();
+            const latLngs = rawLatLngs[0] as L.LatLng[];
+            const formattedPoints = latLngs.map((latLng) => ({
+            lat: latLng.lat,
+            lng: latLng.lng,
+            }));
+
+            if (
+            !markerAdded ||
+            (cropFieldData.markerPosition &&
+                isPointInPolygon(cropFieldData.markerPosition, formattedPoints))
+            ) {
+            onPolygonCreated(formattedPoints);
+
+            if (!markerAdded) {
+                const centerMarker = getPolygonCenter(formattedPoints);
+                onMarkerCreated(centerMarker);
+            }
+            } else {
+            alert(
+                "The polygon must contain the marker. Please draw a polygon that includes the marker.",
+            );
+            }
+        }
+    }
+
     const _onDeleted = (e: { layer: L.Layer; shape: string }) => {
     const {layer} = e;
       const currentZoom = map.getZoom();
@@ -87,5 +118,5 @@ export const useCropFieldDraw = ({markerAdded, cropFieldData, onPolygonCreated, 
       }, 10);
     };
 
-    return {_onCreated, _onDeleted}
+    return {_onCreated, _onDeleted, _onUpdated}
 }

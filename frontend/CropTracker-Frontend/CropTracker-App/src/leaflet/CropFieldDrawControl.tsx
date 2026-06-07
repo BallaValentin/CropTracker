@@ -23,7 +23,7 @@ function CropFieldDrawControl({
 }: CropFieldDrawControlProps) {
   const map = useMap();
 
-  const { _onCreated, _onDeleted } = useCropFieldDraw({
+  const { _onCreated, _onDeleted, _onUpdated } = useCropFieldDraw({
     markerAdded,
     cropFieldData,
     onPolygonCreated,
@@ -36,6 +36,15 @@ function CropFieldDrawControl({
     if (!map) return;
 
     map.on("pm:create", _onCreated);
+    map.on("pm:globaleditmodetoggled", (e) => {
+      if (!e.enabled) {
+        const layersGroup = map.pm.getGeomanLayers(true) as L.FeatureGroup;
+
+        layersGroup.getLayers().forEach((layer) => {
+          _onUpdated(layer);
+        });
+      }
+    });
     map.on("pm:remove", _onDeleted);
 
     map.pm.addControls({
@@ -43,7 +52,7 @@ function CropFieldDrawControl({
 
       drawMode: true,
       drawControls: true,
-      editMode: false,
+      editMode: true,
       removalMode: true,
 
       drawPolygon: true,
@@ -72,9 +81,10 @@ function CropFieldDrawControl({
     return () => {
       map.pm.removeControls();
       map.off("pm:create", _onCreated);
+      map.off("pm:globaleditmodetoggled");
       map.off("pm:remove", _onDeleted);
     };
-  }, [_onCreated, _onDeleted, map]);
+  }, [_onCreated, _onUpdated, _onDeleted, map]);
 
   return null;
 }
