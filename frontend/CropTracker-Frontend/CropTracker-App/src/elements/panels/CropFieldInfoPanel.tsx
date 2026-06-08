@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Divider,
   IconButton,
   List,
@@ -87,10 +88,14 @@ function CropFieldInfoPanel({
 
   const AddParcelButton = () => {
     return (
-      <IconButton onClick={onAddParcelClick} size="small" color="success">
-        <AddIcon />
+      <Button
+        startIcon={<AddIcon />}
+        onClick={onAddParcelClick}
+        size="medium"
+        color="success"
+      >
         Add new field parcel
-      </IconButton>
+      </Button>
     );
   };
 
@@ -182,9 +187,9 @@ function CropFieldInfoPanel({
                 margin: "auto",
                 flexDirection: "column",
                 maxWidth: 360,
-                maxHeight: 550,
+                maxHeight: 450,
                 gap: 1,
-                overflow: "hidden",
+                overflowX: "hidden",
                 overflowY: "scroll",
               }}
             >
@@ -194,10 +199,10 @@ function CropFieldInfoPanel({
                     sx={{ fontWeight: "bold", lineHeight: "40px" }}
                   >
                     Field parcels list
+                    <Divider />
                   </ListSubheader>
                 }
               >
-                <Divider />
                 {fieldParcels.map((parcel, index) => (
                   <ListItem key={parcel.uid}>
                     <ListItemButton
