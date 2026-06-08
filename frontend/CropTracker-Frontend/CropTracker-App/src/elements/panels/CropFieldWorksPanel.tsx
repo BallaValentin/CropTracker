@@ -4,6 +4,7 @@ import {
   Divider,
   List,
   ListItemButton,
+  ListSubheader,
   Paper,
   Typography,
 } from "@mui/material";
@@ -41,25 +42,41 @@ function CropFieldWorksPanel({
     onEditClick(fieldWorkId);
   };
   return (
-    <Paper
+    <Box
       sx={{
         width: "95%",
-        minHeight: 250,
-        maxHeight: 400,
+        height: fieldWorks && fieldWorks.length ? 300 : 250,
         mb: 5,
         display: "flex",
+        overflowY: fieldWorks && fieldWorks.length ? "scroll" : "hidden",
         flexDirection: "column",
         gap: 1.5,
-        p: 1,
+        pl: 1,
+        pr: 1,
+        pb: 1,
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 2,
+        boxShadow: "0px 2px 4px rgba(0,0,0,0.05)",
       }}
     >
-      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-        {title}
-      </Typography>
-      <Divider />
-
       {fieldWorks && fieldWorks.length > 0 ? (
-        <List>
+        <List
+          subheader={
+            <ListSubheader
+              sx={{
+                pt: 1,
+                fontWeight: "bold",
+                lineHeight: "40px",
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                {title}
+              </Typography>
+              <Divider />
+            </ListSubheader>
+          }
+        >
           {fieldWorks.map((work) => (
             <ListItemButton
               sx={{
@@ -112,7 +129,7 @@ function CropFieldWorksPanel({
           </Typography>
         </ColumnCenterContainer>
       )}
-    </Paper>
+    </Box>
   );
 }
 

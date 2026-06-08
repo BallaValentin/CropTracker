@@ -52,7 +52,7 @@ public class FieldWorkService {
         return fieldWorkRepository.findAll(Specification.allOf(
                 FieldWorkSpecification.byCropField(cropField)
                         .and(FieldWorkSpecification.byWorkTiming("Scheduled"))
-        ), Sort.by(Sort.Direction.DESC, "startDate"));
+        ), Sort.by(Sort.Direction.ASC, "startDate"));
     }
 
     public List<FieldWork> findAllWithinPastDays(
