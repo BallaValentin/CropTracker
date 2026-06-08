@@ -8,10 +8,9 @@ import { useEffect, useMemo, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import CheckIcon from "@mui/icons-material/Check";
-import { getCropFieldById } from "../services/CropFieldService";
 import { defaultMapPosition } from "../utils/Constants";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import CropFieldInfoPanel from "../elements/panels/CropFieldInfoPanel";
@@ -28,6 +27,7 @@ import UpdateFieldParcelForm from "../elements/forms/UpdateFieldParcelForm";
 import type { UpdateFieldParcelDTO } from "../interfaces/request/UpdateFieldParcelDTO";
 import { useCropFieldWork } from "../hooks/UseCropFieldWorks";
 import CropFieldWorksPanel from "../elements/panels/CropFieldWorksPanel";
+import { useCropField } from "../hooks/UseCropField";
 
 function PlotDetailsPage() {
   const {
@@ -55,11 +55,16 @@ function PlotDetailsPage() {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const { data: cropFieldData, isLoading: isCropFieldLoading } = useCropField(
+    id || "",
+    !!id,
+  );
+
   const { data: fieldParcels, isLoading: isFieldParcelsLoading } =
-    useFieldParcels(id || "");
+    useFieldParcels(id || "", !!id);
 
   const { data: fieldWorksData, isLoading: isFieldWorksLoading } =
-    useCropFieldWork(id || "", !!id);
+    useCropFieldWork(id || "", !!id && !!user);
 
   const toDateTimeLocal = (date: Date): string => {
     const pad = (num: number) => num.toString().padStart(2, "0");
@@ -91,15 +96,6 @@ function PlotDetailsPage() {
 
     return { onGoingWorks: onGoing, scheduledWorks: scheduled };
   }, [fieldWorksData]);
-
-  const { data: plotData, isLoading: isCropFieldLoading } = useQuery({
-    queryKey: ["cropfields", id],
-    queryFn: () => getCropFieldById(id || ""),
-    staleTime: 0,
-    enabled: !!id,
-    refetchInterval: 1000 * 60 * 60,
-    refetchOnWindowFocus: false,
-  });
 
   const { mutate, isPending } = useMutation({
     mutationFn: createFieldParcel,
@@ -149,10 +145,10 @@ function PlotDetailsPage() {
   }, [location, navigate]);
 
   useEffect(() => {
-    if (plotData) {
-      setCropFieldDetail(plotData);
+    if (cropFieldData) {
+      setCropFieldDetail(cropFieldData);
     }
-  }, [plotData]);
+  }, [cropFieldData]);
 
   if (isUserLoading || isCropFieldLoading || isFieldWorksLoading) {
     return <ProgressCircle loadingMessage="Initializing data..." />;
@@ -201,6 +197,19 @@ function PlotDetailsPage() {
   const handleFieldWorkEditClick = (fieldWorkId: string) => {
     navigate(`/update-field-work/${fieldWorkId}`);
   };
+
+  if (isUserLoading) {
+    return <ProgressCircle loadingMessage="Initializing user data..." />;
+  }
+
+  if (isCropFieldLoading) {
+    <Box>
+      <MainHeader userData={user} />
+      <MainContainer hasDrawer={Boolean(user?.username)}>
+        <ProgressCircle loadingMessage="Initializing crop field data..." />
+      </MainContainer>
+    </Box>;
+  }
 
   if (userError) {
     if (userError.response?.status === 401) {

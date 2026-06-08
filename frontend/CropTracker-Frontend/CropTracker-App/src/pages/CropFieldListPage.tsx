@@ -21,7 +21,7 @@ function PlotsListPage() {
 
   const { data: user, isLoading, error: userError } = useUserProfile();
   const { data: cropFieldsData, isLoading: isLoadingCropFields } =
-    useUserCropFields(user != null);
+    useUserCropFields(!!user);
 
   useEffect(() => {
     if (cropFieldsData) {
@@ -42,13 +42,15 @@ function PlotsListPage() {
     return <ProgressCircle loadingMessage="Initializing user data..." />;
   }
 
-  if (isLoadingCropFields) {
-    <Box>
-      <MainHeader userData={user} />
-      <MainContainer hasDrawer={Boolean(user?.username)}>
-        <ProgressCircle loadingMessage="Loading fields..." />
-      </MainContainer>
-    </Box>;
+  if (isLoadingCropFields || !cropFieldsData) {
+    return (
+      <Box>
+        <MainHeader userData={user} />
+        <MainContainer hasDrawer={Boolean(user?.username)}>
+          <ProgressCircle loadingMessage="Loading crop fields..." />
+        </MainContainer>
+      </Box>
+    );
   }
 
   if (userError) {

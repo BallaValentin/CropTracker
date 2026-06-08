@@ -181,8 +181,11 @@ function CropFieldInfoPanel({
                 alignItems: "center",
                 margin: "auto",
                 flexDirection: "column",
-                maxWidth: 320,
+                maxWidth: 360,
+                maxHeight: 550,
                 gap: 1,
+                overflow: "hidden",
+                overflowY: "scroll",
               }}
             >
               <List

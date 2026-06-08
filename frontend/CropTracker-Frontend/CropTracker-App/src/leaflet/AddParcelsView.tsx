@@ -13,6 +13,7 @@ import {
   getGeneratedRows,
 } from "../utils/GenerateShapesUtil";
 import type { LayoutParameters } from "../interfaces/LayoutParameters";
+import MapBoundsHelper from "./MapBoundsHelper";
 
 interface AddParcelViewProps {
   polygonPoints: LatLngObject[];
@@ -153,6 +154,10 @@ function AddParcelView({
             rowRectangles={rowRectangles}
             crops={cropCoords}
           />
+
+          {polygonPoints && polygonPoints.length > 3 && (
+            <MapBoundsHelper polygonPoints={polygonPoints} />
+          )}
 
           <LayersControl position="topright">
             <CustomLayers />

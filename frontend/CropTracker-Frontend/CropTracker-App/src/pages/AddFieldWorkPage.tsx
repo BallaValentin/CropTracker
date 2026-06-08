@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getCropFieldById } from "../services/CropFieldService";
+import { useMutation } from "@tanstack/react-query";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import { Box, Button } from "@mui/material";
@@ -19,6 +18,7 @@ import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDT
 import { createWorkType } from "../services/WorkTypeService";
 import { queryClient } from "../query-client/QueryClient";
 import type { CreateWorkTypeDTO } from "../interfaces/request/CreateWorkTypeDTO";
+import { useCropField } from "../hooks/UseCropField";
 
 function AddFieldWorkPage() {
   const { id } = useParams();
@@ -33,14 +33,10 @@ function AddFieldWorkPage() {
     error: userError,
   } = useUserProfile();
 
-  const { data: cropFieldData, isLoading: isCropFieldLoading } = useQuery({
-    queryKey: ["cropfields", id],
-    queryFn: () => getCropFieldById(id || ""),
-    staleTime: 0,
-    enabled: !!id,
-    refetchInterval: 1000 * 60 * 60,
-    refetchOnWindowFocus: false,
-  });
+  const { data: cropFieldData, isLoading: isCropFieldLoading } = useCropField(
+    id || "",
+    !!id,
+  );
 
   const { mutate, isPending } = useMutation({
     mutationFn: createFieldWork,
@@ -77,7 +73,7 @@ function AddFieldWorkPage() {
   };
 
   const { data: fieldParcelsData, isLoading: isFieldParcelsLoading } =
-    useFieldParcels(id || "");
+    useFieldParcels(id || "", !!id);
 
   useEffect(() => {
     if (fieldParcelsData) {
@@ -103,13 +99,19 @@ function AddFieldWorkPage() {
     }
   }
 
-  if (
-    isUserLoading ||
-    isCropFieldLoading ||
-    isFieldParcelsLoading ||
-    isWorkTypesLoading
-  ) {
-    return <ProgressCircle loadingMessage="Initializing data..." />;
+  if (isUserLoading) {
+    return <ProgressCircle loadingMessage="Initializing user data..." />;
+  }
+
+  if (isCropFieldLoading || isFieldParcelsLoading || isWorkTypesLoading) {
+    return (
+      <Box>
+        <MainHeader userData={user} />
+        <MainContainer hasDrawer={Boolean(user?.username)}>
+          <ProgressCircle loadingMessage="Initializing data..." />
+        </MainContainer>
+      </Box>
+    );
   }
 
   return (
