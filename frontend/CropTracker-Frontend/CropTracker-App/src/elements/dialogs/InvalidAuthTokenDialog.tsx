@@ -37,8 +37,8 @@ function InvalidAuthTokenDialog({
         <DialogContent>
           <DialogContentText color="text.secondary">
             Your security session has timed out or is no longer valid. For your
-            protection, please log back into the system to continue managing
-            your crop fields.
+            protection, please log back into the application to continue
+            managing your crop fields.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

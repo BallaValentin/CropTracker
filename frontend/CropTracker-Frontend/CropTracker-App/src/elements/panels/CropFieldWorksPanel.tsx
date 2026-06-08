@@ -5,7 +5,6 @@ import {
   List,
   ListItemButton,
   ListSubheader,
-  Paper,
   Typography,
 } from "@mui/material";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
