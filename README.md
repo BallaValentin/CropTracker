@@ -1,1 +1,1 @@
-CropTracker is modern, lightweight farm management tool made for small and medium-sized crop producers digitize their operations by keeping accurate records of planting, harvesting and employee tracking - all in a user-friendly web interface
+CropTracker is modern, lightweight farm management tool made for small and medium-sized crop producers digitalize their operations by keeping accurate records of planting, harvesting, irrigation and other agricultural works.
