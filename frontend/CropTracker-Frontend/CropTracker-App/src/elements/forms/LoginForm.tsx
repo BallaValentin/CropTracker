@@ -8,18 +8,18 @@ import {
   Button,
   Link,
 } from "@mui/material";
-import type { LoginData } from "../../interfaces/request/LoginData";
+import type { LoginUserDTO } from "../../interfaces/request/LoginUserDTO";
 import { useState } from "react";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 
 interface LoginFormProps {
-  onLoginSubmit: (loginData: LoginData) => void;
+  onLoginSubmit: (loginData: LoginUserDTO) => void;
   isPending: boolean;
   loginError: string | null;
 }
 
 function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
-  const [loginData, setLoginData] = useState<LoginData>({
+  const [loginData, setLoginData] = useState<LoginUserDTO>({
     username: "",
     password: "",
   });

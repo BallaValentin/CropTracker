@@ -11,13 +11,13 @@ import {
 } from "@mui/material";
 
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import type { UserData } from "../../interfaces/UserData";
 import EditUserForm from "../forms/EditUserForm";
 import { useMutation } from "@tanstack/react-query";
 import { updateProfile } from "../../services/UserService";
 import { queryClient } from "../../query-client/QueryClient";
-import type { UserUpdates } from "../../interfaces/request/UserUpdates";
+import type { UpdateUserDTO } from "../../interfaces/request/UpdateUserDTO";
 import type { AxiosError } from "axios";
+import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
 
 interface AccountDialogProps {
   isUploading: boolean;
@@ -25,7 +25,7 @@ interface AccountDialogProps {
   avatarURL: string;
   handleClose: () => void;
   onImageChange: (newImageSrc: string) => void;
-  userData: UserData | undefined;
+  userData: GetUserDTO | undefined;
 }
 
 function AccountDialog({
@@ -45,7 +45,7 @@ function AccountDialog({
     });
 
   const handleAvatarUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -64,7 +64,7 @@ function AccountDialog({
     },
   });
 
-  const handleUserdataUpdate = (userUpdates: UserUpdates) => {
+  const handleUserdataUpdate = (userUpdates: UpdateUserDTO) => {
     mutate(userUpdates);
   };
 

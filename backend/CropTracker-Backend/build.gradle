@@ -12,6 +12,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.17'
 
+    // Source: https://mvnrepository.com/artifact/org.jboss.logging/jboss-logging
+    implementation group: 'org.jboss.logging', name: 'jboss-logging', version: '3.6.3.Final'
+
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
     runtimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.18'
 
@@ -43,6 +46,12 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '3.5.3'
 
+    // Source: https://mvnrepository.com/artifact/org.locationtech.jts/jts-core
+    implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.20.0'
+
+    // Source: https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-spatial
+    implementation group: 'org.hibernate.orm', name: 'hibernate-spatial', version: '7.3.0.Final'
+
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.6'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
@@ -56,4 +65,12 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.mapstruct/mapstruct
     implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.6.3'
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'org.jboss.logging' && details.requested.name == 'jboss-logging') {
+            details.useVersion '3.6.2.Final'
+        }
+    }
 }

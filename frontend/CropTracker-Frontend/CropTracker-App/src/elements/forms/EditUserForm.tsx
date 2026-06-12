@@ -6,18 +6,18 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { UserData } from "../../interfaces/UserData";
 import { useState } from "react";
-import { type UserUpdates } from "../../interfaces/request/UserUpdates";
+import { type UpdateUserDTO } from "../../interfaces/request/UpdateUserDTO";
+import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
 
 interface EditUserFormProps {
-  onSubmit: (userUpdates: UserUpdates) => void;
-  userData: UserData | undefined;
+  onSubmit: (userUpdates: UpdateUserDTO) => void;
+  userData: GetUserDTO | undefined;
   isUpdating: boolean;
 }
 
 function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
-  const [userUpdates, setUserUpdates] = useState<UserUpdates>({
+  const [userUpdates, setUserUpdates] = useState<UpdateUserDTO>({
     username: userData?.username || "",
     email: userData?.email || "",
   });

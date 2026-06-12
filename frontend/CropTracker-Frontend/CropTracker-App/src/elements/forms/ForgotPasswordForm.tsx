@@ -12,10 +12,10 @@ import { useState } from "react";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import PersonIcon from "@mui/icons-material/Person";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import type { PasswordResetMail } from "../../interfaces/request/PasswordResetMail";
+import type { PasswordVerificationEmailDTO } from "../../interfaces/request/PasswordVerificationEmailDTO";
 
 interface ForgotPasswordFormProps {
-  onEmailSubmit: (verificationEmail: PasswordResetMail) => void;
+  onEmailSubmit: (verificationEmail: PasswordVerificationEmailDTO) => void;
   isPending: boolean;
 }
 
@@ -23,11 +23,10 @@ function ForgotPasswordForm({
   onEmailSubmit,
   isPending,
 }: ForgotPasswordFormProps) {
-  const [verificationEmail, setVerificationEmail] = useState<PasswordResetMail>(
-    {
+  const [verificationEmail, setVerificationEmail] =
+    useState<PasswordVerificationEmailDTO>({
       email: "",
-    }
-  );
+    });
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

@@ -1,8 +1,8 @@
 import axios from "axios";
-import type { AvatarUpdates } from "../interfaces/request/AvatarUpdates";
-import type { UserData } from "../interfaces/UserData";
-import type { UserUpdates } from "../interfaces/request/UserUpdates";
-import type { ChangePasswordData } from "../interfaces/request/ChangePasswordData";
+import type { UpdateAvatarDTO } from "../interfaces/request/UpdateAvatarDTO";
+import type { UpdateUserDTO } from "../interfaces/request/UpdateUserDTO";
+import type { ChangePasswordData } from "../interfaces/request/UpdatePasswordDTO";
+import type { GetUserDTO } from "../interfaces/response/GetUserDTO";
 
 export const userApi = axios.create({
     baseURL: "http://localhost:8080/api/user",
@@ -12,7 +12,7 @@ export const userApi = axios.create({
 });
 
 export const updateAvatar = async(newAvatarSrc: string): Promise<number>  => {
-    const avatarUpdates: AvatarUpdates = {
+    const avatarUpdates: UpdateAvatarDTO = {
         newAvatarSrc
     }
     console.log('Sending avatar-update request to server');
@@ -24,9 +24,9 @@ export const updateAvatar = async(newAvatarSrc: string): Promise<number>  => {
     return response.status;
 }
 
-export const updateProfile = async(userUpdates: UserUpdates): Promise<UserData>  => {
+export const updateProfile = async(userUpdates: UpdateUserDTO): Promise<GetUserDTO>  => {
     console.log('Sending update-profile request to server');
-    const response = await userApi.put<UserData>("/update-profile", userUpdates, {
+    const response = await userApi.put<GetUserDTO>("/update-profile", userUpdates, {
         headers: {
             'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
         }
@@ -34,9 +34,9 @@ export const updateProfile = async(userUpdates: UserUpdates): Promise<UserData> 
     return response.data;
 }
 
-export const fetchUserData = async(): Promise<UserData> => {
+export const fetchUserData = async(): Promise<GetUserDTO> => {
     console.log('Sending fetch user data request to server');
-    const response = await userApi.get<UserData>("/fetch-user-data", {
+    const response = await userApi.get<GetUserDTO>("/fetch-user-data", {
         headers: {
             'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
         }

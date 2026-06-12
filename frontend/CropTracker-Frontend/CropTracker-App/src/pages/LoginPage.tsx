@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "../services/AuthService";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
-import type { LoginData } from "../interfaces/request/LoginData";
+import type { LoginUserDTO } from "../interfaces/request/LoginUserDTO";
 import { fetchUserData } from "../services/UserService";
 import { queryClient } from "../query-client/QueryClient";
 import { useEffect, useState } from "react";
@@ -56,7 +56,7 @@ function LoginPage() {
     },
   });
 
-  const handlelogin = (loginData: LoginData) => {
+  const handlelogin = (loginData: LoginUserDTO) => {
     mutate(loginData);
   };
 

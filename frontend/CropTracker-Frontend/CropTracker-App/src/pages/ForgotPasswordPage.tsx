@@ -1,12 +1,12 @@
 import { Alert, Box } from "@mui/material";
 import ForgotPasswordForm from "../elements/forms/ForgotPasswordForm";
-import type { PasswordResetMail } from "../interfaces/request/PasswordResetMail";
 import { useMutation } from "@tanstack/react-query";
 import { sendPasswordResetMail } from "../services/MailService";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import type { AxiosError } from "axios";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import type { PasswordVerificationEmailDTO } from "../interfaces/request/PasswordVerificationEmailDTO";
 
 function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -32,7 +32,9 @@ function ForgotPasswordPage() {
     },
   });
 
-  const sendMail = (verificationForgotPassword: PasswordResetMail) => {
+  const sendMail = (
+    verificationForgotPassword: PasswordVerificationEmailDTO,
+  ) => {
     mutate(verificationForgotPassword);
   };
 

@@ -1,0 +1,9 @@
+import type { LatLngObject } from "../LatLngObject";
+
+export interface GetCropFieldDTO {
+    uid: string,
+    name: string,
+    markerPosition: LatLngObject | null,
+    polygonPoints: LatLngObject[],
+    area: number
+}

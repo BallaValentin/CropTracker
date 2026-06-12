@@ -10,22 +10,25 @@ import { useEffect, useState } from "react";
 import UserStatusDialog from "../elements/dialogs/UserStatusDialog";
 import { useMutation } from "@tanstack/react-query";
 import { updateRoles, updateStatus } from "../services/AdminService";
-import type { AdminUser } from "../interfaces/response/AdminUser";
+import type { GetAdminUserDTO } from "../interfaces/response/GetAdminUserDTO";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckIcon from "@mui/icons-material/Check";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import UserRoleDialog from "../elements/dialogs/UserRoleDialog";
+import { useNavigate } from "react-router-dom";
 
 function UsersListPage() {
-  const { data: user, isLoading } = useUserProfile();
+  const { data: user, isLoading, error: userError } = useUserProfile();
   const { data: adminUsers, isLoading: isLoadingUsers } = useAdminUsers();
   const [statusDialogOpen, setStatusDialogOpen] = useState<boolean>(false);
   const [rolesDialogOpen, setRolesDialogOpen] = useState<boolean>(false);
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [dialogUser, setDialogUser] = useState<AdminUser | null>(null);
+  const [users, setUsers] = useState<GetAdminUserDTO[]>([]);
+  const [dialogUser, setDialogUser] = useState<GetAdminUserDTO | null>(null);
   const [isActive, setIsActive] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     setUsers(adminUsers ?? []);
@@ -53,15 +56,18 @@ function UsersListPage() {
     },
   });
 
-  const updateUserStatus = (selectedUser: AdminUser, userStatus: boolean) => {
+  const updateUserStatus = (
+    selectedUser: GetAdminUserDTO,
+    userStatus: boolean,
+  ) => {
     mutateStatus({ username: selectedUser.username, isActive: userStatus });
 
     setUsers((prev) =>
       prev?.map((user) =>
         user.username === selectedUser.username
           ? { ...user, isActive: isActive }
-          : user
-      )
+          : user,
+      ),
     );
   };
 
@@ -80,8 +86,8 @@ function UsersListPage() {
   });
 
   const updateUserRoles = (
-    selectedUser: AdminUser | null,
-    choosenRoles: string[]
+    selectedUser: GetAdminUserDTO | null,
+    choosenRoles: string[],
   ) => {
     console.log("Updating user roles...");
     if (selectedUser) {
@@ -91,29 +97,32 @@ function UsersListPage() {
         prev?.map((user) =>
           user.username === selectedUser.username
             ? { ...user, roles: choosenRoles }
-            : user
-        )
+            : user,
+        ),
       );
     } else {
       setError("Selected user is missing");
     }
   };
 
-  const suspendUser = (selectedUser: AdminUser) => {
+  const suspendUser = (selectedUser: GetAdminUserDTO) => {
     updateUserStatus(selectedUser, false);
   };
 
-  const addBackUser = (selectedUser: AdminUser) => {
+  const addBackUser = (selectedUser: GetAdminUserDTO) => {
     updateUserStatus(selectedUser, true);
   };
 
-  const openStatusDialog = (selectedUser: AdminUser, newStatus: boolean) => {
+  const openStatusDialog = (
+    selectedUser: GetAdminUserDTO,
+    newStatus: boolean,
+  ) => {
     setStatusDialogOpen(true);
     setDialogUser(selectedUser);
     setIsActive(newStatus);
   };
 
-  const openRolesDialog = (selectedUser: AdminUser) => {
+  const openRolesDialog = (selectedUser: GetAdminUserDTO) => {
     setRolesDialogOpen(true);
     setDialogUser(selectedUser);
   };
@@ -188,13 +197,19 @@ function UsersListPage() {
   ];
 
   if (isLoading) {
-    return <ProgressCircle />;
+    return <ProgressCircle loadingMessage="Loading users..." />;
+  }
+
+  if (userError) {
+    if (userError.response?.status === 401) {
+      navigate("/?error=unauthorized");
+    }
   }
 
   return (
     <Box>
-      <MainHeader userData={user} authenticated={true} />
-      <MainContainer hasDrawer={true}>
+      <MainHeader userData={user} />
+      <MainContainer hasDrawer={Boolean(user?.username)}>
         <Box sx={{ position: "relative" }}>
           {error && (
             <Alert

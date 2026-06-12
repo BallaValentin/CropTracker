@@ -10,17 +10,20 @@ import {
 import HomeIcon from "@mui/icons-material/Home";
 
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import AgricultureIcon from "@mui/icons-material/Agriculture";
 import { useNavigate } from "react-router-dom";
 import {
-  COLLAPSED_DRAWER_WIDTH,
-  EXPANDED_DRAWER_WIDTH,
-} from "../../utils/constants";
+  collapsedDrawerWidth,
+  expandedDrawerWidth,
+} from "../../utils/Constants";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
-import type { UserData } from "../../interfaces/UserData";
+import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
+import GrassIcon from "@mui/icons-material/Grass";
+import HistoryIcon from "@mui/icons-material/History";
 
 interface MainDrawerProps {
-  userData: UserData | undefined;
+  userData: GetUserDTO | undefined;
 }
 
 function MainDrawer({ userData }: MainDrawerProps) {
@@ -30,17 +33,7 @@ function MainDrawer({ userData }: MainDrawerProps) {
 
   const { isDrawerExpanded } = useDrawer();
   const drawerWidth =
-    isDrawerExpanded || hovered
-      ? EXPANDED_DRAWER_WIDTH
-      : COLLAPSED_DRAWER_WIDTH;
-
-  const navigateToMainPage = () => {
-    navigate("/");
-  };
-
-  const navigateToShowUsers = () => {
-    navigate("/show-users");
-  };
+    isDrawerExpanded || hovered ? expandedDrawerWidth : collapsedDrawerWidth;
 
   return (
     <Box>
@@ -64,7 +57,7 @@ function MainDrawer({ userData }: MainDrawerProps) {
       >
         <List>
           <ListItem key={"home"} disablePadding>
-            <ListItemButton onClick={navigateToMainPage}>
+            <ListItemButton onClick={() => navigate("/")}>
               <ListItemIcon>
                 <HomeIcon />
               </ListItemIcon>
@@ -74,13 +67,49 @@ function MainDrawer({ userData }: MainDrawerProps) {
             </ListItemButton>
           </ListItem>
           {userRoles.findIndex((role) => role.name === "ADMIN") > -1 && (
-            <ListItem key={"show users"} disablePadding>
-              <ListItemButton onClick={navigateToShowUsers}>
+            <ListItem key={"show-users"} disablePadding>
+              <ListItemButton onClick={() => navigate("/show-users")}>
                 <ListItemIcon>
                   <SupervisorAccountIcon />
                 </ListItemIcon>
                 {(isDrawerExpanded || hovered) && (
                   <ListItemText>Show Users</ListItemText>
+                )}
+              </ListItemButton>
+            </ListItem>
+          )}
+          {userRoles.findIndex((role) => role.name === "GROWER") > -1 && (
+            <ListItem key={"show-plots"} disablePadding>
+              <ListItemButton onClick={() => navigate("/show-cropfields")}>
+                <ListItemIcon>
+                  <AgricultureIcon />
+                </ListItemIcon>
+                {(isDrawerExpanded || hovered) && (
+                  <ListItemText>Show Fields</ListItemText>
+                )}
+              </ListItemButton>
+            </ListItem>
+          )}
+          {userRoles.findIndex((role) => role.name === "ADMIN") > -1 && (
+            <ListItem key={"show-crops"} disablePadding>
+              <ListItemButton onClick={() => navigate("/show-crops")}>
+                <ListItemIcon>
+                  <GrassIcon />
+                </ListItemIcon>
+                {(isDrawerExpanded || hovered) && (
+                  <ListItemText>Show Crops</ListItemText>
+                )}
+              </ListItemButton>
+            </ListItem>
+          )}
+          {userRoles.findIndex((role) => role.name === "GROWER") > -1 && (
+            <ListItem key={"work-history"} disablePadding>
+              <ListItemButton onClick={() => navigate("/work-history")}>
+                <ListItemIcon>
+                  <HistoryIcon />
+                </ListItemIcon>
+                {(isDrawerExpanded || hovered) && (
+                  <ListItemText>Work History</ListItemText>
                 )}
               </ListItemButton>
             </ListItem>

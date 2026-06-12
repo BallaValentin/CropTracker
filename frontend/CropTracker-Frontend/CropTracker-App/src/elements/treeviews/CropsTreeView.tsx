@@ -1,0 +1,28 @@
+import { SimpleTreeView } from "@mui/x-tree-view";
+import { useCropsStore } from "../../hooks/UseCropsStore";
+import CategoryItem from "./CategoryItem";
+import { useEffect } from "react";
+import type { GetCropCategoryDTO } from "../../interfaces/response/GetCropCategoryDTO";
+
+interface CropsTreeViewProps {
+  cropCategories: GetCropCategoryDTO[];
+}
+
+function CropsTreeView({ cropCategories }: CropsTreeViewProps) {
+  const categories = useCropsStore((s) => s.categories);
+  const setCategories = useCropsStore((s) => s.setCategories);
+
+  useEffect(() => {
+    setCategories(cropCategories);
+  }, [setCategories, cropCategories]);
+
+  return (
+    <SimpleTreeView>
+      {categories.map((category) => (
+        <CategoryItem key={category.uid} {...category} />
+      ))}
+    </SimpleTreeView>
+  );
+}
+
+export default CropsTreeView;

@@ -1,11 +1,16 @@
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 
-function ProgressCircle() {
+interface ProgressCircleProps {
+  loadingMessage: string;
+}
+
+function ProgressCircle({ loadingMessage }: ProgressCircleProps) {
   return (
     <>
       <ColumnCenterContainer>
         <CircularProgress />
+        <Typography variant="h2">{loadingMessage}</Typography>
       </ColumnCenterContainer>
     </>
   );

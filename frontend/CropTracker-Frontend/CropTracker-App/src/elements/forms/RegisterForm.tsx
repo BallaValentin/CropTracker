@@ -13,17 +13,17 @@ import {
   Checkbox,
   Divider,
 } from "@mui/material";
-import type { RegisterData } from "../../interfaces/request/RegisterData";
+import type { CreateUserDTO } from "../../interfaces/request/CreateUserDTO";
 import { useState } from "react";
-import type { RegisterError } from "../../interfaces/response/RegisterError";
+import type { RegisterErrorDTO } from "../../interfaces/response/RegisterErrorDTO";
 
 interface RegisterFormProps {
-  onSubmit: (registerData: RegisterData) => void;
+  onSubmit: (registerData: CreateUserDTO) => void;
   isPending: boolean;
 }
 
 function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
-  const [registerData, setRegisterData] = useState<RegisterData>({
+  const [registerData, setRegisterData] = useState<CreateUserDTO>({
     username: "",
     firstName: "",
     lastName: "",
@@ -34,7 +34,7 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     isWorker: false,
   });
 
-  const [registerError, setRegisterError] = useState<RegisterError>({
+  const [registerError, setRegisterError] = useState<RegisterErrorDTO>({
     usernameError: false,
     firstNameError: false,
     lastNameError: false,
@@ -69,7 +69,7 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
 
     if (
       !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
-        registerData.email
+        registerData.email,
       )
     ) {
       setRegisterError((prev) => ({ ...prev, emailError: true }));
@@ -78,7 +78,7 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
 
     if (
       !/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
-        registerData.password
+        registerData.password,
       )
     ) {
       setRegisterError((prev) => ({ ...prev, passwordError: true }));
