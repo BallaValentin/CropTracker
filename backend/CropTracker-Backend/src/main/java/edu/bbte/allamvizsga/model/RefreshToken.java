@@ -25,7 +25,7 @@ public class RefreshToken extends BaseEntity{
     public RefreshToken(User user, UUID token) {
         this.user = user;
         this.token = token;
-        this.expires = Instant.now().plus(24, ChronoUnit.HOURS);
+        this.expires = Instant.now().plus(30, ChronoUnit.DAYS);
     }
 
     public RefreshToken() {

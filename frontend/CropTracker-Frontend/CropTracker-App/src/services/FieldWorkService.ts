@@ -3,21 +3,21 @@ import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDT
 import type { GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
 import type { GetAffectedRowsDTO } from "../interfaces/response/GetAffectedRowsDTO";
 import type { UpdateFieldWorkDTO } from "../interfaces/request/UpdateFieldWorkDTO";
+import { attachAuthInterceptors } from "./AttachAuthInterceptors";
 
 export const fieldWorkApi = axios.create({
     baseURL: "http://localhost:8080/api/field-works",
     headers: {
         Accept: "application/json"
-    }
-})
+    },
+    withCredentials: true
+});
+
+attachAuthInterceptors(fieldWorkApi);
 
 export const createFieldWork = async(createFieldWorkDTO: CreateFieldWorkDTO): Promise<void> => {
     console.log("Sending create-field-work request to server");
-    await fieldWorkApi.post<void>("/create", createFieldWorkDTO, {
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
-        }
-    })
+    await fieldWorkApi.post<void>("/create", createFieldWorkDTO);
 }
 
 export const updateFieldWork = async(updateFieldWorkDTO: UpdateFieldWorkDTO, fieldWorkId: string): Promise<void> => {
@@ -26,19 +26,12 @@ export const updateFieldWork = async(updateFieldWorkDTO: UpdateFieldWorkDTO, fie
         params: {
             fieldWorkId: fieldWorkId
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
-        }
-    })
+    });
 }
 
 export const getFieldWorks = async(): Promise<GetFieldWorkDTO[]> => {
     console.log("Sending get-field-works request to server");
-    const response = await fieldWorkApi.get<GetFieldWorkDTO[]>("/findall", {
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
-        }
-    })
+    const response = await fieldWorkApi.get<GetFieldWorkDTO[]>("/findall");
     return response.data;
 }
 
@@ -48,11 +41,7 @@ export const getFieldWorksByCropField = async(cropFieldId: string): Promise<GetF
         params: {
             cropFieldId: cropFieldId
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
-        }
-    })
-    console.log("Received: ", response.data)
+    });
     return response.data;
 }
 
@@ -62,9 +51,6 @@ export const getFieldWork = async(fieldWorkId: string): Promise<GetFieldWorkDTO>
         params: {
             id: fieldWorkId
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
-        }
     })
     return response.data;
 }
@@ -79,9 +65,6 @@ export const getPreviousRows = async(cropFieldId: string, numberOfDays: number, 
             referenceDate: referenceDate,
             workTypes: selectedWorkTypes.join(",")
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
-        }
     });
 
     return response.data;

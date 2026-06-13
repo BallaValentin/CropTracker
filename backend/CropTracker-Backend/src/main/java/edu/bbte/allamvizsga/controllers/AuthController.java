@@ -1,4 +1,5 @@
 package edu.bbte.allamvizsga.controllers;
+
 import edu.bbte.allamvizsga.dto.request.user.LoginRequestDTO;
 import edu.bbte.allamvizsga.dto.request.user.RegisterRequestDTO;
 import edu.bbte.allamvizsga.dto.response.user.LoginResponseDTO;
@@ -26,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.UUID;
 
 @RestController
@@ -62,7 +64,7 @@ public class AuthController {
         Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken.getToken().toString());
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setMaxAge(3600 * 24);
+        refreshTokenCookie.setMaxAge(3600 * 24 * 30);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setAttribute("SameSite", "Strict");
         response.addCookie(refreshTokenCookie);
@@ -85,18 +87,17 @@ public class AuthController {
         userMapper.registerDtoToModel(registerRequest);
     }
 
-    @GetMapping("/refresh-token")
-    public ResponseEntity<RefreshTokenResponseDTO> refreshToken(HttpServletRequest request) {
+    @PostMapping("/refresh-token")
+    public ResponseEntity<RefreshTokenResponseDTO> getRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
-        if (cookies == null) {
+        if (cookies == null || Arrays.stream(cookies).findAny().isEmpty()) {
             throw new RefreshTokenException("Invalid or missing refresh token");
         }
 
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("refresh_token")) {
-                UUID refreshToken = UUID.fromString(cookie.getValue());
-                RefreshToken foundToken = refreshTokenService.findByToken(refreshToken);
+                RefreshToken foundToken = refreshTokenService.findByToken(cookie.getValue());
                 if (foundToken != null) {
                     String accessToken = jwtUtil.generateToken(foundToken.getUser().getUid());
                     RefreshTokenResponseDTO refreshTokenResponseDTO = new RefreshTokenResponseDTO(accessToken);
@@ -110,8 +111,9 @@ public class AuthController {
     @GetMapping("/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie: cookies) {
+        for (Cookie cookie : cookies) {
             if (cookie.getName().equals("refresh-token")) {
+                refreshTokenService.invalidateToken(cookie.getValue());
                 cookie.setMaxAge(0);
                 cookie.setValue("");
                 cookie.setPath("/");

@@ -9,14 +9,15 @@ import InvalidAuthTokenDialog from "../elements/dialogs/InvalidAuthTokenDialog";
 import { useEffect, useState } from "react";
 
 function MainPage() {
-  const { data: user, isLoading } = useUserProfile();
+  const { data: user, isLoading } = useUserProfile(
+    !!sessionStorage.getItem("accessToken"),
+  );
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     setDialogOpen(searchParams.get("error") === "unauthorized");
-    console.log(searchParams);
   }, [searchParams]);
 
   const handleClose = () => {

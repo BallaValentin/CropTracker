@@ -15,8 +15,6 @@ export const authApi = axios.create({
 export const loginUser = async(loginData: LoginUserDTO): Promise<LoginResponseDTO>  => {
     console.log("Sending login request to server");
     const response = await authApi.post<LoginResponseDTO>("/login", loginData);
-    const {accessToken} = response.data;
-    sessionStorage.setItem('accessToken', accessToken);
     return response.data;
 }
 

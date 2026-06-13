@@ -15,9 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service

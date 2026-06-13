@@ -42,6 +42,12 @@ function PlotsListPage() {
     return <ProgressCircle loadingMessage="Initializing user data..." />;
   }
 
+  if (userError) {
+    if (userError.response?.status === 401) {
+      navigate("/?error=unauthorized");
+    }
+  }
+
   if (isLoadingCropFields || !cropFieldsData) {
     return (
       <Box>
@@ -51,12 +57,6 @@ function PlotsListPage() {
         </MainContainer>
       </Box>
     );
-  }
-
-  if (userError) {
-    if (userError.response?.status === 401) {
-      navigate("/?error=unauthorized");
-    }
   }
 
   return (

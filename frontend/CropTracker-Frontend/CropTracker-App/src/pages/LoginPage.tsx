@@ -5,10 +5,10 @@ import { loginUser } from "../services/AuthService";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { LoginUserDTO } from "../interfaces/request/LoginUserDTO";
-import { fetchUserData } from "../services/UserService";
-import { queryClient } from "../query-client/QueryClient";
 import { useEffect, useState } from "react";
 import CheckIcon from "@mui/icons-material/Check";
+import type { LoginResponseDTO } from "../interfaces/response/LoginResponseDTO";
+import { queryClient } from "../query-client/QueryClient";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -38,13 +38,11 @@ function LoginPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: loginUser,
-    onSuccess: async () => {
+    onSuccess: (response: LoginResponseDTO) => {
+      console.log("Your access token is: ", response.accessToken);
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      sessionStorage.setItem("accessToken", response.accessToken);
       navigate("/");
-
-      await queryClient.prefetchQuery({
-        queryKey: ["userProfile"],
-        queryFn: fetchUserData,
-      });
     },
     onError: (err: AxiosError) => {
       if (err.response?.status == 400) {
