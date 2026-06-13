@@ -6,20 +6,17 @@ import edu.bbte.allamvizsga.dto.response.cropSpecie.GetCropSpecieDTO;
 import edu.bbte.allamvizsga.mappers.CropSpecieMapper;
 import edu.bbte.allamvizsga.model.CropCategory;
 import edu.bbte.allamvizsga.model.CropSpecie;
-import edu.bbte.allamvizsga.repository.CropSpecieRepository;
 import edu.bbte.allamvizsga.services.CropCategoryService;
 import edu.bbte.allamvizsga.services.CropSpecieService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -37,9 +34,8 @@ public class CropSpecieController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<GetCropSpecieDTO> create(@Valid @RequestBody CreateCropSpecieDTO createCropSpecieDTO) {
-        String cropCategoryId = createCropSpecieDTO.getCategoryId();
-        UUID categoryId = UUID.fromString(cropCategoryId);
-        CropCategory cropCategory = cropCategoryService.findByID(categoryId);
+
+        CropCategory cropCategory = cropCategoryService.findByID(createCropSpecieDTO.getCategoryId());
         CropSpecie newCropSpecie = cropSpecieMapper.createCropSpecieToModel(createCropSpecieDTO);
         newCropSpecie.setCropCategory(cropCategory);
         CropSpecie createdCropSpecie = cropSpecieService.create(newCropSpecie);
@@ -52,10 +48,9 @@ public class CropSpecieController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update")
     public ResponseEntity<GetCropSpecieDTO> update(@Valid @RequestBody UpdateCropSpecieDTO updateCropSpecieDTO,
-                       @RequestParam("id") String specieId) {
-        String cropCategoryId = updateCropSpecieDTO.getCategoryId();
-        UUID categoryId = UUID.fromString(cropCategoryId);
-        CropCategory cropCategory = cropCategoryService.findByID(categoryId);
+                                                   @RequestParam("id") String specieId) {
+
+        CropCategory cropCategory = cropCategoryService.findByID(updateCropSpecieDTO.getCategoryId());
         CropSpecie updatedCropSpecie = cropSpecieMapper.updateCropSpecieToModel(updateCropSpecieDTO);
         UUID cropSpecieId = UUID.fromString(specieId);
         updatedCropSpecie.setUid(cropSpecieId);
@@ -69,17 +64,15 @@ public class CropSpecieController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete")
-    public void delete(@RequestParam("id") String specieId) {
-        UUID cropSpecieId = UUID.fromString(specieId);
+    public void delete(@RequestParam("id") UUID cropSpecieId) {
         cropSpecieService.delete(cropSpecieId);
     }
 
     @GetMapping(value = "/findall", params = "categoryId")
     public ResponseEntity<Collection<GetCropSpecieDTO>> findAllByCategory(
-            @RequestParam("categoryId") String cropCategoryId
+            @RequestParam("categoryId") UUID cropCategoryId
     ) {
-        UUID categoryId = UUID.fromString(cropCategoryId);
-        CropCategory cropCategory = cropCategoryService.findByID(categoryId);
+        CropCategory cropCategory = cropCategoryService.findByID(cropCategoryId);
         Collection<CropSpecie> cropSpecies = cropSpecieService.findAllByCategory(cropCategory);
 
         return ResponseEntity.ok(cropSpecies.stream().map(cropSpecie -> {

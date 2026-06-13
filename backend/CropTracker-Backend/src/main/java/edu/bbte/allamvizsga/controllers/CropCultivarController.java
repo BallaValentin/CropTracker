@@ -34,9 +34,7 @@ public class CropCultivarController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<GetCropCultivarDTO> create(@Valid @RequestBody CreateCropCultivarDTO createCropCultivarDTO) {
-        String cropSpecieId = createCropCultivarDTO.getSpecieId();
-        UUID specieId = UUID.fromString(cropSpecieId);
-        CropSpecie cropSpecie = cropSpecieService.findByID(specieId);
+        CropSpecie cropSpecie = cropSpecieService.findByID(createCropCultivarDTO.getSpecieId());
         CropCultivar cropCultivar = cropCultivarMapper.createCropCultivarToModel(createCropCultivarDTO);
         cropCultivar.setCropSpecie(cropSpecie);
 
@@ -51,13 +49,10 @@ public class CropCultivarController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update")
-    public ResponseEntity<GetCropCultivarDTO> create(@Valid @RequestBody UpdateCropCultivarDTO updateCropCultivarDTO,
-                       @RequestParam("id") String cropCultivarId) {
-        String cropSpecieId = updateCropCultivarDTO.getSpecieId();
-        UUID specieId = UUID.fromString(cropSpecieId);
-        UUID cultivarId = UUID.fromString(cropCultivarId);
+    public ResponseEntity<GetCropCultivarDTO> update(@Valid @RequestBody UpdateCropCultivarDTO updateCropCultivarDTO,
+                                                     @RequestParam("id") UUID cultivarId) {
 
-        CropSpecie cropSpecie = cropSpecieService.findByID(specieId);
+        CropSpecie cropSpecie = cropSpecieService.findByID(updateCropCultivarDTO.getSpecieId());
         CropCultivar cropCultivar = cropCultivarMapper.updateCropCultivarToModel(updateCropCultivarDTO);
         cropCultivar.setCropSpecie(cropSpecie);
         cropCultivar.setUid(cultivarId);
@@ -73,17 +68,15 @@ public class CropCultivarController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete")
-    public void create(@RequestParam("id") String cropCultivarId) {
-        UUID cultivarId = UUID.fromString(cropCultivarId);
+    public void create(@RequestParam("id") UUID cultivarId) {
 
         cropCultivarService.delete(cultivarId);
     }
 
     @GetMapping(value = "/findall", params = "specieId")
     public ResponseEntity<Collection<GetCropCultivarDTO>> findAllInSpecie(
-            @RequestParam("specieId") String cropSpecieId
+            @RequestParam("specieId") UUID specieId
     ) {
-        UUID specieId = UUID.fromString(cropSpecieId);
         CropSpecie cropSpecie = cropSpecieService.findByID(specieId);
         Collection<CropCultivar> cropCultivars = cropCultivarService.findAllInSpecie(cropSpecie);
 

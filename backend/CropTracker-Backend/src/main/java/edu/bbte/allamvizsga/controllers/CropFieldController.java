@@ -49,10 +49,10 @@ public class CropFieldController {
 
     @PutMapping("/update")
     public void updateCropField(@Valid @RequestBody UpdateCropFieldDTO updateCropFieldDTO,
-                                @RequestParam(name = "id") String plotID,
+                                @RequestParam(name = "id") UUID cropFieldId,
                                 @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        CropField cropField = cropFieldService.findCropFieldByUser(UUID.fromString(plotID), user);
+        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
         cropFieldMapper.updateModelFromUpdateCropFieldDto(updateCropFieldDTO, cropField);
         cropFieldService.updateCropField(cropField);
     }
@@ -76,10 +76,10 @@ public class CropFieldController {
 
     @GetMapping(value = "/findby", params = "id")
     public ResponseEntity<GetCropFieldDTO> getCropFieldById(
-            @RequestParam(name = "id") String cropFieldId
+            @RequestParam(name = "id") UUID cropFieldId
     ) {
-        UUID uid = UUID.fromString(cropFieldId);
-        CropField cropField = cropFieldService.findById(uid);
+
+        CropField cropField = cropFieldService.findById(cropFieldId);
         Collection<FieldParcel> fieldParcels = cropField.getFieldParcels();
         GetCropFieldDTO getCropFieldDTO = cropFieldMapper.modelToGetCropFieldDTO(cropField);
         getCropFieldDTO.setFieldParcelDTOS(fieldParcels.stream().map(fieldParcelMapper::modelToGetFieldParcelDTO)
@@ -89,13 +89,12 @@ public class CropFieldController {
 
     @GetMapping(value = "/findby", params = "fieldWorkId")
     public ResponseEntity<GetCropFieldDTO> getCropFieldByFieldWorkId(
-            @RequestParam(name = "fieldWorkId") String workId,
+            @RequestParam(name = "fieldWorkId") UUID fieldWorkId,
             @RequestHeader("Authorization") String authorizationHeader
     ) {
-        UUID uid = UUID.fromString(workId);
         User user = userService.extractUser(authorizationHeader);
 
-        FieldWork fieldWork = fieldWorkService.findById(uid, user);
+        FieldWork fieldWork = fieldWorkService.findById(fieldWorkId, user);
         CropField cropField = fieldWork.getCropField();
 
         Collection<FieldParcel> fieldParcels = cropField.getFieldParcels();
@@ -107,9 +106,8 @@ public class CropFieldController {
     }
 
     @DeleteMapping("/delete")
-    public void deleteCropFieldById(@RequestParam(name = "id") String cropFieldId) {
-        UUID uid = UUID.fromString(cropFieldId);
-        cropFieldService.deleteById(uid);
+    public void deleteCropFieldById(@RequestParam(name = "id") UUID cropFieldId) {
+        cropFieldService.deleteById(cropFieldId);
     }
 
 }

@@ -7,17 +7,16 @@ import lombok.Data;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 public class UpdateFieldWorkDTO {
     private static final String INSTANT_REGEX =
             "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(:[0-9]{2})?(\\.\\d{1,9})?Z$";
 
-    @NotBlank(message = "Crop field id cannot be blank")
-    private String cropFieldId;
+    private UUID cropFieldId;
 
-    @NotBlank(message = "Work type id cannot be blank")
-    private String workTypeId;
+    private UUID workTypeId;
 
     @NotBlank(message = "Work timing cannot be blank")
     private String workTiming;

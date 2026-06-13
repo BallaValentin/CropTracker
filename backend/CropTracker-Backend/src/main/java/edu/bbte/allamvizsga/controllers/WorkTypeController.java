@@ -38,8 +38,8 @@ public class WorkTypeController {
     }
 
     @PostMapping("/create")
-    public void create(@Valid @RequestBody CreateWorkTypeDTO createWorkTypeDTO, @RequestHeader("Authorization")
-    String authorizationHeader) {
+    public void create(@Valid @RequestBody CreateWorkTypeDTO createWorkTypeDTO,
+                       @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
         WorkType workType = workTypesMapper.createWorkTypesDTOtoModel(createWorkTypeDTO);

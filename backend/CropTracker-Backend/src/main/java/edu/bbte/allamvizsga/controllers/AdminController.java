@@ -80,7 +80,7 @@ public class AdminController {
     }
 
     @GetMapping("/get-user-avatar")
-    public ResponseEntity<Resource> getUserAvatar(@RequestParam String userID) {
+    public ResponseEntity<Resource> getUserAvatar(@RequestParam UUID userID) {
         User user = userService.findUserById(userID);
         Resource userAvatar = imageService.getUserAvatar(user);
 

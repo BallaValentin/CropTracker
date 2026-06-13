@@ -35,17 +35,16 @@ public class FieldWorkController {
     private final WorkTypeService workTypesService;
     private final FieldWorkMapper fieldWorkMapper;
 
-    protected void setupFieldWork(FieldWork fieldWork, String authorizationHeader, String fieldId, String workId) {
+    protected void setupFieldWork(FieldWork fieldWork, String authorizationHeader,
+            UUID cropFieldId, UUID workTypeId) {
         User user = userService.extractUser(authorizationHeader);
 
-        UUID cropFieldId = UUID.fromString(fieldId);
         CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
         fieldWork.setCropField(cropField);
 
         fieldWork.getFieldParcelIds().forEach(parcelId -> fieldParcelService.findByCropFieldAndUid(cropField, parcelId));
 
-        UUID workTypesId = UUID.fromString(workId);
-        WorkType workType = workTypesService.findByUser(user, workTypesId);
+        WorkType workType = workTypesService.findByUser(user, workTypeId);
         fieldWork.setWorkType(workType);
     }
 
@@ -61,10 +60,9 @@ public class FieldWorkController {
 
     @PutMapping("/update")
     public void update(@Valid @RequestBody UpdateFieldWorkDTO updateFieldWorkDTO,
-                       @RequestParam("fieldWorkId") String workId,
+                       @RequestParam("fieldWorkId") UUID fieldWorkId,
                        @RequestHeader("Authorization") String authorizationHeader) {
         FieldWork fieldWork = fieldWorkMapper.updateFieldWorkToModel(updateFieldWorkDTO);
-        UUID fieldWorkId = UUID.fromString(workId);
         fieldWork.setUid(fieldWorkId);
 
         setupFieldWork(fieldWork, authorizationHeader, updateFieldWorkDTO.getCropFieldId(), updateFieldWorkDTO.getWorkTypeId());
@@ -85,9 +83,8 @@ public class FieldWorkController {
     @GetMapping(value = "/findall", params = "cropFieldId")
     public ResponseEntity<Collection<GetFieldWorkDTO>> findAllOfCropField(@RequestHeader("Authorization")
                                                                           String authorizationHeader,
-                                                                          @RequestParam("cropFieldId") String fieldId) {
+                                                                          @RequestParam("cropFieldId") UUID cropFieldId) {
         User user = userService.extractUser(authorizationHeader);
-        UUID cropFieldId = UUID.fromString(fieldId);
         CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
 
         Collection<FieldWork> fieldWorks = fieldWorkService.findallByCropField(cropField);
@@ -97,9 +94,8 @@ public class FieldWorkController {
 
     @GetMapping("/findby")
     public ResponseEntity<GetFieldWorkDTO> findById(@RequestHeader("Authorization")
-                                                    String authorizationHeader, @RequestParam("id") String id) {
+                                                    String authorizationHeader, @RequestParam("id") UUID fieldWorkId) {
         User user = userService.extractUser(authorizationHeader);
-        UUID fieldWorkId = UUID.fromString(id);
 
         FieldWork fieldWork = fieldWorkService.findById(fieldWorkId, user);
 
@@ -108,12 +104,11 @@ public class FieldWorkController {
 
     @GetMapping("/findRows")
     public ResponseEntity<GetAffectedRowsDTO> findPreviousAffectedRows(@RequestHeader("Authorization") String authorizationHeader,
-                                                                       @RequestParam("cropFieldId") String id,
+                                                                       @RequestParam("cropFieldId") UUID cropFieldId,
                                                                        @RequestParam("numberOfDays") Integer numberOfDays,
                                                                        @RequestParam("referenceDate") String refDateString,
                                                                        @RequestParam("workTypes") List<String> selectedWorkTypes) {
         User user = userService.extractUser(authorizationHeader);
-        UUID cropFieldId = UUID.fromString(id);
 
         CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
         Instant refDate = Instant.parse(refDateString);

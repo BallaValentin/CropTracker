@@ -17,7 +17,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +48,7 @@ public class UserController {
 
     @GetMapping("/fetch-user-data")
     public ResponseEntity<UserDataDTO> fetchUserData(
-            @RequestHeader("Authorization") String authorizationHeader) throws IOException {
+            @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
         UserDataDTO userData = userMapper.modelToUserData(user);
 
@@ -58,7 +57,7 @@ public class UserController {
 
     @GetMapping("/get-avatar")
     public ResponseEntity<Resource> getAvatar(
-            @RequestHeader("Authorization") String authorizationHeader) throws MalformedURLException {
+            @RequestHeader("Authorization") String authorizationHeader) {
 
         User user = userService.extractUser(authorizationHeader);
         Resource userAvatar = imageService.getUserAvatar(user);
@@ -85,14 +84,13 @@ public class UserController {
 
     @PutMapping("/update-password")
     public void updatePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
-        UUID tokenID = UUID.fromString(changePasswordDTO.getToken());
 
         if (!changePasswordDTO.getPassword1().equals(changePasswordDTO.getPassword2())) {
             throw new InvalidSignupException("Passwords do not match");
         }
 
         ResetPasswordToken resetPasswordToken = resetPasswordTokenService
-                .findByUid(tokenID);
+                .findByUid(changePasswordDTO.getToken());
 
         User tokenUser = resetPasswordToken.getUser();
 

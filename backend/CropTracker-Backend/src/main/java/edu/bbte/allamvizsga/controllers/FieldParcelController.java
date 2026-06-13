@@ -42,14 +42,13 @@ public class FieldParcelController {
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void createFieldParcel(@Valid @RequestBody CreateFieldParcelDTO createFieldParcelDTO,
-                                @RequestHeader("Authorization") String authorizationHeader) {
+                                  @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
-        UUID cropFieldId = UUID.fromString(createFieldParcelDTO.getCropFieldId());
-        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
+        CropField cropField = cropFieldService.findCropFieldByUser(
+                createFieldParcelDTO.getCropFieldId(), user);
 
-        UUID cropCultivarId = UUID.fromString(createFieldParcelDTO.getCropCultivarId());
-        CropCultivar cropCultivar = cropCultivarService.findByID(cropCultivarId);
+        CropCultivar cropCultivar = cropCultivarService.findByID(createFieldParcelDTO.getCropCultivarId());
 
         FieldParcel fieldParcel = fieldParcelMapper.createFieldParcelDTOtoModel(createFieldParcelDTO);
         fieldParcel.setCropField(cropField);
@@ -60,20 +59,18 @@ public class FieldParcelController {
 
     @PutMapping("/update")
     public void updateCropField(@Valid @RequestBody UpdateFieldParcelDTO updateFieldParcelDTO,
-                                @RequestParam(name = "id") String parcelId,
+                                @RequestParam(name = "id") UUID fieldParcelId,
                                 @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
-        UUID cropFieldId = UUID.fromString(updateFieldParcelDTO.getCropFieldId());
-        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
+        CropField cropField = cropFieldService.findCropFieldByUser(
+                updateFieldParcelDTO.getCropFieldId(), user);
 
-        UUID cropCultivarId = UUID.fromString(updateFieldParcelDTO.getCropCultivarId());
-        CropCultivar cropCultivar = cropCultivarService.findByID(cropCultivarId);
+        CropCultivar cropCultivar = cropCultivarService.findByID(updateFieldParcelDTO.getCropCultivarId());
 
         FieldParcel updatedFieldParcel = fieldParcelMapper.updateFieldParcelDTOtoModel(updateFieldParcelDTO);
         updatedFieldParcel.setCropCultivar(cropCultivar);
         updatedFieldParcel.setCropField(cropField);
-        UUID fieldParcelId = UUID.fromString(parcelId);
         updatedFieldParcel.setUid(fieldParcelId);
 
         fieldParcelService.updateFieldParcel(updatedFieldParcel);
@@ -82,12 +79,11 @@ public class FieldParcelController {
     @GetMapping("/findall")
     public ResponseEntity<Collection<GetFieldParcelDTO>> getCropFields(
             @RequestHeader("Authorization") String authorizationHeader,
-            @RequestParam(name = "cropFieldId") String cropFieldId) {
-        System.out.println("RECEIVED: " + cropFieldId);
+            @RequestParam(name = "cropFieldId") UUID cropFieldId) {
+
         User user = userService.extractUser(authorizationHeader);
 
-        UUID fieldId = UUID.fromString(cropFieldId);
-        CropField cropField = cropFieldService.findById(fieldId);
+        CropField cropField = cropFieldService.findById(cropFieldId);
 
         if (user != cropField.getUser()) {
             throw new ForbiddenException("You cannot request the field parcels of this crop field");
@@ -101,15 +97,15 @@ public class FieldParcelController {
 
     @GetMapping("/findby")
     public ResponseEntity<GetFieldParcelDTO> getCropFieldById(
-            @RequestParam(name = "id") String fieldParcelId
+            @RequestParam(name = "id") UUID fieldParcelId
     ) {
-        FieldParcel fieldParcel = fieldParcelService.findByID(UUID.fromString(fieldParcelId));
+        FieldParcel fieldParcel = fieldParcelService.findByID(fieldParcelId);
         GetFieldParcelDTO getFieldParcelDTO = fieldParcelMapper.modelToGetFieldParcelDTO(fieldParcel);
         return ResponseEntity.ok(getFieldParcelDTO);
     }
 
     @DeleteMapping("/delete")
-    public void deleteCropFieldById(@RequestParam(name = "id") String fieldParcelId) {
-        fieldParcelService.deleteById(UUID.fromString(fieldParcelId));
+    public void deleteCropFieldById(@RequestParam(name = "id") UUID fieldParcelId) {
+        fieldParcelService.deleteById(fieldParcelId);
     }
 }

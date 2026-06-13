@@ -1,6 +1,7 @@
 package edu.bbte.allamvizsga.services;
 
 import edu.bbte.allamvizsga.dto.request.user.UserUpdateDTO;
+import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import edu.bbte.allamvizsga.model.Role;
 import edu.bbte.allamvizsga.model.User;
@@ -73,21 +74,12 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User findUserById(String uid) {
-        try {
-            if (uid == null || uid.isBlank()) {
-                throw new BadCredentialsException("Missing user id");
-            }
-            UUID userId = UUID.fromString(uid);
-
-            User user = userRepository.findByUid(userId);
-            if (user == null) {
-                throw new EntityNotFoundException("Couldn't find user");
-            } else {
-                return user;
-            }
-        } catch (IllegalArgumentException exception) {
-            throw new BadCredentialsException("Invalid userID format");
+    public User findUserById(UUID userId) {
+        User user = userRepository.findByUid(userId);
+        if (user == null) {
+            throw new EntityNotFoundException("Couldn't find user");
+        } else {
+            return user;
         }
     }
 
@@ -160,6 +152,14 @@ public class UserService {
     public User extractUser(String authorizationHeader) {
         String accessToken = authorizationHeader.substring(7);
         String uid = jwtUtil.getUid(accessToken);
-        return findUserById(uid);
+        try {
+            if (uid == null || uid.isBlank()) {
+                throw new BadRequestException("The user id is missing");
+            }
+            UUID userId = UUID.fromString(uid);
+            return findUserById(userId);
+        } catch (IllegalArgumentException exception) {
+            throw new BadRequestException("Invalid user id format");
+        }
     }
 }

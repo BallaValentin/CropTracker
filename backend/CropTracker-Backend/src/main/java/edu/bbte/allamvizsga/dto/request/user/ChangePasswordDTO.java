@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class ChangePasswordDTO {
     @NotNull(message = "The first password cannot be null")
@@ -17,7 +19,5 @@ public class ChangePasswordDTO {
     @NotBlank(message = "The second password cannot be blank")
     private String password2;
 
-    @NotNull(message = "Change password token cannot be null")
-    @NotBlank(message = "Change password token cannot be blank")
-    private String token;
+    private UUID token;
 }
