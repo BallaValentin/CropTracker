@@ -8,6 +8,7 @@ import edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import edu.bbte.allamvizsga.mappers.UserMapper;
 import edu.bbte.allamvizsga.model.ResetPasswordToken;
 import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.services.ImageService;
 import edu.bbte.allamvizsga.services.ResetPasswordTokenService;
 import edu.bbte.allamvizsga.services.UserService;
 import edu.bbte.allamvizsga.util.JwtUtil;
@@ -37,6 +38,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final ResetPasswordTokenService resetPasswordTokenService;
+    private final ImageService imageService;
 
     @PutMapping("/change-avatar")
     public void changeAvatar(@Valid @RequestBody AvatarUpdatesDTO avatarUpdates,
@@ -59,16 +61,11 @@ public class UserController {
             @RequestHeader("Authorization") String authorizationHeader) throws MalformedURLException {
 
         User user = userService.extractUser(authorizationHeader);
-        UUID userID = user.getUid();
-
-        String uploadDir = "./images/" + userID + "/profile.png";
-        Path path = Paths.get(uploadDir);
-
-        Resource resource = new UrlResource(path.toUri());
+        Resource userAvatar = imageService.getUserAvatar(user);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
-                .body(resource);
+                .body(userAvatar);
     }
 
     @PutMapping("/update-profile")

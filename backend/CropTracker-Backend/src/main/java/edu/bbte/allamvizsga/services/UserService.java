@@ -73,12 +73,21 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User findUserById(UUID uid) {
-        User user = userRepository.findByUid(uid);
-        if (user == null) {
-            throw new EntityNotFoundException("Couldn't find user");
-        } else {
-            return user;
+    public User findUserById(String uid) {
+        try {
+            if (uid == null || uid.isBlank()) {
+                throw new BadCredentialsException("Missing user id");
+            }
+            UUID userId = UUID.fromString(uid);
+
+            User user = userRepository.findByUid(userId);
+            if (user == null) {
+                throw new EntityNotFoundException("Couldn't find user");
+            } else {
+                return user;
+            }
+        } catch (IllegalArgumentException exception) {
+            throw new BadCredentialsException("Invalid userID format");
         }
     }
 
@@ -150,7 +159,7 @@ public class UserService {
 
     public User extractUser(String authorizationHeader) {
         String accessToken = authorizationHeader.substring(7);
-        UUID uid = jwtUtil.getUid(accessToken);
+        String uid = jwtUtil.getUid(accessToken);
         return findUserById(uid);
     }
 }

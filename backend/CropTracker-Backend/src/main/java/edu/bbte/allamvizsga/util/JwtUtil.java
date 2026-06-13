@@ -33,8 +33,8 @@ public class JwtUtil {
                 .signWith(key, Jwts.SIG.HS256).compact();
     }
 
-    public UUID getUid(String token) {
-        return UUID.fromString(Jwts.parser().verifyWith(key)
+    public String getUid(String token) {
+        return (Jwts.parser().verifyWith(key)
                 .build().parseSignedClaims(token).getPayload().getSubject());
     }
 
