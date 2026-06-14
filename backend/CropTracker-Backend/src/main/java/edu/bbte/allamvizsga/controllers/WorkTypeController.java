@@ -1,7 +1,7 @@
 package edu.bbte.allamvizsga.controllers;
 
-import edu.bbte.allamvizsga.dto.request.workTypes.CreateWorkTypeDTO;
-import edu.bbte.allamvizsga.dto.response.workTypes.GetWorkTypeDTO;
+import edu.bbte.allamvizsga.dto.request.workType.CreateWorkTypeDTO;
+import edu.bbte.allamvizsga.dto.response.workType.GetWorkTypeDTO;
 import edu.bbte.allamvizsga.mappers.WorkTypesMapper;
 import edu.bbte.allamvizsga.model.User;
 import edu.bbte.allamvizsga.model.WorkType;

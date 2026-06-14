@@ -19,6 +19,7 @@ import { type CreateWorkTypeDTO } from "../../interfaces/request/CreateWorkTypeD
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import type { FieldDefinition } from "../../interfaces/FieldDefinition";
+import { getNameError, standardNameRegex } from "../../utils/Constants";
 
 interface AddNewWorkTypeDialogProps {
   onConfirmAdd: (createWorkTypeDTO: CreateWorkTypeDTO) => void;
@@ -37,30 +38,63 @@ function AddNewWorkTypeDialog({
       fieldDefinitions: [],
     });
 
+  const [createWorkTypeError, setCreateWorkTypeError] = useState<
+    Record<string, string | string[]>
+  >({
+    nameError: "",
+    fieldDefinitionErrors: [] as string[],
+  });
+
   const handleConfirm = () => {
+    const nameError = getNameError(createWorkTypeData.name || "") ?? "";
+
+    setCreateWorkTypeError((prev) => ({
+      ...prev,
+      nameError: nameError,
+    }));
+
+    const updatedFieldDefinitionErrors =
+      createWorkTypeData.fieldDefinitions.map((fieldDefinition) => {
+        const currentName = fieldDefinition.name || "";
+        if (!standardNameRegex.test(currentName)) {
+          return getNameError(currentName) ?? "";
+        }
+        return "";
+      });
+
+    const hasFieldErrors = updatedFieldDefinitionErrors.some(
+      (error) => error !== "",
+    );
+
+    setCreateWorkTypeError((prev) => ({
+      ...prev,
+      fieldDefinitionErrors: updatedFieldDefinitionErrors,
+    }));
+
+    if (!!nameError || hasFieldErrors) return;
+
     onConfirmAdd(createWorkTypeData);
   };
 
   const handleWorkTypeNameChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    const newName = event.target.value;
     setCreateWorkTypeData((prev) => ({
       ...prev,
-      name: event.target.value,
+      name: newName,
     }));
   };
 
   const handleAddFieldDefinition = () => {
     const hasEmptyDefinition = createWorkTypeData.fieldDefinitions.some(
-      (fieldDefinition) =>
-        fieldDefinition.name.trim() === "" &&
-        fieldDefinition.type.trim() === "" &&
-        fieldDefinition.required === false &&
-        (fieldDefinition.options === undefined ||
-          fieldDefinition.options.length === 0),
+      (fieldDefinition) => fieldDefinition.name.trim() === "",
     );
 
-    if (!hasEmptyDefinition) {
+    if (
+      !hasEmptyDefinition ==
+      createWorkTypeData.fieldDefinitions.length < 10
+    ) {
       const updatedDefinitions = [...createWorkTypeData.fieldDefinitions];
       updatedDefinitions.push({
         name: "",
@@ -69,9 +103,19 @@ function AddNewWorkTypeDialog({
         options: [],
       });
 
+      const updatedFieldDefinitionErrors = [
+        ...(createWorkTypeError.fieldDefinitionErrors as string[]),
+        "",
+      ];
+
       setCreateWorkTypeData((prev) => ({
         ...prev,
         fieldDefinitions: updatedDefinitions,
+      }));
+
+      setCreateWorkTypeError((prev) => ({
+        ...prev,
+        fieldDefinitionErrors: updatedFieldDefinitionErrors,
       }));
     }
   };
@@ -98,9 +142,18 @@ function AddNewWorkTypeDialog({
       ...createWorkTypeData.fieldDefinitions,
     ].filter((_fieldDefiniton, defIndex) => defIndex !== index);
 
+    const updatedFieldDefinitionErrors = [
+      ...createWorkTypeError.fieldDefinitionErrors,
+    ].filter((_fieldDefinitionError, defIndex) => defIndex !== index);
+
     setCreateWorkTypeData((prev) => ({
       ...prev,
       fieldDefinitions: updatedFieldDefinitions,
+    }));
+
+    setCreateWorkTypeError((prev) => ({
+      ...prev,
+      fieldDefinitionErrors: updatedFieldDefinitionErrors,
     }));
   };
 
@@ -125,8 +178,11 @@ function AddNewWorkTypeDialog({
                 name="name"
                 label="Work Type Name"
                 color="success"
+                value={createWorkTypeData.name}
                 placeholder="Add work type name"
                 onChange={handleWorkTypeNameChange}
+                error={!!createWorkTypeError.nameError}
+                helperText={createWorkTypeError.nameError}
                 required
               />
             </Box>
@@ -165,7 +221,7 @@ function AddNewWorkTypeDialog({
                       display: "flex",
                       width: "100%",
                       gap: 1.5,
-                      alignItems: "center",
+                      alignItems: "flex-start",
                     }}
                   >
                     <TextField
@@ -174,6 +230,13 @@ function AddNewWorkTypeDialog({
                       variant="outlined"
                       value={fieldDefinition.name}
                       required
+                      error={
+                        !!createWorkTypeError.fieldDefinitionErrors?.[index]
+                      }
+                      helperText={
+                        createWorkTypeError.fieldDefinitionErrors?.[index] ||
+                        " "
+                      }
                       onChange={(e) =>
                         handleFieldChange(index, "name", e.target.value)
                       }

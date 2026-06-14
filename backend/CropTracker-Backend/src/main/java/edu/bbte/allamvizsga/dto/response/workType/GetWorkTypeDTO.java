@@ -1,4 +1,4 @@
-package edu.bbte.allamvizsga.dto.response.workTypes;
+package edu.bbte.allamvizsga.dto.response.workType;
 
 import edu.bbte.allamvizsga.model.FieldDefinition;
 import lombok.Data;
