@@ -1,3 +1,5 @@
+import type { LatLngObject } from "../interfaces/LatLngObject";
+
 export const expandedDrawerWidth: number = 240;
 export const collapsedDrawerWidth: number = 72;
 export const defaultMapPosition = {
@@ -28,7 +30,7 @@ export const maxLines = 10;
 
 export const standardNameRegex = /^\p{Lu}(?![\s_-]*$)[\p{L}\d\s_-]{2,33}[\p{L}\d]$/u;
 
-export function getNameError(value: string): string | null {
+export const getNameError = (value: string): string | null => {
   if (!value) return "Name is required.";
   if (value.length < 4 || value.length > 35) return "Must be between 4 and 35 characters.";
   if (!/^\p{Lu}/u.test(value)) return "Must start with an uppercase letter.";
@@ -36,4 +38,11 @@ export function getNameError(value: string): string | null {
   if (!/^[\p{L}\d\s_-]+$/u.test(value)) return "Only letters, numbers, spaces, '_' and '-' are allowed.";
   
   return null;
+}
+
+export const getPolygonError = (polygonPoints: LatLngObject[]): string | null => {
+    if (!polygonPoints || polygonPoints.length < 4) return "Missing polygon shape";
+    if (polygonPoints[0] != polygonPoints[polygonPoints.length - 1]) return "Unclosed polygon shape";
+
+    return null;
 }

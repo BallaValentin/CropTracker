@@ -30,21 +30,15 @@ public abstract class CropFieldMapper {
 
     @AfterMapping
     protected void afterCropFieldMapping(CropField cropField, @MappingTarget GetCropFieldDTO getCropFieldDTO) {
-        if (cropField.getLatitude() != null && cropField.getLongitude() != null) {
-            getCropFieldDTO.setMarkerPosition(new LatLngObject(cropField.getLatitude(), cropField.getLongitude()));
-        }
+        getCropFieldDTO.setMarkerPosition(new LatLngObject(cropField.getLatitude(), cropField.getLongitude()));
     }
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "polygonPoints", ignore = true)
-    public abstract void updateModelFromUpdateCropFieldDto(UpdateCropFieldDTO updateCropFieldDTO, @MappingTarget CropField cropField);
+    @Mapping(target = "polygonPoints", source = "polygonPoints", qualifiedByName = "toPolygon")
+    public abstract CropField updateCropFieldDTOtoModel(UpdateCropFieldDTO updateCropFieldDT);
 
     @AfterMapping
     protected void afterUpdateDTOMapping(UpdateCropFieldDTO updateCropFieldDTO, @MappingTarget CropField cropField) {
-        cropField.setPolygonPoints(polygonMapper.mapPointsToPolygon(updateCropFieldDTO.getPolygonPoints()));
-        if (updateCropFieldDTO.getMarkerPosition() != null) {
-            cropField.setLatitude(updateCropFieldDTO.getMarkerPosition().getLat());
-            cropField.setLongitude(updateCropFieldDTO.getMarkerPosition().getLng());
-        }
+        cropField.setLatitude(updateCropFieldDTO.getMarkerPosition().getLat());
+        cropField.setLongitude(updateCropFieldDTO.getMarkerPosition().getLng());
     }
 }

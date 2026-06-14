@@ -1,19 +1,19 @@
 import { useMap } from "react-leaflet";
-import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import type { LatLngObject } from "../interfaces/LatLngObject";
 import { getPolygonCenter, isPointInPolygon } from "../utils/PolygonHelper";
 import L from "leaflet";
 
 interface UseCropFieldDrawProps {
     markerAdded: boolean,
-    cropFieldData: GetCropFieldDTO,
+    markerPosition: LatLngObject,
+    polygonPoints: LatLngObject[],
     onPolygonCreated: (polygonPoints: LatLngObject[]) => void;
     onPolygonDeleted: () => void;
     onMarkerCreated: (markerPoint: LatLngObject) => void;
     onMarkerDeleted: () => void;
 }
 
-export const useCropFieldDraw = ({markerAdded, cropFieldData, onPolygonCreated, onPolygonDeleted, onMarkerCreated, onMarkerDeleted}: UseCropFieldDrawProps) => {
+export const useCropFieldDraw = ({markerAdded, markerPosition, polygonPoints, onPolygonCreated, onPolygonDeleted, onMarkerCreated, onMarkerDeleted}: UseCropFieldDrawProps) => {
     const map = useMap();
 
     const _onCreated = (e: { layer: L.Layer; shape: string }) => {
@@ -32,11 +32,7 @@ export const useCropFieldDraw = ({markerAdded, cropFieldData, onPolygonCreated, 
           lng: latLng.lng,
         }));
 
-        if (
-          !markerAdded ||
-          (cropFieldData.markerPosition &&
-            isPointInPolygon(cropFieldData.markerPosition, formattedPoints))
-        ) {
+        if (!markerAdded || isPointInPolygon(markerPosition, formattedPoints)) {
           onPolygonCreated(formattedPoints);
 
           if (!markerAdded) {
@@ -53,8 +49,8 @@ export const useCropFieldDraw = ({markerAdded, cropFieldData, onPolygonCreated, 
         const rawLatLng = markerLayer.getLatLng();
 
         if (
-          cropFieldData.polygonPoints.length === 0 ||
-          isPointInPolygon(rawLatLng, cropFieldData.polygonPoints)
+          polygonPoints.length === 0 ||
+          isPointInPolygon(rawLatLng, polygonPoints)
         ) {
           onMarkerCreated(rawLatLng);
         } else {
@@ -71,38 +67,39 @@ export const useCropFieldDraw = ({markerAdded, cropFieldData, onPolygonCreated, 
     };
 
     const _onUpdated = (layer: L.Layer) => {
+      const currentZoom = map.getZoom();
+      const currentCenter = map.getCenter();
         
-        if (layer instanceof L.Polygon) {
+      if (layer instanceof L.Polygon) {
 
-            const polygonLayer = layer as L.Polygon;
-            const rawLatLngs = polygonLayer.getLatLngs();
-            const latLngs = rawLatLngs[0] as L.LatLng[];
-            const formattedPoints = latLngs.map((latLng) => ({
-            lat: latLng.lat,
-            lng: latLng.lng,
-            }));
+          const polygonLayer = layer as L.Polygon;
+          const rawLatLngs = polygonLayer.getLatLngs();
+          const latLngs = rawLatLngs[0] as L.LatLng[];
+          const formattedPoints = latLngs.map((latLng) => ({
+          lat: latLng.lat,
+          lng: latLng.lng,
+          }));
 
-            if (
-            !markerAdded ||
-            (cropFieldData.markerPosition &&
-                isPointInPolygon(cropFieldData.markerPosition, formattedPoints))
-            ) {
+          if (!markerAdded || isPointInPolygon(markerPosition, formattedPoints)) {
             onPolygonCreated(formattedPoints);
 
             if (!markerAdded) {
                 const centerMarker = getPolygonCenter(formattedPoints);
                 onMarkerCreated(centerMarker);
             }
-            } else {
+          } else {
             alert(
                 "The polygon must contain the marker. Please draw a polygon that includes the marker.",
             );
             }
-        }
+      };
+        setTimeout(() => {
+        map.setView(currentCenter, currentZoom, { animate: false });
+      }, 10);
     }
 
     const _onDeleted = (e: { layer: L.Layer; shape: string }) => {
-    const {layer} = e;
+      const {layer} = e;
       const currentZoom = map.getZoom();
       const currentCenter = map.getCenter();
 

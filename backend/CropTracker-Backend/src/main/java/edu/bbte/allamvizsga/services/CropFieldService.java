@@ -1,5 +1,6 @@
 package edu.bbte.allamvizsga.services;
 
+import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.exceptions.ForbiddenException;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.User;
@@ -9,6 +10,7 @@ import edu.bbte.allamvizsga.specifications.CropFieldSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,26 +26,36 @@ public class CropFieldService {
     private final CropFieldRepository cropFieldRepository;
     private final SerialNumberGetter snGetter;
 
-    protected Integer getNextNumber(User user, String originalName) {
+    protected void validatePolygon(Polygon polygon) {
+        if (!polygon.isValid()) {
+            throw new BadRequestException("Invalid polygon shape");
+        }
+    }
+
+    protected Integer getNextNumber(User user, String originalName, UUID cropFieldId) {
         Collection<String> sameNamesList = cropFieldRepository.findAll(
                 Specification.allOf(
                         CropFieldSpecification.byUser(user)
                                 .and(CropFieldSpecification.withNamePattern(originalName))
                                 .and(CropFieldSpecification.notDeleted())
+                                .and(CropFieldSpecification.notWithId(cropFieldId))
                 )
         ).stream().map(CropField::getName).toList();
 
         return snGetter.getNextNumber(sameNamesList);
-
     }
 
-    public void createCropField(CropField cropField) {
-
-        Integer count = getNextNumber(cropField.getUser(), cropField.getName());
+    protected void updateName(CropField cropField) {
+        Integer count = getNextNumber(cropField.getUser(), cropField.getName(), cropField.getUid());
 
         if (count > 1) {
             cropField.setName(cropField.getName() + "(" + count + ")");
         }
+    }
+
+    public void createCropField(CropField cropField) {
+        validatePolygon(cropField.getPolygonPoints());
+        updateName(cropField);
 
         cropField.setIsDeleted(Boolean.FALSE);
         cropFieldRepository.save(cropField);
@@ -64,6 +76,19 @@ public class CropFieldService {
     }
 
     public void updateCropField(CropField cropField) {
+        CropField foundCropField = findById(cropField.getUid());
+
+        if (foundCropField == null) {
+            throw new EntityNotFoundException("Couldn`t find the crop field for update");
+        }
+
+        if (foundCropField.getUser() != cropField.getUser() || foundCropField.getIsDeleted()) {
+            throw new ForbiddenException("You have no access to this crop field");
+        }
+
+        validatePolygon(cropField.getPolygonPoints());
+        cropField.setIsDeleted(Boolean.FALSE);
+        updateName(cropField);
         cropFieldRepository.save(cropField);
     }
 

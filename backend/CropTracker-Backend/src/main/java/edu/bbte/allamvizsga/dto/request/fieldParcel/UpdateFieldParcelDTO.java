@@ -4,6 +4,7 @@ import edu.bbte.allamvizsga.dto.LatLngObject;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.Collection;
@@ -12,6 +13,8 @@ import java.util.UUID;
 
 @Data
 public class UpdateFieldParcelDTO {
+    @NotNull(message = "Polygon point cannot be null")
+    @Size(min = 3, message = "Polygon must contain at least 4 points")
     private Collection<LatLngObject> polygonPoints;
 
     private UUID cropFieldId;

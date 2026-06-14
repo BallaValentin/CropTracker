@@ -7,7 +7,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Collection;
 
@@ -22,6 +24,7 @@ public class CreateWorkTypeDTO {
     private String name;
 
     @NotNull(message = "Work type field definition cannot be null")
+    @Size(max = 10, message = "Field definitions can only contain 10 items")
     @Valid
     private Collection<CreateFieldDefinitionDTO> fieldDefinitions;
 }

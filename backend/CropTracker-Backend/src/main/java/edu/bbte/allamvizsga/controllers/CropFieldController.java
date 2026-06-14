@@ -52,8 +52,9 @@ public class CropFieldController {
                                 @RequestParam(name = "id") UUID cropFieldId,
                                 @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
-        cropFieldMapper.updateModelFromUpdateCropFieldDto(updateCropFieldDTO, cropField);
+        CropField cropField = cropFieldMapper.updateCropFieldDTOtoModel(updateCropFieldDTO);
+        cropField.setUid(cropFieldId);
+        cropField.setUser(user);
         cropFieldService.updateCropField(cropField);
     }
 

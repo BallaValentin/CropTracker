@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import { useCropFieldDraw } from "../hooks/UseCropFieldDraw";
 import type { LatLngObject } from "../interfaces/LatLngObject";
-import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 
 interface CropFieldDrawControlProps {
   markerAdded: boolean;
-  cropFieldData: GetCropFieldDTO;
+  markerPosition: LatLngObject;
+  polygonPoints: LatLngObject[];
   onPolygonCreated: (polygonPoints: LatLngObject[]) => void;
   onPolygonDeleted: () => void;
   onMarkerCreated: (markerPoint: LatLngObject) => void;
@@ -15,7 +15,8 @@ interface CropFieldDrawControlProps {
 
 function CropFieldDrawControl({
   markerAdded,
-  cropFieldData,
+  markerPosition,
+  polygonPoints,
   onPolygonCreated,
   onPolygonDeleted,
   onMarkerCreated,
@@ -25,7 +26,8 @@ function CropFieldDrawControl({
 
   const { _onCreated, _onDeleted, _onUpdated } = useCropFieldDraw({
     markerAdded,
-    cropFieldData,
+    markerPosition,
+    polygonPoints,
     onPolygonCreated,
     onPolygonDeleted,
     onMarkerCreated,

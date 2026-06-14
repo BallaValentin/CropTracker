@@ -25,6 +25,10 @@ public class FieldParcelService {
     private final FieldParcelRepository fieldParcelRepository;
 
     protected void polygonValidation(FieldParcel fieldParcel) {
+        if (!fieldParcel.getPolygonPoints().isValid()) {
+            throw new BadRequestException("Invalid polygon shape");
+        }
+
         double precisionTolerance = 0.000001;
         double areaTolerance = 0.00000001;
 

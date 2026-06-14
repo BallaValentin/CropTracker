@@ -1,17 +1,18 @@
 import { LayersControl, MapContainer } from "react-leaflet";
-import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useEffect, useState } from "react";
 import { Marker, Polygon, Tooltip } from "react-leaflet";
 import { defaultMapPosition } from "../utils/Constants";
 import { Paper } from "@mui/material";
 import CustomLayers from "./CustomLayers";
-import ChangeView from "./ChangeView";
 import CropFieldDrawControl from "./CropFieldDrawControl";
 import type { LatLngObject } from "../interfaces/LatLngObject";
 import { calculatePolygonArea } from "../utils/PolygonHelper";
+import ChangeView from "./ChangeView";
 
 interface EditableMapProps {
-  cropField: GetCropFieldDTO;
+  canLoadMap?: boolean;
+  markerPosition: LatLngObject | null;
+  polygonPoints: LatLngObject[];
   markerAdded: boolean;
   onMarkerCreated: (latLng: LatLngObject) => void;
   onMarkerDeleted: () => void;
@@ -20,66 +21,40 @@ interface EditableMapProps {
 }
 
 function EditableMap({
-  cropField,
+  canLoadMap = true,
+  markerPosition,
+  polygonPoints,
   markerAdded,
   onMarkerCreated,
   onMarkerDeleted,
   onPolygonCreated,
   onPolygonDeleted,
 }: EditableMapProps) {
-  const [cropFieldData, setCropFieldData] =
-    useState<GetCropFieldDTO>(cropField);
-  const [viewCenter, setViewCenter] = useState<[number, number]>(
-    cropField.markerPosition
-      ? [cropField.markerPosition.lat, cropField.markerPosition.lng]
-      : [defaultMapPosition.lat, defaultMapPosition.lng],
-  );
+  const [area, setArea] = useState<number>(0);
+
+  useEffect(() => {
+    if (polygonPoints && polygonPoints.length > 3) {
+      setArea(calculatePolygonArea(polygonPoints) || 0);
+    }
+  }, [polygonPoints]);
+
+  if (!canLoadMap) return null;
 
   const handlePolygonCreated = (formattedPoints: LatLngObject[]) => {
-    setCropFieldData((prev) => ({
-      ...prev,
-      polygonPoints: formattedPoints,
-      area: calculatePolygonArea(formattedPoints),
-    }));
     onPolygonCreated(formattedPoints);
   };
 
   const handleMarkerCreated = (markerPoint: LatLngObject) => {
-    setCropFieldData((prev) => ({
-      ...prev,
-      markerPosition: markerPoint,
-    }));
-
-    setViewCenter([markerPoint.lat, markerPoint.lng]);
-
     onMarkerCreated(markerPoint);
   };
 
   const handlePolygonDeleted = () => {
-    setCropFieldData((prev) => ({
-      ...prev,
-      polygonPoints: [],
-      area: 0,
-    }));
     onPolygonDeleted();
   };
 
   const handleMarkerDeleted = () => {
-    setCropFieldData((prev) => ({
-      ...prev,
-      markerPosition: defaultMapPosition,
-    }));
     onMarkerDeleted();
   };
-
-  useEffect(() => {
-    setCropFieldData(cropField);
-    setViewCenter(
-      cropField.markerPosition
-        ? [cropField.markerPosition.lat, cropField.markerPosition.lng]
-        : [defaultMapPosition.lat, defaultMapPosition.lng],
-    );
-  }, [cropField]);
 
   return (
     <Paper
@@ -97,43 +72,42 @@ function EditableMap({
         boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
       }}
     >
-      <MapContainer style={{ height: "100%" }} center={viewCenter} zoom={13}>
+      <MapContainer
+        style={{ height: "100%" }}
+        center={[defaultMapPosition.lat, defaultMapPosition.lng]}
+        zoom={16}
+      >
+        <ChangeView
+          center={
+            markerPosition
+              ? [markerPosition.lat, markerPosition.lng]
+              : [defaultMapPosition.lat, defaultMapPosition.lng]
+          }
+        />
         <LayersControl position="topright">
           <CustomLayers />
 
-          <ChangeView center={viewCenter} zoom={16} />
-
           <CropFieldDrawControl
             markerAdded={markerAdded}
-            cropFieldData={cropFieldData}
+            markerPosition={markerPosition || defaultMapPosition}
+            polygonPoints={polygonPoints}
             onPolygonCreated={handlePolygonCreated}
             onPolygonDeleted={handlePolygonDeleted}
             onMarkerCreated={handleMarkerCreated}
             onMarkerDeleted={handleMarkerDeleted}
           />
 
-          {markerAdded && cropFieldData.markerPosition && (
+          {markerAdded && markerPosition && (
             <Marker
-              key={
-                cropFieldData.uid
-                  ? "marker-" + cropFieldData.uid
-                  : "default-marker"
-              }
-              position={[
-                cropFieldData.markerPosition.lat,
-                cropFieldData.markerPosition.lng,
-              ]}
+              key={"cropfield_marker"}
+              position={[markerPosition.lat, markerPosition.lng]}
             />
           )}
 
-          {cropFieldData.polygonPoints.length > 0 && (
+          {polygonPoints.length >= 3 && (
             <Polygon
-              key={
-                cropFieldData.uid
-                  ? "polygon-" + cropFieldData.uid
-                  : "default-polygon"
-              }
-              positions={cropFieldData.polygonPoints}
+              key={"cropfield-polygon"}
+              positions={polygonPoints}
               pathOptions={{ color: "gray" }}
               eventHandlers={{
                 mouseover: (e) => e.target.setStyle({ fillOpacity: 0.7 }),
@@ -141,7 +115,7 @@ function EditableMap({
               }}
             >
               <Tooltip direction="top" className="area-tooltip" opacity={1}>
-                Area: {(cropField.area / 10000).toFixed(2)} ha
+                `Area: ${(area / 10000).toFixed(2)} ha`
               </Tooltip>
             </Polygon>
           )}

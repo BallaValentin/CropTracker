@@ -3,16 +3,12 @@ import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useUserProfile } from "../hooks/UseUserProfile";
 import { useNavigate, useParams } from "react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  getCropFieldById,
-  updateCropField,
-} from "../services/CropFieldService";
-import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
-import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { updateCropField } from "../services/CropFieldService";
 import type { UpdateCropFieldDTO } from "../interfaces/request/UpdateCropFieldDTO";
 import { queryClient } from "../query-client/QueryClient";
 import UpdateCropFieldForm from "../elements/forms/UpdateCropFieldForm";
+import { useCropField } from "../hooks/UseCropField";
 
 function UpdatePlotPage() {
   const {
@@ -20,35 +16,14 @@ function UpdatePlotPage() {
     isLoading: isLoadingUser,
     error: userError,
   } = useUserProfile();
-  const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldDTO>({
-    uid: "",
-    name: "Unnamed Field",
-    markerPosition: {
-      lat: 51.505,
-      lng: -0.09,
-    },
-    polygonPoints: [],
-    area: 0,
-  });
 
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: cropField, isLoading: isCropFieldLoading } = useQuery({
-    queryKey: ["plots", id],
-    queryFn: () => getCropFieldById(id || ""),
-    staleTime: 1000 * 60 * 60,
-    enabled: !!id,
-    refetchInterval: 1000 * 60 * 60,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-  });
-
-  useEffect(() => {
-    if (cropField) {
-      setCropFieldDetail(cropField);
-    }
-  }, [cropField]);
+  const { data: cropField, isLoading: isCropFieldLoading } = useCropField(
+    id || "",
+    !!id,
+  );
 
   const { mutate, isPending } = useMutation({
     mutationFn: ({
@@ -59,7 +34,7 @@ function UpdatePlotPage() {
       id: string;
     }) => updateCropField(cropFieldUpdateData, id || ""),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["plots", id] });
+      queryClient.invalidateQueries({ queryKey: ["cropfields", id] });
       navigate(`/cropfield-details/${id}`, {
         state: {
           success: true,
@@ -77,7 +52,12 @@ function UpdatePlotPage() {
     return <ProgressCircle loadingMessage="Loading user data" />;
   }
 
-  if (isCropFieldLoading) {
+  if (
+    isCropFieldLoading ||
+    !cropField ||
+    !cropField.markerPosition ||
+    !cropField.polygonPoints
+  ) {
     return <ProgressCircle loadingMessage="Loading field details" />;
   }
 
@@ -92,7 +72,7 @@ function UpdatePlotPage() {
       <MainHeader userData={user} />
       <MainContainer hasDrawer={Boolean(user?.username)}>
         <UpdateCropFieldForm
-          cropField={cropFieldDetail}
+          cropField={cropField}
           onUpdate={handleOnUpdate}
           isPending={isPending}
         />
