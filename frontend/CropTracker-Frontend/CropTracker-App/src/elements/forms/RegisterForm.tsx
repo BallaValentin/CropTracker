@@ -15,7 +15,12 @@ import {
 } from "@mui/material";
 import type { CreateUserDTO } from "../../interfaces/request/CreateUserDTO";
 import { useState } from "react";
-import type { RegisterErrorDTO } from "../../interfaces/response/RegisterErrorDTO";
+import {
+  getEmailError,
+  getPasswordError,
+  getPersonNameError,
+  getUsernameError,
+} from "../../utils/FormSubmitHelper";
 
 interface RegisterFormProps {
   onSubmit: (registerData: CreateUserDTO) => void;
@@ -34,14 +39,14 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     isWorker: false,
   });
 
-  const [registerError, setRegisterError] = useState<RegisterErrorDTO>({
-    usernameError: false,
-    firstNameError: false,
-    lastNameError: false,
-    passwordError: false,
-    passwordRepeatError: false,
-    emailError: false,
-    roleError: false,
+  const [registerError, setRegisterError] = useState<Record<string, string>>({
+    usernameError: "",
+    firstNameError: "",
+    lastNameError: "",
+    passwordError: "",
+    passwordRepeatError: "",
+    emailError: "",
+    roleError: "",
   });
 
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,47 +57,50 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
   const isFormValid = () => {
     let isValid = true;
 
-    if (!/^[A-Za-z][A-Za-z0-9_]{2,}$/.test(registerData.username)) {
-      setRegisterError((prev) => ({ ...prev, usernameError: true }));
-      isValid = false;
-    }
+    const usernameError = getUsernameError(registerData.username) || "";
+    setRegisterError((prev) => ({ ...prev, usernameError: usernameError }));
+    isValid = isValid || usernameError;
 
-    if (!/^[A-Z][a-z]+$/.test(registerData.firstName)) {
-      setRegisterError((prev) => ({ ...prev, firstNameError: true }));
-      isValid = false;
-    }
+    const firstNameError = getPersonNameError(registerData.firstName) || "";
+    setRegisterError((prev) => ({ ...prev, firstNameError: firstNameError }));
+    isValid = isValid || firstNameError;
 
-    if (!/^[A-Z][a-z]+$/.test(registerData.lastName)) {
-      setRegisterError((prev) => ({ ...prev, lastNameError: true }));
-      isValid = false;
-    }
+    const lastNameError = getPersonNameError(registerData.lastName) || "";
+    setRegisterError((prev) => ({ ...prev, lastNameError: lastNameError }));
+    isValid = isValid || lastNameError;
 
-    if (
-      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
-        registerData.email,
-      )
-    ) {
-      setRegisterError((prev) => ({ ...prev, emailError: true }));
-      isValid = false;
-    }
+    const emailError = getEmailError(registerData.email) || "";
+    setRegisterError((prev) => ({ ...prev, emailError: emailError }));
+    isValid = isValid || emailError;
 
-    if (
-      !/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
-        registerData.password,
-      )
-    ) {
-      setRegisterError((prev) => ({ ...prev, passwordError: true }));
-      isValid = false;
-    }
+    const passwordError = getPasswordError(registerData.password) || "";
+    setRegisterError((prev) => ({ ...prev, passwordError: passwordError }));
+    isValid = isValid || passwordError;
 
     if (registerData.password != registerData.password2) {
-      setRegisterError((prev) => ({ ...prev, passwordRepeatError: true }));
+      setRegisterError((prev) => ({
+        ...prev,
+        passwordRepeatError: "Passwords must match.",
+      }));
       isValid = false;
+    } else {
+      setRegisterError((prev) => ({
+        ...prev,
+        passwordRepeatError: "",
+      }));
     }
 
     if (!registerData.isWorker && !registerData.isGrower) {
-      setRegisterError((prev) => ({ ...prev, roleError: true }));
+      setRegisterError((prev) => ({
+        ...prev,
+        roleError: "At least one role must be choosen.",
+      }));
       isValid = false;
+    } else {
+      setRegisterError((prev) => ({
+        ...prev,
+        roleError: "",
+      }));
     }
 
     return isValid;
@@ -142,19 +150,14 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                 Username
               </Typography>
               <TextField
-                error={registerError.usernameError}
+                error={!!registerError.usernameError}
+                helperText={registerError.usernameError || " "}
                 name="username"
-                placeholder="Your username"
-                required
+                value={registerData.username}
+                placeholder={registerData.username ? "" : "ex. user"}
                 onChange={handleFormChange}
                 fullWidth
               />
-              {registerError.usernameError && (
-                <FormHelperText>
-                  Your username must start with a letter and can only contain
-                  letters and digits.
-                </FormHelperText>
-              )}
             </FormControl>
 
             <FormControl sx={{ mt: 2 }} fullWidth>
@@ -162,18 +165,14 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                 First Name
               </Typography>
               <TextField
-                error={registerError.firstNameError}
+                error={!!registerError.firstNameError}
+                helperText={registerError.firstNameError || " "}
                 name="firstName"
-                placeholder="Your first name"
-                required
+                value={registerData.firstName}
+                placeholder={registerData.firstName ? "" : "ex. John"}
                 onChange={handleFormChange}
                 fullWidth
               />
-              {registerError.firstNameError && (
-                <FormHelperText>
-                  Firstname must contain only letters.
-                </FormHelperText>
-              )}
             </FormControl>
 
             <FormControl sx={{ mt: 2 }} fullWidth>
@@ -181,18 +180,14 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                 Last Name
               </Typography>
               <TextField
-                error={registerError.lastNameError}
+                error={!!registerError.lastNameError}
+                helperText={registerError.lastNameError || " "}
                 name="lastName"
-                placeholder="Your last name"
-                required
+                value={registerData.lastName}
+                placeholder={registerData.lastName ? "" : "ex. Smith"}
                 onChange={handleFormChange}
                 fullWidth
               />
-              {registerError.lastNameError && (
-                <FormHelperText>
-                  Lastname must contain only letters.
-                </FormHelperText>
-              )}
               <FormControl />
 
               <FormControl sx={{ mt: 2 }} fullWidth>
@@ -200,18 +195,16 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                   Email
                 </Typography>
                 <TextField
-                  error={registerError.emailError}
+                  error={!!registerError.emailError}
+                  helperText={registerError.emailError || " "}
                   name="email"
-                  placeholder="Your email address"
-                  required
+                  value={registerData.email}
+                  placeholder={
+                    registerData.email ? "" : "ex. john.smith@email.com"
+                  }
                   onChange={handleFormChange}
                   fullWidth
                 />
-                {registerError.emailError && (
-                  <FormHelperText>
-                    Must be a valid email address.
-                  </FormHelperText>
-                )}
               </FormControl>
 
               <FormControl sx={{ mt: 2 }} fullWidth>
@@ -219,20 +212,14 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                   Password
                 </Typography>
                 <TextField
-                  error={registerError.passwordError}
+                  error={!!registerError.passwordError}
+                  helperText={registerError.passwordError || " "}
                   name="password"
                   type="password"
-                  placeholder="Your password"
-                  required
+                  value={registerData.password}
                   onChange={handleFormChange}
                   fullWidth
                 />
-                {registerError.passwordError && (
-                  <FormHelperText>
-                    Password must contain uppercase, lowercase letters, digits
-                    and special characters.
-                  </FormHelperText>
-                )}
               </FormControl>
 
               <FormControl sx={{ mt: 2 }} fullWidth>
@@ -240,25 +227,20 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                   Repeat Password
                 </Typography>
                 <TextField
-                  error={registerError.passwordRepeatError}
+                  error={!!registerError.passwordRepeatError}
+                  helperText={registerError.passwordRepeatError || " "}
                   name="password2"
                   type="password"
-                  placeholder="Repeat your password"
-                  required
+                  value={registerData.password2}
                   onChange={handleFormChange}
                   fullWidth
                 />
-                {registerError.passwordRepeatError && (
-                  <FormHelperText>The two passwords must match.</FormHelperText>
-                )}
               </FormControl>
 
               <Divider sx={{ mt: 2 }} />
 
               <FormControl sx={{ mt: 2 }} fullWidth>
-                <Typography variant="body1">
-                  I want to use this application as
-                </Typography>
+                <Typography variant="body1">Sign up as</Typography>
                 <FormGroup>
                   <FormControlLabel
                     control={
@@ -280,8 +262,8 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                   />
                 </FormGroup>
                 {registerError.roleError && (
-                  <FormHelperText>
-                    One of the roles must be choosen.
+                  <FormHelperText sx={{ color: "error" }}>
+                    {registerError.roleError}
                   </FormHelperText>
                 )}
               </FormControl>

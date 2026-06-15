@@ -30,3 +30,21 @@ export const getUsernameError = (value: string) => {
 
   return null;
 }
+
+export const getEmailError = (value: string) => {
+  if (!value) return "Email address is required";
+  if (value.length < 6 || value.length > 100) return "Email address must be between 6 and 100 characters long.";
+  if(!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+        value,
+      )) return "Must be a valid email address (ex. john.smith@email.com)";
+
+  return null;
+}
+
+export const getPasswordError = (value: string) => {
+  if (!value) return "Password is required.";
+  if (value.length < 8 || value.length > 30) return "Password must be between 8 and 30 characters long";
+  if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(value))
+    return "Passwors must contain the following at least: one uppercase letter, one lowercase letter, one digit and one special character";
+  return null;
+}
