@@ -2,7 +2,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import { useFieldWork } from "../hooks/UseFieldWork";
 import FieldDetailMapPreview from "../leaflet/FieldDetailMapPreview";
 import { useCropField } from "../hooks/UseCropField";
@@ -18,6 +17,7 @@ import {
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import FieldInfoContainer from "../elements/containers/FieldInfoContainer";
 import type { StringNumber } from "../interfaces/StringNumber";
+import { useCurrentProfile } from "../hooks/UseCurrentUser";
 
 function FieldWorkDetailsPage() {
   const [rows, setRows] = useState<LatLngObject[][][] | null>(null);
@@ -31,7 +31,7 @@ function FieldWorkDetailsPage() {
     data: userData,
     isLoading: isUserLoading,
     error: userError,
-  } = useUserProfile();
+  } = useCurrentProfile();
   const { data: fieldWorkData, isLoading: isFieldWorkLoading } = useFieldWork(
     id || "",
     !!id && !!userData,
@@ -41,7 +41,10 @@ function FieldWorkDetailsPage() {
     !!id && !!fieldWorkData,
   );
   const { data: fieldParcelsData, isLoading: isFieldParcelsLoading } =
-    useFieldParcels(fieldWorkData?.cropFieldId || "");
+    useFieldParcels(
+      fieldWorkData?.cropFieldId || "",
+      !!fieldWorkData?.cropFieldId,
+    );
 
   const navigate = useNavigate();
 
@@ -135,8 +138,8 @@ function FieldWorkDetailsPage() {
   }
 
   return (
-    <MainContainer hasDrawer={userData != null}>
-      <MainHeader userData={userData} />
+    <MainContainer>
+      <MainHeader />
       <Card sx={{ minHeight: 800, p: 2, mt: 20 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <FieldInfoContainer labelText="Work Type">

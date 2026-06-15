@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getCropFieldByFieldWorkId } from "../services/CropFieldService";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import { Box, Button } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
@@ -21,6 +20,7 @@ import type { CreateWorkTypeDTO } from "../interfaces/request/CreateWorkTypeDTO"
 import UpdateFieldWorkForm from "../elements/forms/UpdateFieldWorkForm";
 import type { UpdateFieldWorkDTO } from "../interfaces/request/UpdateFieldWorkDTO";
 import { useFieldWork } from "../hooks/UseFieldWork";
+import { useCurrentProfile } from "../hooks/UseCurrentUser";
 
 function UpdateFieldWorkPage() {
   const { id } = useParams();
@@ -33,7 +33,7 @@ function UpdateFieldWorkPage() {
     data: user,
     isLoading: isUserLoading,
     error: userError,
-  } = useUserProfile();
+  } = useCurrentProfile();
 
   const { data: fieldWorkData, isLoading: isFieldWorkLoading } = useFieldWork(
     id || "",
@@ -89,7 +89,7 @@ function UpdateFieldWorkPage() {
   };
 
   const { data: fieldParcelsData, isLoading: isFieldParcelsLoading } =
-    useFieldParcels(cropFieldData?.uid || "");
+    useFieldParcels(cropFieldData?.uid || "", !!cropFieldData?.uid);
 
   useEffect(() => {
     if (fieldParcelsData) {
@@ -129,8 +129,8 @@ function UpdateFieldWorkPage() {
   return (
     <>
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           <Button
             color="success"
             startIcon={<ArrowBackIcon />}

@@ -2,7 +2,6 @@ import { Alert, Box, Divider, Fab, Typography } from "@mui/material";
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import { useEffect, useState } from "react";
 import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
@@ -11,6 +10,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
 import { useUserCropFields } from "../hooks/UseUserCropFields";
 import CropFieldCard from "../elements/cards/CropFieldCard";
+import { useCurrentProfile } from "../hooks/UseCurrentUser";
 
 function PlotsListPage() {
   const [cropFields, setCropFields] = useState<GetCropFieldDTO[]>([]);
@@ -19,7 +19,7 @@ function PlotsListPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { data: user, isLoading, error: userError } = useUserProfile();
+  const { data: user, isLoading, error: userError } = useCurrentProfile();
   const { data: cropFieldsData, isLoading: isLoadingCropFields } =
     useUserCropFields(!!user);
 
@@ -51,8 +51,8 @@ function PlotsListPage() {
   if (isLoadingCropFields || !cropFieldsData) {
     return (
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           <ProgressCircle loadingMessage="Loading crop fields..." />
         </MainContainer>
       </Box>
@@ -62,8 +62,8 @@ function PlotsListPage() {
   return (
     <>
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           {feedbackMessage && (
             <Alert
               icon={<CheckIcon fontSize="inherit" />}

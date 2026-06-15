@@ -1,7 +1,6 @@
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import { useNavigate, useParams } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { updateCropField } from "../services/CropFieldService";
@@ -9,13 +8,10 @@ import type { UpdateCropFieldDTO } from "../interfaces/request/UpdateCropFieldDT
 import { queryClient } from "../query-client/QueryClient";
 import UpdateCropFieldForm from "../elements/forms/UpdateCropFieldForm";
 import { useCropField } from "../hooks/UseCropField";
+import { useCurrentProfile } from "../hooks/UseCurrentUser";
 
 function UpdatePlotPage() {
-  const {
-    data: user,
-    isLoading: isLoadingUser,
-    error: userError,
-  } = useUserProfile();
+  const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -69,8 +65,8 @@ function UpdatePlotPage() {
 
   return (
     <>
-      <MainHeader userData={user} />
-      <MainContainer hasDrawer={Boolean(user?.username)}>
+      <MainHeader />
+      <MainContainer>
         <UpdateCropFieldForm
           cropField={cropField}
           onUpdate={handleOnUpdate}

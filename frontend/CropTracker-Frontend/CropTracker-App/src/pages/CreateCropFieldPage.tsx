@@ -2,16 +2,16 @@ import { Box } from "@mui/material";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import { useMutation } from "@tanstack/react-query";
 import { createCropField } from "../services/CropFieldService";
 import { useNavigate } from "react-router-dom";
 import type { CreateCropFieldDTO } from "../interfaces/request/CreateCropFieldDTO";
 import CreateCropFieldForm from "../elements/forms/CreateCropFieldForm";
 import { queryClient } from "../query-client/QueryClient";
+import { useCurrentProfile } from "../hooks/UseCurrentUser";
 
 function CreateCropFieldPage() {
-  const { data: user, isLoading, error: userError } = useUserProfile();
+  const { isLoading: isUserLoading, error: userError } = useCurrentProfile();
   const navigate = useNavigate();
 
   const { mutate, isPending } = useMutation({
@@ -27,7 +27,7 @@ function CreateCropFieldPage() {
     },
   });
 
-  if (isLoading) {
+  if (isUserLoading) {
     return <ProgressCircle loadingMessage="Loading your data..." />;
   }
 
@@ -44,8 +44,8 @@ function CreateCropFieldPage() {
   return (
     <>
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           <CreateCropFieldForm
             isPending={isPending}
             onSubmit={(createCropFieldData) => {

@@ -3,7 +3,6 @@ import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import { Box, Button } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
@@ -26,12 +25,6 @@ function AddFieldWorkPage() {
   const [cropField, setCropField] = useState<GetCropFieldDTO | null>(null);
   const [fieldParcels, setFieldParcels] = useState<GetFieldParcelDTO[]>([]);
   const [workTypes, setWorkTypes] = useState<GetWorkTypeDTO[]>([]);
-
-  const {
-    data: user,
-    isLoading: isUserLoading,
-    error: userError,
-  } = useUserProfile();
 
   const { data: cropFieldData, isLoading: isCropFieldLoading } = useCropField(
     id || "",
@@ -93,21 +86,11 @@ function AddFieldWorkPage() {
     }
   }, [workTypesData]);
 
-  if (userError) {
-    if (userError.response?.status === 401) {
-      navigate("/?error=unauthorized");
-    }
-  }
-
-  if (isUserLoading) {
-    return <ProgressCircle loadingMessage="Initializing user data..." />;
-  }
-
   if (isCropFieldLoading || isFieldParcelsLoading || isWorkTypesLoading) {
     return (
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           <ProgressCircle loadingMessage="Initializing data..." />
         </MainContainer>
       </Box>
@@ -117,8 +100,8 @@ function AddFieldWorkPage() {
   return (
     <>
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           <Button
             color="success"
             startIcon={<ArrowBackIcon />}

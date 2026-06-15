@@ -8,11 +8,11 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { type UpdateUserDTO } from "../../interfaces/request/UpdateUserDTO";
-import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
+import type { CacheUserData } from "../../interfaces/CacheUserData";
 
 interface EditUserFormProps {
   onSubmit: (userUpdates: UpdateUserDTO) => void;
-  userData: GetUserDTO | undefined;
+  userData: CacheUserData | undefined;
   isUpdating: boolean;
 }
 

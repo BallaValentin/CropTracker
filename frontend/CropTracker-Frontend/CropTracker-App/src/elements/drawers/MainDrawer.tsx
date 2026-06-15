@@ -18,12 +18,12 @@ import {
 } from "../../utils/Constants";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
-import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
 import GrassIcon from "@mui/icons-material/Grass";
 import HistoryIcon from "@mui/icons-material/History";
+import type { CacheUserData } from "../../interfaces/CacheUserData";
 
 interface MainDrawerProps {
-  userData: GetUserDTO | undefined;
+  userData: CacheUserData | undefined;
 }
 
 function MainDrawer({ userData }: MainDrawerProps) {

@@ -20,46 +20,38 @@ import { logoutUser } from "../../services/AuthService";
 import type { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import AccountDialog from "../dialogs/AccountDialog";
-import { getAvatar, updateAvatar } from "../../services/UserService";
+import { updateAvatar } from "../../services/UserService";
 import MenuIcon from "@mui/icons-material/Menu";
 import MainDrawer from "../drawers/MainDrawer";
 import { queryClient } from "../../query-client/QueryClient";
 import { useDrawer } from "../../contexts/DrawerProvider";
-import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
+import { useCurrentProfile } from "../../hooks/UseCurrentUser";
 
-interface MainHeaderProps {
-  userData: GetUserDTO | undefined;
-}
-
-function MainHeader({ userData }: MainHeaderProps) {
+function MainHeader() {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [avatarURL, setAvatarURL] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState<boolean>(false);
   const open = Boolean(anchorEl);
-  const accessToken = sessionStorage.getItem("accessToken");
+
+  const { data: userData } = useCurrentProfile();
 
   const { toggleDrawer } = useDrawer();
 
   useEffect(() => {
-    if (!userData?.username) {
+    if (!userData) {
       return;
     }
-    const fetchAvatar = async () => {
-      const blob: Blob = await getAvatar();
-      const imageURL = URL.createObjectURL(blob);
-      setAvatarURL(imageURL);
-    };
 
-    fetchAvatar();
+    setAvatarURL(userData.avatarURL);
   }, [userData]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: logoutUser,
     onSuccess: () => {
       sessionStorage.removeItem("accessToken");
-      queryClient.removeQueries({ queryKey: ["userProfile"] });
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
       navigate("/signin");
     },
     onError: (err: AxiosError) => {
@@ -76,9 +68,7 @@ function MainHeader({ userData }: MainHeaderProps) {
   const changeAvatar = useMutation({
     mutationFn: updateAvatar,
     onSuccess: async () => {
-      const blob = await getAvatar();
-      const imageURL = URL.createObjectURL(blob);
-      setAvatarURL(imageURL);
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
     },
     onError: (err: AxiosError) => {
       navigate("error", {
@@ -128,14 +118,13 @@ function MainHeader({ userData }: MainHeaderProps) {
       <AccountDialog
         isUploading={isUploadingAvatar}
         isOpen={dialogOpen}
-        avatarURL={avatarURL || ""}
         handleClose={handleDialogClose}
         userData={userData}
         onImageChange={handleAvatarChange}
       />
       <AppBar position="fixed" sx={{ bgcolor: "green" }}>
         <Toolbar>
-          {accessToken && userData ? (
+          {userData ? (
             <>
               <IconButton onClick={toggleDrawer}>
                 <MenuIcon fontSize="large" sx={{ mr: 1 }} />
@@ -154,7 +143,7 @@ function MainHeader({ userData }: MainHeaderProps) {
               </Typography>
             </>
           )}
-          {accessToken && userData ? (
+          {userData ? (
             <>
               <Button onClick={handleClick}>
                 <Avatar src={avatarURL || ""} alt="Avatar" />

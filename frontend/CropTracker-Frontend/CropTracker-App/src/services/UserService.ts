@@ -4,6 +4,7 @@ import type { UpdateUserDTO } from "../interfaces/request/UpdateUserDTO";
 import type { ChangePasswordData } from "../interfaces/request/UpdatePasswordDTO";
 import type { GetUserDTO } from "../interfaces/response/GetUserDTO";
 import { attachAuthInterceptors } from "./AttachAuthInterceptors";
+import type { CacheUserData } from "../interfaces/CacheUserData";
 
 export const userApi = axios.create({
     baseURL: "http://localhost:8080/api/user",
@@ -33,6 +34,26 @@ export const fetchUserData = async(): Promise<GetUserDTO> => {
     console.log('Sending fetch user data request to server');
     const response = await userApi.get<GetUserDTO>("/fetch-user-data");
     return response.data;
+}
+
+export const getUserData = async(): Promise<CacheUserData> => {
+    const [userData, userAvatar] = await Promise.all([
+        fetchUserData(),
+        getAvatar()
+    ]);
+
+    const avatarUrl = URL.createObjectURL(userAvatar);
+
+    const cachedUserData: CacheUserData = {
+        username: userData.username,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        roles: userData.roles,
+        avatarURL: avatarUrl
+    };
+
+    return cachedUserData;
 }
 
 export const getAvatar = async(): Promise<Blob> => {

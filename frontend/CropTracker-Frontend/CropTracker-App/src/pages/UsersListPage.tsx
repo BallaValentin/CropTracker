@@ -1,6 +1,5 @@
 import { Alert, Avatar, Box, Button, Typography } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import type { GridColDef } from "@mui/x-data-grid";
 import { useAdminUsers } from "../hooks/UseAdminUsers";
 import UsersTable from "../elements/tables/UsersTable";
@@ -16,9 +15,10 @@ import CheckIcon from "@mui/icons-material/Check";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import UserRoleDialog from "../elements/dialogs/UserRoleDialog";
 import { useNavigate } from "react-router-dom";
+import { useCurrentProfile } from "../hooks/UseCurrentUser";
 
 function UsersListPage() {
-  const { data: user, isLoading, error: userError } = useUserProfile();
+  const { data: user, isLoading, error: userError } = useCurrentProfile();
   const { data: adminUsers, isLoading: isLoadingUsers } = useAdminUsers();
   const [statusDialogOpen, setStatusDialogOpen] = useState<boolean>(false);
   const [rolesDialogOpen, setRolesDialogOpen] = useState<boolean>(false);
@@ -208,8 +208,8 @@ function UsersListPage() {
 
   return (
     <Box>
-      <MainHeader userData={user} />
-      <MainContainer hasDrawer={Boolean(user?.username)}>
+      <MainHeader />
+      <MainContainer>
         <Box sx={{ position: "relative" }}>
           {error && (
             <Alert

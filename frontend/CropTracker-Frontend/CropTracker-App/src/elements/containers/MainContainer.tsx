@@ -4,15 +4,16 @@ import {
   collapsedDrawerWidth,
   expandedDrawerWidth,
 } from "../../utils/Constants";
+import { useCurrentProfile } from "../../hooks/UseCurrentUser";
 
 interface MainContainerProps {
   children: React.ReactNode;
-  hasDrawer: boolean;
 }
 
-function MainContainer({ children, hasDrawer }: MainContainerProps) {
+function MainContainer({ children }: MainContainerProps) {
   const { isDrawerExpanded } = useDrawer();
-  const drawerWidth = hasDrawer
+  const { data: userData } = useCurrentProfile();
+  const drawerWidth = userData
     ? isDrawerExpanded
       ? expandedDrawerWidth
       : collapsedDrawerWidth

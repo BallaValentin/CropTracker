@@ -8,20 +8,16 @@ import {
 } from "@mui/material";
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import { useFieldWorks } from "../hooks/UseFieldWorks";
 import type { GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCurrentProfile } from "../hooks/UseCurrentUser";
 
 function WorkHistoryPage() {
-  const {
-    data: userData,
-    isLoading: isLoadingUser,
-    error: userError,
-  } = useUserProfile();
+  const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();
   const { data: fieldWorks, isLoading: isLoadingFieldWorks } = useFieldWorks();
   const [fieldWorksByDate, setFieldWorksByDate] = useState<
     Record<string, GetFieldWorkDTO[]>
@@ -47,8 +43,8 @@ function WorkHistoryPage() {
   }
 
   if (isLoadingFieldWorks) {
-    <MainContainer hasDrawer={userData != null}>
-      <MainHeader userData={userData} />
+    <MainContainer>
+      <MainHeader />
       <ProgressCircle loadingMessage="Loading work history..." />
     </MainContainer>;
   }
@@ -61,8 +57,8 @@ function WorkHistoryPage() {
 
   return (
     <Box>
-      <MainContainer hasDrawer={userData != null}>
-        <MainHeader userData={userData} />
+      <MainContainer>
+        <MainHeader />
         {fieldWorksByDate && Object.keys(fieldWorksByDate).length > 0 ? (
           <Box sx={{ mt: 20 }}>
             {Object.entries(fieldWorksByDate).map(([date, fieldWorks]) => (

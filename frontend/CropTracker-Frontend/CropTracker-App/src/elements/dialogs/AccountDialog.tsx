@@ -17,21 +17,19 @@ import { updateProfile } from "../../services/UserService";
 import { queryClient } from "../../query-client/QueryClient";
 import type { UpdateUserDTO } from "../../interfaces/request/UpdateUserDTO";
 import type { AxiosError } from "axios";
-import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
+import type { CacheUserData } from "../../interfaces/CacheUserData";
 
 interface AccountDialogProps {
   isUploading: boolean;
   isOpen: boolean;
-  avatarURL: string;
   handleClose: () => void;
   onImageChange: (newImageSrc: string) => void;
-  userData: GetUserDTO | undefined;
+  userData: CacheUserData | undefined;
 }
 
 function AccountDialog({
   isUploading,
   isOpen,
-  avatarURL,
   handleClose,
   userData,
   onImageChange,
@@ -102,7 +100,7 @@ function AccountDialog({
 
             <label htmlFor="avatar-upload">
               <Avatar
-                src={avatarURL}
+                src={userData?.avatarURL}
                 alt="Avatar"
                 sx={{
                   textAlign: "center",

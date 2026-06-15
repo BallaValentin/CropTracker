@@ -1,6 +1,5 @@
 import { Alert, Box, Button, Typography } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
 import ProgressCircle from "../elements/progress/ProgressCircle";
@@ -28,13 +27,14 @@ import type { UpdateFieldParcelDTO } from "../interfaces/request/UpdateFieldParc
 import { useCropFieldWork } from "../hooks/UseCropFieldWorks";
 import CropFieldWorksPanel from "../elements/panels/CropFieldWorksPanel";
 import { useCropField } from "../hooks/UseCropField";
+import { useCurrentProfile } from "../hooks/UseCurrentUser";
 
 function PlotDetailsPage() {
   const {
     data: user,
     isLoading: isUserLoading,
     error: userError,
-  } = useUserProfile();
+  } = useCurrentProfile();
   const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldDTO>({
     uid: "",
     name: "Unnamed Field",
@@ -204,8 +204,8 @@ function PlotDetailsPage() {
 
   if (isCropFieldLoading) {
     <Box>
-      <MainHeader userData={user} />
-      <MainContainer hasDrawer={Boolean(user?.username)}>
+      <MainHeader />
+      <MainContainer>
         <ProgressCircle loadingMessage="Initializing crop field data..." />
       </MainContainer>
     </Box>;
@@ -220,8 +220,8 @@ function PlotDetailsPage() {
   return (
     <>
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           {feedbackMessage && (
             <Alert
               icon={<CheckIcon fontSize="inherit" />}

@@ -1,15 +1,15 @@
 import { Box, GlobalStyles, Typography } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainContainer from "../elements/containers/MainContainer";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import InvalidAuthTokenDialog from "../elements/dialogs/InvalidAuthTokenDialog";
 import { useEffect, useState } from "react";
+import { useCurrentProfile } from "../hooks/UseCurrentUser";
 
 function MainPage() {
-  const { data: user, isLoading } = useUserProfile(
+  const { isLoading } = useCurrentProfile(
     !!sessionStorage.getItem("accessToken"),
   );
   const navigate = useNavigate();
@@ -41,8 +41,8 @@ function MainPage() {
     <>
       <GlobalStyles styles={{ body: { margin: 0 } }} />
       <Box sx={{ bgcolor: "#d0edc5ff" }}>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           <ColumnCenterContainer>
             <Typography variant="h2" component={"h1"}>
               Welcome to Crop Tracker!

@@ -1,18 +1,14 @@
 import { Box } from "@mui/material";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
 import { useCropCategories } from "../hooks/UseCropCategories";
 import CropsTreeView from "../elements/treeviews/CropsTreeView";
 import { useNavigate } from "react-router-dom";
+import { useCurrentProfile } from "../hooks/UseCurrentUser";
 
 function CropsListPage() {
-  const {
-    data: user,
-    isLoading: isUserLoading,
-    error: userError,
-  } = useUserProfile();
+  const { isLoading: isUserLoading, error: userError } = useCurrentProfile();
   const { data: cropCategories, isLoading: isLoadingCategories } =
     useCropCategories();
   const navigate = useNavigate();
@@ -35,8 +31,8 @@ function CropsListPage() {
 
   return (
     <Box>
-      <MainHeader userData={user} />
-      <MainContainer hasDrawer={Boolean(user?.username)}>
+      <MainHeader />
+      <MainContainer>
         <CropsTreeView cropCategories={categories} />
       </MainContainer>
     </Box>
