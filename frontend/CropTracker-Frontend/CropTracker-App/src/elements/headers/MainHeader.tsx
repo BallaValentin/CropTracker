@@ -20,7 +20,6 @@ import { logoutUser } from "../../services/AuthService";
 import type { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import AccountDialog from "../dialogs/AccountDialog";
-import { updateAvatar } from "../../services/UserService";
 import MenuIcon from "@mui/icons-material/Menu";
 import MainDrawer from "../drawers/MainDrawer";
 import { queryClient } from "../../query-client/QueryClient";
@@ -32,7 +31,6 @@ function MainHeader() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [avatarURL, setAvatarURL] = useState<string | null>(null);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState<boolean>(false);
   const open = Boolean(anchorEl);
 
   const { data: userData } = useCurrentProfile();
@@ -65,22 +63,6 @@ function MainHeader() {
     },
   });
 
-  const changeAvatar = useMutation({
-    mutationFn: updateAvatar,
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
-    },
-    onError: (err: AxiosError) => {
-      navigate("error", {
-        state: {
-          statusCode: err.response?.status ?? 500,
-          statusText: err.response?.statusText ?? "Internal Server Error",
-          errorMessage: "Failed to change your profile image, try again later",
-        },
-      });
-    },
-  });
-
   const handleLogout = () => {
     if (userData) {
       mutate();
@@ -104,24 +86,19 @@ function MainHeader() {
   };
 
   const handleDialogClose = () => {
+    console.log("Dialog close");
     setDialogOpen(false);
-  };
-
-  const handleAvatarChange = async (newImageSrc: string) => {
-    setIsUploadingAvatar(true);
-    changeAvatar.mutate(newImageSrc);
-    setIsUploadingAvatar(false);
   };
 
   return (
     <Box>
-      <AccountDialog
-        isUploading={isUploadingAvatar}
-        isOpen={dialogOpen}
-        handleClose={handleDialogClose}
-        userData={userData}
-        onImageChange={handleAvatarChange}
-      />
+      {dialogOpen && (
+        <AccountDialog
+          isOpen={dialogOpen}
+          onClose={handleDialogClose}
+          userData={userData}
+        />
+      )}
       <AppBar position="fixed" sx={{ bgcolor: "green" }}>
         <Toolbar>
           {userData ? (

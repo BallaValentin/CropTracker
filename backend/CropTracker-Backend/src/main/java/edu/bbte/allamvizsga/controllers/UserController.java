@@ -1,6 +1,5 @@
 package edu.bbte.allamvizsga.controllers;
 
-import edu.bbte.allamvizsga.dto.request.user.AvatarUpdatesDTO;
 import edu.bbte.allamvizsga.dto.request.user.ChangePasswordDTO;
 import edu.bbte.allamvizsga.dto.request.user.UserUpdateDTO;
 import edu.bbte.allamvizsga.dto.response.user.UserDataDTO;
@@ -21,12 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/user")
 @CrossOrigin(value = "http://localhost:5174")
@@ -38,13 +31,6 @@ public class UserController {
     private final UserMapper userMapper;
     private final ResetPasswordTokenService resetPasswordTokenService;
     private final ImageService imageService;
-
-    @PutMapping("/change-avatar")
-    public void changeAvatar(@Valid @RequestBody AvatarUpdatesDTO avatarUpdates,
-                             @RequestHeader("Authorization") String authorizationHeader) throws IOException {
-        User user = userService.extractUser(authorizationHeader);
-        userService.changeAvatar(user, avatarUpdates.getNewAvatarSrc());
-    }
 
     @GetMapping("/fetch-user-data")
     public ResponseEntity<UserDataDTO> fetchUserData(
@@ -68,18 +54,18 @@ public class UserController {
     }
 
     @PutMapping("/update-profile")
-    public ResponseEntity<UserDataDTO> updateProfile(
+    public void updateProfile(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody UserUpdateDTO userUpdates) {
 
-        log.info("Extracting user");
         User user = userService.extractUser(authorizationHeader);
-        log.info("Updating user");
-        User updatedUser = userService.updateUser(user, userUpdates);
-        log.info("Mapping response");
-        UserDataDTO userData = userMapper.modelToUserData(updatedUser);
+        user.setUsername(userUpdates.getUsername());
+        user.setFirstName(userUpdates.getFirstName());
+        user.setLastName(userUpdates.getLastName());
 
-        return ResponseEntity.ok(userData);
+        System.out.println(userUpdates);
+
+        userService.updateUser(user, userUpdates.getAvatarUrl());
     }
 
     @PutMapping("/update-password")

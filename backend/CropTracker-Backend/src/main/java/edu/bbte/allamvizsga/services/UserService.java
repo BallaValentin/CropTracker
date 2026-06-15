@@ -114,24 +114,19 @@ public class UserService {
         }
     }
 
-    public void changeAvatar(User user, String newImageSrc) throws IOException {
-        imageService.updateUserAvatar(user, newImageSrc);
+    public void changeAvatar(User user, String newImageSrc) {
+        try {
+            imageService.updateUserAvatar(user, newImageSrc);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
-    public User updateUser(User user, UserUpdateDTO userUpdates) {
-        UUID uid = user.getUid();
-        String newUsername = userUpdates.getUsername();
-        String newEmail = userUpdates.getEmail();
-
-        if (!newUsername.equals(user.getUsername())) {
-            userRepository.updateUsername(newUsername, uid);
+    public void updateUser(User user, String newAvatar) {
+        if (newAvatar != null && !newAvatar.isBlank()) {
+            changeAvatar(user, newAvatar);
         }
-
-        if (!newEmail.equals(user.getEmail())) {
-            userRepository.updateEmail(newEmail, uid);
-        }
-
-        return userRepository.findByUid(uid);
+        userRepository.save(user);
     }
 
     public void updateUserStatus(User user, Boolean isActive) {

@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { UpdateAvatarDTO } from "../interfaces/request/UpdateAvatarDTO";
 import type { UpdateUserDTO } from "../interfaces/request/UpdateUserDTO";
 import type { ChangePasswordData } from "../interfaces/request/UpdatePasswordDTO";
 import type { GetUserDTO } from "../interfaces/response/GetUserDTO";
@@ -14,15 +13,6 @@ export const userApi = axios.create({
 });
 
 attachAuthInterceptors(userApi);
-
-export const updateAvatar = async(newAvatarSrc: string): Promise<number>  => {
-    const avatarUpdates: UpdateAvatarDTO = {
-        newAvatarSrc
-    }
-    console.log('Sending avatar-update request to server');
-    const response = await userApi.put<number>("/change-avatar", avatarUpdates);
-    return response.status;
-}
 
 export const updateProfile = async(userUpdates: UpdateUserDTO): Promise<GetUserDTO>  => {
     console.log('Sending update-profile request to server');
