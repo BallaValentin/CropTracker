@@ -13,14 +13,28 @@ import type { CreateCropCultivarDTO } from "../../interfaces/request/CreateCropC
 import DeleteCropSpecieDialog from "../dialogs/DeleteCropSpecieDialog";
 import type { UpdateCropSpecieDTO } from "../../interfaces/request/UpdateCropSpecieDTO";
 import UpdateCropSpecieForm from "../forms/UpdateCropSpecieForm";
+import { useMutation } from "@tanstack/react-query";
+import {
+  deleteCropSpecie,
+  updateCropSpecie,
+} from "../../services/CropSpecieService";
+import type { AxiosError } from "axios";
+import type { ErrorResponse } from "../../interfaces/ErrorResponse";
+import { createCropCultivar } from "../../services/CropCultivarService";
 
-function SpecieItem(specie: GetCropSpecieDTO) {
+interface SpecieItemProps {
+  specie: GetCropSpecieDTO;
+  onOperationSuccess: (message: string) => void;
+}
+
+function SpecieItem({ specie, onOperationSuccess }: SpecieItemProps) {
   const emptyCultivarsList = [] as GetCropCultivarDTO[];
 
   const [addCultivarOpen, setAddCultivarOpen] = useState<boolean>(false);
   const [deleteSpecieOpen, setDeleteSpecieOpen] = useState<boolean>(false);
   const [updateSpecieOpen, setUpdateSpecieOpen] = useState<boolean>(false);
   const [selectedSpecie, setSelectedSpecie] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const cultivars = useCropsStore(
     (s) => s.cultivars[specie.uid] || emptyCultivarsList,
@@ -55,24 +69,74 @@ function SpecieItem(specie: GetCropSpecieDTO) {
 
   const handleAddCultivarClose = () => {
     setAddCultivarOpen(false);
+    setErrorMessage("");
     setSelectedSpecie("");
   };
 
   const handleUpdateSpecieClose = () => {
     setUpdateSpecieOpen(false);
+    setErrorMessage("");
     setSelectedSpecie("");
   };
 
+  const { mutate: updateSpecieMutate, isPending: isUpdateSpeciePending } =
+    useMutation({
+      mutationFn: ({
+        cropSpecieUpdates,
+        specieId,
+      }: {
+        cropSpecieUpdates: UpdateCropSpecieDTO;
+        specieId: string;
+      }) => updateCropSpecie(cropSpecieUpdates, specieId),
+      onSuccess: (updatedCropSpecie: GetCropSpecieDTO) => {
+        updateSpecie(updatedCropSpecie);
+        setErrorMessage("");
+        setUpdateSpecieOpen(false);
+        setSelectedSpecie("");
+        onOperationSuccess("Crop specie has been successfully updated.");
+      },
+      onError: (error: AxiosError) => {
+        if (error.response?.status === 400) {
+          const message = (error.response.data as ErrorResponse).message;
+          setErrorMessage(message || "");
+        }
+      },
+    });
+
+  const { mutate: createCultivarMutate, isPending: isAddCultivarPending } =
+    useMutation({
+      mutationFn: createCropCultivar,
+      onSuccess: (response: GetCropCultivarDTO) => {
+        addNewCultivar(response);
+        setErrorMessage("");
+        setAddCultivarOpen(false);
+        setSelectedSpecie("");
+        onOperationSuccess("New crop cultivar has been successfully added.");
+      },
+      onError: (error: AxiosError) => {
+        if (error.response?.status === 400) {
+          const message = (error.response.data as ErrorResponse).message;
+          setErrorMessage(message || "");
+        }
+      },
+    });
+
+  const { mutate: deleteSpecieMutate, isPending: isDeleteSpeciePending } =
+    useMutation({
+      mutationFn: deleteCropSpecie,
+      onSuccess: () => {
+        deleteSpecie(specie);
+        setDeleteSpecieOpen(false);
+        onOperationSuccess("Crop specie has been successfully deleted.");
+      },
+    });
+
   const addCultivar = async (newCropCultivar: CreateCropCultivarDTO) => {
-    await addNewCultivar(newCropCultivar);
-    setAddCultivarOpen(false);
-    setSelectedSpecie("");
+    createCultivarMutate(newCropCultivar);
   };
 
   const handleUpdateSpecie = async (cropSpecieUpdates: UpdateCropSpecieDTO) => {
-    await updateSpecie(cropSpecieUpdates, specie.uid);
-    setUpdateSpecieOpen(false);
-    setSelectedSpecie("");
+    updateSpecieMutate({ cropSpecieUpdates, specieId: specie.uid });
   };
 
   const handleDeleteSpecieSetup = (
@@ -87,7 +151,7 @@ function SpecieItem(specie: GetCropSpecieDTO) {
   };
 
   const handleDelete = async () => {
-    await deleteSpecie(specie);
+    deleteSpecieMutate(specie.uid);
     setDeleteSpecieOpen(false);
   };
 
@@ -132,7 +196,11 @@ function SpecieItem(specie: GetCropSpecieDTO) {
           />
         ) : (
           cultivars.map((cultivar) => (
-            <CultivarItem key={cultivar.uid} {...cultivar} />
+            <CultivarItem
+              key={cultivar.uid}
+              cultivar={cultivar}
+              onOperationSuccess={onOperationSuccess}
+            />
           ))
         )}
       </TreeItem>
@@ -142,6 +210,8 @@ function SpecieItem(specie: GetCropSpecieDTO) {
           specieId={selectedSpecie}
           onSubmit={addCultivar}
           onClose={handleAddCultivarClose}
+          errorMessage={errorMessage}
+          isPending={isAddCultivarPending}
         />
       )}
       {deleteSpecieOpen && (
@@ -149,6 +219,7 @@ function SpecieItem(specie: GetCropSpecieDTO) {
           dialogOpen={deleteSpecieOpen}
           onDelete={handleDelete}
           onCancel={handleDeleteCancel}
+          isPending={isDeleteSpeciePending}
         />
       )}
       {updateSpecieOpen && (
@@ -157,6 +228,8 @@ function SpecieItem(specie: GetCropSpecieDTO) {
           cropSpecie={specie}
           onSubmit={handleUpdateSpecie}
           onClose={handleUpdateSpecieClose}
+          errorMessage={errorMessage}
+          isPending={isUpdateSpeciePending}
         />
       )}
     </Box>

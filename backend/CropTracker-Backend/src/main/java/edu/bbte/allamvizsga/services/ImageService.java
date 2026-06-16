@@ -60,7 +60,6 @@ public class ImageService {
         BufferedImage avatar = ImageIO.read(bis);
 
         String filename = folderName + "/profile.png";
-        log.info("The filename is: {}", filename);
         ImageIO.write(avatar, "png", new File(filename));
     }
 

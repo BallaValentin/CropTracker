@@ -22,7 +22,7 @@ public class RefreshTokenService {
 
     public RefreshToken findByToken(String cookieValue) {
         if (cookieValue == null || cookieValue.isBlank()) {
-            throw new RefreshTokenException("Missing cookie value");
+            throw new RefreshTokenException("Missing cookie value.");
         }
 
         try {
@@ -35,7 +35,7 @@ public class RefreshTokenService {
 
             return refreshToken;
         } catch (IllegalArgumentException exception) {
-            throw new RefreshTokenException("Invalid cookie format");
+            throw new RefreshTokenException("Invalid cookie format.");
         }
     }
 
@@ -43,7 +43,7 @@ public class RefreshTokenService {
         RefreshToken refreshToken = findByToken(cookieValue);
 
         if (refreshToken == null) {
-            throw new EntityNotFoundException("Couldn`t find the refresh token");
+            throw new EntityNotFoundException("Refresh token not found.");
         }
 
         refreshToken.setExpires(Instant.EPOCH);

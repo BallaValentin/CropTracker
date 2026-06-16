@@ -24,7 +24,7 @@ public class GeneralExceptionHandler {
     public ErrorResponseDTO handleBadCredentialsException(
             BadCredentialsException exception, HttpServletRequest request
     ) {
-        log.debug("Sign in failed");
+        log.debug("Sign in failed.");
         LocalDateTime dateTime = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String message = exception.getMessage();
@@ -37,7 +37,7 @@ public class GeneralExceptionHandler {
     public ErrorResponseDTO handleTypeMismatch(
             MethodArgumentTypeMismatchException exception, HttpServletRequest request
     ) {
-        log.debug("Invalid UUID in request header");
+        log.debug("Invalid UUID in request header.");
         LocalDateTime dateTime = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String message = exception.getMessage();
@@ -50,7 +50,7 @@ public class GeneralExceptionHandler {
     public ErrorResponseDTO handleJsonMappingException(
             HttpMessageNotReadableException exception, HttpServletRequest request
     ) {
-        log.debug("Invalid UUID in request body");
+        log.debug("Invalid UUID in request body.");
         LocalDateTime dateTime = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String message = exception.getMessage();
@@ -63,7 +63,7 @@ public class GeneralExceptionHandler {
     public ErrorResponseDTO handleInvalidSignupException(
             InvalidSignupException exception, HttpServletRequest request
     ) {
-        log.debug("Sign up failed");
+        log.debug("Sign up failed.");
         LocalDateTime dateTime = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String message = exception.getMessage();
@@ -79,18 +79,6 @@ public class GeneralExceptionHandler {
         LocalDateTime timestamp = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String error = exception.getBindingResult().getAllErrors().getFirst().getDefaultMessage();
-        String path = request.getRequestURI();
-        return new ErrorResponseDTO(timestamp, statusCode, error, path);
-    }
-
-    @ExceptionHandler(EntityExistsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public ErrorResponseDTO handleEntityExists(
-            EntityExistsException exception, HttpServletRequest request) {
-        LocalDateTime timestamp = LocalDateTime.now();
-        Integer statusCode = HttpStatus.BAD_REQUEST.value();
-        String error = exception.getMessage();
         String path = request.getRequestURI();
         return new ErrorResponseDTO(timestamp, statusCode, error, path);
     }
@@ -112,6 +100,7 @@ public class GeneralExceptionHandler {
     @ResponseBody
     public ErrorResponseDTO handleBadRequest(
             BadRequestException exception, HttpServletRequest request) {
+        System.out.println(exception.getMessage());
         LocalDateTime timestamp = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String error = exception.getMessage();

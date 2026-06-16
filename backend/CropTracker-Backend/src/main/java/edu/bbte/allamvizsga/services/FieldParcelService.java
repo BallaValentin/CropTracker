@@ -26,7 +26,7 @@ public class FieldParcelService {
 
     protected void polygonValidation(FieldParcel fieldParcel) {
         if (!fieldParcel.getPolygonPoints().isValid()) {
-            throw new BadRequestException("Invalid polygon shape");
+            throw new BadRequestException("Invalid polygon shape.");
         }
 
         double precisionTolerance = 0.000001;
@@ -36,7 +36,7 @@ public class FieldParcelService {
         Polygon cropFieldPolygon = (Polygon) fieldParcel.getCropField().getPolygonPoints().buffer(precisionTolerance);
 
         if (!cropFieldPolygon.covers(fieldParcelPolygon)) {
-            throw new BadRequestException("Field parcel polygon must be inside crop field polygon");
+            throw new BadRequestException("Field parcel polygon must be fully inside crop field polygon.");
         }
 
         Collection<FieldParcel> fieldParcels = fieldParcel.getCropField().getFieldParcels();
@@ -52,7 +52,7 @@ public class FieldParcelService {
                 if (parcel.getPolygonPoints().overlaps(fieldParcel.getPolygonPoints())) {
                     Geometry intersection = parcel.getPolygonPoints().intersection(fieldParcel.getPolygonPoints());
                     if (intersection.getArea() > areaTolerance) {
-                        throw new BadRequestException("Field parcel polygon shouldn`t intersect other polygon");
+                        throw new BadRequestException("No field parcel polygon intersections allowed.");
                     }
                 }
             }
@@ -79,32 +79,30 @@ public class FieldParcelService {
     public FieldParcel findByCropField(CropField cropField, UUID uid) {
         FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
         if (fieldParcel == null) {
-            throw new EntityNotFoundException("Couldn`t find field parcel");
+            throw new EntityNotFoundException("Field parcel not found");
         }
         if (fieldParcel.getCropField() != cropField ||
                 cropField.getIsDeleted()) {
-            throw new ForbiddenException("Couldn't access this plot because you are not it's owner");
+            throw new ForbiddenException("Access denied to field parcel.");
         }
         return fieldParcel;
     }
 
-    public FieldParcel findByCropFieldAndUid(CropField cropField, UUID uid) {
+    public void findByCropFieldAndUid(CropField cropField, UUID uid) {
         FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
 
         if (fieldParcel == null) {
-            throw new EntityNotFoundException("Couldn`t find filed parcel with id " + uid);
+            throw new EntityNotFoundException("Field parcel not found.");
         }
 
         if (fieldParcel.getCropField() != cropField) {
-            throw new ForbiddenException("You have no access to this field parcel");
+            throw new ForbiddenException("Access denied to field parcel.");
         }
-
-        return fieldParcel;
     }
 
     public void updateFieldParcel(FieldParcel fieldParcel) {
         if (fieldParcelRepository.findByUid(fieldParcel.getUid()) == null) {
-            throw new EntityNotFoundException("Couldn`t find field parcel with id: " + fieldParcel.getUid());
+            throw new EntityNotFoundException("Field parcel not found.");
         }
         polygonValidation(fieldParcel);
         fieldParcelRepository.save(fieldParcel);
@@ -112,7 +110,7 @@ public class FieldParcelService {
 
     public void deleteById(UUID uid) {
         if (fieldParcelRepository.findByUid(uid) == null) {
-            throw new EntityNotFoundException("Couldn`t find field parcel with id: " + uid);
+            throw new EntityNotFoundException("Field parcel not found.");
         }
         fieldParcelRepository.deleteById(uid);
     }

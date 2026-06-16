@@ -29,11 +29,11 @@ public class ResetPasswordTokenService {
         if (resetPasswordToken.isPresent()) {
             ResetPasswordToken resetPasswordTokenVal = resetPasswordToken.get();
             if (resetPasswordTokenVal.getExpires().isBefore(Instant.now())) {
-                throw new InvalidTokenException("The reset password token has been expired");
+                throw new InvalidTokenException("Reset password token has been expired.");
             }
             return resetPasswordToken.get();
         } else {
-            throw new InvalidTokenException("Reset password token not found");
+            throw new InvalidTokenException("Reset password token not found.");
         }
     }
 }

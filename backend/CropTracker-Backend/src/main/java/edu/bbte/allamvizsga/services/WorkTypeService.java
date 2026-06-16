@@ -32,11 +32,11 @@ public class WorkTypeService {
         WorkType workType = workTypesRepository.findByUid(uid);
 
         if (workType == null) {
-            throw new EntityNotFoundException("Couldn`t find work type with id " + uid);
+            throw new EntityNotFoundException("Work type not found.");
         }
 
         if (!workType.getIsSystem() && workType.getUser() != user) {
-            throw new ForbiddenException("You have no access for this work type");
+            throw new ForbiddenException("Access denied to work type.");
         }
 
         return workType;
@@ -52,7 +52,7 @@ public class WorkTypeService {
         WorkType systemWorkTypeWithName = workTypesRepository.findByNameAndIsSystemTrue(workType.getName());
 
         if (workTypeWithSameName != null || systemWorkTypeWithName != null) {
-            throw new EntityExistsException("Work type with name " + workType.getName() + " already exists");
+            throw new EntityExistsException("Work type name already taken.");
         }
 
         workTypesRepository.save(workType);

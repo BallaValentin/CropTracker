@@ -2,12 +2,8 @@ import type { GetCropCategoryDTO } from "../interfaces/response/GetCropCategoryD
 import type { GetCropCultivarDTO } from "../interfaces/response/GetCropCultivarDTO";
 import type { GetCropSpecieDTO } from "../interfaces/response/GetCropSpecieDTO";
 import { create } from 'zustand';
-import { createCropSpecie, deleteCropSpecie, getCropSpecieInCategory, updateCropSpecie } from "../services/CropSpecieService";
-import { createCropCultivar, deleteCropCultivar, getCropCultivarsInSpecie, updateCropCultivar } from "../services/CropCultivarService";
-import type { CreateCropSpecieDTO } from "../interfaces/request/CreateCropSpecieDTO";
-import type { CreateCropCultivarDTO } from "../interfaces/request/CreateCropCultivarDTO";
-import type { UpdateCropSpecieDTO } from "../interfaces/request/UpdateCropSpecieDTO";
-import type { UpdateCropCultivarDTO } from "../interfaces/request/UpdateCropCultivarDTO";
+import { getCropSpecieInCategory } from "../services/CropSpecieService";
+import { getCropCultivarsInSpecie } from "../services/CropCultivarService";
 
 interface TreeState {
   categories: GetCropCategoryDTO[]
@@ -17,11 +13,11 @@ interface TreeState {
 
   setCategories: (data: GetCropCategoryDTO[]) => void;
   fetchSpecies: (categoryId: string) => Promise<void>;
-  addSpecies: (data: CreateCropSpecieDTO) => void;
-  updateSpecies: (data: UpdateCropSpecieDTO, specieId: string) => void;
+  addSpecies: (data: GetCropSpecieDTO) => void;
+  updateSpecies: (data: GetCropSpecieDTO) => void;
   deleteSpecies: (specie: GetCropSpecieDTO) => void;
-  addCultivars: (data: CreateCropCultivarDTO) => void;
-  updateCultivars: (data: UpdateCropCultivarDTO, cultivarId: string) => void;
+  addCultivars: (data: GetCropCultivarDTO) => void;
+  updateCultivars: (data: GetCropCultivarDTO) => void;
   deleteCultivars: (cultivar: GetCropCultivarDTO) => void;
   fetchCultivars: (specieId: string) => Promise<void>;
 }
@@ -47,42 +43,52 @@ export const useCropsStore = create<TreeState>((set, get) => ({
     }));
   },
 
-  addSpecies: async(newCropSpecie: CreateCropSpecieDTO) => {
-    const createdSpecie = await  createCropSpecie(newCropSpecie);
+  addSpecies: async (createdSpecie: GetCropSpecieDTO) => {
+    await get().fetchSpecies(createdSpecie.categoryId);
 
-    set((s) => ({
-      species: {
+    set((s) => {
+      const currentList = s.species[createdSpecie.categoryId] || [];
+
+      const exists = currentList.some(item => item.uid === createdSpecie.uid);
+      if (exists) return s;
+
+      return {species: {
         ...s.species,
         [createdSpecie.categoryId]: [
           ...(s.species[createdSpecie.categoryId] || []),
           createdSpecie
         ]
-      }
-    }));
+      }}
+    });
 
   },
 
-  updateSpecies: async (specieUpdates: UpdateCropSpecieDTO, specieId: string) => {
-    const updatedSpecie = await updateCropSpecie(specieUpdates, specieId);
-    const categoryId = updatedSpecie.categoryId;
+  updateSpecies: async (updatedSpecie: GetCropSpecieDTO) => {
+    await get().fetchCultivars(updatedSpecie.categoryId);
+    const {categoryId, uid} = updatedSpecie;
+
+    set((s) => {
+      const currentList = s.species[updatedSpecie.categoryId] || [];
+      
+      const exists = currentList.some(item => item.uid === updatedSpecie.uid);
+      if (exists) return s;
+
+      return {species: {
+        ...s.species,
+        [categoryId]: (s.species[categoryId]).map(specie => specie.uid === uid ? updatedSpecie : specie)
+      }
+    }});
+  },
+
+  deleteSpecies: async(specieToDelete: GetCropSpecieDTO) => {
+    await get().fetchSpecies(specieToDelete.categoryId);
+    const specieId = specieToDelete.uid;
+    const categoryId = specieToDelete.categoryId;
 
     set((s) => ({
       species: {
         ...s.species,
-        [categoryId]: (s.species[categoryId]).map(specie => specie.uid === updatedSpecie.uid ? updatedSpecie : specie)
-      }
-    }));
-  },
-
-  deleteSpecies: async(specie: GetCropSpecieDTO) => {
-    const specieId = specie.uid;
-    const categoryId = specie.categoryId;
-    await deleteCropSpecie(specieId);
-
-    set((s) => ({
-      species: {
-        ...s.species,
-        [specie.categoryId]: (s.species[categoryId]).filter(spec => spec.uid !== specieId)
+        [specieToDelete.categoryId]: (s.species[categoryId]).filter(spec => spec.uid !== specieId)
       }
     }));
     
@@ -101,36 +107,48 @@ export const useCropsStore = create<TreeState>((set, get) => ({
     }));
   },
 
-  addCultivars: async(newCropCultivar: CreateCropCultivarDTO) => {
-    const createdCultivar = await  createCropCultivar(newCropCultivar);
+  addCultivars: async (createdCultivar: GetCropCultivarDTO) => {
+    await get().fetchCultivars(createdCultivar.specieId);
 
-    set((s) => ({
-      cultivars: {
+    set((s) => {
+      const currentList = s.cultivars[createdCultivar.specieId] || [];
+      
+      const exists = currentList.some(item => item.uid === createdCultivar.uid);
+      if (exists) return s;
+
+      return {cultivars: {
         ...s.cultivars,
         [createdCultivar.specieId]: [
           ...(s.cultivars[createdCultivar.specieId] || []),
           createdCultivar
         ]
-      }
-    }));
+      }};
+    });
     },
 
-    updateCultivars: async (cultivarUpdates: UpdateCropCultivarDTO, cultivarId: string) => {
-      const updatedCultivar = await updateCropCultivar(cultivarUpdates, cultivarId);
-      const specieId = updatedCultivar.specieId;
+    updateCultivars: async (updatedCultivar: GetCropCultivarDTO) => {
+      await get().fetchCultivars(updatedCultivar.specieId);
 
-      set((s) => ({
-        cultivars: {
+      const {specieId, uid} = updatedCultivar;
+
+      set((s) => {
+        const currentList = s.cultivars[updatedCultivar.specieId] || [];
+      
+        const exists = currentList.some(item => item.uid === updatedCultivar.uid);
+        if (exists) return s;
+
+        return {cultivars: {
           ...s.cultivars,
-          [specieId]: (s.cultivars[specieId]).map(cultivar => cultivar.uid === updatedCultivar.uid ? updatedCultivar : cultivar)
+          [specieId]: (s.cultivars[specieId]).map(cultivar => cultivar.uid === uid ? updatedCultivar : cultivar)
         }
-      }));
+      }});
     },
 
     deleteCultivars: async(cultivarToDelete: GetCropCultivarDTO) => {
+      await get().fetchCultivars(cultivarToDelete.specieId);
+
       const cultivarId = cultivarToDelete.uid;
       const specieId = cultivarToDelete.specieId;
-      await deleteCropCultivar(cultivarId);
 
       set((s) => ({
         cultivars: {

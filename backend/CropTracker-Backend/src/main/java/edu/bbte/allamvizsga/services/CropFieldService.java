@@ -28,7 +28,7 @@ public class CropFieldService {
 
     protected void validatePolygon(Polygon polygon) {
         if (!polygon.isValid()) {
-            throw new BadRequestException("Invalid polygon shape");
+            throw new BadRequestException("Invalid polygon shape.");
         }
     }
 
@@ -65,12 +65,12 @@ public class CropFieldService {
         CropField cropField = cropFieldRepository.findByUid(uid);
 
         if (cropField == null) {
-            throw new EntityNotFoundException("Couldn't find plot with id");
+            throw new EntityNotFoundException("Crop field not found.");
         }
 
         if (cropField.getUser() != user ||
                 cropField.getIsDeleted()) {
-            throw new ForbiddenException("Couldn't access this plot because you are not it's owner");
+            throw new ForbiddenException("Crop field access denied.");
         }
         return cropField;
     }
@@ -79,11 +79,11 @@ public class CropFieldService {
         CropField foundCropField = findById(cropField.getUid());
 
         if (foundCropField == null) {
-            throw new EntityNotFoundException("Couldn`t find the crop field for update");
+            throw new EntityNotFoundException("Crop field not found.");
         }
 
         if (foundCropField.getUser() != cropField.getUser() || foundCropField.getIsDeleted()) {
-            throw new ForbiddenException("You have no access to this crop field");
+            throw new ForbiddenException("Crop field access denied.");
         }
 
         validatePolygon(cropField.getPolygonPoints());
@@ -105,7 +105,7 @@ public class CropFieldService {
     public CropField findById(UUID uid) {
         CropField cropField = cropFieldRepository.findByUid(uid);
         if (cropField == null || cropField.getIsDeleted()) {
-            throw new EntityNotFoundException("Couldn't find plot with id");
+            throw new EntityNotFoundException("Crop field not found.");
         }
         return cropField;
     }

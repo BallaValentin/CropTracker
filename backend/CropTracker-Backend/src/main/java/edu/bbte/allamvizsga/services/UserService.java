@@ -36,15 +36,15 @@ public class UserService {
     public void createUser(User user, Boolean isGrower, Boolean isWorker) throws IOException {
 
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            throw new InvalidSignupException("User with username " + user.getUsername() + " already exists");
+            throw new InvalidSignupException("Username already taken.");
         }
 
         if (userRepository.findByEmail(user.getEmail()) != null) {
-            throw new InvalidSignupException("User with email " + user.getEmail() + " already exists");
+            throw new InvalidSignupException("Email address already taken.");
         }
 
         if (!isGrower && !isWorker) {
-            throw new InvalidSignupException("One of the roles must be chosen");
+            throw new InvalidSignupException("No roles have been chosen.");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -53,7 +53,7 @@ public class UserService {
         if (isGrower) {
             Optional<Role> farmerRole = roleRepository.findByName("GROWER");
             if (farmerRole.isEmpty()) {
-                throw new RuntimeException("Role not found");
+                throw new RuntimeException("Role not found.");
             }
             user.getRoles().add(farmerRole.get());
         }
@@ -61,7 +61,7 @@ public class UserService {
         if (isWorker) {
             Optional<Role> dayLaborerRole = roleRepository.findByName("WORKER");
             if (dayLaborerRole.isEmpty()) {
-                throw new RuntimeException("Role not found");
+                throw new RuntimeException("Role not found.");
             }
             user.getRoles().add(dayLaborerRole.get());
         }
@@ -77,7 +77,7 @@ public class UserService {
     public User findUserById(UUID userId) {
         User user = userRepository.findByUid(userId);
         if (user == null) {
-            throw new EntityNotFoundException("Couldn't find user");
+            throw new EntityNotFoundException("User not found.");
         } else {
             return user;
         }
@@ -86,7 +86,7 @@ public class UserService {
     public User findUserByEmail(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new EntityNotFoundException("Couldn't find user with email: " + email);
+            throw new EntityNotFoundException("User not found.");
         } else {
             return user;
         }
@@ -95,7 +95,7 @@ public class UserService {
     public User findUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
-            throw new EntityNotFoundException("Couldn't find user with username: " + username);
+            throw new EntityNotFoundException("User not found.");
         } else {
             return user;
         }
@@ -107,10 +107,10 @@ public class UserService {
             if (passwordEncoder.matches(user.getPassword(), user1.getPassword())) {
                 return user1;
             } else {
-                throw new BadCredentialsException("Invalid username or password");
+                throw new BadCredentialsException("Invalid username or password.");
             }
         } else {
-            throw new BadCredentialsException("Invalid username or password");
+            throw new BadCredentialsException("Invalid username or password.");
         }
     }
 

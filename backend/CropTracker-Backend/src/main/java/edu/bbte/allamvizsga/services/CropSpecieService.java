@@ -1,16 +1,15 @@
 package edu.bbte.allamvizsga.services;
 
+import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.model.CropCategory;
 import edu.bbte.allamvizsga.model.CropSpecie;
 import edu.bbte.allamvizsga.repository.CropSpecieRepository;
 import edu.bbte.allamvizsga.specifications.CropSpecieSpecification;
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.config.ScheduledTaskHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -20,7 +19,6 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class CropSpecieService {
-    private final ScheduledTaskHolder scheduledTaskHolder;
     private CropSpecieRepository cropSpecieRepository;
 
     public Collection<CropSpecie> findAllByCategory(CropCategory cropCategory) {
@@ -39,7 +37,7 @@ public class CropSpecieService {
         CropSpecie cropSpecie = cropSpecieRepository.findByUid(uid);
 
         if (cropSpecie == null) {
-            throw new EntityNotFoundException("Couldn`t find crop specie with id " + uid);
+            throw new EntityNotFoundException("Crop specie not found.");
         }
 
         return cropSpecie;
@@ -47,11 +45,11 @@ public class CropSpecieService {
 
     public CropSpecie create(CropSpecie cropSpecie) {
         if (cropSpecieRepository.findByCommonName(cropSpecie.getCommonName()) != null) {
-            throw new EntityExistsException("Crop specie with name " + cropSpecie.getCommonName() + " already exists");
+            throw new BadRequestException("Crop specie name already taken.");
         }
 
         if (cropSpecie.getScientificName() != null && cropSpecieRepository.findByScientificName(cropSpecie.getScientificName()) != null) {
-            throw new EntityExistsException("Crop specie with scientific name " + cropSpecie.getScientificName() + " already exists");
+            throw new BadRequestException("Crop specie scientific name already taken.");
         }
 
         return cropSpecieRepository.save(cropSpecie);
@@ -60,7 +58,7 @@ public class CropSpecieService {
     public void update(CropSpecie cropSpecie) {
         CropSpecie oldCropSpecie = cropSpecieRepository.findByUid(cropSpecie.getUid());
         if (oldCropSpecie == null) {
-            throw new EntityNotFoundException("Couldn`t find crop specie with id " + cropSpecie.getUid());
+            throw new EntityNotFoundException("Crop specie not found.");
         }
 
         CropSpecie cropSpecieWithName = cropSpecieRepository
@@ -69,7 +67,7 @@ public class CropSpecieService {
         if (cropSpecieWithName != null &&
                 !cropSpecieWithName.getUid().equals(cropSpecie.getUid())
         ) {
-            throw new EntityExistsException("A different specie with name " + cropSpecie.getCommonName() + " already exists");
+            throw new BadRequestException("Crop specie name already taken.");
         }
 
         if (cropSpecie.getScientificName() != null) {
@@ -77,7 +75,7 @@ public class CropSpecieService {
                     .findByScientificName(cropSpecie.getScientificName());
             if (cropSpecieWithScientificName != null &&
                     !cropSpecieWithScientificName.getUid().equals(cropSpecie.getUid())) {
-                throw new EntityExistsException("A different crop specie with scientific name " + cropSpecie.getScientificName() + " already exists");
+                throw new BadRequestException("Crop specie scientific name already taken.");
             }
         }
 
@@ -88,7 +86,7 @@ public class CropSpecieService {
         CropSpecie cropSpecie = cropSpecieRepository.findByUid(cropSpecieId);
 
         if (cropSpecie == null) {
-            throw new EntityNotFoundException("Couldn`t find crop specie with id " + cropSpecieId);
+            throw new EntityNotFoundException("Crop specie not found.");
         }
 
         cropSpecieRepository.deleteById(cropSpecieId);

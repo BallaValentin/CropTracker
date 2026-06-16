@@ -40,16 +40,8 @@ function AccountDialog({ isOpen, onClose, userData }: AccountDialogProps) {
 
   return (
     <Box>
-      <Dialog
-        open={isOpen}
-        onClose={onClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle
-          id="alert-dialog-title"
-          sx={{ textAlign: "center", position: "relative" }}
-        >
+      <Dialog open={isOpen} onClose={onClose}>
+        <DialogTitle sx={{ textAlign: "center", position: "relative" }}>
           Manage Account
           <IconButton
             sx={{ position: "absolute", right: 8, top: 8 }}

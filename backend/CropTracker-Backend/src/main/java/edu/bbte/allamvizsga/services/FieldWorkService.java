@@ -33,11 +33,11 @@ public class FieldWorkService {
         FieldWork foundFieldWork = fieldWorkRepository.findByUid(fieldWork.getUid());
 
         if (foundFieldWork == null) {
-            throw new EntityNotFoundException("Couldn`t find field work with id " + fieldWork.getUid());
+            throw new EntityNotFoundException("Field work not found.");
         }
 
         if (fieldWork.getCropField() != foundFieldWork.getCropField()) {
-            throw new ForbiddenException("You have no access to this field work");
+            throw new ForbiddenException("Access denied to field work.");
         }
 
         fieldWorkRepository.save(fieldWork);
@@ -74,11 +74,11 @@ public class FieldWorkService {
         FieldWork fieldWork = fieldWorkRepository.findByUid(uid);
 
         if (fieldWork == null) {
-            throw new EntityNotFoundException("Couldn`t find field work with id: " + uid);
+            throw new EntityNotFoundException("Field work not found.");
         }
 
         if (fieldWork.getCropField().getUser() != user) {
-            throw new ForbiddenException("You have no access to this field work");
+            throw new ForbiddenException("Access denied to field work.");
         }
 
         return fieldWork;

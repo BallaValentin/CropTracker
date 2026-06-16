@@ -8,10 +8,24 @@ import DeleteCropCultivarDialog from "../dialogs/DeleteCropCultivarDialog";
 import { useState } from "react";
 import type { UpdateCropCultivarDTO } from "../../interfaces/request/UpdateCropCultivarDTO";
 import UpdateCropCultivarForm from "../forms/UpdateCropCultivarForm";
+import { useMutation } from "@tanstack/react-query";
+import {
+  deleteCropCultivar,
+  updateCropCultivar,
+} from "../../services/CropCultivarService";
+import type { AxiosError } from "axios";
+import type { ErrorResponse } from "../../interfaces/ErrorResponse";
 
-function CultivarItem(cultivar: GetCropCultivarDTO) {
+interface CultivarItemProps {
+  cultivar: GetCropCultivarDTO;
+  onOperationSuccess: (message: string) => void;
+}
+
+function CultivarItem({ cultivar, onOperationSuccess }: CultivarItemProps) {
   const [deleteCultivarOpen, setDeleteCultivarOpen] = useState<boolean>(false);
   const [updateCultivarOpen, setUpdateCultivarOpen] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const deleteCultivar = useCropsStore((s) => s.deleteCultivars);
   const updateCultivar = useCropsStore((s) => s.updateCultivars);
 
@@ -27,8 +41,7 @@ function CultivarItem(cultivar: GetCropCultivarDTO) {
   };
 
   const deleteCultivarConfirm = async () => {
-    await deleteCultivar(cultivar);
-    setDeleteCultivarOpen(false);
+    deleteCultivarMutate(cultivar.uid);
   };
 
   const handleUpdateCultivarSetup = (
@@ -42,11 +55,41 @@ function CultivarItem(cultivar: GetCropCultivarDTO) {
     setUpdateCultivarOpen(false);
   };
 
-  const handleCultivarUpdate = async (
-    cultivarUpdates: UpdateCropCultivarDTO,
-  ) => {
-    await updateCultivar(cultivarUpdates, cultivar.uid);
-    setUpdateCultivarOpen(false);
+  const { mutate: updateCultivarMutate, isPending: isUpdateCultivarPending } =
+    useMutation({
+      mutationFn: ({
+        cultivarUpdates,
+        cultivarId,
+      }: {
+        cultivarUpdates: UpdateCropCultivarDTO;
+        cultivarId: string;
+      }) => updateCropCultivar(cultivarUpdates, cultivarId),
+      onSuccess: (response: GetCropCultivarDTO) => {
+        updateCultivar(response);
+        setErrorMessage("");
+        setUpdateCultivarOpen(false);
+        onOperationSuccess("Crop cultivar has been successfully updated.");
+      },
+      onError: (error: AxiosError) => {
+        if (error.response?.status === 400) {
+          const message = (error.response.data as ErrorResponse).message;
+          setErrorMessage(message || "");
+        }
+      },
+    });
+
+  const { mutate: deleteCultivarMutate, isPending: isDeleteCultivarPending } =
+    useMutation({
+      mutationFn: deleteCropCultivar,
+      onSuccess: () => {
+        deleteCultivar(cultivar);
+        setDeleteCultivarOpen(false);
+        onOperationSuccess("Crop cultivar has been successfully deleted.");
+      },
+    });
+
+  const handleCultivarUpdate = (cultivarUpdates: UpdateCropCultivarDTO) => {
+    updateCultivarMutate({ cultivarUpdates, cultivarId: cultivar.uid });
   };
 
   return (
@@ -78,6 +121,7 @@ function CultivarItem(cultivar: GetCropCultivarDTO) {
           dialogOpen={deleteCultivarOpen}
           onCancel={handleDeleteCultivarClose}
           onConfirm={deleteCultivarConfirm}
+          isPending={isDeleteCultivarPending}
         />
       )}
       {updateCultivarOpen && (
@@ -86,6 +130,8 @@ function CultivarItem(cultivar: GetCropCultivarDTO) {
           cultivar={cultivar}
           onSubmit={handleCultivarUpdate}
           onClose={handleUpdateCultivarClose}
+          errorMessage={errorMessage}
+          isPending={isUpdateCultivarPending}
         />
       )}
     </Box>
