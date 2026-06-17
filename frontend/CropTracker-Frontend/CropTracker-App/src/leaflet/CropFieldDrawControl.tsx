@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import { useCropFieldDraw } from "../hooks/UseCropFieldDraw";
 import type { LatLngObject } from "../interfaces/LatLngObject";
+import L from "leaflet";
 
 interface CropFieldDrawControlProps {
   markerAdded: boolean;
@@ -23,21 +24,35 @@ function CropFieldDrawControl({
   onMarkerDeleted,
 }: CropFieldDrawControlProps) {
   const map = useMap();
+  const lastPointRef = useRef<L.LatLng | null>(null);
+  const tooltipRef = useRef<L.Tooltip | null>(null);
 
-  const { _onCreated, _onDeleted, _onUpdated } = useCropFieldDraw({
-    markerAdded,
-    markerPosition,
-    polygonPoints,
-    onPolygonCreated,
-    onPolygonDeleted,
-    onMarkerCreated,
-    onMarkerDeleted,
-  });
+  const { _onCreated, _onDeleted, _onUpdated, _onDrawStart, _onDrawEnd } =
+    useCropFieldDraw({
+      markerAdded,
+      markerPosition,
+      polygonPoints,
+      onPolygonCreated,
+      onPolygonDeleted,
+      onMarkerCreated,
+      onMarkerDeleted,
+      lastPointRef,
+      tooltipRef,
+    });
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !map.pm) return;
 
+    tooltipRef.current = L.tooltip({
+      permanent: true,
+      direction: "right",
+      className: "distance-tooltip",
+    });
+
+    map.on("pm:drawstart", _onDrawStart);
+    map.on("pm:drawend", _onDrawEnd);
     map.on("pm:create", _onCreated);
+
     map.on("pm:globaleditmodetoggled", (e) => {
       if (!e.enabled) {
         const layersGroup = map.pm.getGeomanLayers(true) as L.FeatureGroup;
@@ -68,7 +83,7 @@ function CropFieldDrawControl({
 
     map.pm.setGlobalOptions({
       allowSelfIntersection: false,
-      tooltips: true,
+      tooltips: false,
 
       templineStyle: { color: "gray" },
       hintlineStyle: { color: "gray", dashArray: "5, 5" },
@@ -85,8 +100,10 @@ function CropFieldDrawControl({
       map.off("pm:create", _onCreated);
       map.off("pm:globaleditmodetoggled");
       map.off("pm:remove", _onDeleted);
+      map.off("pm:drawstart", _onDrawStart);
+      map.off("pm:drawend", _onDrawEnd);
     };
-  }, [_onCreated, _onUpdated, _onDeleted, map]);
+  }, [_onCreated, _onUpdated, _onDeleted, map, _onDrawStart, _onDrawEnd]);
 
   return null;
 }
