@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
-import { getUsers } from "../services/AdminService"
+import { getUsers } from "../../services/AdminService"
 import { useNavigate } from "react-router-dom"
 import type { AxiosError } from "axios";
-import type { GetAdminUserDTO } from "../interfaces/response/GetAdminUserDTO";
-import { getStatusMessage } from "../utils/GetStatusMessage";
+import type { GetAdminUserDTO } from "../../interfaces/response/GetAdminUserDTO";
+import { getStatusMessage } from "../../utils/GetStatusMessage";
 
 export const useAdminUsers = () => {
     const navigate = useNavigate();

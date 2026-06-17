@@ -2,13 +2,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useFieldWork } from "../hooks/UseFieldWork";
+import { useFieldWork } from "../hooks/caching/UseFieldWork";
 import FieldDetailMapPreview from "../leaflet/FieldDetailMapPreview";
-import { useCropField } from "../hooks/UseCropField";
-import { useFieldParcels } from "../hooks/UseFieldParcels";
+import { useCropField } from "../hooks/caching/UseCropField";
+import { useFieldParcels } from "../hooks/caching/UseFieldParcels";
 import { Box, Card, Divider, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 import {
   getGeneratedCrops,
   getGeneratedRectabgles,
@@ -16,8 +16,8 @@ import {
 } from "../utils/GenerateShapesUtil";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import FieldInfoContainer from "../elements/containers/FieldInfoContainer";
-import type { StringNumber } from "../interfaces/StringNumber";
-import { useCurrentProfile } from "../hooks/UseCurrentUser";
+import type { StringNumber } from "../interfaces/helper/StringNumber";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 
 function FieldWorkDetailsPage() {
   const [rows, setRows] = useState<LatLngObject[][][] | null>(null);

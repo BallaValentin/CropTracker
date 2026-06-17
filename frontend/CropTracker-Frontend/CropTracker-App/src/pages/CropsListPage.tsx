@@ -2,10 +2,10 @@ import { Alert, Box } from "@mui/material";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
-import { useCropCategories } from "../hooks/UseCropCategories";
+import { useCropCategories } from "../hooks/caching/UseCropCategories";
 import CropsTreeView from "../elements/treeviews/CropsTreeView";
 import { useNavigate } from "react-router-dom";
-import { useCurrentProfile } from "../hooks/UseCurrentUser";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import { useEffect, useState } from "react";
 
 function CropsListPage() {

@@ -20,14 +20,14 @@ import {
   deleteFieldParcel,
   updateFieldParcel,
 } from "../services/FieldParcelService";
-import { useFieldParcels } from "../hooks/UseFieldParcels";
+import { useFieldParcels } from "../hooks/caching/UseFieldParcels";
 import { queryClient } from "../query-client/QueryClient";
 import UpdateFieldParcelForm from "../elements/forms/UpdateFieldParcelForm";
 import type { UpdateFieldParcelDTO } from "../interfaces/request/UpdateFieldParcelDTO";
-import { useCropFieldWork } from "../hooks/UseCropFieldWorks";
+import { useCropFieldWork } from "../hooks/caching/UseCropFieldWorks";
 import CropFieldWorksPanel from "../elements/panels/CropFieldWorksPanel";
-import { useCropField } from "../hooks/UseCropField";
-import { useCurrentProfile } from "../hooks/UseCurrentUser";
+import { useCropField } from "../hooks/caching/UseCropField";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 
 function PlotDetailsPage() {
   const {

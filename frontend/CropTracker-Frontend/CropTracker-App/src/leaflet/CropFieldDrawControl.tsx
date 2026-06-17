@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useMap } from "react-leaflet";
-import { useCropFieldDraw } from "../hooks/UseCropFieldDraw";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import { useCropFieldDraw } from "../hooks/leaflet/UseCropFieldDraw";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 import L from "leaflet";
+import { useMapDistance } from "../hooks/leaflet/UseMapDistance";
 
 interface CropFieldDrawControlProps {
   markerAdded: boolean;
@@ -24,32 +25,21 @@ function CropFieldDrawControl({
   onMarkerDeleted,
 }: CropFieldDrawControlProps) {
   const map = useMap();
-  const lastPointRef = useRef<L.LatLng | null>(null);
-  const tooltipRef = useRef<L.Tooltip | null>(null);
 
-  const { _onCreated, _onDeleted, _onUpdated, _onDrawStart, _onDrawEnd } =
-    useCropFieldDraw({
-      markerAdded,
-      markerPosition,
-      polygonPoints,
-      onPolygonCreated,
-      onPolygonDeleted,
-      onMarkerCreated,
-      onMarkerDeleted,
-      lastPointRef,
-      tooltipRef,
-    });
+  const { _onCreated, _onDeleted, _onUpdated } = useCropFieldDraw({
+    markerAdded,
+    markerPosition,
+    polygonPoints,
+    onPolygonCreated,
+    onPolygonDeleted,
+    onMarkerCreated,
+    onMarkerDeleted,
+  });
+
+  const { _onDrawStart, _onDrawEnd } = useMapDistance();
 
   useEffect(() => {
     if (!map || !map.pm) return;
-
-    if (!tooltipRef.current) {
-      tooltipRef.current = L.tooltip({
-        permanent: true,
-        direction: "right",
-        className: "distance-tooltip",
-      });
-    }
 
     map.on("pm:drawstart", _onDrawStart);
     map.on("pm:drawend", _onDrawEnd);

@@ -1,4 +1,4 @@
-import type { LatLngObject } from "../LatLngObject";
+import type { LatLngObject } from "../helper/LatLngObject";
 
 export interface UpdateCropFieldDTO {
     name: string,

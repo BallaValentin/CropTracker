@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
-import type { CacheUserData } from "../interfaces/CacheUserData";
-import { getUserData } from "../services/UserService";
+import type { CacheUserData } from "../../interfaces/response/CacheUserData";
+import { getUserData } from "../../services/UserService";
 import type { AxiosError } from "axios";
 
 export const useCurrentProfile = (enabled?: boolean) => {

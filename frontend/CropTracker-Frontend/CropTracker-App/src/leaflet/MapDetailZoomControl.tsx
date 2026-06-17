@@ -1,9 +1,9 @@
 import { useMap } from "react-leaflet";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 
 import L from "leaflet";
 import { useEffect, useRef } from "react";
-import { useZoom } from "../hooks/UseMapZoom";
+import { useZoom } from "../hooks/leaflet/UseMapZoom";
 import Flatbush from "flatbush";
 
 interface ZoomControlProps {

@@ -8,7 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { FieldDefinition } from "../../interfaces/FieldDefinition";
+import type { FieldDefinition } from "../../interfaces/helper/FieldDefinition";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import type React from "react";

@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import type { CreateCropFieldDTO } from "../interfaces/request/CreateCropFieldDTO";
 import CreateCropFieldForm from "../elements/forms/CreateCropFieldForm";
 import { queryClient } from "../query-client/QueryClient";
-import { useCurrentProfile } from "../hooks/UseCurrentUser";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 
 function CreateCropFieldPage() {
   const { isLoading: isUserLoading, error: userError } = useCurrentProfile();

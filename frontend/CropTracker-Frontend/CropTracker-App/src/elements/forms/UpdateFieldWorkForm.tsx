@@ -13,8 +13,8 @@ import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO"
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import { useEffect, useState } from "react";
 import type { GetWorkTypeDTO } from "../../interfaces/response/GetWorkTypeDTO";
-import type { FieldDefinition } from "../../interfaces/FieldDefinition";
-import type { StringNumber } from "../../interfaces/StringNumber";
+import type { FieldDefinition } from "../../interfaces/helper/FieldDefinition";
+import type { StringNumber } from "../../interfaces/helper/StringNumber";
 import StringNumberList from "../dynamicLists/StringNumberList";
 import SelectFieldRowsPanel from "../panels/SelectFieldRowsPanel";
 import SimpleTypeList from "../dynamicLists/SimpleTypeList";

@@ -18,7 +18,7 @@ import React, { useState } from "react";
 import { type CreateWorkTypeDTO } from "../../interfaces/request/CreateWorkTypeDTO";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import type { FieldDefinition } from "../../interfaces/FieldDefinition";
+import type { FieldDefinition } from "../../interfaces/helper/FieldDefinition";
 import { standardNameRegex } from "../../utils/Constants";
 import { getNameError } from "../../utils/FormSubmitHelper";
 

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO"
-import { getCropFields } from "../services/CropFieldService"
+import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO"
+import { getCropFields } from "../../services/CropFieldService"
 import type { AxiosError } from "axios";
 
 export const useUserCropFields = (enabled: boolean) => {

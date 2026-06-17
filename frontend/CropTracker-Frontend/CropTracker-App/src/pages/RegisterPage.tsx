@@ -5,7 +5,7 @@ import { registerUser } from "../services/AuthService";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { CreateUserDTO } from "../interfaces/request/CreateUserDTO";
-import type { ErrorResponse } from "../interfaces/ErrorResponse";
+import type { ErrorResponse } from "../interfaces/error/ErrorResponse";
 import { useEffect, useState } from "react";
 import type { GetVerifyEmailDTO } from "../interfaces/response/GetVerifyEmailDTO";
 

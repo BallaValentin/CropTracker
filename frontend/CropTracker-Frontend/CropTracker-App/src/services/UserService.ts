@@ -3,7 +3,7 @@ import type { UpdateUserDTO } from "../interfaces/request/UpdateUserDTO";
 import type { ChangePasswordData } from "../interfaces/request/UpdatePasswordDTO";
 import type { GetUserDTO } from "../interfaces/response/GetUserDTO";
 import { attachAuthInterceptors } from "./AttachAuthInterceptors";
-import type { CacheUserData } from "../interfaces/CacheUserData";
+import type { CacheUserData } from "../interfaces/response/CacheUserData";
 
 export const userApi = axios.create({
     baseURL: "http://localhost:8080/api/user",

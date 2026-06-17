@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { LayersControl, MapContainer, Polygon } from "react-leaflet";
 import CustomLayerControl from "./CustomLayers";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 import { defaultMapPosition } from "../utils/Constants";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import MapDetailZoomControl from "./MapDetailZoomControl";

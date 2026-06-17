@@ -1,5 +1,5 @@
-import type { LatLngObject } from "../LatLngObject";
-import type { LayoutParameters } from "../LayoutParameters";
+import type { LatLngObject } from "../helper/LatLngObject";
+import type { LayoutParameters } from "../helper/LayoutParameters";
 
 export interface GetFieldParcelDTO {
     uid: string,

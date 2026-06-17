@@ -24,7 +24,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import MainDrawer from "../drawers/MainDrawer";
 import { queryClient } from "../../query-client/QueryClient";
 import { useDrawer } from "../../contexts/DrawerProvider";
-import { useCurrentProfile } from "../../hooks/UseCurrentUser";
+import { useCurrentProfile } from "../../hooks/caching/UseCurrentUser";
 
 interface MainHeaderProps {
   fetchUser?: boolean;

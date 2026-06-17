@@ -1,13 +1,14 @@
 import { useEffect, useRef } from "react";
-import { useDrawHandler } from "../hooks/UseDrawHandler";
+import { useParcelDraw } from "../hooks/leaflet/UseParcelDraw";
 import Flatbush from "flatbush";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import "@geoman-io/leaflet-geoman-free";
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
-import { useZoom } from "../hooks/UseMapZoom";
+import { useZoom } from "../hooks/leaflet/UseMapZoom";
+import { useMapDistance } from "../hooks/leaflet/UseMapDistance";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
@@ -45,8 +46,9 @@ function FieldParcelDrawControl({
   lineRef,
 }: DrawingToolsProps) {
   const map = useMap();
+  const tooltipRef = useRef<L.Tooltip | null>(null);
 
-  const { _onCreated, _onDeleted, _onUpdated, _onDrawStart } = useDrawHandler({
+  const { _onCreated, _onDeleted, _onUpdated } = useParcelDraw({
     onPolygonCreated,
     onPolygonDeleted,
     onPolygonUpdated,
@@ -57,6 +59,8 @@ function FieldParcelDrawControl({
     lineRef,
     selectedParcel,
   });
+
+  const { _onDrawStart, _onDrawEnd } = useMapDistance();
 
   const lowZoomGroupRef = useRef(L.layerGroup());
 
@@ -129,7 +133,15 @@ function FieldParcelDrawControl({
   });
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !map.pm) return;
+
+    if (!tooltipRef.current) {
+      tooltipRef.current = L.tooltip({
+        permanent: true,
+        direction: "right",
+        className: "distance-tooltip",
+      });
+    }
 
     if (!map.getPane("cropPane")) {
       map.createPane("cropPane");
@@ -141,6 +153,7 @@ function FieldParcelDrawControl({
     map.on("moveend", _onMapViewChange);
     map.on("resize", _onMapViewChange);
     map.on("pm:drawstart", _onDrawStart);
+    map.on("pm:drawend", _onDrawEnd);
     map.on("pm:create", _onCreated);
     map.on("zoomend", _onZoom);
     map.on("pm:globaleditmodetoggled", (e) => {
@@ -179,17 +192,12 @@ function FieldParcelDrawControl({
       requireContainment: [],
     });
 
-    map.pm.enableDraw("Line", { snappable: false });
-    map.pm.disableDraw("Line");
-
-    map.pm.enableDraw("Polygon", { snappable: true });
-    map.pm.disableDraw("Polygon");
-
     return () => {
       map.off("moveend", _onMapViewChange);
       map.off("resize", _onMapViewChange);
       map.off("zoomend", _onZoom);
       map.off("pm:create", _onCreated);
+      map.off("pm:drawend", _onDrawEnd);
       map.off("pm:drawstart", _onDrawStart);
       map.off("pm:globaleditmodetoggled");
       map.off("pm:remove", _onDeleted);
@@ -209,6 +217,7 @@ function FieldParcelDrawControl({
     parentPolygon,
     selectedParcel,
     _onZoom,
+    _onDrawEnd,
   ]);
 
   return null;

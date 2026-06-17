@@ -1,7 +1,7 @@
 import { TreeItem } from "@mui/x-tree-view";
 import type { GetCropCultivarDTO } from "../../interfaces/response/GetCropCultivarDTO";
 import { Box, IconButton, Typography } from "@mui/material";
-import { useCropsStore } from "../../hooks/UseCropsStore";
+import { useCropsStore } from "../../hooks/caching/UseCropsStore";
 import DeleteIcon from "@mui/icons-material/Delete";
 import UpdateIcon from "@mui/icons-material/Update";
 import DeleteCropCultivarDialog from "../dialogs/DeleteCropCultivarDialog";
@@ -14,7 +14,7 @@ import {
   updateCropCultivar,
 } from "../../services/CropCultivarService";
 import type { AxiosError } from "axios";
-import type { ErrorResponse } from "../../interfaces/ErrorResponse";
+import type { ErrorResponse } from "../../interfaces/error/ErrorResponse";
 
 interface CultivarItemProps {
   cultivar: GetCropCultivarDTO;

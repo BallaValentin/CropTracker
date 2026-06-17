@@ -7,8 +7,8 @@ import { updateCropField } from "../services/CropFieldService";
 import type { UpdateCropFieldDTO } from "../interfaces/request/UpdateCropFieldDTO";
 import { queryClient } from "../query-client/QueryClient";
 import UpdateCropFieldForm from "../elements/forms/UpdateCropFieldForm";
-import { useCropField } from "../hooks/UseCropField";
-import { useCurrentProfile } from "../hooks/UseCurrentUser";
+import { useCropField } from "../hooks/caching/UseCropField";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 
 function UpdatePlotPage() {
   const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();

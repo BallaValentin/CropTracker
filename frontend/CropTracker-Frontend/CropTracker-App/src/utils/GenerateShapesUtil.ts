@@ -1,5 +1,5 @@
 import * as turf from "@turf/turf";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 import type { Feature, LineString } from "geojson";
 import { cropWidthCm } from "./Constants";
 

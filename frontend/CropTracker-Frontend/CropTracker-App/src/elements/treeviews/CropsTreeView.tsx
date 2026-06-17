@@ -1,5 +1,5 @@
 import { SimpleTreeView } from "@mui/x-tree-view";
-import { useCropsStore } from "../../hooks/UseCropsStore";
+import { useCropsStore } from "../../hooks/caching/UseCropsStore";
 import CategoryItem from "./CategoryItem";
 import { useEffect } from "react";
 import type { GetCropCategoryDTO } from "../../interfaces/response/GetCropCategoryDTO";

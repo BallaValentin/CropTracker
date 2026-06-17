@@ -14,7 +14,7 @@ import { updateProfile } from "../../services/UserService";
 import { queryClient } from "../../query-client/QueryClient";
 import type { UpdateUserDTO } from "../../interfaces/request/UpdateUserDTO";
 import type { AxiosError } from "axios";
-import type { CacheUserData } from "../../interfaces/CacheUserData";
+import type { CacheUserData } from "../../interfaces/response/CacheUserData";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface AccountDialogProps {

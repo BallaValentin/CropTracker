@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCropCategories } from "../services/CropCategoryService";
+import { getCropCategories } from "../../services/CropCategoryService";
 
 export const useCropCategories = () => {
     return useQuery({

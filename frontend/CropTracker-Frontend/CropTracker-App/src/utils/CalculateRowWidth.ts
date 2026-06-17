@@ -1,4 +1,4 @@
-import type { LayoutParameters } from "../interfaces/LayoutParameters";
+import type { LayoutParameters } from "../interfaces/helper/LayoutParameters";
 import { cropWidthCm } from "./Constants";
 import { LayoutTypes } from "./LayoutTypes";
 

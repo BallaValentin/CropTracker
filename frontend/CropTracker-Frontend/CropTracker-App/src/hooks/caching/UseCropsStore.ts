@@ -1,9 +1,9 @@
-import type { GetCropCategoryDTO } from "../interfaces/response/GetCropCategoryDTO";
-import type { GetCropCultivarDTO } from "../interfaces/response/GetCropCultivarDTO";
-import type { GetCropSpecieDTO } from "../interfaces/response/GetCropSpecieDTO";
+import type { GetCropCategoryDTO } from "../../interfaces/response/GetCropCategoryDTO";
+import type { GetCropCultivarDTO } from "../../interfaces/response/GetCropCultivarDTO";
+import type { GetCropSpecieDTO } from "../../interfaces/response/GetCropSpecieDTO";
 import { create } from 'zustand';
-import { getCropSpecieInCategory } from "../services/CropSpecieService";
-import { getCropCultivarsInSpecie } from "../services/CropCultivarService";
+import { getCropSpecieInCategory } from "../../services/CropSpecieService";
+import { getCropCultivarsInSpecie } from "../../services/CropCultivarService";
 
 interface TreeState {
   categories: GetCropCategoryDTO[]

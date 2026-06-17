@@ -10,11 +10,11 @@ import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
-import { useFieldWorks } from "../hooks/UseFieldWorks";
+import { useFieldWorks } from "../hooks/caching/UseFieldWorks";
 import type { GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCurrentProfile } from "../hooks/UseCurrentUser";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 
 function WorkHistoryPage() {
   const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();

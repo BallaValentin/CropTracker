@@ -20,7 +20,7 @@ import UpdateIcon from "@mui/icons-material/Update";
 import { useEffect, useState } from "react";
 import DeleteFieldParcelDialog from "../dialogs/DeleteFieldParcelDialog";
 import FieldDetailMapPreview from "../../leaflet/FieldDetailMapPreview";
-import type { LatLngObject } from "../../interfaces/LatLngObject";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import {
   getGeneratedCrops,
   getGeneratedRectabgles,

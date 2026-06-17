@@ -4,7 +4,7 @@ import {
   collapsedDrawerWidth,
   expandedDrawerWidth,
 } from "../../utils/Constants";
-import { useCurrentProfile } from "../../hooks/UseCurrentUser";
+import { useCurrentProfile } from "../../hooks/caching/UseCurrentUser";
 
 interface MainContainerProps {
   fetchUser?: boolean;

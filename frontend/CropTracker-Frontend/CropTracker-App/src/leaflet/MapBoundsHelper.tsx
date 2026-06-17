@@ -1,7 +1,7 @@
 import L from "leaflet";
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 
 interface MapBoundsHelperProps {
   polygonPoints: LatLngObject[];

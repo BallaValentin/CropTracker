@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { LayersControl, MapContainer, Polygon } from "react-leaflet";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 import { defaultMapPosition } from "../utils/Constants";
 import CustomLayers from "./CustomLayers";
 import { useEffect, useRef, useState } from "react";

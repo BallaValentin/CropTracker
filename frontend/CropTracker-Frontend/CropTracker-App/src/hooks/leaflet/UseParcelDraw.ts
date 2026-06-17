@@ -1,10 +1,10 @@
 import L from "leaflet";
-import type { LatLngObject } from "../interfaces/LatLngObject";
-import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
+import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import * as turf from "@turf/turf";
 import { useMap } from "react-leaflet";
 import '@geoman-io/leaflet-geoman-free';
-import { safetyThresholdMeters } from "../utils/Constants";
+import { safetyThresholdMeters } from "../../utils/Constants";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
@@ -18,7 +18,7 @@ interface DrawingToolsProps {
   lineRef: React.RefObject<L.Polyline | null>
 }
 
-export const useDrawHandler = ({
+export const useParcelDraw = ({
   onPolygonCreated,
   onPolygonUpdated,
   onPolygonDeleted,
@@ -177,27 +177,6 @@ export const useDrawHandler = ({
     return formattedPoints;
   }
 
-  const _onDrawStart = (e: {workingLayer: L.Layer, shape: string}) => {
-    const {shape, workingLayer} = e;
-
-    if (shape !== 'Line') return;
-
-    const polylineLayer = workingLayer as L.Polyline;
-    polylineLayer.options.snapIgnore = true;
-
-    polylineLayer.on('pm:vertexadded', () => {
-      
-      if (polylineLayer.getLatLngs().length === 2) {
-        const drawContext = map.pm.Draw;
-        const finishFn = Reflect.get(drawContext.Line, '_finishShape') as (() => void) | undefined;
-
-        if (typeof finishFn === 'function') {
-          finishFn.call(drawContext.Line);
-        }
-      }
-    });
-  }
-
   const _onCreated = (e: { layer: L.Layer; shape: string }) => {
     map.pm.disableDraw();
 
@@ -300,5 +279,5 @@ export const useDrawHandler = ({
     }, 10);
   };
 
-  return { _onCreated, _onUpdated, _onDeleted, _onDrawStart };
+  return { _onCreated, _onUpdated, _onDeleted };
 };

@@ -1,5 +1,5 @@
 import { TreeItem } from "@mui/x-tree-view";
-import { useCropsStore } from "../../hooks/UseCropsStore";
+import { useCropsStore } from "../../hooks/caching/UseCropsStore";
 import { Box, CircularProgress, IconButton, Typography } from "@mui/material";
 import type { GetCropCategoryDTO } from "../../interfaces/response/GetCropCategoryDTO";
 import SpecieItem from "./SpecieItem";
@@ -10,7 +10,7 @@ import type { CreateCropSpecieDTO } from "../../interfaces/request/CreateCropSpe
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import type { ErrorResponse } from "../../interfaces/ErrorResponse";
+import type { ErrorResponse } from "../../interfaces/error/ErrorResponse";
 import { createCropSpecie } from "../../services/CropSpecieService";
 
 interface CategoryItemProps {

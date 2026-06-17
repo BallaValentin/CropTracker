@@ -7,7 +7,7 @@ import {
   useMap,
 } from "react-leaflet";
 import CustomLayerControl from "./CustomLayers";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 import L from "leaflet";
 import { useEffect } from "react";
 import { defaultMapPosition } from "../utils/Constants";

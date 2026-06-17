@@ -8,9 +8,9 @@ import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useLocation, useNavigate } from "react-router-dom";
 import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
-import { useUserCropFields } from "../hooks/UseUserCropFields";
+import { useUserCropFields } from "../hooks/caching/UseUserCropFields";
 import CropFieldCard from "../elements/cards/CropFieldCard";
-import { useCurrentProfile } from "../hooks/UseCurrentUser";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 
 function PlotsListPage() {
   const [cropFields, setCropFields] = useState<GetCropFieldDTO[]>([]);

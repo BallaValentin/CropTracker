@@ -7,7 +7,7 @@ import { resendCode, verifyAccount } from "../services/AuthService";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import type { ErrorResponse } from "../interfaces/ErrorResponse";
+import type { ErrorResponse } from "../interfaces/error/ErrorResponse";
 import type { GetResendCodeDTO } from "../interfaces/response/GetResendCodeDTO";
 
 function VerifyEmailPage() {

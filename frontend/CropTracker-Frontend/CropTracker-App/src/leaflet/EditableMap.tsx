@@ -5,7 +5,7 @@ import { defaultMapPosition } from "../utils/Constants";
 import { Paper } from "@mui/material";
 import CustomLayers from "./CustomLayers";
 import CropFieldDrawControl from "./CropFieldDrawControl";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 import { calculatePolygonArea } from "../utils/PolygonHelper";
 import ChangeView from "./ChangeView";
 

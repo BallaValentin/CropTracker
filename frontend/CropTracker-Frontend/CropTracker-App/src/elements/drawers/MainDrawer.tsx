@@ -20,7 +20,7 @@ import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
 import GrassIcon from "@mui/icons-material/Grass";
 import HistoryIcon from "@mui/icons-material/History";
-import type { CacheUserData } from "../../interfaces/CacheUserData";
+import type { CacheUserData } from "../../interfaces/response/CacheUserData";
 
 interface MainDrawerProps {
   userData: CacheUserData | undefined;

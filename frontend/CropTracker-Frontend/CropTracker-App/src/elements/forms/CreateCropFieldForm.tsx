@@ -11,7 +11,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
-import type { LatLngObject } from "../../interfaces/LatLngObject";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import EditableMap from "../../leaflet/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import { defaultMapPosition } from "../../utils/Constants";

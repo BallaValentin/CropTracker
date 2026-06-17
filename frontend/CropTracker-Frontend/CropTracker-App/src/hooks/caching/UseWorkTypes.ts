@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUserWorkTypes } from "../services/WorkTypeService";
+import { getUserWorkTypes } from "../../services/WorkTypeService";
 
 export const useWorkTypes = () => {
     return useQuery({

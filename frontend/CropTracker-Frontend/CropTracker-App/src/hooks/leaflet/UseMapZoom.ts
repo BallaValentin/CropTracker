@@ -1,6 +1,6 @@
 import { useMap } from "react-leaflet";
-import { breakPointHigh, breakPointMedium, cropWidthCm } from "../utils/Constants";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import { breakPointHigh, breakPointMedium, cropWidthCm } from "../../utils/Constants";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import type Flatbush from "flatbush";
 import L from "leaflet";
 

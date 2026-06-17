@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { type UpdateUserDTO } from "../../interfaces/request/UpdateUserDTO";
-import type { CacheUserData } from "../../interfaces/CacheUserData";
+import type { CacheUserData } from "../../interfaces/response/CacheUserData";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import {
   getPersonNameError,

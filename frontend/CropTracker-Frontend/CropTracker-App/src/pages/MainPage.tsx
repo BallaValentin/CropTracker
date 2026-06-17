@@ -6,7 +6,7 @@ import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer"
 import { useNavigate, useSearchParams } from "react-router-dom";
 import InvalidAuthTokenDialog from "../elements/dialogs/InvalidAuthTokenDialog";
 import { useEffect, useState } from "react";
-import { useCurrentProfile } from "../hooks/UseCurrentUser";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 
 function MainPage() {
   const { isLoading } = useCurrentProfile(

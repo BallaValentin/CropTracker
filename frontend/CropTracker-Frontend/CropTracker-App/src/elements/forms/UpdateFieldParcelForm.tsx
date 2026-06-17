@@ -12,11 +12,11 @@ import {
   type SelectChangeEvent,
 } from "@mui/material";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
-import { useCropSearch } from "../../hooks/UseCropSearch";
+import { useCropSearch } from "../../hooks/caching/UseCropSearch";
 import { useState } from "react";
 import AddParcelView from "../../leaflet/AddParcelsView";
 import { ChromePicker, type ColorResult } from "react-color";
-import type { LatLngObject } from "../../interfaces/LatLngObject";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import type { UpdateFieldParcelDTO } from "../../interfaces/request/UpdateFieldParcelDTO";

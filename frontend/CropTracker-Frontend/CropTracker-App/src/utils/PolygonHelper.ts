@@ -1,5 +1,5 @@
 import L from "leaflet";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 
 export function isPointInPolygon(point: LatLngObject, 
     polygon: LatLngObject[]): boolean {

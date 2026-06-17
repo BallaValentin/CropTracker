@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { LayersControl, MapContainer, Polygon, Polyline } from "react-leaflet";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 import { defaultMapPosition } from "../utils/Constants";
 import CustomLayers from "./CustomLayers";
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +12,7 @@ import {
   getGeneratedRectabgles,
   getGeneratedRows,
 } from "../utils/GenerateShapesUtil";
-import type { LayoutParameters } from "../interfaces/LayoutParameters";
+import type { LayoutParameters } from "../interfaces/helper/LayoutParameters";
 import MapBoundsHelper from "./MapBoundsHelper";
 
 interface AddParcelViewProps {

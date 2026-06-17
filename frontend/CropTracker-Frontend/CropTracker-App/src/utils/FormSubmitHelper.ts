@@ -1,4 +1,4 @@
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 
 export const getNameError = (value: string): string | null => {
   if (!value) return "Name is required.";

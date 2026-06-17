@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getFieldParcells } from "../services/FieldParcelService";
+import { getFieldParcells } from "../../services/FieldParcelService";
 
 export const useFieldParcels = (cropFieldId: string, enabled: boolean) => {
     return useQuery({

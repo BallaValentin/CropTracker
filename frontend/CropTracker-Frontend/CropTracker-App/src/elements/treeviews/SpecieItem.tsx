@@ -1,5 +1,5 @@
 import { TreeItem } from "@mui/x-tree-view";
-import { useCropsStore } from "../../hooks/UseCropsStore";
+import { useCropsStore } from "../../hooks/caching/UseCropsStore";
 import type { GetCropSpecieDTO } from "../../interfaces/response/GetCropSpecieDTO";
 import { Box, CircularProgress, IconButton, Typography } from "@mui/material";
 import CultivarItem from "./CultivarItem";
@@ -19,7 +19,7 @@ import {
   updateCropSpecie,
 } from "../../services/CropSpecieService";
 import type { AxiosError } from "axios";
-import type { ErrorResponse } from "../../interfaces/ErrorResponse";
+import type { ErrorResponse } from "../../interfaces/error/ErrorResponse";
 import { createCropCultivar } from "../../services/CropCultivarService";
 
 interface SpecieItemProps {

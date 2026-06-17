@@ -6,18 +6,18 @@ import ProgressCircle from "../elements/progress/ProgressCircle";
 import { Box, Button } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
-import { useFieldParcels } from "../hooks/UseFieldParcels";
+import { useFieldParcels } from "../hooks/caching/UseFieldParcels";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddFieldWorkForm from "../elements/forms/AddFieldWorkForm";
 import { type GetWorkTypeDTO } from "../interfaces/response/GetWorkTypeDTO";
-import { useWorkTypes } from "../hooks/UseWorkTypes";
+import { useWorkTypes } from "../hooks/caching/UseWorkTypes";
 import { createFieldWork } from "../services/FieldWorkService";
 import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDTO";
 import { createWorkType } from "../services/WorkTypeService";
 import { queryClient } from "../query-client/QueryClient";
 import type { CreateWorkTypeDTO } from "../interfaces/request/CreateWorkTypeDTO";
-import { useCropField } from "../hooks/UseCropField";
+import { useCropField } from "../hooks/caching/UseCropField";
 
 function AddFieldWorkPage() {
   const { id } = useParams();

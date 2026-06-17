@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCropCultivarsWithPattern } from "../services/CropCultivarService";
+import { getCropCultivarsWithPattern } from "../../services/CropCultivarService";
 
 export const useCropSearch = (pattern: string) => {
     return useQuery({

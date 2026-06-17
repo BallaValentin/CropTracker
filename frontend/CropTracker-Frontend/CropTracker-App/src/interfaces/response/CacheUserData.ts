@@ -1,4 +1,4 @@
-import type { Role } from "./Role";
+import type { Role } from "../helper/Role";
 
 export interface CacheUserData {
     username: string,

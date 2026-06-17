@@ -1,7 +1,7 @@
 import { Alert, Avatar, Box, Button, Typography } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import type { GridColDef } from "@mui/x-data-grid";
-import { useAdminUsers } from "../hooks/UseAdminUsers";
+import { useAdminUsers } from "../hooks/caching/UseAdminUsers";
 import UsersTable from "../elements/tables/UsersTable";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainContainer from "../elements/containers/MainContainer";
@@ -15,7 +15,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import UserRoleDialog from "../elements/dialogs/UserRoleDialog";
 import { useNavigate } from "react-router-dom";
-import { useCurrentProfile } from "../hooks/UseCurrentUser";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 
 function UsersListPage() {
   const { data: user, isLoading, error: userError } = useCurrentProfile();

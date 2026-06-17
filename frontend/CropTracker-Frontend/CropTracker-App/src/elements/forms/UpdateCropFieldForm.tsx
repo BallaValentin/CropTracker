@@ -9,7 +9,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { LatLngObject } from "../../interfaces/LatLngObject";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import EditableMap from "../../leaflet/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import ErrorIcon from "@mui/icons-material/Error";
