@@ -43,11 +43,13 @@ function CropFieldDrawControl({
   useEffect(() => {
     if (!map || !map.pm) return;
 
-    tooltipRef.current = L.tooltip({
-      permanent: true,
-      direction: "right",
-      className: "distance-tooltip",
-    });
+    if (!tooltipRef.current) {
+      tooltipRef.current = L.tooltip({
+        permanent: true,
+        direction: "right",
+        className: "distance-tooltip",
+      });
+    }
 
     map.on("pm:drawstart", _onDrawStart);
     map.on("pm:drawend", _onDrawEnd);
