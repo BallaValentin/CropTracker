@@ -7,12 +7,13 @@ import {
 import { useCurrentProfile } from "../../hooks/UseCurrentUser";
 
 interface MainContainerProps {
+  fetchUser?: boolean;
   children: React.ReactNode;
 }
 
-function MainContainer({ children }: MainContainerProps) {
+function MainContainer({ fetchUser = true, children }: MainContainerProps) {
   const { isDrawerExpanded } = useDrawer();
-  const { data: userData } = useCurrentProfile();
+  const { data: userData } = useCurrentProfile(fetchUser);
   const drawerWidth = userData
     ? isDrawerExpanded
       ? expandedDrawerWidth

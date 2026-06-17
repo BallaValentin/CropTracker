@@ -26,14 +26,18 @@ import { queryClient } from "../../query-client/QueryClient";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useCurrentProfile } from "../../hooks/UseCurrentUser";
 
-function MainHeader() {
+interface MainHeaderProps {
+  fetchUser?: boolean;
+}
+
+function MainHeader({ fetchUser = true }: MainHeaderProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [avatarURL, setAvatarURL] = useState<string | null>(null);
   const open = Boolean(anchorEl);
 
-  const { data: userData } = useCurrentProfile();
+  const { data: userData } = useCurrentProfile(fetchUser);
 
   const { toggleDrawer } = useDrawer();
 
@@ -86,7 +90,6 @@ function MainHeader() {
   };
 
   const handleDialogClose = () => {
-    console.log("Dialog close");
     setDialogOpen(false);
   };
 

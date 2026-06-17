@@ -48,7 +48,9 @@ export const attachAuthInterceptors = (axiosInstance: AxiosInstance) => {
                 }
             }
 
-            return Promise.reject(error);
+            if (error.response?.status !== 401) {
+                return Promise.reject(error);
+            }
 
         }
     );

@@ -26,8 +26,7 @@ public class RefreshTokenService {
         }
 
         try {
-            UUID token = UUID.fromString(cookieValue);
-            RefreshToken refreshToken = refreshTokenRepository.findByToken(token);
+            RefreshToken refreshToken = refreshTokenRepository.findByToken(cookieValue);
 
             if (refreshToken != null && refreshToken.getExpires().isBefore(Instant.now())) {
                 return null;
@@ -43,9 +42,11 @@ public class RefreshTokenService {
         RefreshToken refreshToken = findByToken(cookieValue);
 
         if (refreshToken == null) {
+            System.out.println("Token not found in repository");
             throw new EntityNotFoundException("Refresh token not found.");
         }
 
-        refreshTokenRepository.deleteByUid(refreshToken.getUid());
+        System.out.println("Token found in repository");
+        refreshTokenRepository.deleteById(refreshToken.getUid());
     }
 }

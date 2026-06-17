@@ -68,10 +68,10 @@ public class AuthController {
         LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
         loginResponseDTO.setAccessToken(token);
 
-        RefreshToken refreshToken = new RefreshToken(foundUser, UUID.randomUUID());
+        RefreshToken refreshToken = new RefreshToken(foundUser, UUID.randomUUID().toString());
         refreshTokenService.save(refreshToken);
 
-        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken.getToken().toString());
+        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken.getToken());
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setMaxAge(3600 * 24 * 30);
@@ -150,9 +150,12 @@ public class AuthController {
 
     @GetMapping("/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("Received logout request");
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("refresh-token")) {
+            System.out.println("Cookie: " + cookie.getName());
+            if (cookie.getName().equals("refresh_token")) {
+                System.out.println("Found token");
                 refreshTokenService.invalidateToken(cookie.getValue());
                 cookie.setMaxAge(0);
                 cookie.setValue("");

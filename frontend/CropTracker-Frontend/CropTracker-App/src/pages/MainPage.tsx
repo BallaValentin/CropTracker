@@ -15,8 +15,14 @@ function MainPage() {
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [fetchUser, setFetchUser] = useState<boolean>(
+    !!sessionStorage.getItem("accessToken"),
+  );
 
   useEffect(() => {
+    if (searchParams.get("error") === "unauthorized") {
+      setFetchUser(false);
+    }
     setDialogOpen(searchParams.get("error") === "unauthorized");
   }, [searchParams]);
 
@@ -41,8 +47,8 @@ function MainPage() {
     <>
       <GlobalStyles styles={{ body: { margin: 0 } }} />
       <Box sx={{ bgcolor: "#d0edc5ff" }}>
-        <MainHeader />
-        <MainContainer>
+        <MainHeader fetchUser={fetchUser} />
+        <MainContainer fetchUser={fetchUser}>
           <ColumnCenterContainer>
             <Typography variant="h2" component={"h1"}>
               Welcome to Crop Tracker!
