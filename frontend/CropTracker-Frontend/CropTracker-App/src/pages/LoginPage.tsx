@@ -21,18 +21,33 @@ function LoginPage() {
       location.state || {};
     if (passwordUpdatedMessage) {
       setFeedbackMessage(passwordUpdatedMessage);
-      const timer = setTimeout(() => setFeedbackMessage(null), 7000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => {
+        setFeedbackMessage(null);
+        location.state.passwordUpdateMessage = "";
+      }, 7000);
+      return () => {
+        clearTimeout(timer);
+      };
     }
     if (emailVerificationMessage) {
       setFeedbackMessage(emailVerificationMessage);
-      const timer = setTimeout(() => setFeedbackMessage(null), 7000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => {
+        setFeedbackMessage(null);
+        location.state.emailVerificationMessage = "";
+      }, 7000);
+      return () => {
+        clearTimeout(timer);
+      };
     }
     if (signUpMessage) {
       setFeedbackMessage(signUpMessage);
-      const timer = setTimeout(() => setFeedbackMessage(null), 7000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => {
+        setFeedbackMessage(null);
+        location.state.signUpMessage = "";
+      }, 7000);
+      return () => {
+        clearTimeout(timer);
+      };
     }
   }, [location, navigate]);
 

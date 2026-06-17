@@ -21,6 +21,8 @@
     "@turf/area": "^7.3.4",
     "@turf/turf": "^7.3.5",
     "axios": "^1.10.0",
+    "flatbush": "^4.6.2",
+    "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "leaflet-draw": "^1.0.4",
     "react": "^19.1.0",

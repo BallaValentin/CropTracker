@@ -7,6 +7,7 @@ import type { AxiosError } from "axios";
 import type { CreateUserDTO } from "../interfaces/request/CreateUserDTO";
 import type { ErrorResponse } from "../interfaces/ErrorResponse";
 import { useEffect, useState } from "react";
+import type { GetVerifyEmailDTO } from "../interfaces/response/GetVerifyEmailDTO";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -24,12 +25,8 @@ function RegisterPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: registerUser,
-    onSuccess: () => {
-      navigate("/signin", {
-        state: {
-          signUpMessage: "Your account has been successfully created.",
-        },
-      });
+    onSuccess: (response: GetVerifyEmailDTO) => {
+      navigate(`/verify-email?token=${response.token}`);
     },
     onError: (err: AxiosError) => {
       if (err.response?.status === 400) {

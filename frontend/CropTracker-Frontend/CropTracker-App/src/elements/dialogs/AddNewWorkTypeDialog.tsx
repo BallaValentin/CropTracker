@@ -19,7 +19,8 @@ import { type CreateWorkTypeDTO } from "../../interfaces/request/CreateWorkTypeD
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import type { FieldDefinition } from "../../interfaces/FieldDefinition";
-import { getNameError, standardNameRegex } from "../../utils/Constants";
+import { standardNameRegex } from "../../utils/Constants";
+import { getNameError } from "../../utils/FormSubmitHelper";
 
 interface AddNewWorkTypeDialogProps {
   onConfirmAdd: (createWorkTypeDTO: CreateWorkTypeDTO) => void;

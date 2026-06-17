@@ -1,12 +1,13 @@
 package edu.bbte.allamvizsga.services;
 
-import edu.bbte.allamvizsga.dto.request.user.UserUpdateDTO;
 import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import edu.bbte.allamvizsga.model.Role;
 import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.model.VerifyEmailToken;
 import edu.bbte.allamvizsga.repository.RoleRepository;
 import edu.bbte.allamvizsga.repository.UserRepository;
+import edu.bbte.allamvizsga.repository.VerifyEmailTokenRepository;
 import edu.bbte.allamvizsga.util.JwtUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -32,8 +33,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
     private final JwtUtil jwtUtil;
+    private final VerifyEmailTokenRepository verifyEmailTokenRepository;
 
-    public void createUser(User user, Boolean isGrower, Boolean isWorker) throws IOException {
+    public void createUser(User user, Boolean isGrower, Boolean isWorker) {
 
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new InvalidSignupException("Username already taken.");
@@ -67,7 +69,6 @@ public class UserService {
         }
 
         userRepository.save(user);
-        imageService.uploadDefaultImage(user);
     }
 
     public Collection<User> getAllUsers() {
@@ -102,10 +103,11 @@ public class UserService {
     }
 
     public User authenticate(User user) {
-        User user1 = userRepository.findByUsername(user.getUsername());
-        if (user1 != null) {
-            if (passwordEncoder.matches(user.getPassword(), user1.getPassword())) {
-                return user1;
+        User foundUser = userRepository.findByUsername(user.getUsername());
+        if (foundUser != null) {
+            if (passwordEncoder.matches(user.getPassword(), foundUser.getPassword()) &&
+            foundUser.getIsActive() && foundUser.getIsVerified()) {
+                return foundUser;
             } else {
                 throw new BadCredentialsException("Invalid username or password.");
             }
@@ -114,12 +116,36 @@ public class UserService {
         }
     }
 
-    public void changeAvatar(User user, String newImageSrc) {
-        try {
-            imageService.updateUserAvatar(user, newImageSrc);
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
+    public void verifyAccount(String email, String verificationCode) {
+        User user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            throw new EntityNotFoundException("User not found.");
         }
+
+        VerifyEmailToken verifyEmailToken =
+                verifyEmailTokenRepository.findByVerificationCode(verificationCode);
+
+        if (verifyEmailToken == null) {
+            throw new EntityNotFoundException(
+                    "Account verification token not found. Please try with a different verification code.");
+        }
+
+        if (Instant.now().isAfter(verifyEmailToken.getExpires())) {
+            verifyEmailTokenRepository.deleteById(verifyEmailToken.getUid());
+            throw new InvalidSignupException("Account verification token has expired");
+        }
+
+        user.setIsVerified(Boolean.TRUE);
+        userRepository.save(user);
+
+        verifyEmailTokenRepository.deleteById(verifyEmailToken.getUid());
+
+        imageService.uploadDefaultImage(user);
+    }
+
+    public void changeAvatar(User user, String newImageSrc) {
+        imageService.updateUserAvatar(user, newImageSrc);
     }
 
     public void updateUser(User user, String newAvatar) {

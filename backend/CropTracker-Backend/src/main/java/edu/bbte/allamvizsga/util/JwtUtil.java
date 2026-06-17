@@ -33,6 +33,12 @@ public class JwtUtil {
                 .signWith(key, Jwts.SIG.HS256).compact();
     }
 
+    public String generateEmailToken(String email) {
+        return Jwts.builder().subject(email).issuedAt(new Date())
+                .expiration(new Date((new Date()).getTime() + expiration))
+                .signWith(key, Jwts.SIG.HS256).compact();
+    }
+
     public String getUid(String token) {
         return (Jwts.parser().verifyWith(key)
                 .build().parseSignedClaims(token).getPayload().getSubject());

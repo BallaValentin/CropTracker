@@ -46,7 +46,6 @@ public class RefreshTokenService {
             throw new EntityNotFoundException("Refresh token not found.");
         }
 
-        refreshToken.setExpires(Instant.EPOCH);
-        refreshTokenRepository.save(refreshToken);
+        refreshTokenRepository.deleteByUid(refreshToken.getUid());
     }
 }

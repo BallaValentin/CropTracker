@@ -18,6 +18,7 @@ import AddFieldWorkPage from "./pages/AddFieldWorkPage";
 import WorkHistoryPage from "./pages/WorkHistoryPage";
 import FieldWorkDetailsPage from "./pages/FieldWorkDetailsPage";
 import UpdateFieldWorkPage from "./pages/UpdateFieldWorkPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="/show-users" element={<UsersListPage />} />
               <Route path="/show-cropfields" element={<CropFieldListPage />} />
               <Route path="/error" element={<ErrorPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/change-password" element={<ChangePasswordPage />} />
               <Route

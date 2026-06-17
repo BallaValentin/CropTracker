@@ -2,9 +2,16 @@ package edu.bbte.allamvizsga.controllers;
 
 import edu.bbte.allamvizsga.dto.request.user.LoginRequestDTO;
 import edu.bbte.allamvizsga.dto.request.user.RegisterRequestDTO;
+import edu.bbte.allamvizsga.dto.request.user.ResendVerificationCodeDTO;
+import edu.bbte.allamvizsga.dto.request.user.VerifyAccountDTO;
+import edu.bbte.allamvizsga.dto.response.user.GetResendCodeDTO;
+import edu.bbte.allamvizsga.dto.response.user.GetVerifyEmailTokenDTO;
 import edu.bbte.allamvizsga.dto.response.user.LoginResponseDTO;
 import edu.bbte.allamvizsga.dto.response.user.RefreshTokenResponseDTO;
 import edu.bbte.allamvizsga.exceptions.RefreshTokenException;
+import edu.bbte.allamvizsga.model.VerifyEmailToken;
+import edu.bbte.allamvizsga.services.MailService;
+import edu.bbte.allamvizsga.services.VerifyEmailTokenService;
 import org.springframework.http.ResponseEntity;
 import edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import edu.bbte.allamvizsga.mappers.UserMapper;
@@ -27,6 +34,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -38,6 +46,8 @@ import java.util.UUID;
 public class AuthController {
     private final UserService userService;
     private final RefreshTokenService refreshTokenService;
+    private final VerifyEmailTokenService verifyEmailTokenService;
+    private final MailService mailService;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -74,8 +84,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void register(@Valid @RequestBody RegisterRequestDTO registerRequest) throws IOException {
-        log.debug("Received register request");
+    public ResponseEntity<GetVerifyEmailTokenDTO> register(@Valid @RequestBody RegisterRequestDTO registerRequest) throws IOException {
 
         if (!registerRequest.getPassword().equals(registerRequest.getPassword2())) {
             throw new InvalidSignupException("Passwords do not match");
@@ -83,8 +92,39 @@ public class AuthController {
 
         User user = userMapper.registerDtoToModel(registerRequest);
         user.setIsActive(Boolean.TRUE);
+        user.setIsVerified(Boolean.FALSE);
         userService.createUser(user, registerRequest.getIsGrower(), registerRequest.getIsWorker());
-        userMapper.registerDtoToModel(registerRequest);
+
+        VerifyEmailToken verifyEmailToken = verifyEmailTokenService.createToken(user);
+
+        mailService.sendEmailVerificationMail(user.getEmail(),
+                user.getUsername(), verifyEmailToken.getVerificationCode());
+
+        return new ResponseEntity<>(userMapper.modelToGetVerifyEmail(verifyEmailToken),
+                HttpStatus.CREATED);
+    }
+
+    @PostMapping("/resend-code")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<GetResendCodeDTO> resendMail(@Valid @RequestBody ResendVerificationCodeDTO resendVerificationCodeDTO) {
+        String email = resendVerificationCodeDTO.getEmail();
+
+        User user = userService.findUserByEmail(email);
+
+        verifyEmailTokenService.deleteByUser(user);
+        VerifyEmailToken verifyEmailToken = verifyEmailTokenService.createToken(user);
+
+        mailService.sendEmailVerificationMail(user.getEmail(), user.getUsername(),
+                verifyEmailToken.getVerificationCode());
+
+        return new ResponseEntity<>(userMapper.modelToGetResendCode(verifyEmailToken),
+                HttpStatus.CREATED);
+    }
+
+    @PostMapping("/verify-account")
+    public void verifyAccount(@Valid @RequestBody VerifyAccountDTO verifyAccountDTO) {
+        userService.verifyAccount(verifyAccountDTO.getEmail(),
+                verifyAccountDTO.getVerificationCode());
     }
 
     @PostMapping("/refresh-token")

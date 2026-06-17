@@ -1,11 +1,10 @@
 package edu.bbte.allamvizsga.mappers;
 
-import edu.bbte.allamvizsga.dto.response.user.AdminUserDTO;
+import edu.bbte.allamvizsga.dto.response.user.*;
 import edu.bbte.allamvizsga.dto.request.user.LoginRequestDTO;
 import edu.bbte.allamvizsga.dto.request.user.RegisterRequestDTO;
-import edu.bbte.allamvizsga.dto.response.user.LoginResponseDTO;
-import edu.bbte.allamvizsga.dto.response.user.UserDataDTO;
 import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.model.VerifyEmailToken;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -17,4 +16,6 @@ public interface UserMapper {
     AdminUserDTO modelToAdminResponse(User user);
     LoginResponseDTO modelToLoginDto(User user);
     UserDataDTO modelToUserData(User user);
+    GetVerifyEmailTokenDTO modelToGetVerifyEmail(VerifyEmailToken verifyEmailToken);
+    GetResendCodeDTO modelToGetResendCode(VerifyEmailToken verifyEmailToken);
 }

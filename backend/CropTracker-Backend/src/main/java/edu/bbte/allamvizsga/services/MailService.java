@@ -31,4 +31,22 @@ public class MailService {
 
         javaMailSender.send(mailMessage);
     }
+
+    public void sendEmailVerificationMail(String toMail, String toUser, String verificationCode) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(toMail);
+        mailMessage.setSubject("Verify Email Address");
+        mailMessage.setText("""
+                Hello %s,
+                
+                Thank you, for registering an account with CropTracker. To complete your registration and secure your profile, please verify your email address by entering the verification code below:
+                %s
+                
+                Please note that this code is confidential and will expire shortly. If you didn’t initiate this registration request, you can ignore this email.
+                
+                – CropTracker Team
+                """.formatted(toUser, verificationCode));
+
+        javaMailSender.send(mailMessage);
+    }
 }

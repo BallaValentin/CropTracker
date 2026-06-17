@@ -26,7 +26,7 @@ import java.util.Base64;
 @Slf4j
 public class ImageService {
 
-    public void uploadDefaultImage(User user) throws IOException {
+    public void uploadDefaultImage(User user) {
         int size = 200;
         BufferedImage avatar = InitialAvatarGenerator.generateAvatar(size, user.getFirstName(), user.getLastName());
 
@@ -38,10 +38,14 @@ public class ImageService {
         }
 
         String filename = folderName + "/profile.png";
-        ImageIO.write(avatar, "png", new File(filename));
+        try {
+            ImageIO.write(avatar, "png", new File(filename));
+        } catch (IOException exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
     }
 
-    public void updateUserAvatar(User user, String newImageSrc) throws IOException {
+    public void updateUserAvatar(User user, String newImageSrc) {
         String folderName = "./images/" + user.getUid();
         File imageFolder = new File(folderName);
 
@@ -57,10 +61,15 @@ public class ImageService {
         byte[] imageBytes = Base64.getDecoder().decode(newImageSrc);
 
         ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
-        BufferedImage avatar = ImageIO.read(bis);
 
-        String filename = folderName + "/profile.png";
-        ImageIO.write(avatar, "png", new File(filename));
+        try {
+            BufferedImage avatar = ImageIO.read(bis);
+
+            String filename = folderName + "/profile.png";
+            ImageIO.write(avatar, "png", new File(filename));
+        } catch (IOException exception) {
+            throw  new RuntimeException(exception.getMessage());
+        }
     }
 
     public Resource getUserAvatar(User user) {
@@ -85,8 +94,8 @@ public class ImageService {
                     return "default_profile.png";
                 }
             };
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception.getMessage());
         }
     }
 }
