@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
-import EditableMap from "../../leaflet/EditableMap";
+import EditableMap from "../../leaflet/view/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import ErrorIcon from "@mui/icons-material/Error";
 import { getNameError, getPolygonError } from "../../utils/FormSubmitHelper";
@@ -179,7 +179,7 @@ function UpdateCropFieldForm({
           will be calculated automatically.
         </Typography>
         <EditableMap
-          canLoadMap={!cropField.uid || !!cropField.markerPosition}
+          hasMarker={true}
           markerPosition={cropFieldUpdateData.markerPosition}
           polygonPoints={cropFieldUpdateData.polygonPoints}
           markerAdded={markerAdded}

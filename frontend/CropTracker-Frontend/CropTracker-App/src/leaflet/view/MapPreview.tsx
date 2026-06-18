@@ -6,12 +6,12 @@ import {
   Polygon,
   useMap,
 } from "react-leaflet";
-import CustomLayerControl from "./CustomLayers";
-import type { LatLngObject } from "../interfaces/helper/LatLngObject";
+import CustomLayerControl from "../helper/CustomLayers";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import L from "leaflet";
 import { useEffect } from "react";
-import { defaultMapPosition } from "../utils/Constants";
-import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
+import { defaultMapPosition } from "../../utils/Constants";
+import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 
 interface MapPreviewProps {
   mapHeight: number;

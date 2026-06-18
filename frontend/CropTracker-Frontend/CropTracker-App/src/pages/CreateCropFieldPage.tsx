@@ -48,9 +48,7 @@ function CreateCropFieldPage() {
         <MainContainer>
           <CreateCropFieldForm
             isPending={isPending}
-            onSubmit={(createCropFieldData) => {
-              createNewCropField(createCropFieldData);
-            }}
+            onSubmit={createNewCropField}
           />
         </MainContainer>
       </Box>

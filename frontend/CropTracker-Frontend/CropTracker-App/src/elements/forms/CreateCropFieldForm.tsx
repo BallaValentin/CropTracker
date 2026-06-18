@@ -12,7 +12,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
-import EditableMap from "../../leaflet/EditableMap";
+import EditableMap from "../../leaflet/view/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import { defaultMapPosition } from "../../utils/Constants";
 import ErrorIcon from "@mui/icons-material/Error";

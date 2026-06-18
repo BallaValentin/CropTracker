@@ -1,7 +1,7 @@
 import { Box, Button, Card, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
-import MapPreview from "../../leaflet/MapPreview";
+import MapPreview from "../../leaflet/view/MapPreview";
 import DeleteCropFieldButton from "../buttons/DeleteCropFieldButton";
 import DeleteCropFieldDialog from "../dialogs/DeleteCropFieldDialog";
 import { useState } from "react";

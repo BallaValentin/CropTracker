@@ -3,7 +3,7 @@ import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useFieldWork } from "../hooks/caching/UseFieldWork";
-import FieldDetailMapPreview from "../leaflet/FieldDetailMapPreview";
+import FieldDetailMapPreview from "../leaflet/view/FieldDetailMapPreview";
 import { useCropField } from "../hooks/caching/UseCropField";
 import { useFieldParcels } from "../hooks/caching/UseFieldParcels";
 import { Box, Card, Divider, Typography } from "@mui/material";

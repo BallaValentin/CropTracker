@@ -11,7 +11,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import SelectRowsView from "../../leaflet/SelectRowsView";
+import SelectRowsView from "../../leaflet/view/SelectRowsView";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import { useState } from "react";

@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
-import { useCropFieldDraw } from "../hooks/leaflet/UseCropFieldDraw";
-import type { LatLngObject } from "../interfaces/helper/LatLngObject";
+import { useCropFieldDraw } from "../../hooks/leaflet/UseCropFieldDraw";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import L from "leaflet";
-import { useMapDistance } from "../hooks/leaflet/UseMapDistance";
+import { useMapDistance } from "../../hooks/leaflet/UseMapDistance";
 
 interface CropFieldDrawControlProps {
   markerAdded: boolean;
@@ -62,9 +62,12 @@ function CropFieldDrawControl({
       drawMode: true,
       drawControls: true,
       editMode: true,
+      rotateMode: false,
+      dragMode: false,
       removalMode: true,
 
       drawPolygon: true,
+      cutPolygon: false,
       drawText: false,
       drawRectangle: false,
       drawCircle: false,

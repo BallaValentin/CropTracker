@@ -14,7 +14,7 @@ import {
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import { useCropSearch } from "../../hooks/caching/UseCropSearch";
 import { useState } from "react";
-import AddParcelView from "../../leaflet/AddParcelsView";
+import AddParcelView from "../../leaflet/view/AddParcelsView";
 import { ChromePicker, type ColorResult } from "react-color";
 import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";

@@ -1,11 +1,11 @@
 import { Box } from "@mui/material";
 import { LayersControl, MapContainer, Polygon } from "react-leaflet";
-import CustomLayerControl from "./CustomLayers";
-import type { LatLngObject } from "../interfaces/helper/LatLngObject";
-import { defaultMapPosition } from "../utils/Constants";
-import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
-import MapDetailZoomControl from "./MapDetailZoomControl";
-import MapBoundsHelper from "./MapBoundsHelper";
+import CustomLayerControl from "../helper/CustomLayers";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
+import { defaultMapPosition } from "../../utils/Constants";
+import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
+import MapDetailZoomControl from "../control/MapDetailZoomControl";
+import MapBoundsHelper from "../helper/MapBoundsHelper";
 
 interface FieldDetailMapPreviewProps {
   mapHeight: number;

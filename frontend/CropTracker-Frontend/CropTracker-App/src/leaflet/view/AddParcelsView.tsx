@@ -1,19 +1,19 @@
 import { Box } from "@mui/material";
 import { LayersControl, MapContainer, Polygon, Polyline } from "react-leaflet";
-import type { LatLngObject } from "../interfaces/helper/LatLngObject";
-import { defaultMapPosition } from "../utils/Constants";
-import CustomLayers from "./CustomLayers";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
+import { defaultMapPosition } from "../../utils/Constants";
+import CustomLayers from "../helper/CustomLayers";
 import { useEffect, useRef, useState } from "react";
-import FieldParcelDrawControl from "./ParcelDrawControl";
-import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
+import FieldParcelDrawControl from "../control/ParcelDrawControl";
+import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import L from "leaflet";
 import {
   getGeneratedCrops,
   getGeneratedRectabgles,
   getGeneratedRows,
-} from "../utils/GenerateShapesUtil";
-import type { LayoutParameters } from "../interfaces/helper/LayoutParameters";
-import MapBoundsHelper from "./MapBoundsHelper";
+} from "../../utils/GenerateShapesUtil";
+import type { LayoutParameters } from "../../interfaces/helper/LayoutParameters";
+import MapBoundsHelper from "../helper/MapBoundsHelper";
 
 interface AddParcelViewProps {
   polygonPoints: LatLngObject[];

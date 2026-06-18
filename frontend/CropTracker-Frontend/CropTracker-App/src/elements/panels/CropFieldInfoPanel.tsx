@@ -19,7 +19,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import UpdateIcon from "@mui/icons-material/Update";
 import { useEffect, useState } from "react";
 import DeleteFieldParcelDialog from "../dialogs/DeleteFieldParcelDialog";
-import FieldDetailMapPreview from "../../leaflet/FieldDetailMapPreview";
+import FieldDetailMapPreview from "../../leaflet/view/FieldDetailMapPreview";
 import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import {
   getGeneratedCrops,
