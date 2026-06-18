@@ -17,38 +17,20 @@ function LoginPage() {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const { passwordUpdatedMessage, emailVerificationMessage, signUpMessage } =
-      location.state || {};
-    if (passwordUpdatedMessage) {
-      setFeedbackMessage(passwordUpdatedMessage);
-      const timer = setTimeout(() => {
-        setFeedbackMessage(null);
-        location.state.passwordUpdateMessage = "";
-      }, 7000);
-      return () => {
-        clearTimeout(timer);
-      };
+    const { successMessage } = location.state || {};
+
+    if (successMessage) {
+      setFeedbackMessage(successMessage);
     }
-    if (emailVerificationMessage) {
-      setFeedbackMessage(emailVerificationMessage);
-      const timer = setTimeout(() => {
-        setFeedbackMessage(null);
-        location.state.emailVerificationMessage = "";
-      }, 7000);
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-    if (signUpMessage) {
-      setFeedbackMessage(signUpMessage);
-      const timer = setTimeout(() => {
-        setFeedbackMessage(null);
-        location.state.signUpMessage = "";
-      }, 7000);
-      return () => {
-        clearTimeout(timer);
-      };
-    }
+
+    const timer = setTimeout(() => {
+      setFeedbackMessage(null);
+      location.state.successMessage = "";
+    }, 7000);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [location, navigate]);
 
   const { mutate, isPending } = useMutation({

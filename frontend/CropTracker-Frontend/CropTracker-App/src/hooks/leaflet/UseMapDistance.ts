@@ -42,25 +42,23 @@ export const useMapDistance = () => {
 
         map.on('mousemove', _onMouseMove);
         geomanEvent.workingLayer.on('pm:vertexadded', (vertexEvent: L.LeafletEvent) => {
-          console.log("Drawn a vertex");
-        const geomanVertexEvent = vertexEvent as GeomanVertexEvent;
+          const geomanVertexEvent = vertexEvent as GeomanVertexEvent;
       
-        setDrawnVertices((prev) => {
-          const updated = [...prev, geomanVertexEvent.latlng];
+          setDrawnVertices((prev) => {
+            const updated = [...prev, geomanVertexEvent.latlng];
 
-          verticesRef.current = updated;
-          return updated;
-        });
+            verticesRef.current = updated;
+            return updated;
+          });
 
-        if (geomanVertexEvent.shape === "Line" && verticesRef.current.length === 2) {
-          console.log("Vertex length reached for line")
-         const drawContext = map.pm.Draw;
-         const finishFn = Reflect.get(drawContext.Line, '_finishShape') as (() => void) | undefined;
+          if (geomanVertexEvent.shape === "Line" && verticesRef.current.length === 1) {
+            const drawContext = map.pm.Draw;
+            const finishFn = Reflect.get(drawContext.Line, '_finishShape') as (() => void) | undefined;
 
-         if (typeof finishFn === 'function') {
-          finishFn.call(drawContext.Line);
-        }
-      }
+            if (typeof finishFn === 'function') {
+              finishFn.call(drawContext.Line);
+            }
+          }
 
         });
 

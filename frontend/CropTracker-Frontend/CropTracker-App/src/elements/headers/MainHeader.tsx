@@ -25,19 +25,18 @@ import MainDrawer from "../drawers/MainDrawer";
 import { queryClient } from "../../query-client/QueryClient";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useCurrentProfile } from "../../hooks/caching/UseCurrentUser";
+import { useRefreshToken } from "../../hooks/caching/UseRefreshToken";
 
-interface MainHeaderProps {
-  fetchUser?: boolean;
-}
-
-function MainHeader({ fetchUser = true }: MainHeaderProps) {
+function MainHeader() {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [avatarURL, setAvatarURL] = useState<string | null>(null);
   const open = Boolean(anchorEl);
 
-  const { data: userData } = useCurrentProfile(fetchUser);
+  const { isSuccess: isAuthVerified } = useRefreshToken();
+
+  const { data: userData } = useCurrentProfile(isAuthVerified);
 
   const { toggleDrawer } = useDrawer();
 
@@ -53,7 +52,7 @@ function MainHeader({ fetchUser = true }: MainHeaderProps) {
     mutationFn: logoutUser,
     onSuccess: () => {
       sessionStorage.removeItem("accessToken");
-      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      queryClient.clear();
       navigate("/signin");
     },
     onError: (err: AxiosError) => {

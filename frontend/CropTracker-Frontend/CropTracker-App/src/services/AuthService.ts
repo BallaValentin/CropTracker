@@ -48,7 +48,7 @@ export const verifyAccount = async(verifyAccountData: CreateVerifyAccountDTO): P
 
 export const refreshToken = async(): Promise<GetRefreshTokenDTO> => {
     console.log("Sending refresh-token request to server")
-    const response = await authApi.get<GetRefreshTokenDTO>("/refresh-token");
+    const response = await authApi.post<GetRefreshTokenDTO>("/refresh-token");
     return response.data;
 } 
 

@@ -17,7 +17,7 @@ function ChangePasswordPage() {
     onSuccess: () => {
       navigate("/signin", {
         state: {
-          passwordUpdatedMessage: "Your password has been successfully updated",
+          successMessage: "Your password has been successfully updated",
         },
       });
     },

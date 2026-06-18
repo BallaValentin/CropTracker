@@ -132,6 +132,19 @@ function FieldParcelDrawControl({
     cropsRef: cropsRef,
   });
 
+  map.pm.setLang(
+    "custom-en" as Parameters<typeof map.pm.setLang>[0],
+    {
+      buttonTitles: {
+        drawPolyButton: "Draw parcel outline",
+        editButton: "Edit parcel and reference line",
+        deleteButton: "Delete parcel outline",
+        drawLineButton: "Draw reference line",
+      },
+    },
+    "en",
+  );
+
   useEffect(() => {
     if (!map || !map.pm) return;
 
@@ -172,20 +185,24 @@ function FieldParcelDrawControl({
       drawMode: allowCreate,
       drawControls: allowCreate,
       editMode: true,
+      rotateMode: false,
+      dragMode: false,
       removalMode: allowDelete,
 
       drawPolygon: allowCreate,
+      cutPolygon: false,
       drawText: false,
       drawRectangle: false,
       drawCircle: false,
       drawMarker: false,
-      drawPolyline: true,
+      drawPolyline: selectedParcel.length > 0,
       drawCircleMarker: false,
     });
     map.pm.setPathOptions({
       color: polygonColor,
     });
     map.pm.setGlobalOptions({
+      tooltips: false,
       snappable: true,
       snapDistance: 20,
       allowSelfIntersection: false,

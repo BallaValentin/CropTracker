@@ -42,7 +42,7 @@ function VerifyEmailPage() {
     onSuccess: () => {
       navigate("/signin", {
         state: {
-          accountVerified: true,
+          successMessage: "Account has been successfully verified.",
         },
       });
     },
