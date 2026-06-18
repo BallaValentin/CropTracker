@@ -5,6 +5,7 @@ import * as turf from "@turf/turf";
 import { useMap } from "react-leaflet";
 import '@geoman-io/leaflet-geoman-free';
 import { safetyThresholdMeters } from "../../utils/Constants";
+import { showMapWarning } from "../../leaflet/helper/ShowMapWarning";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
@@ -47,7 +48,7 @@ export const useParcelDraw = ({
     const clippedIntersection = turf.intersect(collection);
 
     if (!clippedIntersection) {
-      alert("The drawn polygon is outside of the parent polygon component");
+      showMapWarning(map, polygonLayer.getBounds().getCenter(), "The parcel polygon must be inside the crop field polygon");
       polygonLayer.remove();
       return null;
     }
@@ -78,9 +79,7 @@ export const useParcelDraw = ({
       const difference = turf.difference(featureCollection);
 
       if (!difference) {
-        alert(
-          "The drawn parcel is completely inside an existing parcel. Please draw a parcel that does not overlap with existing parcels.",
-        );
+        showMapWarning(map, polygonLayer.getBounds().getCenter(), "Parcel polygon overlapping with other polygons");
         polygonLayer.remove();
         return null;
       }

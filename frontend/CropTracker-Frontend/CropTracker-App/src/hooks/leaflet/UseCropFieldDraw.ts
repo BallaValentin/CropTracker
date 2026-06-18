@@ -1,7 +1,8 @@
 import { useMap } from "react-leaflet";
 import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import { getPolygonCenter, isPointInPolygon } from "../../utils/PolygonHelper";
-import L from "leaflet";
+import * as L from "leaflet";
+import { showMapWarning } from "../../leaflet/helper/ShowMapWarning";
 
 interface UseCropFieldDrawProps {
     markerAdded: boolean,
@@ -42,9 +43,7 @@ export const useCropFieldDraw = ({markerAdded,
             onMarkerCreated(centerMarker);
           }
         } else {
-          alert(
-            "The polygon must contain the marker. Please draw a polygon that includes the marker.",
-          );
+          showMapWarning(map, polygonLayer.getBounds().getCenter(), "The marker must be placed inside the polygon.");
         }
       } else if (shape === "Marker") {
         const markerLayer = layer as L.Marker;
@@ -56,9 +55,7 @@ export const useCropFieldDraw = ({markerAdded,
         ) {
           onMarkerCreated(rawLatLng);
         } else {
-          alert(
-            "The marker must be placed inside the polygon. Please place the marker within the existing polygon.",
-          );
+          showMapWarning(map, markerLayer.getLatLng(), "The marker must be placed inside the polygon.");
         }
       }
 
@@ -90,9 +87,7 @@ export const useCropFieldDraw = ({markerAdded,
                 onMarkerCreated(centerMarker);
             }
           } else {
-            alert(
-                "The polygon must contain the marker. Please draw a polygon that includes the marker.",
-            );
+            showMapWarning(map, polygonLayer.getBounds().getCenter(), "The marker must be placed inside the polygon.");
             }
       };
         setTimeout(() => {
