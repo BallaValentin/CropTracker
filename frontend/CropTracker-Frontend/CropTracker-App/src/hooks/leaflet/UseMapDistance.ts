@@ -10,9 +10,19 @@ export const useMapDistance = () => {
     const [drawnVertices, setDrawnVertices] = useState<L.LatLng[]>([]);
 
     const _onMouseMove = (event: L.LeafletMouseEvent) => {
-      if (verticesRef.current.length === 0 || !tooltipRef.current) return;
+
+      if (!tooltipRef.current) return;
 
       const cursorLatLng  = event.latlng;
+      
+      if (verticesRef.current.length === 0) {
+         tooltipRef.current
+        .setLatLng(cursorLatLng)
+        .setContent("Click on the map to start drawing")
+        .addTo(map);
+
+        return;
+      }
 
       const distance = verticesRef.current[verticesRef.current.length - 1].distanceTo(cursorLatLng);
 
@@ -41,6 +51,7 @@ export const useMapDistance = () => {
         }
 
         map.on('mousemove', _onMouseMove);
+
         geomanEvent.workingLayer.on('pm:vertexadded', (vertexEvent: L.LeafletEvent) => {
           const geomanVertexEvent = vertexEvent as GeomanVertexEvent;
       

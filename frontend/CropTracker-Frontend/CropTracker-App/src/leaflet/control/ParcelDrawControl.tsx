@@ -132,18 +132,29 @@ function FieldParcelDrawControl({
     cropsRef: cropsRef,
   });
 
-  map.pm.setLang(
-    "custom-en" as Parameters<typeof map.pm.setLang>[0],
-    {
-      buttonTitles: {
-        drawPolyButton: "Draw parcel outline",
-        editButton: "Edit parcel and reference line",
-        deleteButton: "Delete parcel outline",
-        drawLineButton: "Draw reference line",
+  useEffect(() => {
+    if (!map || !map.pm) return;
+
+    map.pm.setLang(
+      "custom-en" as Parameters<typeof map.pm.setLang>[0],
+      {
+        buttonTitles: {
+          drawPolyButton: "Draw parcel outline",
+          editButton: "Edit parcel and reference line",
+          deleteButton: "Delete parcel outline",
+          drawLineButton: "Draw reference line",
+        },
+        actions: {
+          finish: "Finish",
+          removeLastVertex: "Remove last point",
+          cancel: "Cancel",
+          reset: "Reset",
+          clear: "Clear",
+        },
       },
-    },
-    "en",
-  );
+      "en",
+    );
+  });
 
   useEffect(() => {
     if (!map || !map.pm) return;

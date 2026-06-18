@@ -41,6 +41,30 @@ function CropFieldDrawControl({
   useEffect(() => {
     if (!map || !map.pm) return;
 
+    map.pm.setLang(
+      "custom-en" as Parameters<typeof map.pm.setLang>[0],
+      {
+        buttonTitles: {
+          drawPolyButton: "Draw crop field outline",
+          editButton: "Edit crop field",
+          deleteButton: "Remove crop field outline",
+          drawMarkerButton: "Set crop field position",
+        },
+        actions: {
+          finish: "Finish",
+          removeLastVertex: "Remove last point",
+          cancel: "Cancel",
+          reset: "Reset",
+          clear: "Clear",
+        },
+      },
+      "en",
+    );
+  }, [map]);
+
+  useEffect(() => {
+    if (!map || !map.pm) return;
+
     map.on("pm:drawstart", _onDrawStart);
     map.on("pm:drawend", _onDrawEnd);
     map.on("pm:create", _onCreated);
