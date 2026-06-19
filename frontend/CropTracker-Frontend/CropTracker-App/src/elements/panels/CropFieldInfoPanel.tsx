@@ -2,11 +2,7 @@ import {
   Box,
   Button,
   Divider,
-  IconButton,
   List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   ListSubheader,
   Paper,
   Typography,
@@ -15,8 +11,6 @@ import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import AddIcon from "@mui/icons-material/Add";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
-import DeleteIcon from "@mui/icons-material/Delete";
-import UpdateIcon from "@mui/icons-material/Update";
 import { useEffect, useState } from "react";
 import DeleteFieldParcelDialog from "../dialogs/DeleteFieldParcelDialog";
 import FieldDetailMapPreview from "../../leaflet/view/FieldDetailMapPreview";
@@ -26,6 +20,7 @@ import {
   getGeneratedRectabgles,
   getGeneratedRows,
 } from "../../utils/GenerateShapesUtil";
+import FieldParcelItem from "../listItems/FieldParcelItem";
 
 interface CropFieldInfoPanelProps {
   isLoading: boolean;
@@ -47,6 +42,15 @@ function CropFieldInfoPanel({
   const [rows, setRows] = useState<LatLngObject[][][]>([]);
   const [rowRectangles, setRowRectangles] = useState<LatLngObject[][]>([]);
   const [cropCoords, setCropCoords] = useState<LatLngObject[]>([]);
+  const [selectedParcels, setSelectedParcels] = useState<boolean[]>([]);
+  const [deleteParcelOpen, setDeleteParcelOpen] = useState(false);
+  const [selectedParcel, setSelectedParcel] = useState("");
+
+  useEffect(() => {
+    if (fieldParcels) {
+      setSelectedParcels(Array(fieldParcels.length).fill(false));
+    }
+  }, [fieldParcels]);
 
   useEffect(() => {
     const currentRows =
@@ -99,14 +103,7 @@ function CropFieldInfoPanel({
     );
   };
 
-  const [deleteParcelOpen, setDeleteParcelOpen] = useState(false);
-  const [selectedParcel, setSelectedParcel] = useState("");
-
-  const handleParcelDeleteClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    fieldParcelId: string,
-  ) => {
-    event.stopPropagation();
+  const handleParcelDeleteClick = (fieldParcelId: string) => {
     setDeleteParcelOpen(true);
     setSelectedParcel(fieldParcelId);
   };
@@ -122,12 +119,16 @@ function CropFieldInfoPanel({
     setSelectedParcel("");
   };
 
-  const handleParcelUpdateClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    fieldParcel: GetFieldParcelDTO,
-  ) => {
-    event.stopPropagation();
+  const handleParcelUpdate = (fieldParcel: GetFieldParcelDTO) => {
     onUpdateParcelClick(fieldParcel);
+  };
+
+  const handleParcelExpand = (index: number) => {
+    const newSelectedParcels = selectedParcels.map((parcel, parcelIndex) =>
+      parcelIndex !== index ? parcel : !parcel,
+    );
+
+    setSelectedParcels([...newSelectedParcels]);
   };
 
   return (
@@ -186,7 +187,7 @@ function CropFieldInfoPanel({
                 alignItems: "center",
                 margin: "auto",
                 flexDirection: "column",
-                maxWidth: 360,
+                maxWidth: 400,
                 maxHeight: 450,
                 gap: 1,
                 overflowX: "hidden",
@@ -194,42 +195,32 @@ function CropFieldInfoPanel({
               }}
             >
               <List
+                sx={{
+                  width: "100%",
+                  "& .MuiListItem-root": { my: 0, py: 0.25 },
+                }}
+                disablePadding
                 subheader={
                   <ListSubheader
                     sx={{ fontWeight: "bold", lineHeight: "40px" }}
                   >
                     Field parcels list
-                    <Divider />
+                    <Divider
+                      sx={{ borderBottomWidth: 2.5, borderColor: "grey.300" }}
+                    />
                   </ListSubheader>
                 }
               >
                 {fieldParcels.map((parcel, index) => (
-                  <ListItem key={parcel.uid}>
-                    <ListItemButton
-                      sx={{
-                        minWidth: 320,
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <ListItemText primary={`Parcel ${index + 1}`} />
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <IconButton
-                          onClick={(e) => handleParcelUpdateClick(e, parcel)}
-                        >
-                          <UpdateIcon />
-                        </IconButton>
-                        <IconButton
-                          onClick={(e) =>
-                            handleParcelDeleteClick(e, parcel.uid)
-                          }
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    </ListItemButton>
-                  </ListItem>
+                  <FieldParcelItem
+                    key={index}
+                    parcel={parcel}
+                    selected={selectedParcels[index]}
+                    index={index}
+                    onParcelExpand={handleParcelExpand}
+                    onParcelUpdate={handleParcelUpdate}
+                    onParcelDelete={handleParcelDeleteClick}
+                  />
                 ))}
               </List>
               {cropFieldDetail.polygonPoints.length > 3 && <AddParcelButton />}
