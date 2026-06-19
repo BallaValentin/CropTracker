@@ -13,6 +13,7 @@ interface FieldDetailMapPreviewProps {
   markerPosition: LatLngObject | null;
   polygonPoints: LatLngObject[];
   fieldParcels: GetFieldParcelDTO[];
+  parcelsSelected: boolean[];
   rows: LatLngObject[][];
   rowRectangles: LatLngObject[][];
   cropCoords: LatLngObject[];
@@ -25,6 +26,7 @@ function FieldDetailMapPreview({
   markerPosition,
   polygonPoints,
   fieldParcels,
+  parcelsSelected,
   rows,
   rowRectangles,
   cropCoords,
@@ -61,11 +63,16 @@ function FieldDetailMapPreview({
             <CustomLayerControl />
           </LayersControl>
 
-          {fieldParcels.map((parcel) => (
+          {fieldParcels.map((parcel, index) => (
             <Polygon
               key={parcel.uid}
               positions={parcel.polygonPoints}
-              pathOptions={{ color: parcel.polygonColor || "blue" }}
+              pathOptions={{
+                color: parcel.polygonColor || "blue",
+                fillColor: parcelsSelected[index] ? "green" : "lightgreen",
+                fillOpacity: parcelsSelected[index] ? 0.5 : 0.2,
+                weight: parcelsSelected[index] ? 6 : 2,
+              }}
             />
           ))}
 

@@ -32,7 +32,9 @@ function FieldParcelItem({
   onParcelUpdate,
   onParcelDelete,
 }: FieldParcelItemProps) {
-  const handleParcelExpand = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleParcelSelect = (
+    event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
+  ) => {
     event.stopPropagation();
     onParcelExpand(index);
   };
@@ -50,6 +52,8 @@ function FieldParcelItem({
   return (
     <ListItem
       key={index}
+      component={"div"}
+      onClick={handleParcelSelect}
       sx={{
         width: "100%",
         display: "flex",
@@ -77,7 +81,7 @@ function FieldParcelItem({
         }}
       >
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-          <IconButton onClick={handleParcelExpand}>
+          <IconButton onClick={handleParcelSelect}>
             {selected ? <KeyboardArrowDownIcon /> : <ChevronRightIcon />}
           </IconButton>
           <ListItemText primary={`Parcel ${index + 1}`} />

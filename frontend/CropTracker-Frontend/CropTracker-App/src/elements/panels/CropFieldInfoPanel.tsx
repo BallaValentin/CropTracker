@@ -26,31 +26,28 @@ interface CropFieldInfoPanelProps {
   isLoading: boolean;
   cropFieldDetail: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
+  parcelsSelected: boolean[];
   onAddParcelClick: () => void;
   onUpdateParcelClick: (fieldParcel: GetFieldParcelDTO) => void;
   onConfirmDelete: (fieldParcelId: string) => void;
+  onParcelSelected: (index: number) => void;
 }
 
 function CropFieldInfoPanel({
   isLoading,
   fieldParcels,
+  parcelsSelected,
   cropFieldDetail,
   onAddParcelClick,
   onUpdateParcelClick,
   onConfirmDelete,
+  onParcelSelected,
 }: CropFieldInfoPanelProps) {
   const [rows, setRows] = useState<LatLngObject[][][]>([]);
   const [rowRectangles, setRowRectangles] = useState<LatLngObject[][]>([]);
   const [cropCoords, setCropCoords] = useState<LatLngObject[]>([]);
-  const [selectedParcels, setSelectedParcels] = useState<boolean[]>([]);
   const [deleteParcelOpen, setDeleteParcelOpen] = useState(false);
   const [selectedParcel, setSelectedParcel] = useState("");
-
-  useEffect(() => {
-    if (fieldParcels) {
-      setSelectedParcels(Array(fieldParcels.length).fill(false));
-    }
-  }, [fieldParcels]);
 
   useEffect(() => {
     const currentRows =
@@ -124,11 +121,7 @@ function CropFieldInfoPanel({
   };
 
   const handleParcelExpand = (index: number) => {
-    const newSelectedParcels = selectedParcels.map((parcel, parcelIndex) =>
-      parcelIndex !== index ? parcel : !parcel,
-    );
-
-    setSelectedParcels([...newSelectedParcels]);
+    onParcelSelected(index);
   };
 
   return (
@@ -164,6 +157,7 @@ function CropFieldInfoPanel({
               uid={cropFieldDetail.uid}
               markerPosition={cropFieldDetail.markerPosition}
               polygonPoints={cropFieldDetail.polygonPoints}
+              parcelsSelected={parcelsSelected}
               fieldParcels={fieldParcels}
               rows={rows.flat()}
               rowRectangles={rowRectangles}
@@ -215,7 +209,7 @@ function CropFieldInfoPanel({
                   <FieldParcelItem
                     key={index}
                     parcel={parcel}
-                    selected={selectedParcels[index]}
+                    selected={parcelsSelected[index]}
                     index={index}
                     onParcelExpand={handleParcelExpand}
                     onParcelUpdate={handleParcelUpdate}

@@ -50,6 +50,7 @@ function PlotDetailsPage() {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [selectedFieldParcel, setSelectedFieldParcel] =
     useState<GetFieldParcelDTO | null>(null);
+  const [parcelsSelected, setParcelsSelected] = useState<boolean[]>([]);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -77,6 +78,17 @@ function PlotDetailsPage() {
     if (fieldParcels) {
       setFieldParcelsData(fieldParcels);
     }
+  }, [fieldParcels]);
+
+  useEffect(() => {
+    if (fieldParcels) {
+      const newParcelsSelected = fieldParcels.map(
+        (_, index) => parcelsSelected[index] ?? false,
+      );
+
+      setParcelsSelected([...newParcelsSelected]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fieldParcels]);
 
   const { onGoingWorks, scheduledWorks } = useMemo(() => {
@@ -198,6 +210,16 @@ function PlotDetailsPage() {
     navigate(`/update-field-work/${fieldWorkId}`);
   };
 
+  const handleParcelSelected = (index: number) => {
+    const newParcelsSelected = parcelsSelected.map(
+      (parcelSelected, parcelIndex) =>
+        parcelIndex !== index ? parcelSelected : !parcelSelected,
+    );
+
+    console.log("Parcels selected: ", newParcelsSelected);
+    setParcelsSelected([...newParcelsSelected]);
+  };
+
   if (isUserLoading) {
     return <ProgressCircle loadingMessage="Initializing user data..." />;
   }
@@ -277,6 +299,8 @@ function PlotDetailsPage() {
               onAddParcelClick={handleAddParcelClick}
               onConfirmDelete={deleteSelectedParcel}
               onUpdateParcelClick={handleUpdateParcelClick}
+              parcelsSelected={parcelsSelected}
+              onParcelSelected={handleParcelSelected}
             />
           )}
 
