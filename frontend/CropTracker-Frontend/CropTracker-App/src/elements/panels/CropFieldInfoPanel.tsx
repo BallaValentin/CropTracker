@@ -20,7 +20,7 @@ import {
   getGeneratedRectabgles,
   getGeneratedRows,
 } from "../../utils/GenerateShapesUtil";
-import FieldParcelItem from "../listItems/FieldParcelItem";
+import FieldParcelItem from "../listItem/FieldParcelItem";
 
 interface CropFieldInfoPanelProps {
   isLoading: boolean;

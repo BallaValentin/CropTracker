@@ -7,13 +7,13 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
-  Typography,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import UpdateIcon from "@mui/icons-material/Update";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
+import FieldParcelPropItem from "./FieldParcelPropItem";
 
 interface FieldParcelItemProps {
   parcel: GetFieldParcelDTO;
@@ -108,41 +108,25 @@ function FieldParcelItem({
         unmountOnExit
       >
         <List component="div" disablePadding sx={{ pl: 5, pr: 2, pb: 1 }}>
-          <ListItem
-            disableGutters
-            sx={{ py: 0.25, display: "flex", justifyContent: "space-between" }}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Layout Type:
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {parcel.layoutType || "Honeycrisp"}
-            </Typography>
-          </ListItem>
+          <FieldParcelPropItem
+            propName={"Layout Type"}
+            propValue={parcel.layoutType}
+          />
 
-          <ListItem
-            disableGutters
-            sx={{ py: 0.25, display: "flex", justifyContent: "space-between" }}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Rows Count:
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {parcel.layoutParameters.numberOfRows || 24}
-            </Typography>
-          </ListItem>
+          <FieldParcelPropItem
+            propName={"Crop Specie"}
+            propValue={`${parcel.specieName} - ${parcel.cultivarName}`}
+          />
 
-          <ListItem
-            disableGutters
-            sx={{ py: 0.25, display: "flex", justifyContent: "space-between" }}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Area:
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {`${(parcel.area / 10000).toFixed(2)} ha`}
-            </Typography>
-          </ListItem>
+          <FieldParcelPropItem
+            propName={"Rows Count"}
+            propValue={`${parcel.layoutParameters.numberOfRows}`}
+          />
+
+          <FieldParcelPropItem
+            propName={"Area"}
+            propValue={`${(parcel.area / 10000).toFixed(2)} ha`}
+          />
         </List>
       </Collapse>
       <Divider sx={{ width: "100%" }} />

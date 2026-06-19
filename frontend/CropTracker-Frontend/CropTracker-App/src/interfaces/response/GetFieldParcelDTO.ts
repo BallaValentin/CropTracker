@@ -9,5 +9,7 @@ export interface GetFieldParcelDTO {
     cultivarId: string,
     polygonColor: string,
     layoutType: string,
-    layoutParameters: LayoutParameters
+    layoutParameters: LayoutParameters,
+    specieName: string,
+    cultivarName: string
 }

@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import { useCropSearch } from "../../hooks/caching/UseCropSearch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddParcelView from "../../leaflet/view/AddParcelsView";
 import { ChromePicker, type ColorResult } from "react-color";
 import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
@@ -24,15 +24,20 @@ import { LayoutTypes } from "../../utils/LayoutTypes";
 import { cropWidthCm, maxLines } from "../../utils/Constants";
 import { calculateRowWidth } from "../../utils/CalculateRowWidth";
 import { getGeneratedRows } from "../../utils/GenerateShapesUtil";
+import type { UpdateFieldParcelDTO } from "../../interfaces/request/UpdateFieldParcelDTO";
 
 interface CreateFieldParcelFormProps {
-  onSubmit: (createFieldParcelData: CreateFieldParcelDTO) => void;
+  fieldParcelToUpdate?: GetFieldParcelDTO | null;
+  onSubmit: (
+    createFieldParcelData: CreateFieldParcelDTO | UpdateFieldParcelDTO,
+  ) => void;
   isPending: boolean;
   cropfield: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
 }
 
 function CreateFieldParcelForm({
+  fieldParcelToUpdate = null,
   onSubmit,
   cropfield,
   isPending,
@@ -41,22 +46,36 @@ function CreateFieldParcelForm({
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [newFieldParcel, setNewFieldParcel] = useState<CreateFieldParcelDTO>({
     cropFieldId: cropfield.uid,
-    cropCultivarId: "",
-    area: 0,
-    polygonPoints: [] as LatLngObject[],
-    polygonColor: "#ff0000",
-    layoutType: LayoutTypes.SingleRow,
+    cropCultivarId: fieldParcelToUpdate?.cultivarId || "",
+    area: fieldParcelToUpdate?.area || 0,
+    polygonPoints: fieldParcelToUpdate?.polygonPoints || ([] as LatLngObject[]),
+    polygonColor: fieldParcelToUpdate?.polygonColor || "#ff0000",
+    layoutType: fieldParcelToUpdate?.layoutType || LayoutTypes.SingleRow,
     layoutParameters: {
-      referenceRow: [],
-      bedSpacing: 10,
-      plantSpacing: 30,
-      rowSpacing: 30,
-      numberOfRows: 0,
-      marginSpacing: 10,
-      linesPerRow: 1,
-      rowWidth: cropWidthCm,
+      referenceRow: fieldParcelToUpdate?.layoutParameters.referenceRow || [],
+      bedSpacing: fieldParcelToUpdate?.layoutParameters.bedSpacing || 10,
+      plantSpacing: fieldParcelToUpdate?.layoutParameters.plantSpacing || 30,
+      rowSpacing: fieldParcelToUpdate?.layoutParameters.rowSpacing || 30,
+      numberOfRows: fieldParcelToUpdate?.layoutParameters.numberOfRows || 0,
+      marginSpacing: fieldParcelToUpdate?.layoutParameters.marginSpacing || 10,
+      linesPerRow: fieldParcelToUpdate?.layoutParameters.linesPerRow || 1,
+      rowWidth:
+        fieldParcelToUpdate?.layoutParameters.linesPerRow || cropWidthCm + 20,
     },
   });
+
+  useEffect(() => {
+    if (fieldParcelToUpdate) {
+      setNewFieldParcel({
+        ...fieldParcelToUpdate,
+        cropCultivarId: fieldParcelToUpdate.cultivarId,
+
+        layoutParameters: {
+          ...fieldParcelToUpdate.layoutParameters,
+        },
+      });
+    }
+  }, [fieldParcelToUpdate]);
 
   const { data: crops } = useCropSearch(searchTerm);
 
@@ -191,7 +210,7 @@ function CreateFieldParcelForm({
           variant="h6"
           sx={{ p: 2, fontWeight: "bold", letterSpacing: "0.05rem" }}
         >
-          Create Field Parcel
+          Create or Edit Field Parcel
         </Typography>
         <Box sx={{ display: "flex", height: "100%" }}>
           <Box sx={{ flex: 1, p: 2 }}>
@@ -224,7 +243,7 @@ function CreateFieldParcelForm({
               <Autocomplete
                 options={crops || []}
                 getOptionLabel={(option) =>
-                  `${option.cultivarName} (${option.specieName})`
+                  `${option.specieName} - ${option.cultivarName}`
                 }
                 loading={isPending}
                 onInputChange={(_event, newInputValue) => {
@@ -348,7 +367,7 @@ function CreateFieldParcelForm({
                   color="success"
                   sx={{ mt: 3 }}
                 >
-                  {isPending ? "Creating..." : "Create Field Parcel"}
+                  {isPending ? "Saving..." : "Save Field Parcel"}
                 </Button>
               </Box>
             </form>

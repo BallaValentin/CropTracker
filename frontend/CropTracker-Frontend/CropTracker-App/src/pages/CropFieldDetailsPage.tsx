@@ -22,7 +22,6 @@ import {
 } from "../services/FieldParcelService";
 import { useFieldParcels } from "../hooks/caching/UseFieldParcels";
 import { queryClient } from "../query-client/QueryClient";
-import UpdateFieldParcelForm from "../elements/forms/UpdateFieldParcelForm";
 import type { UpdateFieldParcelDTO } from "../interfaces/request/UpdateFieldParcelDTO";
 import { useCropFieldWork } from "../hooks/caching/UseCropFieldWorks";
 import CropFieldWorksPanel from "../elements/panels/CropFieldWorksPanel";
@@ -188,10 +187,12 @@ function PlotDetailsPage() {
 
   const updateExistingFieldParcel = (
     updateFieldParcelData: UpdateFieldParcelDTO,
-    fieldParcelId: string,
   ) => {
     console.log("Updating field parcel");
-    updateMutate({ fieldParcelId, updateFieldParcelData });
+    updateMutate({
+      fieldParcelId: selectedFieldParcel?.uid || "",
+      updateFieldParcelData,
+    });
   };
 
   const deleteSelectedParcel = (fieldParcelId: string) => {
@@ -278,7 +279,7 @@ function PlotDetailsPage() {
           )}
 
           {updateParcel && selectedFieldParcel && (
-            <UpdateFieldParcelForm
+            <CreateFieldParcelForm
               isPending={isUpdatePending}
               onSubmit={updateExistingFieldParcel}
               fieldParcels={
