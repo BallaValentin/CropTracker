@@ -147,34 +147,39 @@ function CreateFieldParcelForm({
     const { name, value } = event.target;
     let numericValue = Number.parseInt(value) || 0;
 
+    const nextParams = {
+      ...newFieldParcel.layoutParameters,
+      [name]: numericValue,
+    };
+
+    const newRowWidth = calculateRowWidth(
+      nextParams,
+      newFieldParcel.layoutType,
+      false,
+    );
+
     if (name === "linesPerRow") {
       numericValue = Math.max(1, Math.min(numericValue, maxLines));
     }
 
-    if (name === "numberOfRows") {
-      const actualRows = getGeneratedRows({
-        polygonCoords: newFieldParcel.polygonPoints,
-        referenceRow: newFieldParcel.layoutParameters.referenceRow,
-        numberOfRows: numericValue,
-        rowDistance:
-          newFieldParcel.layoutParameters.bedSpacing +
-          newFieldParcel.layoutParameters.rowWidth,
-      });
+    const actualRows = getGeneratedRows({
+      polygonCoords: newFieldParcel.polygonPoints,
+      referenceRow: newFieldParcel.layoutParameters.referenceRow,
+      numberOfRows: nextParams.numberOfRows,
+      rowDistance: nextParams.bedSpacing + newRowWidth,
+    });
 
-      if (actualRows && actualRows.length > 0) {
-        numericValue = actualRows.length;
-      }
+    let numberOfRows = nextParams.numberOfRows;
+    if (actualRows && actualRows.length > 0) {
+      numberOfRows = actualRows.length;
     }
 
     setNewFieldParcel((prev) => {
-      const layoutType = prev.layoutType;
-      const nextParams = { ...prev.layoutParameters, [name]: numericValue };
-      const newRowWidth = calculateRowWidth(nextParams, layoutType, false);
-
       return {
         ...prev,
         layoutParameters: {
           ...nextParams,
+          numberOfRows: numberOfRows,
           rowWidth: newRowWidth,
         },
       };
