@@ -55,6 +55,7 @@ function AddParcelView({
   const [rows, setRows] = useState<LatLngObject[][]>([]);
   const [rowRectangles, setRowRectangles] = useState<LatLngObject[][]>([]);
   const [cropCoords, setCropCoords] = useState<LatLngObject[]>([]);
+  const [editModeOn, setEditModeOn] = useState<boolean>(false);
 
   useEffect(() => {
     const generatedRows = getGeneratedRows({
@@ -80,20 +81,23 @@ function AddParcelView({
   }, [layoutParameters.rowWidth, rows]);
 
   useEffect(() => {
-    setCropCoords(
-      getGeneratedCrops({
-        rows,
-        rowWidth: layoutParameters.rowWidth,
-        rowMargin: layoutParameters.marginSpacing,
-        rowSpacing: layoutParameters.rowSpacing,
-        cropSpacing: layoutParameters.plantSpacing,
-      }) || [],
-    );
+    if (!editModeOn) {
+      setCropCoords(
+        getGeneratedCrops({
+          rows,
+          rowWidth: layoutParameters.rowWidth,
+          rowMargin: layoutParameters.marginSpacing,
+          rowSpacing: layoutParameters.rowSpacing,
+          cropSpacing: layoutParameters.plantSpacing,
+        }) || [],
+      );
+    }
   }, [
     layoutParameters.marginSpacing,
     layoutParameters.plantSpacing,
     layoutParameters.rowSpacing,
     layoutParameters.rowWidth,
+    editModeOn,
     rows,
   ]);
 
@@ -109,6 +113,10 @@ function AddParcelView({
   const onPolygonDeleted = () => {
     setParcelCreated(false);
     onParcelDeleted();
+  };
+
+  const handleEditModeUpdate = (newValue: boolean) => {
+    setEditModeOn(newValue);
   };
 
   const parentPolygonRef = useRef<L.Polygon | null>(null);
@@ -153,6 +161,8 @@ function AddParcelView({
             rows={rows}
             rowRectangles={rowRectangles}
             crops={cropCoords}
+            editModeOne={editModeOn}
+            onEditModeUpdate={handleEditModeUpdate}
           />
 
           {polygonPoints && polygonPoints.length > 3 && (

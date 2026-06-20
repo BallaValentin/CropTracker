@@ -7,6 +7,7 @@ import '@geoman-io/leaflet-geoman-free';
 import { safetyThresholdMeters } from "../../utils/Constants";
 import { showMapWarning } from "../../leaflet/helper/ShowMapWarning";
 import { getMassiveRefLine, getSafePolygon, getSnappedLine } from "../../utils/GenerateShapesUtil";
+import _ from "lodash";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
@@ -18,7 +19,9 @@ interface DrawingToolsProps {
   polygonCoords: LatLngObject[];
   selectedParcel: LatLngObject[];
   referenceRow: LatLngObject[];
-  lineRef: React.RefObject<L.Polyline | null>
+  lineRef: React.RefObject<L.Polyline | null>;
+  onEditStart: () => void;
+  onEditEnd: () => void;
 }
 
 export const useParcelDraw = ({
@@ -30,7 +33,9 @@ export const useParcelDraw = ({
   parentPolygon,
   polygonCoords,
   selectedParcel,
-  lineRef
+  lineRef,
+  onEditStart,
+  onEditEnd
 }: DrawingToolsProps) => {
   const map = useMap();
 
@@ -132,7 +137,7 @@ export const useParcelDraw = ({
 
     const inside = turf.booleanWithin(line, polygon);
 
-     const point1 = turf.point(line.geometry.coordinates[0]);
+    const point1 = turf.point(line.geometry.coordinates[0]);
     const point2 = turf.point(line.geometry.coordinates[line.geometry.coordinates.length - 1]);
 
     if (inside) {
@@ -179,6 +184,17 @@ export const useParcelDraw = ({
     return formattedPoints;
   }
 
+  const snapLine = (line: LatLngObject[], polygonPoints: LatLngObject[]) => {
+    const clipLineResult = clipLineToParcel(line, polygonPoints);
+
+    const massiveRefLine = getMassiveRefLine(clipLineResult);
+    const safePolygon = getSafePolygon(clipLineResult, polygonCoords);
+
+      if (!safePolygon) return;
+
+      return getSnappedLine(massiveRefLine, safePolygon, 0);
+  }
+
   const _onCreated = (e: { layer: L.Layer; shape: string }) => {
     map.pm.disableDraw();
 
@@ -209,7 +225,7 @@ export const useParcelDraw = ({
       const polylineLayer = layer as L.Polyline;
       const lineLatLngs = polylineLayer.getLatLngs() as LatLngObject[];
 
-      const clipLineResult = clipLineToParcel(lineLatLngs, selectedParcel);
+      const clipLineResult = snapLine(lineLatLngs, selectedParcel);
 
       if (clipLineResult) {
         polylineLayer.setLatLngs(clipLineResult);
@@ -222,6 +238,40 @@ export const useParcelDraw = ({
 
     removeLayer(layer, currentCenter, currentZoom);
   };
+
+  const throttledStateUpdate = _.throttle((coords: LatLngObject[]) => {
+  onReferenceRowAdded(coords);
+  }, 50);
+
+  const _onVertexDrag = (e: {layer: L.Layer}) => {
+    const {layer} = e;
+    if (layer instanceof L.Polyline) {
+      const polylineLayer = layer as L.Polyline;
+      const latLngs = polylineLayer.getLatLngs() as LatLngObject[];
+      console.log("Dragging!");
+      const clipLineResult = snapLine(latLngs, polygonCoords);
+
+      if (clipLineResult) {
+        polylineLayer.setLatLngs(clipLineResult);
+        throttledStateUpdate(clipLineResult);
+      }
+    }
+  }
+
+  const _onEditStart = (layer: L.Layer) => {
+
+    if (layer instanceof L.Polyline) {
+      layer.on("pm:markerdrag", _onVertexDrag);
+      onEditStart();
+    }
+  }
+
+  const _onEditEnd = (layer: L.Layer) => {
+    if (layer instanceof L.Polyline) {
+      layer.off("pm:markerdrag", _onVertexDrag);
+      onEditEnd();
+    }
+  }
 
   const _onUpdated = (layer: L.Layer) => {
 
@@ -250,25 +300,6 @@ export const useParcelDraw = ({
           }
         }
       }
-    } else if (layer instanceof L.Polyline) {
-      const polylineLayer = layer as L.Polyline;
-      const lineLatLngs = polylineLayer.getLatLngs();
-
-      const clipLineResult = clipLineToParcel(lineLatLngs as LatLngObject[], selectedParcel);
-      const safePolygon = getSafePolygon(clipLineResult, polygonCoords);
-
-      if (!safePolygon) return;
-
-      const snappedLine = getSnappedLine(getMassiveRefLine(clipLineResult), safePolygon, 0);
-
-      if (snappedLine) {
-        polylineLayer.setLatLngs(snappedLine);
-        polylineLayer.remove();
-        polylineLayer.addTo(map);
-        polylineLayer.redraw();
-        lineRef.current?.setLatLngs(snappedLine);
-        onReferenceRowAdded(snappedLine);
-      }
     }
   };
 
@@ -286,5 +317,5 @@ export const useParcelDraw = ({
     }, 10);
   };
 
-  return { _onCreated, _onUpdated, _onDeleted };
+  return { _onCreated, _onUpdated, _onDeleted, _onEditStart, _onEditEnd };
 };

@@ -26,6 +26,8 @@ interface DrawingToolsProps {
   lineRef: React.RefObject<L.Polyline | null>;
   allowCreate: boolean;
   allowDelete: boolean;
+  editModeOne: boolean;
+  onEditModeUpdate: (editMode: boolean) => void;
 }
 
 function FieldParcelDrawControl({
@@ -44,13 +46,12 @@ function FieldParcelDrawControl({
   allowDelete,
   selectedParcel,
   lineRef,
+  onEditModeUpdate,
 }: DrawingToolsProps) {
   const map = useMap();
   const tooltipRef = useRef<L.Tooltip | null>(null);
 
   const areRowsEqual = (row1: LatLngObject[], row2: LatLngObject[]) => {
-    console.log(row1, "-->", referenceRow);
-
     if (!row1 || !row2) return false;
 
     if (row1.length !== row2.length) return false;
@@ -63,18 +64,21 @@ function FieldParcelDrawControl({
     );
   };
 
-  const { _onCreated, _onDeleted, _onUpdated } = useParcelDraw({
-    onPolygonCreated,
-    onPolygonDeleted,
-    onPolygonUpdated,
-    onReferenceRowAdded,
-    fieldParcels: fieldParcels,
-    polygonCoords: selectedParcel,
-    parentPolygon: parentPolygon,
-    referenceRow: referenceRow,
-    lineRef,
-    selectedParcel,
-  });
+  const { _onCreated, _onDeleted, _onUpdated, _onEditStart, _onEditEnd } =
+    useParcelDraw({
+      onPolygonCreated,
+      onPolygonDeleted,
+      onPolygonUpdated,
+      onReferenceRowAdded,
+      fieldParcels: fieldParcels,
+      polygonCoords: selectedParcel,
+      parentPolygon: parentPolygon,
+      referenceRow: referenceRow,
+      lineRef,
+      selectedParcel,
+      onEditStart: () => onEditModeUpdate(true),
+      onEditEnd: () => onEditModeUpdate(false),
+    });
 
   const { _onDrawStart, _onDrawEnd } = useMapDistance();
 
@@ -91,7 +95,6 @@ function FieldParcelDrawControl({
         pmIgnore: true,
       }).addTo(layerGroup);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows, referenceRow]);
 
   const midZoomGroupRef = useRef(L.layerGroup());
@@ -113,7 +116,6 @@ function FieldParcelDrawControl({
       },
       [rowRectangles],
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [referenceRow, rowRectangles, rows]);
 
   const highZoomGroupRef = useRef(L.layerGroup());
@@ -201,10 +203,17 @@ function FieldParcelDrawControl({
     map.on("pm:create", _onCreated);
     map.on("zoomend", _onZoom);
     map.on("pm:globaleditmodetoggled", (e) => {
-      if (!e.enabled) {
+      if (e.enabled) {
         const layersGroup = map.pm.getGeomanLayers(true) as L.FeatureGroup;
 
         layersGroup.getLayers().forEach((layer) => {
+          _onEditStart(layer);
+        });
+      } else {
+        const layersGroup = map.pm.getGeomanLayers(true) as L.FeatureGroup;
+
+        layersGroup.getLayers().forEach((layer) => {
+          _onEditEnd(layer);
           _onUpdated(layer);
         });
       }
@@ -266,6 +275,8 @@ function FieldParcelDrawControl({
     selectedParcel,
     _onZoom,
     _onDrawEnd,
+    _onEditStart,
+    _onEditEnd,
   ]);
 
   return null;
