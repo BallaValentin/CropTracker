@@ -24,6 +24,11 @@ export const WorkTypes = {
     Maintenance: 'Maintenance'
 } as const;
 
+export const PastelPresets = [
+  "#FFB7B2", "#FFDAC1", "#E2F0CB", "#B5EAD7", 
+  "#C7CEEA", "#FFC6FF", "#E8AEB7", "#B8E0F6"
+];
+
 export const maxLines = 10;
 
 export const digitsLength = 6;

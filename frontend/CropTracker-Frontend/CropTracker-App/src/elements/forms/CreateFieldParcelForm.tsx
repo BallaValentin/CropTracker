@@ -15,16 +15,16 @@ import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO"
 import { useCropSearch } from "../../hooks/caching/UseCropSearch";
 import { useEffect, useState } from "react";
 import AddParcelView from "../../leaflet/view/AddParcelsView";
-import { ChromePicker, type ColorResult } from "react-color";
 import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import type { CreateFieldParcelDTO } from "../../interfaces/request/CreateFieldParcelDTO";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import { LayoutTypes } from "../../utils/LayoutTypes";
-import { cropWidthCm, maxLines } from "../../utils/Constants";
+import { cropWidthCm, maxLines, PastelPresets } from "../../utils/Constants";
 import { calculateRowWidth } from "../../utils/CalculateRowWidth";
 import { getGeneratedRows } from "../../utils/GenerateShapesUtil";
 import type { UpdateFieldParcelDTO } from "../../interfaces/request/UpdateFieldParcelDTO";
+import PastelColorPicker from "../color-pickers/PastelColorPicker";
 
 interface CreateFieldParcelFormProps {
   fieldParcelToUpdate?: GetFieldParcelDTO | null;
@@ -49,7 +49,7 @@ function CreateFieldParcelForm({
     cropCultivarId: fieldParcelToUpdate?.cultivarId || "",
     area: fieldParcelToUpdate?.area || 0,
     polygonPoints: fieldParcelToUpdate?.polygonPoints || ([] as LatLngObject[]),
-    polygonColor: fieldParcelToUpdate?.polygonColor || "#ff0000",
+    polygonColor: fieldParcelToUpdate?.polygonColor || PastelPresets[0],
     layoutType: fieldParcelToUpdate?.layoutType || LayoutTypes.SingleRow,
     layoutParameters: {
       referenceRow: fieldParcelToUpdate?.layoutParameters.referenceRow || [],
@@ -91,10 +91,10 @@ function CreateFieldParcelForm({
     }));
   };
 
-  const changeOverlayColor = (color: ColorResult) => {
+  const handleColorChange = (color: string) => {
     setNewFieldParcel((prev) => ({
       ...prev,
-      polygonColor: color.hex,
+      polygonColor: color,
     }));
   };
 
@@ -231,13 +231,23 @@ function CreateFieldParcelForm({
               onReferenceRowAdded={handleReferenceRowAdded}
             />
           </Box>
-          <Box sx={{ flex: 1, p: 2, height: 700 }}>
+          <Box
+            sx={{
+              flex: 1,
+              p: 2,
+              height: 700,
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+            }}
+          >
             <form
               onSubmit={handleSubmit}
               style={{
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
+                gap: 2,
               }}
             >
               <Autocomplete
@@ -260,24 +270,14 @@ function CreateFieldParcelForm({
                   />
                 )}
               />
-              <Typography
-                variant="subtitle1"
-                sx={{ mt: 2, mb: 1, fontWeight: "bold", fontStyle: "italic" }}
-              >
-                Select Overlay Color
-              </Typography>
 
-              <ChromePicker
+              <PastelColorPicker
                 color={newFieldParcel.polygonColor}
-                onChangeComplete={(color) => changeOverlayColor(color)}
+                onColorChange={handleColorChange}
               />
 
               <FormControl sx={{ mt: 2, mb: 2, width: 200 }}>
-                <InputLabel
-                  color="success"
-                  id="layout-type-lavel"
-                  sx={{ mt: 2 }}
-                >
+                <InputLabel color="success" id="layout-type-lavel">
                   Layout Type
                 </InputLabel>
                 <Select
@@ -286,7 +286,6 @@ function CreateFieldParcelForm({
                   label="Layout type"
                   value={newFieldParcel.layoutType}
                   onChange={handleLayoutChange}
-                  sx={{ mt: 2, mb: 2 }}
                 >
                   <MenuItem value={LayoutTypes.SingleRow}>Single-Row</MenuItem>
                   <MenuItem value={LayoutTypes.MultiRow}>Multi-Row</MenuItem>
@@ -300,7 +299,6 @@ function CreateFieldParcelForm({
                 label="Number of Rows"
                 value={newFieldParcel.layoutParameters.numberOfRows}
                 onChange={handleLayoutParamsChange}
-                sx={{ mb: 1 }}
               />
 
               <Box sx={{ display: "flex", gap: 1, mt: "auto" }}>
@@ -365,7 +363,6 @@ function CreateFieldParcelForm({
                   disabled={isPending}
                   variant="contained"
                   color="success"
-                  sx={{ mt: 3 }}
                 >
                   {isPending ? "Saving..." : "Save Field Parcel"}
                 </Button>

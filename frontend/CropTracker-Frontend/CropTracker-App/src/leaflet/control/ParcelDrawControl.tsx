@@ -154,7 +154,7 @@ function FieldParcelDrawControl({
       },
       "en",
     );
-  });
+  }, [map]);
 
   useEffect(() => {
     if (!map || !map.pm) return;
