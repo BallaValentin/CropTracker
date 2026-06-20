@@ -11,7 +11,7 @@ const lineToLatLng = (line: Feature<LineString>) => {
     }))
 }
 
-const getSnappedLine = (massiveRefLine: Feature<LineString>, polygonBoundaries: Feature<LineString>, distance: number) => {
+export const getSnappedLine = (massiveRefLine: Feature<LineString>, polygonBoundaries: Feature<LineString>, distance: number) => {
     const shiftedLine = turf.lineOffset(massiveRefLine, distance, {units: "meters"});
 
         const intersections = turf.lineIntersect(shiftedLine, polygonBoundaries);
@@ -164,6 +164,32 @@ export interface GenerateShapesParams {
     rowDistance: number;
 }
 
+export const getMassiveRefLine = (line: LatLngObject[]) => {
+    const refLine = turf.lineString(line.map(point => [point.lng, point. lat]));
+    return extendLine(refLine, 10);
+}
+
+export const getSafePolygon = (line: LatLngObject[], polygonCoords: LatLngObject[]) => {
+    const polygon = turf.polygon([polygonCoords.map(point => [point.lng, point.lat])]);
+    const polygonBoundary = turf.lineString(polygonCoords.map(point => [point.lng, point.lat]));
+    const refLine = turf.lineString(line.map(point => [point.lng, point. lat]));
+
+    const dist1 = turf.pointToLineDistance(refLine.geometry.coordinates[0], polygonBoundary, {units: "meters"});
+    const dist2 = turf.pointToLineDistance(refLine.geometry.coordinates[1], polygonBoundary, {units: "meters"});
+   
+    const safePolygon = turf.buffer(polygon, -Math.min(dist1, dist2), {
+        units: "meters"
+    });
+
+    if (!safePolygon) return null;
+
+    try {
+        return turf.polygonToLine(safePolygon) as Feature<LineString>;
+    } catch {
+        return null;
+    }
+}
+
 export const getGeneratedRows = ({polygonCoords, referenceRow, numberOfRows, rowDistance}: GenerateShapesParams) => {
 
     if (numberOfRows === 0 || rowDistance === 0 || !referenceRow || referenceRow.length < 2 || !polygonCoords) {
@@ -172,29 +198,15 @@ export const getGeneratedRows = ({polygonCoords, referenceRow, numberOfRows, row
 
     const generatedLines: LatLngObject[][] = [];
 
-    const polygon = turf.polygon([polygonCoords.map(point => [point.lng, point.lat])]);
-    
-    const polygonBoundary = turf.lineString(polygonCoords.map(point => [point.lng, point.lat]));
-    const refLine = turf.lineString(referenceRow.map(point => [point.lng, point. lat]));
-
-    const dist1 = turf.pointToLineDistance(refLine.geometry.coordinates[0], polygonBoundary, {units: "meters"});
-    const dist2 = turf.pointToLineDistance(refLine.geometry.coordinates[1], polygonBoundary, {units: "meters"});
-    const safePolygon = turf.buffer(polygon, -Math.min(dist1, dist2), {
-        units: "meters"
-    });
-
-    if (!safePolygon) return [];
-
-    const safePolygonBoundaries = turf.polygonToLine(safePolygon) as Feature<LineString>;
-    const massiveRefLine = extendLine(refLine, 10);
+    const safePolygonBoundaries = getSafePolygon(referenceRow, polygonCoords);
+    const massiveRefLine = getMassiveRefLine(referenceRow);
 
     let leftStep = 1;
     let rightStep = 1;
 
-    const newLine = getSnappedLine(massiveRefLine, safePolygonBoundaries, 0);
-    if (newLine) {
-        generatedLines.push(newLine);
-    }
+    if (!safePolygonBoundaries) return [];
+
+    generatedLines.push(referenceRow);
 
     let leftPushFail = false;
     let rightPushFail = false;

@@ -48,12 +48,28 @@ function FieldParcelDrawControl({
   const map = useMap();
   const tooltipRef = useRef<L.Tooltip | null>(null);
 
+  const areRowsEqual = (row1: LatLngObject[], row2: LatLngObject[]) => {
+    console.log(row1, "-->", referenceRow);
+
+    if (!row1 || !row2) return false;
+
+    if (row1.length !== row2.length) return false;
+
+    return (
+      row1[0].lat === row2[0].lat &&
+      row1[0].lng === row2[0].lng &&
+      row1[row1.length - 1].lat === row2[row2.length - 1].lat &&
+      row1[row1.length - 1].lng === row2[row2.length - 1].lng
+    );
+  };
+
   const { _onCreated, _onDeleted, _onUpdated } = useParcelDraw({
     onPolygonCreated,
     onPolygonDeleted,
     onPolygonUpdated,
     onReferenceRowAdded,
     fieldParcels: fieldParcels,
+    polygonCoords: selectedParcel,
     parentPolygon: parentPolygon,
     referenceRow: referenceRow,
     lineRef,
@@ -70,12 +86,13 @@ function FieldParcelDrawControl({
 
     rows.forEach((row) => {
       L.polyline(row, {
-        color: "black",
-        weight: 1,
+        color: !areRowsEqual(row, referenceRow) ? "black" : "blue",
+        weight: !areRowsEqual(row, referenceRow) ? 1 : 2,
         pmIgnore: true,
       }).addTo(layerGroup);
     });
-  }, [rows]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, referenceRow]);
 
   const midZoomGroupRef = useRef(L.layerGroup());
 
@@ -84,17 +101,20 @@ function FieldParcelDrawControl({
     layerGroup.clearLayers();
 
     rowRectangles.map(
-      (rectangle) => {
+      (rectangle, index) => {
         L.polygon(rectangle, {
-          color: "black",
-          fillColor: "black",
+          color: !areRowsEqual(rows[index], referenceRow) ? "black" : "blue",
+          fillColor: !areRowsEqual(rows[index], referenceRow)
+            ? "black"
+            : "blue",
           fillOpacity: 0.8,
           pmIgnore: true,
         }).addTo(layerGroup);
       },
       [rowRectangles],
     );
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [referenceRow, rowRectangles, rows]);
 
   const highZoomGroupRef = useRef(L.layerGroup());
   const spacialIndexRef = useRef<Flatbush | null>(null);

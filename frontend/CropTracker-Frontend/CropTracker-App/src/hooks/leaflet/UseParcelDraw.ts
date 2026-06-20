@@ -6,6 +6,7 @@ import { useMap } from "react-leaflet";
 import '@geoman-io/leaflet-geoman-free';
 import { safetyThresholdMeters } from "../../utils/Constants";
 import { showMapWarning } from "../../leaflet/helper/ShowMapWarning";
+import { getMassiveRefLine, getSafePolygon, getSnappedLine } from "../../utils/GenerateShapesUtil";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
@@ -14,6 +15,7 @@ interface DrawingToolsProps {
   onReferenceRowAdded: (row: LatLngObject[]) => void;
   fieldParcels: GetFieldParcelDTO[];
   parentPolygon: LatLngObject[];
+  polygonCoords: LatLngObject[];
   selectedParcel: LatLngObject[];
   referenceRow: LatLngObject[];
   lineRef: React.RefObject<L.Polyline | null>
@@ -26,6 +28,7 @@ export const useParcelDraw = ({
   onReferenceRowAdded,
   fieldParcels,
   parentPolygon,
+  polygonCoords,
   selectedParcel,
   lineRef
 }: DrawingToolsProps) => {
@@ -252,14 +255,19 @@ export const useParcelDraw = ({
       const lineLatLngs = polylineLayer.getLatLngs();
 
       const clipLineResult = clipLineToParcel(lineLatLngs as LatLngObject[], selectedParcel);
+      const safePolygon = getSafePolygon(clipLineResult, polygonCoords);
 
-      if (clipLineResult) {
-        polylineLayer.setLatLngs(clipLineResult);
+      if (!safePolygon) return;
+
+      const snappedLine = getSnappedLine(getMassiveRefLine(clipLineResult), safePolygon, 0);
+
+      if (snappedLine) {
+        polylineLayer.setLatLngs(snappedLine);
         polylineLayer.remove();
         polylineLayer.addTo(map);
         polylineLayer.redraw();
-        lineRef.current?.setLatLngs(clipLineResult);
-        onReferenceRowAdded(clipLineResult);
+        lineRef.current?.setLatLngs(snappedLine);
+        onReferenceRowAdded(snappedLine);
       }
     }
   };
