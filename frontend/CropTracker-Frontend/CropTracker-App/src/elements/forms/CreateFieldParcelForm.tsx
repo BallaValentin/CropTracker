@@ -68,6 +68,50 @@ function CreateFieldParcelForm({
     },
   });
 
+  const [rows, setRows] = useState<LatLngObject[][]>([]);
+  const [targetRowCount, setTargetRowCount] = useState<number>(
+    newFieldParcel.layoutParameters.numberOfRows || 0,
+  );
+
+  useEffect(() => {
+    const generatedRows =
+      getGeneratedRows({
+        polygonCoords: newFieldParcel.polygonPoints,
+        referenceRow: newFieldParcel.layoutParameters.referenceRow,
+        numberOfRows: targetRowCount,
+        rowDistance:
+          newFieldParcel.layoutParameters.bedSpacing +
+          newFieldParcel.layoutParameters.rowWidth,
+      }) || [];
+    setRows(generatedRows);
+
+    const numberOfCrops = getNumberOfCrops({
+      rows: generatedRows,
+      rowWidth: newFieldParcel.layoutParameters.rowWidth,
+      rowMargin: newFieldParcel.layoutParameters.marginSpacing,
+      rowSpacing: newFieldParcel.layoutParameters.rowSpacing,
+      cropSpacing: newFieldParcel.layoutParameters.plantSpacing,
+    });
+
+    setNewFieldParcel((prev) => ({
+      ...prev,
+      layoutParameters: {
+        ...prev.layoutParameters,
+        numberOfRows: generatedRows.length,
+        numberOfCrops: numberOfCrops,
+      },
+    }));
+  }, [
+    newFieldParcel.polygonPoints,
+    newFieldParcel.layoutParameters.referenceRow,
+    targetRowCount,
+    newFieldParcel.layoutParameters.bedSpacing,
+    newFieldParcel.layoutParameters.rowWidth,
+    newFieldParcel.layoutParameters.marginSpacing,
+    newFieldParcel.layoutParameters.rowSpacing,
+    newFieldParcel.layoutParameters.plantSpacing,
+  ]);
+
   useEffect(() => {
     if (fieldParcelToUpdate) {
       setNewFieldParcel({
@@ -170,37 +214,21 @@ function CreateFieldParcelForm({
       numericValue = Math.max(1, Math.min(numericValue, maxLines));
     }
 
-    const actualRows = getGeneratedRows({
-      polygonCoords: newFieldParcel.polygonPoints,
-      referenceRow: newFieldParcel.layoutParameters.referenceRow,
-      numberOfRows: nextParams.numberOfRows,
-      rowDistance: nextParams.bedSpacing + newRowWidth,
-    });
-
-    let numberOfRows = nextParams.numberOfRows;
-    if (actualRows && actualRows.length > 0) {
-      numberOfRows = actualRows.length;
-    }
-
-    const numberOfCrops = getNumberOfCrops({
-      rows: actualRows,
-      rowWidth: newRowWidth,
-      rowMargin: nextParams.marginSpacing,
-      rowSpacing: nextParams.rowSpacing,
-      cropSpacing: nextParams.plantSpacing,
-    });
-
     setNewFieldParcel((prev) => {
       return {
         ...prev,
         layoutParameters: {
           ...nextParams,
-          numberOfRows: numberOfRows,
-          numberOfCrops: numberOfCrops,
           rowWidth: newRowWidth,
         },
       };
     });
+  };
+
+  const handleRowCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    const numericValue = Number.isInteger(Number(value)) ? Number(value) : 0;
+    setTargetRowCount(numericValue);
   };
 
   const handleReferenceRowAdded = (referenceRow: LatLngObject[]) => {
@@ -251,6 +279,7 @@ function CreateFieldParcelForm({
               allowDelete={true}
               layoutParameters={newFieldParcel.layoutParameters}
               onReferenceRowAdded={handleReferenceRowAdded}
+              rows={rows}
             />
           </Box>
           <Box
@@ -316,11 +345,11 @@ function CreateFieldParcelForm({
 
               <TextField
                 color="success"
-                name="numberOfRows"
+                name="targetRowCount"
                 type="number"
                 label="Number of Rows"
                 value={newFieldParcel.layoutParameters.numberOfRows}
-                onChange={handleLayoutParamsChange}
+                onChange={handleRowCountChange}
               />
 
               <Box sx={{ display: "flex", gap: 1, mt: "auto" }}>

@@ -248,12 +248,13 @@ export const useParcelDraw = ({
     if (layer instanceof L.Polyline) {
       const polylineLayer = layer as L.Polyline;
       const latLngs = polylineLayer.getLatLngs() as LatLngObject[];
-      console.log("Dragging!");
-      const clipLineResult = snapLine(latLngs, polygonCoords);
+      if (latLngs.length >= 2) {
+        const clipLineResult = snapLine(latLngs, polygonCoords);
 
-      if (clipLineResult) {
-        polylineLayer.setLatLngs(clipLineResult);
-        throttledStateUpdate(clipLineResult);
+        if (clipLineResult) {
+          polylineLayer.setLatLngs(clipLineResult);
+          throttledStateUpdate(clipLineResult);
+        }
       }
     }
   }

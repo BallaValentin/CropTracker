@@ -157,7 +157,6 @@ export const getGeneratedCrops = ({rows, rowWidth, rowMargin, rowSpacing, cropSp
     );
 
     const cropFlat = crops.flat(3);
-    console.log("Number of crops: ", cropFlat.length);
     return cropFlat;
 }
 

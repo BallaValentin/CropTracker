@@ -3,14 +3,13 @@ import { LayersControl, MapContainer, Polygon, Polyline } from "react-leaflet";
 import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import { defaultMapPosition } from "../../utils/Constants";
 import CustomLayers from "../helper/CustomLayers";
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import FieldParcelDrawControl from "../control/ParcelDrawControl";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import L from "leaflet";
 import {
   getGeneratedCrops,
   getGeneratedRectabgles,
-  getGeneratedRows,
 } from "../../utils/GenerateShapesUtil";
 import type { LayoutParameters } from "../../interfaces/helper/LayoutParameters";
 import MapBoundsHelper from "../helper/MapBoundsHelper";
@@ -30,6 +29,7 @@ interface AddParcelViewProps {
   allowCreate: boolean;
   allowDelete: boolean;
   layoutParameters: LayoutParameters;
+  rows: LatLngObject[][];
 }
 
 function AddParcelView({
@@ -47,59 +47,41 @@ function AddParcelView({
   allowCreate,
   allowDelete,
   layoutParameters,
+  rows,
 }: AddParcelViewProps) {
   const [parcelCreated, setParcelCreated] = useState<boolean>(
     parcelPolygonPoints.length != 0,
   );
 
-  const [rows, setRows] = useState<LatLngObject[][]>([]);
-  const [rowRectangles, setRowRectangles] = useState<LatLngObject[][]>([]);
-  const [cropCoords, setCropCoords] = useState<LatLngObject[]>([]);
   const [editModeOn, setEditModeOn] = useState<boolean>(false);
 
-  useEffect(() => {
-    const generatedRows = getGeneratedRows({
-      polygonCoords: parcelPolygonPoints,
-      referenceRow: layoutParameters.referenceRow,
-      numberOfRows: layoutParameters.numberOfRows,
-      rowDistance: layoutParameters.bedSpacing + layoutParameters.rowWidth,
-    });
-    setRows(generatedRows || []);
-  }, [
-    layoutParameters.bedSpacing,
-    layoutParameters.numberOfRows,
-    layoutParameters.referenceRow,
-    layoutParameters.rowWidth,
-    parcelPolygonPoints,
-  ]);
-
-  useEffect(() => {
-    setRowRectangles(
+  const rowRectangles = useMemo(
+    () =>
       getGeneratedRectabgles({ rows, rowWidth: layoutParameters.rowWidth }) ||
-        [],
-    );
-  }, [layoutParameters.rowWidth, rows]);
+      [],
+    [layoutParameters.rowWidth, rows],
+  );
 
-  useEffect(() => {
-    if (!editModeOn) {
-      setCropCoords(
-        getGeneratedCrops({
-          rows,
-          rowWidth: layoutParameters.rowWidth,
-          rowMargin: layoutParameters.marginSpacing,
-          rowSpacing: layoutParameters.rowSpacing,
-          cropSpacing: layoutParameters.plantSpacing,
-        }) || [],
-      );
-    }
-  }, [
-    layoutParameters.marginSpacing,
-    layoutParameters.plantSpacing,
-    layoutParameters.rowSpacing,
-    layoutParameters.rowWidth,
-    editModeOn,
-    rows,
-  ]);
+  const cropCoords = useMemo(
+    () =>
+      !editModeOn
+        ? getGeneratedCrops({
+            rows,
+            rowWidth: layoutParameters.rowWidth,
+            rowMargin: layoutParameters.marginSpacing,
+            rowSpacing: layoutParameters.rowSpacing,
+            cropSpacing: layoutParameters.plantSpacing,
+          }) || []
+        : [],
+    [
+      layoutParameters.marginSpacing,
+      layoutParameters.plantSpacing,
+      layoutParameters.rowSpacing,
+      layoutParameters.rowWidth,
+      editModeOn,
+      rows,
+    ],
+  );
 
   const onPolygonCreated = (latLngs: LatLngObject[]) => {
     setParcelCreated(true);

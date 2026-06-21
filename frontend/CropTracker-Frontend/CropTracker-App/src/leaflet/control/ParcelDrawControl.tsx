@@ -139,7 +139,6 @@ function FieldParcelDrawControl({
     });
 
     index.finish();
-    console.log("Index length: ", index);
 
     cropsRef.current = crops;
     spacialIndexRef.current = index;
@@ -231,9 +230,9 @@ function FieldParcelDrawControl({
         (!!referenceRow && referenceRow.length > 0),
       rotateMode: false,
       dragMode: false,
-      removalMode: allowDelete,
+      removalMode: selectedParcel && selectedParcel.length > 0,
 
-      drawPolygon: allowCreate,
+      drawPolygon: selectedParcel && selectedParcel.length === 0,
       cutPolygon: false,
       drawText: false,
       drawRectangle: false,
