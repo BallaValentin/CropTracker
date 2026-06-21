@@ -239,7 +239,7 @@ function FieldParcelDrawControl({
       drawRectangle: false,
       drawCircle: false,
       drawMarker: false,
-      drawPolyline: selectedParcel.length > 0 && !referenceRow,
+      drawPolyline: selectedParcel.length > 0 && referenceRow.length === 0,
       drawCircleMarker: false,
     });
     map.pm.setPathOptions({

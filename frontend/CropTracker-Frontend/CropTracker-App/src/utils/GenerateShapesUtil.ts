@@ -127,6 +127,18 @@ const getGeneratedCropsForRow = (row: LatLngObject[], rowWidth: number, rowMargi
     return lineCrops;
 }
 
+const getNumberOfCropsForRow = (row: LatLngObject[], rowWidth: number, rowMargin: number, rowSpacing: number, cropSpacing: number) => {
+    const rowLine = turf.lineString([[row[0].lng, row[0].lat], [row[1].lng, row[1].lat]]);
+    const length = turf.length(rowLine, {
+    units: "meters"
+    });
+
+    const usedWidth = rowWidth - 2 * rowMargin - cropWidthCm;
+    const numberOfLines = Math.round(usedWidth / rowSpacing) + 1;
+    const cropsPerLine = Math.floor((length / (cropSpacing / 100))) + 1;
+    return numberOfLines * cropsPerLine;
+}
+
 export interface GetGeneratedCropsParams {
     rows: LatLngObject[][];
     rowWidth: number;
@@ -145,7 +157,20 @@ export const getGeneratedCrops = ({rows, rowWidth, rowMargin, rowSpacing, cropSp
     );
 
     const cropFlat = crops.flat(3);
+    console.log("Number of crops: ", cropFlat.length);
     return cropFlat;
+}
+
+export const getNumberOfCrops = ({rows, rowWidth, rowMargin, rowSpacing, cropSpacing}: GetGeneratedCropsParams) => {
+    if (rows.length === 0 || rowWidth === 0 || cropSpacing === 0) return 0;
+
+    let numberOfCrops = 0;
+
+    rows.forEach((row) => {
+        numberOfCrops += getNumberOfCropsForRow(row, rowWidth, rowMargin, rowSpacing, cropSpacing);
+    });
+
+    return numberOfCrops;
 }
 
 export interface GenerateRectanglesParams {

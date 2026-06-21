@@ -22,7 +22,10 @@ import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcel
 import { LayoutTypes } from "../../utils/LayoutTypes";
 import { cropWidthCm, maxLines, PastelPresets } from "../../utils/Constants";
 import { calculateRowWidth } from "../../utils/CalculateRowWidth";
-import { getGeneratedRows } from "../../utils/GenerateShapesUtil";
+import {
+  getGeneratedRows,
+  getNumberOfCrops,
+} from "../../utils/GenerateShapesUtil";
 import type { UpdateFieldParcelDTO } from "../../interfaces/request/UpdateFieldParcelDTO";
 import PastelColorPicker from "../color-pickers/PastelColorPicker";
 
@@ -59,6 +62,7 @@ function CreateFieldParcelForm({
       numberOfRows: fieldParcelToUpdate?.layoutParameters.numberOfRows || 0,
       marginSpacing: fieldParcelToUpdate?.layoutParameters.marginSpacing || 10,
       linesPerRow: fieldParcelToUpdate?.layoutParameters.linesPerRow || 1,
+      numberOfCrops: fieldParcelToUpdate?.layoutParameters.numberOfCrops || 0,
       rowWidth:
         fieldParcelToUpdate?.layoutParameters.linesPerRow || cropWidthCm + 20,
     },
@@ -178,12 +182,21 @@ function CreateFieldParcelForm({
       numberOfRows = actualRows.length;
     }
 
+    const numberOfCrops = getNumberOfCrops({
+      rows: actualRows,
+      rowWidth: newRowWidth,
+      rowMargin: nextParams.marginSpacing,
+      rowSpacing: nextParams.rowSpacing,
+      cropSpacing: nextParams.plantSpacing,
+    });
+
     setNewFieldParcel((prev) => {
       return {
         ...prev,
         layoutParameters: {
           ...nextParams,
           numberOfRows: numberOfRows,
+          numberOfCrops: numberOfCrops,
           rowWidth: newRowWidth,
         },
       };
@@ -358,6 +371,13 @@ function CreateFieldParcelForm({
                   value={newFieldParcel.layoutParameters.marginSpacing}
                   onChange={handleLayoutParamsChange}
                 />
+              </Box>
+
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <Typography variant="caption">Number of crops:</Typography>
+                <Typography variant="body2" sx={{ fontWeight: "600" }}>
+                  {newFieldParcel.layoutParameters.numberOfCrops}
+                </Typography>
               </Box>
 
               <Box
