@@ -119,6 +119,10 @@ function CreateFieldParcelForm({
       ...prev,
       polygonPoints: [],
       area: 0,
+      layoutParameters: {
+        ...prev.layoutParameters,
+        referenceRow: [],
+      },
     }));
   };
 

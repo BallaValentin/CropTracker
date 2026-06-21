@@ -143,7 +143,9 @@ function FieldParcelDrawControl({
 
     cropsRef.current = crops;
     spacialIndexRef.current = index;
-  });
+    _onMapViewChange();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [crops]);
 
   const { _onZoom, _onMapViewChange } = useZoom({
     lowZoomGroupRef: lowZoomGroupRef,
@@ -224,7 +226,9 @@ function FieldParcelDrawControl({
 
       drawMode: allowCreate,
       drawControls: allowCreate,
-      editMode: true,
+      editMode:
+        selectedParcel.length > 0 ||
+        (!!referenceRow && referenceRow.length > 0),
       rotateMode: false,
       dragMode: false,
       removalMode: allowDelete,
@@ -235,7 +239,7 @@ function FieldParcelDrawControl({
       drawRectangle: false,
       drawCircle: false,
       drawMarker: false,
-      drawPolyline: selectedParcel.length > 0,
+      drawPolyline: selectedParcel.length > 0 && !referenceRow,
       drawCircleMarker: false,
     });
     map.pm.setPathOptions({
@@ -277,6 +281,7 @@ function FieldParcelDrawControl({
     _onDrawEnd,
     _onEditStart,
     _onEditEnd,
+    referenceRow,
   ]);
 
   return null;
