@@ -4,6 +4,7 @@ import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.exceptions.ForbiddenException;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldParcel;
+import edu.bbte.allamvizsga.model.User;
 import edu.bbte.allamvizsga.repository.FieldParcelRepository;
 import edu.bbte.allamvizsga.specifications.FieldParcelSpecification;
 import jakarta.persistence.EntityNotFoundException;
@@ -72,8 +73,18 @@ public class FieldParcelService {
         );
     }
 
-    public FieldParcel findByID(UUID uid) {
-        return fieldParcelRepository.findByUid(uid);
+    public FieldParcel findByID(UUID uid, User user) {
+        FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
+
+        if (fieldParcel == null) {
+            throw new EntityNotFoundException("Field parcel not found.");
+        }
+
+        if (fieldParcel.getCropField().getUser() != user) {
+            throw new ForbiddenException("Access denied to field parcel.");
+        }
+
+        return fieldParcel;
     }
 
     public FieldParcel findByCropField(CropField cropField, UUID uid) {

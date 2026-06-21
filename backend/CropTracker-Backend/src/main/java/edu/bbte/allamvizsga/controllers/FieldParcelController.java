@@ -97,9 +97,11 @@ public class FieldParcelController {
 
     @GetMapping("/findby")
     public ResponseEntity<GetFieldParcelDTO> getCropFieldById(
+            @RequestHeader("Authorization") String authorizationHeader,
             @RequestParam(name = "id") UUID fieldParcelId
     ) {
-        FieldParcel fieldParcel = fieldParcelService.findByID(fieldParcelId);
+        User user = userService.extractUser(authorizationHeader);
+        FieldParcel fieldParcel = fieldParcelService.findByID(fieldParcelId, user);
         GetFieldParcelDTO getFieldParcelDTO = fieldParcelMapper.modelToGetFieldParcelDTO(fieldParcel);
         return ResponseEntity.ok(getFieldParcelDTO);
     }

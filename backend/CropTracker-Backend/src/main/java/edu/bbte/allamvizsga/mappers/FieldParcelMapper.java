@@ -23,6 +23,8 @@ public abstract class FieldParcelMapper {
     protected void afterModelToGetFieldParcel(FieldParcel fieldParcel, @MappingTarget GetFieldParcelDTO getFieldParcelDTO) {
         getFieldParcelDTO.setCropFieldId(fieldParcel.getCropField().getUid());
         getFieldParcelDTO.setCultivarId(fieldParcel.getCropCultivar().getUid());
+        getFieldParcelDTO.setCultivarName(fieldParcel.getCropCultivar().getCultivarName());
+        getFieldParcelDTO.setSpecieName(fieldParcel.getCropCultivar().getCropSpecie().getCommonName());
     }
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

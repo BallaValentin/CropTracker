@@ -12,6 +12,7 @@ import edu.bbte.allamvizsga.exceptions.RefreshTokenException;
 import edu.bbte.allamvizsga.model.VerifyEmailToken;
 import edu.bbte.allamvizsga.services.MailService;
 import edu.bbte.allamvizsga.services.VerifyEmailTokenService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import edu.bbte.allamvizsga.mappers.UserMapper;
@@ -132,7 +133,7 @@ public class AuthController {
         Cookie[] cookies = request.getCookies();
 
         if (cookies == null || Arrays.stream(cookies).findAny().isEmpty()) {
-            throw new RefreshTokenException("Invalid or missing refresh token");
+            throw new EntityNotFoundException("Invalid or missing refresh token.");
         }
 
         for (Cookie cookie : cookies) {
@@ -150,12 +151,10 @@ public class AuthController {
 
     @GetMapping("/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) {
-        System.out.println("Received logout request");
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
             System.out.println("Cookie: " + cookie.getName());
             if (cookie.getName().equals("refresh_token")) {
-                System.out.println("Found token");
                 refreshTokenService.invalidateToken(cookie.getValue());
                 cookie.setMaxAge(0);
                 cookie.setValue("");

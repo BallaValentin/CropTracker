@@ -1,5 +1,6 @@
 package edu.bbte.allamvizsga.services;
 
+import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.exceptions.RefreshTokenException;
 import edu.bbte.allamvizsga.model.RefreshToken;
 import edu.bbte.allamvizsga.repository.RefreshTokenRepository;
@@ -22,7 +23,7 @@ public class RefreshTokenService {
 
     public RefreshToken findByToken(String cookieValue) {
         if (cookieValue == null || cookieValue.isBlank()) {
-            throw new RefreshTokenException("Missing cookie value.");
+                throw new BadRequestException("Missing cookie value.");
         }
 
         try {

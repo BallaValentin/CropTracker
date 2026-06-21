@@ -13,16 +13,9 @@ import CheckIcon from "@mui/icons-material/Check";
 import { defaultMapPosition } from "../utils/Constants";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import CropFieldInfoPanel from "../elements/panels/CropFieldInfoPanel";
-import CreateFieldParcelForm from "../elements/forms/CreateFieldParcelForm";
-import type { CreateFieldParcelDTO } from "../interfaces/request/CreateFieldParcelDTO";
-import {
-  createFieldParcel,
-  deleteFieldParcel,
-  updateFieldParcel,
-} from "../services/FieldParcelService";
+import { deleteFieldParcel } from "../services/FieldParcelService";
 import { useFieldParcels } from "../hooks/caching/UseFieldParcels";
 import { queryClient } from "../query-client/QueryClient";
-import type { UpdateFieldParcelDTO } from "../interfaces/request/UpdateFieldParcelDTO";
 import { useCropFieldWork } from "../hooks/caching/UseCropFieldWorks";
 import CropFieldWorksPanel from "../elements/panels/CropFieldWorksPanel";
 import { useCropField } from "../hooks/caching/UseCropField";
@@ -44,11 +37,8 @@ function PlotDetailsPage() {
   const [fieldParcelsData, setFieldParcelsData] = useState<GetFieldParcelDTO[]>(
     [],
   );
-  const [addParcel, setAddParcel] = useState<boolean>(false);
-  const [updateParcel, setUpdateParcel] = useState<boolean>(false);
+
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  const [selectedFieldParcel, setSelectedFieldParcel] =
-    useState<GetFieldParcelDTO | null>(null);
   const [parcelsSelected, setParcelsSelected] = useState<boolean[]>([]);
 
   const location = useLocation();
@@ -108,34 +98,6 @@ function PlotDetailsPage() {
     return { onGoingWorks: onGoing, scheduledWorks: scheduled };
   }, [fieldWorksData]);
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: createFieldParcel,
-    onSuccess: () => {
-      setFeedbackMessage("Field parcel created successfully!");
-      queryClient.invalidateQueries({
-        queryKey: ["fieldParcels", id],
-      });
-      setAddParcel(false);
-    },
-  });
-
-  const { mutate: updateMutate, isPending: isUpdatePending } = useMutation({
-    mutationFn: ({
-      fieldParcelId,
-      updateFieldParcelData,
-    }: {
-      fieldParcelId: string;
-      updateFieldParcelData: UpdateFieldParcelDTO;
-    }) => updateFieldParcel(updateFieldParcelData, fieldParcelId),
-    onSuccess: () => {
-      setFeedbackMessage("Field parcel updated successfully!");
-      queryClient.invalidateQueries({
-        queryKey: ["fieldParcels", id],
-      });
-      setUpdateParcel(false);
-    },
-  });
-
   const { mutate: deleteMutate } = useMutation({
     mutationFn: deleteFieldParcel,
     onSuccess: () => {
@@ -170,29 +132,11 @@ function PlotDetailsPage() {
   };
 
   const handleAddParcelClick = () => {
-    setAddParcel(true);
+    navigate(`/create-field-parcel?cropFieldId=${id}`);
   };
 
   const handleUpdateParcelClick = (fieldParcel: GetFieldParcelDTO) => {
-    setUpdateParcel(true);
-    setSelectedFieldParcel(fieldParcel);
-  };
-
-  const createNewFieldParcel = (
-    createFieldParcelData: CreateFieldParcelDTO,
-  ) => {
-    console.log("Create field parcel data: ", createFieldParcelData);
-    mutate(createFieldParcelData);
-  };
-
-  const updateExistingFieldParcel = (
-    updateFieldParcelData: UpdateFieldParcelDTO,
-  ) => {
-    console.log("Updating field parcel");
-    updateMutate({
-      fieldParcelId: selectedFieldParcel?.uid || "",
-      updateFieldParcelData,
-    });
+    navigate(`/update-field-parcel/${fieldParcel.uid}?cropFieldId=${id}`);
   };
 
   const deleteSelectedParcel = (fieldParcelId: string) => {
@@ -269,41 +213,16 @@ function PlotDetailsPage() {
             {cropFieldDetail.name}
           </Typography>
 
-          {addParcel && (
-            <CreateFieldParcelForm
-              isPending={isPending}
-              onSubmit={createNewFieldParcel}
-              fieldParcels={fieldParcelsData || []}
-              cropfield={cropFieldDetail}
-            />
-          )}
-
-          {updateParcel && selectedFieldParcel && (
-            <CreateFieldParcelForm
-              isPending={isUpdatePending}
-              onSubmit={updateExistingFieldParcel}
-              fieldParcels={
-                fieldParcelsData.filter(
-                  (parcel) => parcel.uid != selectedFieldParcel.uid,
-                ) || []
-              }
-              cropfield={cropFieldDetail}
-              fieldParcelToUpdate={selectedFieldParcel}
-            />
-          )}
-
-          {!addParcel && !updateParcel && (
-            <CropFieldInfoPanel
-              cropFieldDetail={cropFieldDetail}
-              isLoading={isFieldParcelsLoading}
-              fieldParcels={fieldParcelsData || []}
-              onAddParcelClick={handleAddParcelClick}
-              onConfirmDelete={deleteSelectedParcel}
-              onUpdateParcelClick={handleUpdateParcelClick}
-              parcelsSelected={parcelsSelected}
-              onParcelSelected={handleParcelSelected}
-            />
-          )}
+          <CropFieldInfoPanel
+            cropFieldDetail={cropFieldDetail}
+            isLoading={isFieldParcelsLoading}
+            fieldParcels={fieldParcelsData || []}
+            onAddParcelClick={handleAddParcelClick}
+            onConfirmDelete={deleteSelectedParcel}
+            onUpdateParcelClick={handleUpdateParcelClick}
+            parcelsSelected={parcelsSelected}
+            onParcelSelected={handleParcelSelected}
+          />
 
           <CropFieldWorksPanel
             fieldWorks={onGoingWorks}

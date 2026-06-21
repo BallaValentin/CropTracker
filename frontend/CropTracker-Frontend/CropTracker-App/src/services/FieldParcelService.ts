@@ -25,6 +25,18 @@ export const getFieldParcells = async(cropFieldId: string): Promise<GetFieldParc
         return response.data;
 }
 
+export const getFieldParcel = async(fieldParcelId: string): Promise<GetFieldParcelDTO> => {
+    console.log("Sending get-field-parcel request to server");
+        const response = await fieldParcelApi.get<GetFieldParcelDTO>('/findby', {
+            params: {
+                id: fieldParcelId
+            },
+        });
+
+        console.log("Received field parcels from server: ", response.data)
+        return response.data;
+}
+
 export const createFieldParcel = async(createFieldParcelDTO: CreateFieldParcelDTO): Promise<void> => {
     console.log("Sending create-field-parcel request to server");
         await fieldParcelApi.post("/create", createFieldParcelDTO);
