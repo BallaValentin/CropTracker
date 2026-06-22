@@ -25,17 +25,23 @@ import { useMutation } from "@tanstack/react-query";
 import AddIcon from "@mui/icons-material/Add";
 import AddNewWorkTypeDialog from "../dialogs/AddNewWorkTypeDialog";
 import type { CreateWorkTypeDTO } from "../../interfaces/request/CreateWorkTypeDTO";
+import type { GetFieldWorkDTO } from "../../interfaces/response/GetFieldWorkDTO";
+import type { UpdateFieldWorkDTO } from "../../interfaces/request/UpdateFieldWorkDTO";
 
 interface AddFieldWorkFormProps {
+  fieldWorkToUpdate?: GetFieldWorkDTO | null;
   cropField: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
   workTypes: GetWorkTypeDTO[];
-  onSubmit: (createFieldWorkDTO: CreateFieldWorkDTO) => void;
+  onSubmit: (
+    createFieldWorkDTO: CreateFieldWorkDTO | UpdateFieldWorkDTO,
+  ) => void;
   onWorkTypeAdded: (createWorkTypeDTO: CreateWorkTypeDTO) => void;
   isPending: boolean;
 }
 
 function AddFieldWorkForm({
+  fieldWorkToUpdate = null,
   cropField,
   fieldParcels,
   workTypes,
@@ -45,10 +51,21 @@ function AddFieldWorkForm({
 }: AddFieldWorkFormProps) {
   const [rowRanges, setRowRanges] = useState<[number, number][]>([]);
   const [previousRows, setPreviousRows] = useState<boolean[]>([]);
-  const [currentWorkTypeIndex, setCurrentWorkTypeIndex] = useState<number>(0);
-  const [activeFields, setActiveFields] = useState<FieldDefinition[]>(
-    workTypes[0].fieldDefinitions || [],
+  const [currentWorkTypeIndex, setCurrentWorkTypeIndex] = useState<number>(
+    () => {
+      if (workTypes && fieldWorkToUpdate?.workTypeId) {
+        return workTypes.findIndex(
+          (workType) => workType.uid === fieldWorkToUpdate.workTypeId,
+        );
+      }
+      return 0;
+    },
   );
+
+  const [activeFields, setActiveFields] = useState<FieldDefinition[]>(
+    workTypes?.[currentWorkTypeIndex]?.fieldDefinitions || [],
+  );
+
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
   const toDateTimeLocal = (date: Date): string => {
@@ -62,12 +79,12 @@ function AddFieldWorkForm({
     useState<CreateFieldWorkDTO>({
       cropFieldId: cropField.uid,
       fieldParcelIds: fieldParcels.map((parcel) => parcel.uid),
-      workTypeId: workTypes[0].uid,
-      startDate: toDateTimeLocal(new Date()),
-      endDate: "",
-      workTiming: "Scheduled",
-      affectedRows: [],
-      parameters: {},
+      workTypeId: fieldWorkToUpdate?.workTypeId || workTypes[0].uid,
+      startDate: fieldWorkToUpdate?.startDate || toDateTimeLocal(new Date()),
+      endDate: fieldWorkToUpdate?.endDate || "",
+      workTiming: fieldWorkToUpdate?.workTiming || "Scheduled",
+      affectedRows: fieldWorkToUpdate?.affectedRows || [],
+      parameters: fieldWorkToUpdate?.parameters || {},
     });
 
   const { mutate } = useMutation({
@@ -103,23 +120,25 @@ function AddFieldWorkForm({
   };
 
   useEffect(() => {
-    let totalRows = 0;
-    const newRowRanges: [number, number][] = [];
-    fieldParcels.forEach((parcel) => {
-      const minRange = totalRows;
-      totalRows += parcel.layoutParameters.numberOfRows;
-      const maxRange = totalRows;
-      newRowRanges.push([minRange, maxRange]);
-    });
-    setRowRanges(newRowRanges);
-    setCreateFieldWorkDTO((prev) => ({
-      ...prev,
-      affectedRows: Array(totalRows).fill(false),
-    }));
-  }, [fieldParcels]);
+    if (!fieldWorkToUpdate) {
+      let totalRows = 0;
+      const newRowRanges: [number, number][] = [];
+      fieldParcels.forEach((parcel) => {
+        const minRange = totalRows;
+        totalRows += parcel.layoutParameters.numberOfRows;
+        const maxRange = totalRows;
+        newRowRanges.push([minRange, maxRange]);
+      });
+      setRowRanges(newRowRanges);
+      setCreateFieldWorkDTO((prev) => ({
+        ...prev,
+        affectedRows: Array(totalRows).fill(false),
+      }));
+    }
+  }, [fieldParcels, fieldWorkToUpdate]);
 
-  useEffect(() => {
-    const initialWorkParameters = activeFields.reduce<
+  const getEmptyWorkParameters = () => {
+    return activeFields.reduce<
       Record<string, string | number | string[] | number[] | StringNumber[]>
     >((acc, field) => {
       if (field.type === "stringNumber[]") {
@@ -140,11 +159,7 @@ function AddFieldWorkForm({
 
       return acc;
     }, {});
-    setCreateFieldWorkDTO((prev) => ({
-      ...prev,
-      parameters: initialWorkParameters,
-    }));
-  }, [activeFields]);
+  };
 
   const handleParcelSelect = (index: number, checked: boolean) => {
     const updatedRows = [...createFieldWorkDTO.affectedRows];
@@ -175,12 +190,14 @@ function AddFieldWorkForm({
   const handleWorkTypeChange = (event: SelectChangeEvent<number | "">) => {
     if (event.target.value !== "") {
       const index = event.target.value;
+      setCurrentWorkTypeIndex(index);
+      setActiveFields(workTypes[index].fieldDefinitions);
+
       setCreateFieldWorkDTO((prev) => ({
         ...prev,
         workTypeId: workTypes[index].uid,
+        parameters: { ...getEmptyWorkParameters },
       }));
-      setCurrentWorkTypeIndex(index);
-      setActiveFields(workTypes[index].fieldDefinitions);
     }
   };
 
@@ -484,8 +501,10 @@ function AddFieldWorkForm({
                 color="success"
                 type="datetime-local"
                 required
-                value={createFieldWorkDTO.startDate.slice(0, 16)}
-                defaultValue="2026-01-01T12:00"
+                value={
+                  createFieldWorkDTO.startDate.slice(0, 16) ||
+                  "2026-01-01T12:00"
+                }
                 onChange={handleDateChange}
                 fullWidth
               />
@@ -494,11 +513,13 @@ function AddFieldWorkForm({
                 <TextField
                   sx={{ flex: 1 }}
                   label="Select ending Date and Time"
-                  value={createFieldWorkDTO.endDate?.slice(0, 16)}
+                  value={
+                    createFieldWorkDTO.endDate?.slice(0, 16) ||
+                    "2026-01-01T12:00"
+                  }
                   name="endDate"
                   color="success"
                   type="datetime-local"
-                  defaultValue="2026-01-01T12:00"
                   onChange={handleDateChange}
                   fullWidth
                 />
@@ -520,13 +541,14 @@ function AddFieldWorkForm({
           }}
         >
           {activeFields.map((field) => (
-            <Box>
+            <Box key={field.name}>
               {field.type === "string" && (
                 <Box sx={{ width: 400 }}>
                   <FormControl fullWidth variant="outlined">
                     <TextField
                       label={field.name}
                       name={field.name}
+                      value={createFieldWorkDTO.parameters[field.name] || ""}
                       color="success"
                       type="string"
                       onChange={handleWorkParametersTextfieldChange}
@@ -541,6 +563,7 @@ function AddFieldWorkForm({
                     <TextField
                       label={field.name}
                       name={field.name}
+                      value={createFieldWorkDTO.parameters[field.name] || 0}
                       color="success"
                       type="number"
                       onChange={handleWorkParametersTextfieldChange}

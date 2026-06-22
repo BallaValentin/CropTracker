@@ -17,16 +17,18 @@ import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDT
 import { createWorkType } from "../services/WorkTypeService";
 import { queryClient } from "../query-client/QueryClient";
 import type { CreateWorkTypeDTO } from "../interfaces/request/CreateWorkTypeDTO";
-import UpdateFieldWorkForm from "../elements/forms/UpdateFieldWorkForm";
 import type { UpdateFieldWorkDTO } from "../interfaces/request/UpdateFieldWorkDTO";
 import { useFieldWork } from "../hooks/caching/UseFieldWork";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import AddFieldWorkForm from "../elements/forms/AddFieldWorkForm";
+import { type GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
 
 function UpdateFieldWorkPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [cropField, setCropField] = useState<GetCropFieldDTO | null>(null);
   const [fieldParcels, setFieldParcels] = useState<GetFieldParcelDTO[]>([]);
+  const [fieldWork, setFieldWork] = useState<GetFieldWorkDTO | null>(null);
   const [workTypes, setWorkTypes] = useState<GetWorkTypeDTO[]>([]);
 
   const {
@@ -109,10 +111,15 @@ function UpdateFieldWorkPage() {
     }
   }, [workTypesData]);
 
+  useEffect(() => {
+    if (fieldWorkData) {
+      setFieldWork(fieldWorkData);
+    }
+  }, [fieldWorkData]);
+
   if (
     isUserLoading ||
     isFieldWorkLoading ||
-    !fieldWorkData ||
     isCropFieldLoading ||
     isFieldParcelsLoading ||
     isWorkTypesLoading
@@ -139,9 +146,9 @@ function UpdateFieldWorkPage() {
             Back to {cropField?.name}
           </Button>
 
-          {cropField && fieldParcels && workTypes.length > 0 && (
-            <UpdateFieldWorkForm
-              fieldWorkData={fieldWorkData}
+          {cropField && fieldParcels && workTypes && fieldWork && (
+            <AddFieldWorkForm
+              fieldWorkToUpdate={fieldWork}
               cropField={cropField}
               fieldParcels={fieldParcels}
               workTypes={workTypes}
