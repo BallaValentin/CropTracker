@@ -7,15 +7,18 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  IconButton,
   List,
   ListItemButton,
   TextField,
   Typography,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 import type { GetWorkTypeDTO } from "../../interfaces/response/GetWorkTypeDTO";
 
 interface AffectedWorksDialogProps {
+  isPending: boolean;
   onConfirmSelect: (numberOfDays: number) => void;
   onConfirmCancel: () => void;
   workTypes: GetWorkTypeDTO[];
@@ -25,6 +28,7 @@ interface AffectedWorksDialogProps {
 }
 
 function SelectAffectedRowsDialog({
+  isPending,
   onConfirmSelect,
   onConfirmCancel,
   workTypes,
@@ -68,8 +72,17 @@ function SelectAffectedRowsDialog({
   return (
     <Box>
       <Dialog open={open} onClose={onConfirmCancel}>
-        <DialogTitle sx={{ fontWeight: "bold" }}>
+        <DialogTitle
+          sx={{ display: "flex", fontWeight: "bold", position: "relative" }}
+        >
           Select previous affected rows
+          <IconButton
+            disabled={isPending}
+            sx={{ position: "absolute", top: 8, right: 8 }}
+            onClick={() => onConfirmCancel()}
+          >
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
         <Divider />
         <DialogContent>
@@ -126,10 +139,10 @@ function SelectAffectedRowsDialog({
           </List>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onConfirmCancel} color="error">
+          <Button disabled={isPending} onClick={onConfirmCancel} color="error">
             Cancel
           </Button>
-          <Button onClick={handleConfirm} color="success">
+          <Button disabled={isPending} onClick={handleConfirm} color="success">
             Apply
           </Button>
         </DialogActions>

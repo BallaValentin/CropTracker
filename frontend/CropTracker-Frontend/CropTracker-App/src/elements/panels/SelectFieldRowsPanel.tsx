@@ -21,6 +21,7 @@ import type { GetPreviousWorkDTO } from "../../interfaces/response/GetPreviousWo
 import SelectWorksDialog from "../dialogs/SelectWorksDialog";
 
 interface SelectFieldRowsPanelProps {
+  isPending: boolean;
   cropField: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
   affectedRows: boolean[];
@@ -32,6 +33,7 @@ interface SelectFieldRowsPanelProps {
 }
 
 function SelectFieldRowsPanel({
+  isPending,
   cropField,
   fieldParcels,
   affectedRows,
@@ -57,16 +59,19 @@ function SelectFieldRowsPanel({
   useEffect(() => {
     if (workTypes) {
       setCheckedWorkTypes(Array(workTypes.length).fill(false));
-      setPreviousRows(Array(affectedRows.length).fill(false));
     }
   }, [workTypes, affectedRows]);
 
   useEffect(() => {
     if (previousWorks) {
       setCheckedFieldWorks(Array(previousWorks.length).fill(false));
-      setPreviousRows(Array(affectedRows.length).fill(false));
+      let maxRowLength = 0;
+      previousWorks.forEach((work) => {
+        maxRowLength = Math.max(maxRowLength, work.affectedRows.length);
+      });
+      setPreviousRows(Array(maxRowLength).fill(false));
     }
-  }, [previousWorks, affectedRows]);
+  }, [previousWorks]);
 
   const updateCheckedWorks = (updatedPreviousWorks: boolean[]) => {
     setCheckedFieldWorks(updatedPreviousWorks);
@@ -234,6 +239,7 @@ function SelectFieldRowsPanel({
           open={dialogOpen}
           checkedWorkTypes={checkedWorkTypes}
           onSelectWorkType={handleWorkTypeCheck}
+          isPending={isPending}
         />
       )}
 

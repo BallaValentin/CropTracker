@@ -141,7 +141,7 @@ function SelectWorksDialog({
                 }}
               >
                 <Box sx={{ display: "flex", gap: 10, alignItems: "center" }}>
-                  <Box sx={{ display: "flex", gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Typography
                       variant="caption"
                       color="textSecondary"
@@ -152,14 +152,28 @@ function SelectWorksDialog({
                     </Typography>
 
                     {fieldWork.endDate && (
+                      <Divider
+                        sx={{
+                          width: 16,
+                          height: 1,
+                          bgcolor: "text.secondary",
+                          opacity: 0.5,
+                          mx: 0.5,
+                        }}
+                      />
+                    )}
+
+                    {fieldWork.endDate ? (
                       <Typography
                         variant="caption"
                         color="textSecondary"
                         fontSize={"small"}
                         sx={{ fontStyle: "italic", fontWeight: "bold" }}
                       >
-                        {`-${fieldWork.endDate.substring(0, 10)} ${fieldWork.endDate.substring(11, 16)}`}
+                        {`${fieldWork.endDate.substring(0, 10)} ${fieldWork.endDate.substring(11, 16)}`}
                       </Typography>
+                    ) : (
+                      <Box sx={{ display: "block", width: "17ch" }} />
                     )}
                   </Box>
                   <Typography>{fieldWork.workTypeName}</Typography>

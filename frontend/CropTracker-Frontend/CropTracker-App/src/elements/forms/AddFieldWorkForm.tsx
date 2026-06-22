@@ -87,7 +87,7 @@ function AddFieldWorkForm({
       parameters: fieldWorkToUpdate?.parameters || {},
     });
 
-  const { mutate } = useMutation({
+  const { mutate, isPending: isFindWorksPending } = useMutation({
     mutationFn: ({
       cropFieldId,
       numberOfDays,
@@ -653,6 +653,7 @@ function AddFieldWorkForm({
         </Box>
 
         <SelectFieldRowsPanel
+          isPending={isFindWorksPending}
           cropField={cropField}
           fieldParcels={fieldParcels}
           affectedRows={createFieldWorkDTO.affectedRows}
