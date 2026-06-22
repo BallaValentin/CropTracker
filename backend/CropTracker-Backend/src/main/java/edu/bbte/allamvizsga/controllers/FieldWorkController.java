@@ -4,6 +4,7 @@ import edu.bbte.allamvizsga.dto.request.fieldWork.CreateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.request.fieldWork.UpdateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetAffectedRowsDTO;
+import edu.bbte.allamvizsga.dto.response.fieldWork.GetPreviousWorkDTO;
 import edu.bbte.allamvizsga.mappers.FieldWorkMapper;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldWork;
@@ -102,8 +103,8 @@ public class FieldWorkController {
         return ResponseEntity.ok(fieldWorkMapper.modelToGetFieldWork(fieldWork));
     }
 
-    @GetMapping("/findRows")
-    public ResponseEntity<GetAffectedRowsDTO> findPreviousAffectedRows(@RequestHeader("Authorization") String authorizationHeader,
+    @GetMapping("/find-previous-works")
+    public ResponseEntity<Collection<GetPreviousWorkDTO>> findPreviousWorks(@RequestHeader("Authorization") String authorizationHeader,
                                                                        @RequestParam("cropFieldId") UUID cropFieldId,
                                                                        @RequestParam("numberOfDays") Integer numberOfDays,
                                                                        @RequestParam("referenceDate") String refDateString,
@@ -117,21 +118,7 @@ public class FieldWorkController {
 
         List<FieldWork> previousFieldWorks = fieldWorkService.findAllWithinPastDays(
                 cropField, refDate, numberOfDays, selectedWorkTypeIds);
-        GetAffectedRowsDTO affectedRowsDTO = new GetAffectedRowsDTO(Collections.emptyList());
 
-        if (!previousFieldWorks.isEmpty()) {
-            List<Boolean> masterRows = new ArrayList<>(previousFieldWorks.getFirst().getAffectedRows().stream().toList());
-
-            previousFieldWorks.forEach(fieldWork -> {
-                List<Boolean> rows = fieldWork.getAffectedRows().stream().toList();
-                for (int i = 0; i < fieldWork.getAffectedRows().size(); i++) {
-                    masterRows.set(i, masterRows.get(i) | rows.get(i));
-                }
-            });
-
-            affectedRowsDTO.setAffectedRows(masterRows);
-        }
-
-        return ResponseEntity.ok(affectedRowsDTO);
+        return ResponseEntity.ok(previousFieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList());
     }
 }

@@ -14,15 +14,17 @@ import {
 import SelectRowsView from "../../leaflet/view/SelectRowsView";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SelectAffectedRowsDialog from "../dialogs/SelectAffectedRowsDialog";
 import type { GetWorkTypeDTO } from "../../interfaces/response/GetWorkTypeDTO";
+import type { GetPreviousWorkDTO } from "../../interfaces/response/GetPreviousWorkDTO";
+import SelectWorksDialog from "../dialogs/SelectWorksDialog";
 
 interface SelectFieldRowsPanelProps {
   cropField: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
   affectedRows: boolean[];
-  previousRows: boolean[];
+  previousWorks: GetPreviousWorkDTO[];
   workTypes: GetWorkTypeDTO[];
   onParcelSelect: (index: number, checked: boolean) => void;
   onRowsSearch: (rows: number, selectedWorkTypes: string[]) => void;
@@ -35,12 +37,66 @@ function SelectFieldRowsPanel({
   affectedRows,
   onParcelSelect,
   workTypes,
-  previousRows,
+  previousWorks,
   onRowsSearch,
   onRowClick,
 }: SelectFieldRowsPanelProps) {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [hidden, setHidden] = useState<boolean>(false);
+  const [checkedWorkTypes, setCheckedWorkTypes] = useState<boolean[]>(
+    Array(workTypes.length).fill(false),
+  );
+  const [showResults, setShowResults] = useState<boolean>(false);
+  const [previousRows, setPreviousRows] = useState<boolean[]>(
+    Array(workTypes.length).fill(false),
+  );
+  const [checkedFieldWorks, setCheckedFieldWorks] = useState<boolean[]>(
+    Array(previousWorks.length).fill(false),
+  );
+
+  useEffect(() => {
+    if (workTypes) {
+      setCheckedWorkTypes(Array(workTypes.length).fill(false));
+      setPreviousRows(Array(affectedRows.length).fill(false));
+    }
+  }, [workTypes, affectedRows]);
+
+  useEffect(() => {
+    if (previousWorks) {
+      setCheckedFieldWorks(Array(previousWorks.length).fill(false));
+      setPreviousRows(Array(affectedRows.length).fill(false));
+    }
+  }, [previousWorks, affectedRows]);
+
+  const updateCheckedWorks = (updatedPreviousWorks: boolean[]) => {
+    setCheckedFieldWorks(updatedPreviousWorks);
+    const updatedPreviousRows = Array(previousRows.length).fill(false);
+    previousWorks.forEach((work, index) => {
+      if (updatedPreviousWorks[index]) {
+        for (let j = 0; j < work.affectedRows.length; j++) {
+          updatedPreviousRows[j] =
+            updatedPreviousRows[j] || work.affectedRows[j];
+        }
+      }
+    });
+
+    setPreviousRows(updatedPreviousRows);
+  };
+
+  useEffect(() => {
+    if (previousWorks && previousWorks.length > 0) {
+      const updatedPreviousRows = previousWorks[0].affectedRows;
+      previousWorks.forEach((previousWork, index) => {
+        if (index !== 0) {
+          for (let j = 0; j < updatedPreviousRows.length; j++) {
+            updatedPreviousRows[j] =
+              updatedPreviousRows[j] || previousWork.affectedRows[j];
+          }
+        }
+      });
+      setPreviousRows(updatedPreviousRows);
+    }
+  }, [previousWorks]);
 
   const handleParcelSelect = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -55,15 +111,25 @@ function SelectFieldRowsPanel({
     setDialogOpen(true);
   };
 
-  const handleSelect = (days: number, selectedWorkTypes: string[]) => {
-    console.log("Number of days: ", days);
+  const handleSelect = (days: number) => {
+    const selectedWorkTypes = workTypes
+      .filter((_, index) => checkedWorkTypes[index])
+      .map((workType) => workType.uid);
     onRowsSearch(days, selectedWorkTypes);
-    console.log(previousRows);
-    setDialogOpen(false);
+    setShowResults(true);
+  };
+
+  const handleGoBack = () => {
+    console.log("BACK");
+    setShowResults(false);
   };
 
   const handleCancel = () => {
     setDialogOpen(false);
+  };
+
+  const handleWorkTypeCheck = (updatedCheckedWorkTypes: boolean[]) => {
+    setCheckedWorkTypes(updatedCheckedWorkTypes);
   };
 
   const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,12 +226,25 @@ function SelectFieldRowsPanel({
           </Box>
         </Box>
       </Box>
-      {dialogOpen && (
+      {dialogOpen && !showResults && (
         <SelectAffectedRowsDialog
           onConfirmSelect={handleSelect}
           onConfirmCancel={handleCancel}
           workTypes={workTypes}
           open={dialogOpen}
+          checkedWorkTypes={checkedWorkTypes}
+          onSelectWorkType={handleWorkTypeCheck}
+        />
+      )}
+
+      {dialogOpen && showResults && (
+        <SelectWorksDialog
+          onBack={handleGoBack}
+          onConfirmCancel={handleCancel}
+          fieldWorks={previousWorks}
+          open={dialogOpen}
+          checkedFieldWorks={checkedFieldWorks}
+          onCheckFieldWork={updateCheckedWorks}
         />
       )}
     </Paper>

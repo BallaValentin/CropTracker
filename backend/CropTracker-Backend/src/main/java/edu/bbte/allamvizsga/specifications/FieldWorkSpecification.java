@@ -24,7 +24,7 @@ public class FieldWorkSpecification {
     public static Specification<FieldWork> byWorkTypeIn(List<UUID> selectedWorkTypes) {
         return (root, query, criteriaBuilder) -> {
             if (selectedWorkTypes == null || selectedWorkTypes.isEmpty()) {
-                return criteriaBuilder.conjunction();
+                return criteriaBuilder.disjunction();
             }
             Join<WorkType, Object> workTypesJoin = root.join("workType");
             return workTypesJoin.get("uid").in(selectedWorkTypes);

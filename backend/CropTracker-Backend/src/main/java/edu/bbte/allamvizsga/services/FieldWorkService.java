@@ -63,11 +63,9 @@ public class FieldWorkService {
         Instant startDate = referenceDate.minus(numberOfDays, ChronoUnit.DAYS);
 
         return fieldWorkRepository.findAll(Specification.allOf(FieldWorkSpecification.byCropField(cropField).and(
-                        FieldWorkSpecification.withStartDateGreaterThanEqual(startDate)
-                                .and(FieldWorkSpecification.byWorkTypeIn(selectedWorkTypes))
-                ))).stream()
-                .sorted((fw1, fw2) -> Integer.compare(fw2.getAffectedRows().size(), fw1.getAffectedRows().size()))
-                .toList();
+                FieldWorkSpecification.withStartDateGreaterThanEqual(startDate)
+                        .and(FieldWorkSpecification.byWorkTypeIn(selectedWorkTypes))
+        )), Sort.by(Sort.Direction.ASC, "startDate"));
     }
 
     public FieldWork findById(UUID uid, User user) {

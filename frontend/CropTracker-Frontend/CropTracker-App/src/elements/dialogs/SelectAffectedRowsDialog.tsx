@@ -16,10 +16,12 @@ import { useState } from "react";
 import type { GetWorkTypeDTO } from "../../interfaces/response/GetWorkTypeDTO";
 
 interface AffectedWorksDialogProps {
-  onConfirmSelect: (numberOfDays: number, selectedWorkTypes: string[]) => void;
+  onConfirmSelect: (numberOfDays: number) => void;
   onConfirmCancel: () => void;
   workTypes: GetWorkTypeDTO[];
   open: boolean;
+  checkedWorkTypes: boolean[];
+  onSelectWorkType: (checkedWorkTypes: boolean[], workTypeName: string) => void;
 }
 
 function SelectAffectedRowsDialog({
@@ -27,12 +29,10 @@ function SelectAffectedRowsDialog({
   onConfirmCancel,
   workTypes,
   open,
+  checkedWorkTypes,
+  onSelectWorkType,
 }: AffectedWorksDialogProps) {
   const [numberOfDays, setNumberOfDays] = useState("");
-  const [selectedWorkTypes, setSelectedWorkTypes] = useState<string[]>([]);
-  const [checkedItems, setCheckedItems] = useState<boolean[]>(
-    Array(workTypes.length).fill(false),
-  );
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNumberOfDays(event.target.value);
@@ -40,18 +40,16 @@ function SelectAffectedRowsDialog({
 
   const handleConfirm = () => {
     const days = Number(numberOfDays) || 0;
-    onConfirmSelect(days >= 0 ? days : 0, selectedWorkTypes);
+    onConfirmSelect(days >= 0 ? days : 0);
   };
 
   const handleCheckAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     const checked = event.target.checked;
 
     if (checked) {
-      setSelectedWorkTypes(workTypes.map((workType) => workType.uid));
-      setCheckedItems(Array(workTypes.length).fill(true));
+      onSelectWorkType(Array(workTypes.length).fill(true), "");
     } else {
-      setSelectedWorkTypes([]);
-      setCheckedItems(Array(workTypes.length).fill(false));
+      onSelectWorkType(Array(workTypes.length).fill(false), "");
     }
   };
 
@@ -62,19 +60,9 @@ function SelectAffectedRowsDialog({
   ) => {
     const checked = event.target.checked;
 
-    const updatedCheckedItems = [...checkedItems];
+    const updatedCheckedItems = [...checkedWorkTypes];
     updatedCheckedItems[index] = checked;
-    setCheckedItems([...updatedCheckedItems]);
-
-    if (checked) {
-      const updatedSelectedWorkTypes = [...selectedWorkTypes, name];
-      setSelectedWorkTypes(updatedSelectedWorkTypes);
-    } else {
-      const updatedSelectedWorkTypes = selectedWorkTypes.filter(
-        (workType) => workType !== name,
-      );
-      setSelectedWorkTypes(updatedSelectedWorkTypes);
-    }
+    onSelectWorkType([...updatedCheckedItems], name);
   };
 
   return (
@@ -128,7 +116,7 @@ function SelectAffectedRowsDialog({
               >
                 <Typography>{workType.name}</Typography>
                 <Checkbox
-                  checked={checkedItems[index]}
+                  checked={checkedWorkTypes[index]}
                   onChange={(e) =>
                     handleIndividualCheck(e, index, workType.uid)
                   }

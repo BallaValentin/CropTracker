@@ -3,6 +3,7 @@ package edu.bbte.allamvizsga.mappers;
 import edu.bbte.allamvizsga.dto.request.fieldWork.CreateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.request.fieldWork.UpdateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
+import edu.bbte.allamvizsga.dto.response.fieldWork.GetPreviousWorkDTO;
 import edu.bbte.allamvizsga.model.FieldWork;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -56,6 +57,21 @@ public abstract class FieldWorkMapper {
             getFieldWorkDTO.setEndDate("");
         } else {
             getFieldWorkDTO.setEndDate(fieldWork.getEndDate().toString());
+        }
+    }
+
+    @Mapping(target = "endDate", ignore = true)
+    public abstract GetPreviousWorkDTO modelToGetPreviousWork(FieldWork fieldWork);
+
+    @AfterMapping
+    protected void afterModelToGetPrevious(FieldWork fieldWork, @MappingTarget GetPreviousWorkDTO getPreviousWorkDTO) {
+        getPreviousWorkDTO.setWorkTypeName(fieldWork.getWorkType().getName());
+
+        getPreviousWorkDTO.setStartDate(fieldWork.getStartDate().toString());
+        if (fieldWork.getEndDate() == null) {
+            getPreviousWorkDTO.setEndDate("");
+        } else {
+            getPreviousWorkDTO.setEndDate(fieldWork.getEndDate().toString());
         }
     }
 }

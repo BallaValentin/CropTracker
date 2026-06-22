@@ -19,14 +19,14 @@ import StringNumberList from "../dynamicLists/StringNumberList";
 import SelectFieldRowsPanel from "../panels/SelectFieldRowsPanel";
 import SimpleTypeList from "../dynamicLists/SimpleTypeList";
 import type { CreateFieldWorkDTO } from "../../interfaces/request/CreateFieldWorkDTO";
-import { getPreviousRows } from "../../services/FieldWorkService";
-import type { GetAffectedRowsDTO } from "../../interfaces/response/GetAffectedRowsDTO";
+import { getPreviousWorks } from "../../services/FieldWorkService";
 import { useMutation } from "@tanstack/react-query";
 import AddIcon from "@mui/icons-material/Add";
 import AddNewWorkTypeDialog from "../dialogs/AddNewWorkTypeDialog";
 import type { CreateWorkTypeDTO } from "../../interfaces/request/CreateWorkTypeDTO";
 import type { GetFieldWorkDTO } from "../../interfaces/response/GetFieldWorkDTO";
 import type { UpdateFieldWorkDTO } from "../../interfaces/request/UpdateFieldWorkDTO";
+import type { GetPreviousWorkDTO } from "../../interfaces/response/GetPreviousWorkDTO";
 
 interface AddFieldWorkFormProps {
   fieldWorkToUpdate?: GetFieldWorkDTO | null;
@@ -50,7 +50,7 @@ function AddFieldWorkForm({
   isPending,
 }: AddFieldWorkFormProps) {
   const [rowRanges, setRowRanges] = useState<[number, number][]>([]);
-  const [previousRows, setPreviousRows] = useState<boolean[]>([]);
+  const [previousWorks, setPreviousWorks] = useState<GetPreviousWorkDTO[]>([]);
   const [currentWorkTypeIndex, setCurrentWorkTypeIndex] = useState<number>(
     () => {
       if (workTypes && fieldWorkToUpdate?.workTypeId) {
@@ -99,14 +99,14 @@ function AddFieldWorkForm({
       referenceDate: string;
       selectedWorkTypes: string[];
     }) =>
-      getPreviousRows(
+      getPreviousWorks(
         cropFieldId,
         numberOfDays,
         referenceDate,
         selectedWorkTypes,
       ),
-    onSuccess: (response: GetAffectedRowsDTO) => {
-      setPreviousRows(response.affectedRows);
+    onSuccess: (response: GetPreviousWorkDTO[]) => {
+      setPreviousWorks(response);
     },
   });
 
@@ -120,16 +120,17 @@ function AddFieldWorkForm({
   };
 
   useEffect(() => {
+    let totalRows = 0;
+    const newRowRanges: [number, number][] = [];
+    fieldParcels.forEach((parcel) => {
+      const minRange = totalRows;
+      totalRows += parcel.layoutParameters.numberOfRows;
+      const maxRange = totalRows;
+      newRowRanges.push([minRange, maxRange]);
+    });
+    setRowRanges(newRowRanges);
+
     if (!fieldWorkToUpdate) {
-      let totalRows = 0;
-      const newRowRanges: [number, number][] = [];
-      fieldParcels.forEach((parcel) => {
-        const minRange = totalRows;
-        totalRows += parcel.layoutParameters.numberOfRows;
-        const maxRange = totalRows;
-        newRowRanges.push([minRange, maxRange]);
-      });
-      setRowRanges(newRowRanges);
       setCreateFieldWorkDTO((prev) => ({
         ...prev,
         affectedRows: Array(totalRows).fill(false),
@@ -658,7 +659,7 @@ function AddFieldWorkForm({
           workTypes={workTypes}
           onParcelSelect={handleParcelSelect}
           onRowClick={handleRowClick}
-          previousRows={previousRows}
+          previousWorks={previousWorks}
           onRowsSearch={handleRowsSearch}
         />
 
