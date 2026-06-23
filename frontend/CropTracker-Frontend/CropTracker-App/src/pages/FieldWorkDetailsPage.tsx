@@ -58,8 +58,7 @@ function FieldWorkDetailsPage() {
         referenceRow: parcel.layoutParameters.referenceRow,
         numberOfRows: parcel.layoutParameters.numberOfRows,
         rowDistance:
-          parcel.layoutParameters.bedSpacing +
-          parcel.layoutParameters.rowWidth / 2,
+          parcel.layoutParameters.bedSpacing + parcel.layoutParameters.rowWidth,
       });
     });
 
@@ -138,104 +137,118 @@ function FieldWorkDetailsPage() {
   }
 
   return (
-    <MainContainer>
+    <Box>
       <MainHeader />
-      <Card sx={{ minHeight: 800, p: 2, mt: 20 }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <FieldInfoContainer labelText="Work Type">
-            <Typography>{fieldWorkData.workTypeName}</Typography>
-          </FieldInfoContainer>
-          <Box
-            sx={{ display: "flex", gap: 10, justifyContent: "space-between" }}
-          >
-            {fieldWorkData.startDate && (
-              <FieldInfoContainer labelText="Starting Date">
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <CalendarMonthIcon />
-                  <Typography>
-                    {convertDate(fieldWorkData.startDate)}
-                  </Typography>
-                </Box>
-              </FieldInfoContainer>
-            )}
-            {fieldWorkData.endDate && (
-              <FieldInfoContainer labelText="Ending Date">
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <CalendarMonthIcon />
-                  <Typography>{convertDate(fieldWorkData.endDate)}</Typography>
-                </Box>
-              </FieldInfoContainer>
-            )}
-          </Box>
-
-          {Object.entries(fieldWorkData.parameters).map(([key, value]) => {
-            if (
-              (!Array.isArray(value) && typeof value === "string") ||
-              typeof value === "number"
-            ) {
-              return (
-                <FieldInfoContainer labelText={key}>
-                  <Typography>{value ? value : "N/A"}</Typography>
-                </FieldInfoContainer>
-              );
-            }
-
-            if (Array.isArray(value)) {
-              return (
-                <Box sx={{ width: 800 }}>
-                  <Typography color="success">{key}</Typography>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <Divider />
-                    {value.map((element) => {
-                      if (isStringNumber(element)) {
-                        const snElement = element as StringNumber;
-                        return (
-                          <Box sx={{ display: "flex", gap: 5 }}>
-                            <FieldInfoContainer>
-                              <Typography>
-                                {snElement.textValue || "N/A"}
-                              </Typography>
-                            </FieldInfoContainer>
-                            <FieldInfoContainer>
-                              <Typography>
-                                {snElement.numberValue ?? "N/A"}
-                              </Typography>
-                            </FieldInfoContainer>
-                          </Box>
-                        );
-                      } else {
-                        <FieldInfoContainer>
-                          <Typography>{element || "N/A"}</Typography>
-                        </FieldInfoContainer>;
-                      }
-                    })}
-                    <Divider />
-                  </Box>
-                </Box>
-              );
-            }
-          })}
-        </Box>
-        <Typography variant="h6" sx={{ fontWeight: "bold", my: 2 }}>
-          Affected parcels
+      <MainContainer>
+        <Typography
+          component={"h1"}
+          color="success"
+          letterSpacing={"0.02em"}
+          sx={{ fontWeight: "bold", my: 10 }}
+          variant="h3"
+        >
+          {cropFieldData.name}
         </Typography>
-        <Box sx={{ height: 400, my: 2 }}>
-          <FieldDetailMapPreview
-            mapHeight={400}
-            uid={fieldWorkData.uid}
-            markerPosition={cropFieldData.markerPosition}
-            polygonPoints={cropFieldData.polygonPoints}
-            fieldParcels={fieldParcelsData}
-            rows={rows.flat()}
-            rowRectangles={rowRectangles}
-            cropCoords={cropCoords}
-            affectedRows={fieldWorkData.affectedRows}
-          />
-        </Box>
-      </Card>
-    </MainContainer>
+        <Card sx={{ minHeight: 800, p: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <FieldInfoContainer labelText="Work Type">
+              <Typography>{fieldWorkData.workTypeName}</Typography>
+            </FieldInfoContainer>
+            <Box
+              sx={{ display: "flex", gap: 10, justifyContent: "space-between" }}
+            >
+              {fieldWorkData.startDate && (
+                <FieldInfoContainer labelText="Starting Date">
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <CalendarMonthIcon />
+                    <Typography>
+                      {convertDate(fieldWorkData.startDate)}
+                    </Typography>
+                  </Box>
+                </FieldInfoContainer>
+              )}
+              {fieldWorkData.endDate && (
+                <FieldInfoContainer labelText="Ending Date">
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <CalendarMonthIcon />
+                    <Typography>
+                      {convertDate(fieldWorkData.endDate)}
+                    </Typography>
+                  </Box>
+                </FieldInfoContainer>
+              )}
+            </Box>
+
+            {Object.entries(fieldWorkData.parameters).map(([key, value]) => {
+              if (
+                (!Array.isArray(value) && typeof value === "string") ||
+                typeof value === "number"
+              ) {
+                return (
+                  <FieldInfoContainer labelText={key}>
+                    <Typography>{value ? value : "N/A"}</Typography>
+                  </FieldInfoContainer>
+                );
+              }
+
+              if (Array.isArray(value)) {
+                return (
+                  <Box sx={{ width: 800 }}>
+                    <Typography color="success">{key}</Typography>
+                    <Box
+                      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+                    >
+                      <Divider />
+                      {value.map((element) => {
+                        if (isStringNumber(element)) {
+                          const snElement = element as StringNumber;
+                          return (
+                            <Box sx={{ display: "flex", gap: 5 }}>
+                              <FieldInfoContainer>
+                                <Typography>
+                                  {snElement.textValue || "N/A"}
+                                </Typography>
+                              </FieldInfoContainer>
+                              <FieldInfoContainer>
+                                <Typography>
+                                  {snElement.numberValue ?? "N/A"}
+                                </Typography>
+                              </FieldInfoContainer>
+                            </Box>
+                          );
+                        } else {
+                          <FieldInfoContainer>
+                            <Typography>{element || "N/A"}</Typography>
+                          </FieldInfoContainer>;
+                        }
+                      })}
+                      <Divider />
+                    </Box>
+                  </Box>
+                );
+              }
+            })}
+          </Box>
+          <Typography variant="h6" sx={{ fontWeight: "bold", my: 2 }}>
+            Affected parcels
+          </Typography>
+          <Box sx={{ height: 400, my: 2 }}>
+            <FieldDetailMapPreview
+              mapHeight={400}
+              uid={fieldWorkData.uid}
+              markerPosition={cropFieldData.markerPosition}
+              polygonPoints={cropFieldData.polygonPoints}
+              fieldParcels={fieldParcelsData}
+              rows={rows.flat()}
+              rowRectangles={rowRectangles}
+              cropCoords={cropCoords}
+              affectedRows={fieldWorkData.affectedRows}
+              parcelsSelected={[]}
+            />
+          </Box>
+        </Card>
+      </MainContainer>
+    </Box>
   );
 }
 

@@ -3,7 +3,6 @@ package edu.bbte.allamvizsga.controllers;
 import edu.bbte.allamvizsga.dto.request.fieldWork.CreateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.request.fieldWork.UpdateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
-import edu.bbte.allamvizsga.dto.response.fieldWork.GetAffectedRowsDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetPreviousWorkDTO;
 import edu.bbte.allamvizsga.mappers.FieldWorkMapper;
 import edu.bbte.allamvizsga.model.CropField;
@@ -72,13 +71,13 @@ public class FieldWorkController {
     }
 
     @GetMapping("/findall")
-    public ResponseEntity<Collection<GetFieldWorkDTO>> findAll(@RequestHeader("Authorization")
+    public ResponseEntity<Collection<GetPreviousWorkDTO>> findAll(@RequestHeader("Authorization")
                                                                String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
         Collection<FieldWork> fieldWorks = fieldWorkService.findall(user);
 
-        return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetFieldWork).toList());
+        return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList());
     }
 
     @GetMapping(value = "/findall", params = "cropFieldId")

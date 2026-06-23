@@ -11,22 +11,22 @@ import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import { useFieldWorks } from "../hooks/caching/UseFieldWorks";
-import type { GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import type { GetPreviousWorkDTO } from "../interfaces/response/GetPreviousWorkDTO";
 
 function WorkHistoryPage() {
   const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();
   const { data: fieldWorks, isLoading: isLoadingFieldWorks } = useFieldWorks();
   const [fieldWorksByDate, setFieldWorksByDate] = useState<
-    Record<string, GetFieldWorkDTO[]>
+    Record<string, GetPreviousWorkDTO[]>
   >({});
   const navigate = useNavigate();
 
   useEffect(() => {
     if (fieldWorks) {
-      const groupedByDate: Record<string, GetFieldWorkDTO[]> = {};
+      const groupedByDate: Record<string, GetPreviousWorkDTO[]> = {};
       fieldWorks.forEach((work) => {
         const dateKey = work.startDate.substring(0, 10);
         if (!groupedByDate[dateKey]) {
@@ -57,10 +57,21 @@ function WorkHistoryPage() {
 
   return (
     <Box>
+      <MainHeader />
       <MainContainer>
-        <MainHeader />
+        <Typography
+          component={"h1"}
+          color="success"
+          letterSpacing={"0.02em"}
+          sx={{ fontWeight: "bold", mt: 10 }}
+          variant="h3"
+        >
+          Work History
+        </Typography>
+        <Divider sx={{ mb: 10 }} />
+
         {fieldWorksByDate && Object.keys(fieldWorksByDate).length > 0 ? (
-          <Box sx={{ mt: 20 }}>
+          <Box>
             {Object.entries(fieldWorksByDate).map(([date, fieldWorks]) => (
               <Card key={date} sx={{ mb: 4 }}>
                 <CardContent>
@@ -80,7 +91,7 @@ function WorkHistoryPage() {
                         alignContent: "center",
                       }}
                     >
-                      <Box sx={{ display: "flex", gap: 2 }}>
+                      <Box sx={{ display: "flex", gap: 5 }}>
                         <Box sx={{ display: "flex" }}>
                           <Typography
                             variant="subtitle1"
@@ -90,7 +101,7 @@ function WorkHistoryPage() {
                           >
                             {fieldWork.startDate.substring(11, 16)}
                           </Typography>
-                          {fieldWork.endDate && (
+                          {fieldWork.endDate ? (
                             <Typography
                               variant="subtitle1"
                               color="textSecondary"
@@ -99,16 +110,29 @@ function WorkHistoryPage() {
                             >
                               -{fieldWork.endDate.substring(11, 16)}
                             </Typography>
+                          ) : (
+                            <Box sx={{ display: "block", width: "5ch" }} />
                           )}
                         </Box>
 
-                        <Typography
-                          variant="h6"
-                          fontSize={"medium"}
-                          sx={{ fontWeight: "bold" }}
-                        >
-                          {fieldWork.workTypeName}
-                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Typography>{fieldWork.cropFieldName}</Typography>
+                          <Divider
+                            sx={{
+                              width: 16,
+                              borderBottomWidth: 1,
+                              mx: 0.75,
+                              bgcolor: "black",
+                            }}
+                          />
+                          <Typography
+                            variant="caption"
+                            fontSize={"medium"}
+                            sx={{ fontWeight: "bold" }}
+                          >
+                            {fieldWork.workTypeName}
+                          </Typography>
+                        </Box>
                       </Box>
 
                       <Button

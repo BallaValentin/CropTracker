@@ -66,6 +66,7 @@ public abstract class FieldWorkMapper {
     @AfterMapping
     protected void afterModelToGetPrevious(FieldWork fieldWork, @MappingTarget GetPreviousWorkDTO getPreviousWorkDTO) {
         getPreviousWorkDTO.setWorkTypeName(fieldWork.getWorkType().getName());
+        getPreviousWorkDTO.setCropFieldName(fieldWork.getCropField().getName());
 
         getPreviousWorkDTO.setStartDate(fieldWork.getStartDate().toString());
         if (fieldWork.getEndDate() == null) {
