@@ -2,6 +2,7 @@ package edu.bbte.allamvizsga.specifications;
 
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldWork;
+import edu.bbte.allamvizsga.model.User;
 import edu.bbte.allamvizsga.model.WorkType;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,6 +29,14 @@ public class FieldWorkSpecification {
             }
             Join<WorkType, Object> workTypesJoin = root.join("workType");
             return workTypesJoin.get("uid").in(selectedWorkTypes);
+        };
+    }
+
+    public static Specification<FieldWork> byUser(User user) {
+        return (root, query, criteriaBuilder) -> {
+            Join<FieldWork, CropField> cropFieldJoin =
+                    root.join("cropField");
+            return cropFieldJoin.get("user").equalTo(user);
         };
     }
 

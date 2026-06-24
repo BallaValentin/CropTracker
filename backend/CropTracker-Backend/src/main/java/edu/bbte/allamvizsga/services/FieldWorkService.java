@@ -9,6 +9,9 @@ import edu.bbte.allamvizsga.specifications.FieldWorkSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -43,16 +46,25 @@ public class FieldWorkService {
         fieldWorkRepository.save(fieldWork);
     }
 
-    public Collection<FieldWork> findall(User user) {
-        return fieldWorkRepository.findAll(Sort.by(Sort.Direction.DESC, "startDate"))
-                .stream().filter(fieldWork -> fieldWork.getCropField().getUser() == user).toList();
+    public Collection<FieldWork> findAll(User user) {
+        return fieldWorkRepository.findAll(
+                Specification.allOf(FieldWorkSpecification.byUser(user)),
+                Sort.by(Sort.Direction.DESC, "startDate"));
     }
 
-    public Collection<FieldWork> findallByCropField(CropField cropField) {
+    public Page<FieldWork> findAllPastWorks(User user, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Direction.DESC, "startDate"));
+
+        return fieldWorkRepository.findAll(
+                Specification.allOf(FieldWorkSpecification.byUser(user)), pageable);
+    }
+
+    public Collection<FieldWork> findAllByCropField(CropField cropField) {
         return fieldWorkRepository.findAll(Specification.allOf(
                 FieldWorkSpecification.byCropField(cropField)
                         .and(FieldWorkSpecification.byWorkTiming("Scheduled"))
-        ), Sort.by(Sort.Direction.ASC, "startDate"));
+        ), Sort.by(Sort.Direction.DESC, "startDate"));
     }
 
     public List<FieldWork> findAllWithinPastDays(

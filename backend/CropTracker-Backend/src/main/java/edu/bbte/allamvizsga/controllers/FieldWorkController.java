@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -72,13 +73,18 @@ public class FieldWorkController {
 
     @GetMapping("/findall")
     public ResponseEntity<Collection<GetPreviousWorkDTO>> findAll(@RequestHeader("Authorization")
-                                                               String authorizationHeader) {
+                                                               String authorizationHeader,
+                                                                  @RequestParam("page") int page,
+                                                                  @RequestParam("size") int size) {
+        System.out.println("Page: " + page + " size: " + size);
         User user = userService.extractUser(authorizationHeader);
 
-        Collection<FieldWork> fieldWorks = fieldWorkService.findall(user);
+        Page<FieldWork> fieldWorks = fieldWorkService.findAllPastWorks(user, page, size);
 
         return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList());
     }
+
+
 
     @GetMapping(value = "/findall", params = "cropFieldId")
     public ResponseEntity<Collection<GetFieldWorkDTO>> findAllOfCropField(@RequestHeader("Authorization")
@@ -87,7 +93,7 @@ public class FieldWorkController {
         User user = userService.extractUser(authorizationHeader);
         CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
 
-        Collection<FieldWork> fieldWorks = fieldWorkService.findallByCropField(cropField);
+        Collection<FieldWork> fieldWorks = fieldWorkService.findAllByCropField(cropField);
 
         return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetFieldWork).toList());
     }

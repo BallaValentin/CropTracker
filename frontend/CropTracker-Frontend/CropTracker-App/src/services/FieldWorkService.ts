@@ -29,9 +29,14 @@ export const updateFieldWork = async(updateFieldWorkDTO: UpdateFieldWorkDTO, fie
     });
 }
 
-export const getFieldWorks = async(): Promise<GetPreviousWorkDTO[]> => {
+export const getFieldWorksByPage = async(page: number, size: number): Promise<GetPreviousWorkDTO[]> => {
     console.log("Sending get-field-works request to server");
-    const response = await fieldWorkApi.get<GetPreviousWorkDTO[]>("/findall");
+    const response = await fieldWorkApi.get<GetPreviousWorkDTO[]>("/findall", {
+        params: {
+            page: page,
+            size: size
+        }
+    });
     return response.data;
 }
 

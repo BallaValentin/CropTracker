@@ -34,3 +34,5 @@ export const maxLines = 10;
 export const digitsLength = 6;
 
 export const standardNameRegex = /^\p{Lu}(?![\s_-]*$)[\p{L}\d\s_-]{2,33}[\p{L}\d]$/u;
+
+export const pageSize = 25;
