@@ -2,7 +2,8 @@ package edu.bbte.allamvizsga.controllers;
 
 import edu.bbte.allamvizsga.dto.request.workType.CreateWorkTypeDTO;
 import edu.bbte.allamvizsga.dto.response.workType.GetWorkTypeDTO;
-import edu.bbte.allamvizsga.mappers.WorkTypesMapper;
+import edu.bbte.allamvizsga.dto.response.workType.GetWorkTypeNameDTO;
+import edu.bbte.allamvizsga.mappers.WorkTypeMapper;
 import edu.bbte.allamvizsga.model.User;
 import edu.bbte.allamvizsga.model.WorkType;
 import edu.bbte.allamvizsga.services.UserService;
@@ -26,15 +27,26 @@ import java.util.Collection;
 public class WorkTypeController {
     private final WorkTypeService workTypesService;
     private final UserService userService;
-    private final WorkTypesMapper workTypesMapper;
+    private final WorkTypeMapper workTypeMapper;
 
     @GetMapping("/findall")
     public ResponseEntity<Collection<GetWorkTypeDTO>> getWorkTypes(@RequestHeader("Authorization")
-                                                                    String authorizationHeader) {
+                                                                   String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
         Collection<WorkType> workTypes = workTypesService.findAllOfUser(user);
 
-        return ResponseEntity.ok(workTypes.stream().map(workTypesMapper::modelToGetWorkTypesDTO).toList());
+        return ResponseEntity.ok(workTypes.stream().map(workTypeMapper::modelToGetWorkTypesDTO).toList());
+    }
+
+    @GetMapping(value = "/findall", params = "pattern")
+    public ResponseEntity<Collection<GetWorkTypeNameDTO>> getWorkTypesByPattern(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam("pattern") String pattern) {
+        User user = userService.extractUser(authorizationHeader);
+
+        Collection<WorkType> workTypes = workTypesService.findByPattern(user, pattern);
+
+        return ResponseEntity.ok(workTypes.stream().map(workTypeMapper::modelToGetWorkTypeName).toList());
     }
 
     @PostMapping("/create")
@@ -42,7 +54,7 @@ public class WorkTypeController {
                        @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
-        WorkType workType = workTypesMapper.createWorkTypesDTOtoModel(createWorkTypeDTO);
+        WorkType workType = workTypeMapper.createWorkTypesDTOtoModel(createWorkTypeDTO);
         workType.setIsSystem(false);
         workType.setUser(user);
 

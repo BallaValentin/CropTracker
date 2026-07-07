@@ -102,6 +102,13 @@ public class CropFieldService {
         );
     }
 
+    public Collection<CropField> findByPattern(User user, String pattern) {
+        return cropFieldRepository.findAll(Specification.allOf(
+                CropFieldSpecification.byUser(user)
+                        .and(CropFieldSpecification.withNamePattern(pattern))
+        ));
+    }
+
     public CropField findById(UUID uid) {
         CropField cropField = cropFieldRepository.findByUid(uid);
         if (cropField == null || cropField.getIsDeleted()) {

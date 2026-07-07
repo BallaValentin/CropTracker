@@ -71,15 +71,29 @@ public class FieldWorkController {
         fieldWorkService.update(fieldWork);
     }
 
-    @GetMapping("/findall")
+    @GetMapping(value = "/find-by-page")
     public ResponseEntity<Collection<GetPreviousWorkDTO>> findAll(@RequestHeader("Authorization")
                                                                String authorizationHeader,
                                                                   @RequestParam("page") int page,
-                                                                  @RequestParam("size") int size) {
+                                                                  @RequestParam("size") int size,
+                                                                  @RequestParam(name = "cropFieldId", required = false) UUID cropFieldId,
+                                                                  @RequestParam(name = "workTypeId", required = false) UUID workTypeId) {
         System.out.println("Page: " + page + " size: " + size);
         User user = userService.extractUser(authorizationHeader);
 
-        Page<FieldWork> fieldWorks = fieldWorkService.findAllPastWorks(user, page, size);
+        WorkType workType = null;
+
+        if (workTypeId != null) {
+            workType = workTypesService.findByUser(user, workTypeId);
+        }
+
+        CropField cropField = null;
+
+        if (cropFieldId != null) {
+            cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
+        }
+
+        Page<FieldWork> fieldWorks = fieldWorkService.findAllPastWorks(user, workType, cropField, page, size);
 
         return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList());
     }

@@ -40,7 +40,7 @@ function MainPage() {
   return (
     <>
       <GlobalStyles styles={{ body: { margin: 0 } }} />
-      <Box sx={{ bgcolor: "#d0edc5ff" }}>
+      <Box sx={{ bgcolor: "#f4f8f4" }}>
         <MainHeader />
         <MainContainer>
           <ColumnCenterContainer>

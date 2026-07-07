@@ -11,7 +11,7 @@ public class CropFieldSpecification {
         return (((root, query, criteriaBuilder) ->
                 criteriaBuilder.or(
                         criteriaBuilder.equal(root.get("name"), baseName),
-                        criteriaBuilder.like(root.get("name"), baseName + "(%)"))))
+                        criteriaBuilder.like(root.get("name"), "%" + baseName + "%"))))
                 ;
     }
 

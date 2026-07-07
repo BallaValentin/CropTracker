@@ -14,7 +14,13 @@ import java.util.UUID;
 public class FieldWorkSpecification {
     public static Specification<FieldWork> byCropField(CropField cropField) {
         return ((root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("cropField"), cropField));
+        {
+            if (cropField == null) {
+                return criteriaBuilder.conjunction();
+            } else {
+                return criteriaBuilder.equal(root.get("cropField"), cropField);
+            }
+        });
     }
 
     public static Specification<FieldWork> withStartDateGreaterThanEqual(Instant startDate) {
@@ -44,5 +50,15 @@ public class FieldWorkSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(
                 root.get("workTiming"), workTiming
         );
+    }
+
+    public static Specification<FieldWork> byWorkType(WorkType workType) {
+        return ((root, query, criteriaBuilder) -> {
+            if (workType == null) {
+                return criteriaBuilder.conjunction();
+            } else {
+                return criteriaBuilder.equal(root.get("workType"), workType);
+            }
+        });
     }
 }

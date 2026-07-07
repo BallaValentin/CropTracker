@@ -4,6 +4,7 @@ import edu.bbte.allamvizsga.dto.LatLngObject;
 import edu.bbte.allamvizsga.dto.request.cropfield.CreateCropFieldDTO;
 import edu.bbte.allamvizsga.dto.request.cropfield.UpdateCropFieldDTO;
 import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldDTO;
+import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldNameDTO;
 import edu.bbte.allamvizsga.mappers.util.PolygonMapper;
 import edu.bbte.allamvizsga.model.CropField;
 import org.mapstruct.*;
@@ -41,4 +42,6 @@ public abstract class CropFieldMapper {
         cropField.setLatitude(updateCropFieldDTO.getMarkerPosition().getLat());
         cropField.setLongitude(updateCropFieldDTO.getMarkerPosition().getLng());
     }
+
+    public abstract GetCropFieldNameDTO modelToGetCropFieldName(CropField cropField);
 }

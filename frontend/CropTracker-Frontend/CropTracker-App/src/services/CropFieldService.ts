@@ -3,6 +3,7 @@ import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO"
 import type { CreateCropFieldDTO } from "../interfaces/request/CreateCropFieldDTO"
 import type { UpdateCropFieldDTO } from "../interfaces/request/UpdateCropFieldDTO"
 import { attachAuthInterceptors } from "./AttachAuthInterceptors"
+import type { GetCropFieldNameDTO } from "../interfaces/response/GetCropFieldNameDTO"
 
 export const cropFieldApi = axios.create({
     baseURL: "http://localhost:8080/api/cropfield",
@@ -27,6 +28,17 @@ export const updateCropField = async(updateCropField: UpdateCropFieldDTO, cropFi
 export const getCropFields = async (): Promise<GetCropFieldDTO[]> => {
     console.log("Sending get-cropfields request to server")
     const response = await cropFieldApi.get<GetCropFieldDTO[]>("/findall");
+
+    return response.data
+}
+
+export const getCropFieldNames = async (pattern: string): Promise<GetCropFieldNameDTO[]> => {
+    console.log("Sending get-cropfield-names request to server")
+    const response = await cropFieldApi.get<GetCropFieldNameDTO[]>("/findall", {
+        params: {
+            pattern: pattern
+        }
+    });
 
     return response.data
 }

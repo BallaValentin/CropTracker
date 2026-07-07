@@ -4,6 +4,7 @@ import edu.bbte.allamvizsga.exceptions.ForbiddenException;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.FieldWork;
 import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.model.WorkType;
 import edu.bbte.allamvizsga.repository.FieldWorkRepository;
 import edu.bbte.allamvizsga.specifications.FieldWorkSpecification;
 import jakarta.persistence.EntityNotFoundException;
@@ -52,12 +53,14 @@ public class FieldWorkService {
                 Sort.by(Sort.Direction.DESC, "startDate"));
     }
 
-    public Page<FieldWork> findAllPastWorks(User user, int page, int size) {
+    public Page<FieldWork> findAllPastWorks(User user, WorkType workType, CropField cropField, int page, int size) {
         Pageable pageable = PageRequest.of(page, size,
                 Sort.by(Sort.Direction.DESC, "startDate"));
 
         return fieldWorkRepository.findAll(
-                Specification.allOf(FieldWorkSpecification.byUser(user)), pageable);
+                Specification.allOf(FieldWorkSpecification.byUser(user)
+                        .and(FieldWorkSpecification.byWorkType(workType))
+                        .and(FieldWorkSpecification.byCropField(cropField))), pageable);
     }
 
     public Collection<FieldWork> findAllByCropField(CropField cropField) {

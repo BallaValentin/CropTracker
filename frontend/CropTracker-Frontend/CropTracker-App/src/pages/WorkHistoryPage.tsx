@@ -16,15 +16,67 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { getFieldWorksByPage } from "../services/FieldWorkService";
 import { pageSize } from "../utils/Constants";
 import FieldWorkHistoryItem from "../elements/list-item/FieldWorkHistoryItem";
+import CropFieldAutocomplete from "../elements/auto-completes/CropFieldAutocomplete";
+import WorkTypeAutocomplete from "../elements/auto-completes/WorkTypeAutocomplete";
+import { getCropFieldNames } from "../services/CropFieldService";
+import type { GetCropFieldNameDTO } from "../interfaces/response/GetCropFieldNameDTO";
+import { useMutation } from "@tanstack/react-query";
+import type { GetWorkTypeNameDTO } from "../interfaces/response/GetWorkTypeNameDTO";
+import { getWorkTypeNames } from "../services/WorkTypeService";
 
 function WorkHistoryPage() {
   const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();
   const [fieldWorks, setFieldWorks] = useState<GetPreviousWorkDTO[]>([]);
   const navigate = useNavigate();
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [cropFieldId, setCropFieldId] = useState<string | null>(null);
+  const [workTypeId, setWorkTypeId] = useState<string | null>(null);
 
   const pageRef = useRef<number>(0);
   const isFetchingRef = useRef<boolean>(false);
+
+  const [cropFields, setCropFields] = useState<GetCropFieldNameDTO[]>([]);
+  const [workTypes, setWorkTypes] = useState<GetWorkTypeNameDTO[]>([]);
+
+  const { mutate: cropFieldMutate, isPending: isCropFieldPending } =
+    useMutation({
+      mutationFn: getCropFieldNames,
+      onSuccess: (response: GetCropFieldNameDTO[]) => {
+        setCropFields(response);
+      },
+    });
+
+  const handleCropFieldSearch = (searchTerm: string) => {
+    cropFieldMutate(searchTerm);
+  };
+
+  const handleCropFieldSelect = (cropFieldId: string) => {
+    if (cropFieldId) {
+      setCropFieldId(cropFieldId);
+      pageRef.current = 0;
+      setFieldWorks([]);
+      setHasMore(true);
+    }
+  };
+
+  const { mutate: workTypeMutate, isPending: isWorkTypePending } = useMutation({
+    mutationFn: getWorkTypeNames,
+    onSuccess: (response: GetWorkTypeNameDTO[]) => {
+      setWorkTypes(response);
+    },
+  });
+
+  const handleWorkTypeSearch = (searchTerm: string) => {
+    workTypeMutate(searchTerm);
+  };
+  const handleWorkTypeSelect = (workTypeId: string) => {
+    if (workTypeId) {
+      setWorkTypeId(workTypeId);
+      pageRef.current = 0;
+      setFieldWorks([]);
+      setHasMore(true);
+    }
+  };
 
   const getNextWorks = useCallback(async () => {
     if (!hasMore || isFetchingRef.current) return;
@@ -32,7 +84,12 @@ function WorkHistoryPage() {
     isFetchingRef.current = true;
 
     try {
-      const response = await getFieldWorksByPage(pageRef.current, pageSize);
+      const response = await getFieldWorksByPage(
+        pageRef.current,
+        cropFieldId,
+        workTypeId,
+        pageSize,
+      );
       if (response.length === 0) {
         setHasMore(false);
       } else {
@@ -54,13 +111,13 @@ function WorkHistoryPage() {
     } finally {
       isFetchingRef.current = false;
     }
-  }, [hasMore, isFetchingRef]);
+  }, [cropFieldId, hasMore, workTypeId]);
 
   useEffect(() => {
     if (pageRef.current === 0) {
       getNextWorks();
     }
-  }, [getNextWorks]);
+  }, [getNextWorks, cropFieldId, workTypeId]);
 
   if (isLoadingUser) {
     return <ProgressCircle loadingMessage="Loading work history..." />;
@@ -86,6 +143,25 @@ function WorkHistoryPage() {
           Work History
         </Typography>
         <Divider sx={{ mb: 10 }} />
+
+        <Box sx={{ display: "flex", gap: 1, width: "100%", mb: 3 }}>
+          <Box sx={{ flex: 1 }}>
+            <CropFieldAutocomplete
+              onCropFieldSelect={handleCropFieldSelect}
+              onCropFieldSearch={handleCropFieldSearch}
+              cropFields={cropFields}
+              isPending={isCropFieldPending}
+            />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <WorkTypeAutocomplete
+              onWorkTypeSelect={handleWorkTypeSelect}
+              onWorkTypeSearch={handleWorkTypeSearch}
+              workTypes={workTypes}
+              isPending={isWorkTypePending}
+            />
+          </Box>
+        </Box>
 
         <Box sx={{ height: "70vh", overflow: "auto" }}>
           <InfiniteScroll
@@ -145,8 +221,8 @@ function WorkHistoryPage() {
                         bgcolor: "#f4f8f4",
                         px: 1,
                         py: 3,
-                        borderTopLeftRadius: 2,
-                        borderTopRightRadius: 2,
+                        borderTopLeftRadius: 4,
+                        borderTopRightRadius: 4,
                       }}
                     >
                       <Typography
@@ -166,8 +242,8 @@ function WorkHistoryPage() {
                       px: 1,
                       py: 0.5,
                       bgcolor: "#f4f8f4",
-                      borderBottomLeftRadius: isLastInDate ? 2 : 0,
-                      borderBottomRightRadius: isLastInDate ? 2 : 0,
+                      borderBottomLeftRadius: isLastInDate ? 4 : 0,
+                      borderBottomRightRadius: isLastInDate ? 4 : 0,
                       mb: isLastInDate ? 3 : 0,
                     }}
                   >

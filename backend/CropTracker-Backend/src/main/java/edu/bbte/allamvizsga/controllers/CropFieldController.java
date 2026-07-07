@@ -3,12 +3,10 @@ package edu.bbte.allamvizsga.controllers;
 import edu.bbte.allamvizsga.dto.request.cropfield.CreateCropFieldDTO;
 import edu.bbte.allamvizsga.dto.request.cropfield.UpdateCropFieldDTO;
 import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldDTO;
+import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldNameDTO;
 import edu.bbte.allamvizsga.mappers.CropFieldMapper;
 import edu.bbte.allamvizsga.mappers.FieldParcelMapper;
-import edu.bbte.allamvizsga.model.CropField;
-import edu.bbte.allamvizsga.model.FieldParcel;
-import edu.bbte.allamvizsga.model.FieldWork;
-import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.model.*;
 import edu.bbte.allamvizsga.services.CropFieldService;
 import edu.bbte.allamvizsga.services.FieldWorkService;
 import edu.bbte.allamvizsga.services.UserService;
@@ -73,6 +71,17 @@ public class CropFieldController {
             return getCropFieldDTO;
         }).toList();
         return ResponseEntity.ok(getCropFieldDTOS);
+    }
+
+    @GetMapping(value = "/findall", params = "pattern")
+    public ResponseEntity<Collection<GetCropFieldNameDTO>> getWorkTypesByPattern(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam("pattern") String pattern) {
+        User user = userService.extractUser(authorizationHeader);
+
+        Collection<CropField> cropFields = cropFieldService.findByPattern(user, pattern);
+
+        return ResponseEntity.ok(cropFields.stream().map(cropFieldMapper::modelToGetCropFieldName).toList());
     }
 
     @GetMapping(value = "/findby", params = "id")

@@ -28,6 +28,14 @@ public class WorkTypeService {
         ));
     }
 
+    public Collection<WorkType> findByPattern(User user, String pattern) {
+        return workTypesRepository.findAll(Specification.allOf(
+                (WorkTypeSpecification.byUser(user)
+                        .or(WorkTypeSpecification.byIsSystem())
+                ).and(WorkTypeSpecification.withPattern(pattern))
+        ));
+    }
+
     public WorkType findByUser(User user, UUID uid) {
         WorkType workType = workTypesRepository.findByUid(uid);
 

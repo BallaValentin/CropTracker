@@ -9,7 +9,9 @@ import java.util.UUID;
 public class GetPreviousWorkDTO {
     private UUID uid;
     private String cropFieldName;
+    private UUID cropFieldId;
     private String workTypeName;
+    private UUID workTypeId;
     private String workTiming;
     private String startDate;
     private String endDate;
