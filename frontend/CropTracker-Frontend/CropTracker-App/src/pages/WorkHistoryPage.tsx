@@ -16,7 +16,7 @@ import type { GetPreviousWorkDTO } from "../interfaces/response/GetPreviousWorkD
 import InfiniteScroll from "react-infinite-scroll-component";
 import {
   deleteSelectedFieldWorks,
-  getFieldWorksByPage,
+  getFieldWorksByCursor,
 } from "../services/FieldWorkService";
 import { pageSize } from "../utils/Constants";
 import FieldWorkHistoryItem from "../elements/list-item/FieldWorkHistoryItem";
@@ -38,7 +38,7 @@ function WorkHistoryPage() {
   const [workTypeId, setWorkTypeId] = useState<string | null>(null);
   const [dialogToggled, setDialogToggled] = useState<boolean>(false);
 
-  const pageRef = useRef<number>(0);
+  const cursorRef = useRef<string | null>(null);
   const isFetchingRef = useRef<boolean>(false);
 
   const [cropFields, setCropFields] = useState<GetCropFieldNameDTO[]>([]);
@@ -59,7 +59,7 @@ function WorkHistoryPage() {
   const handleCropFieldSelect = (cropFieldId: string) => {
     if (cropFieldId) {
       setCropFieldId(cropFieldId);
-      pageRef.current = 0;
+      cursorRef.current = null;
       setFieldWorks([]);
       setHasMore(true);
     }
@@ -83,7 +83,7 @@ function WorkHistoryPage() {
   const handleWorkTypeSelect = (workTypeId: string) => {
     if (workTypeId) {
       setWorkTypeId(workTypeId);
-      pageRef.current = 0;
+      cursorRef.current = null;
       setFieldWorks([]);
       setHasMore(true);
     }
@@ -142,8 +142,8 @@ function WorkHistoryPage() {
     isFetchingRef.current = true;
 
     try {
-      const response = await getFieldWorksByPage(
-        pageRef.current,
+      const response = await getFieldWorksByCursor(
+        cursorRef.current,
         cropFieldId,
         workTypeId,
         pageSize,
@@ -160,8 +160,7 @@ function WorkHistoryPage() {
           });
           return [...updatedWorks];
         });
-
-        pageRef.current += 1;
+        cursorRef.current = response[response.length - 1].uid;
       }
     } catch {
       setHasMore(false);
@@ -171,7 +170,7 @@ function WorkHistoryPage() {
   }, [cropFieldId, hasMore, workTypeId]);
 
   useEffect(() => {
-    if (pageRef.current === 0) {
+    if (cursorRef.current === null) {
       getNextWorks();
     }
   }, [getNextWorks, cropFieldId, workTypeId, fieldWorks]);

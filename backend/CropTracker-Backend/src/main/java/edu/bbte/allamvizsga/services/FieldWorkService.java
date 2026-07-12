@@ -10,19 +10,13 @@ import edu.bbte.allamvizsga.specifications.FieldWorkSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -53,14 +47,25 @@ public class FieldWorkService {
                 Sort.by(Sort.Direction.DESC, "startDate"));
     }
 
-    public Page<FieldWork> findAllPastWorks(User user, WorkType workType, CropField cropField, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size,
-                Sort.by(Sort.Direction.DESC, "startDate"));
+    protected ScrollPosition getScrollPosition(UUID lastSeen) {
+        if (lastSeen == null) {
+            return ScrollPosition.keyset();
+        }
 
-        return fieldWorkRepository.findAll(
+        Map<String, Object> keys = Map.of("uid", lastSeen);
+
+        return ScrollPosition.of(keys, ScrollPosition.Direction.FORWARD);
+    }
+
+    public List<FieldWork> findAllPastWorks(User user, WorkType workType, CropField cropField, UUID lastSeen, int pageSize) {
+        ScrollPosition scrollPosition = getScrollPosition(lastSeen);
+
+        Window<FieldWork> fieldWorksWindows = fieldWorkRepository.scrollAll(
                 Specification.allOf(FieldWorkSpecification.byUser(user)
                         .and(FieldWorkSpecification.byWorkType(workType))
-                        .and(FieldWorkSpecification.byCropField(cropField))), pageable);
+                        .and(FieldWorkSpecification.byCropField(cropField))), scrollPosition, pageSize, "uid");
+
+        return fieldWorksWindows.getContent();
     }
 
     public Collection<FieldWork> findAllByCropField(CropField cropField) {

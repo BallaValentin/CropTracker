@@ -29,11 +29,11 @@ export const updateFieldWork = async(updateFieldWorkDTO: UpdateFieldWorkDTO, fie
     });
 }
 
-export const getFieldWorksByPage = async(page: number, cropFieldId: string | null, workTypeId: string | null, size: number): Promise<GetPreviousWorkDTO[]> => {
+export const getFieldWorksByCursor = async(lastSeen: string | null, cropFieldId: string | null, workTypeId: string | null, size: number): Promise<GetPreviousWorkDTO[]> => {
     console.log("Sending get-field-works request to server");
     const response = await fieldWorkApi.get<GetPreviousWorkDTO[]>("/find-by-page", {
         params: {
-            page: page,
+            lastSeen: lastSeen,
             size: size,
             cropFieldId: cropFieldId,
             workTypeId: workTypeId

@@ -37,7 +37,7 @@ public class FieldWorkController {
     private final FieldWorkMapper fieldWorkMapper;
 
     protected void setupFieldWork(FieldWork fieldWork, String authorizationHeader,
-            UUID cropFieldId, UUID workTypeId) {
+                                  UUID cropFieldId, UUID workTypeId) {
         User user = userService.extractUser(authorizationHeader);
 
         CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
@@ -75,12 +75,12 @@ public class FieldWorkController {
 
     @GetMapping(value = "/find-by-page")
     public ResponseEntity<Collection<GetPreviousWorkDTO>> findAll(@RequestHeader("Authorization")
-                                                               String authorizationHeader,
-                                                                  @RequestParam("page") int page,
+                                                                  String authorizationHeader,
+                                                                  @RequestParam(name = "lastSeen", required = false) UUID lastSeen,
                                                                   @RequestParam("size") int size,
                                                                   @RequestParam(name = "cropFieldId", required = false) UUID cropFieldId,
                                                                   @RequestParam(name = "workTypeId", required = false) UUID workTypeId) {
-        System.out.println("Page: " + page + " size: " + size);
+
         User user = userService.extractUser(authorizationHeader);
 
         WorkType workType = null;
@@ -95,11 +95,10 @@ public class FieldWorkController {
             cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
         }
 
-        Page<FieldWork> fieldWorks = fieldWorkService.findAllPastWorks(user, workType, cropField, page, size);
+        List<FieldWork> fieldWorks = fieldWorkService.findAllPastWorks(user, workType, cropField, lastSeen, size);
 
         return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList());
     }
-
 
 
     @GetMapping(value = "/findall", params = "cropFieldId")
@@ -126,10 +125,10 @@ public class FieldWorkController {
 
     @GetMapping("/find-previous-works")
     public ResponseEntity<Collection<GetPreviousWorkDTO>> findPreviousWorks(@RequestHeader("Authorization") String authorizationHeader,
-                                                                       @RequestParam("cropFieldId") UUID cropFieldId,
-                                                                       @RequestParam("numberOfDays") Integer numberOfDays,
-                                                                       @RequestParam("referenceDate") String refDateString,
-                                                                       @RequestParam("workTypes") List<String> selectedWorkTypes) {
+                                                                            @RequestParam("cropFieldId") UUID cropFieldId,
+                                                                            @RequestParam("numberOfDays") Integer numberOfDays,
+                                                                            @RequestParam("referenceDate") String refDateString,
+                                                                            @RequestParam("workTypes") List<String> selectedWorkTypes) {
         User user = userService.extractUser(authorizationHeader);
 
         CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
@@ -145,7 +144,7 @@ public class FieldWorkController {
 
     @DeleteMapping("/delete")
     public void deleteAll(@RequestHeader("Authorization") String authorizationHeader,
-                       @RequestParam("fieldWorkIds") List<UUID> fieldWorkIds) {
+                          @RequestParam("fieldWorkIds") List<UUID> fieldWorkIds) {
 
         User user = userService.extractUser(authorizationHeader);
         fieldWorkService.deleteAll(user, fieldWorkIds);
