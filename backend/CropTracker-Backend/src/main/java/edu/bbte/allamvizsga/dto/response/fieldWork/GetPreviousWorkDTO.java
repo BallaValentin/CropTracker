@@ -16,4 +16,5 @@ public class GetPreviousWorkDTO {
     private String startDate;
     private String endDate;
     private Collection<Boolean> affectedRows;
+    private Boolean isActive;
 }

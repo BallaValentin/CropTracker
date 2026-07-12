@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, TextField, Typography } from "@mui/material";
 import type { GetCropFieldNameDTO } from "../../interfaces/response/GetCropFieldNameDTO";
 
 interface CropFieldAutocompleteProps {
@@ -27,7 +27,11 @@ function CropFieldAutocomplete({
         onCropFieldSelect(newValue?.uid || "");
       }}
       renderInput={(params) => (
-        <TextField color="success" {...params} label="Search Crop Field" />
+        <TextField
+          color="success"
+          {...params}
+          label={<Typography fontWeight="bold">Search Crop Field</Typography>}
+        />
       )}
     />
   );

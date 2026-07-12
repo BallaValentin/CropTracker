@@ -47,6 +47,8 @@ public class FieldWorkController {
 
         WorkType workType = workTypesService.findByUser(user, workTypeId);
         fieldWork.setWorkType(workType);
+
+        fieldWork.setIsActive(Boolean.TRUE);
     }
 
     @PostMapping("/create")
@@ -139,5 +141,13 @@ public class FieldWorkController {
                 cropField, refDate, numberOfDays, selectedWorkTypeIds);
 
         return ResponseEntity.ok(previousFieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList());
+    }
+
+    @DeleteMapping("/delete")
+    public void deleteAll(@RequestHeader("Authorization") String authorizationHeader,
+                       @RequestParam("fieldWorkIds") List<UUID> fieldWorkIds) {
+
+        User user = userService.extractUser(authorizationHeader);
+        fieldWorkService.deleteAll(user, fieldWorkIds);
     }
 }

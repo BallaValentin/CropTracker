@@ -4,15 +4,18 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.TimeZoneColumn;
+import org.hibernate.annotations.TimeZoneStorage;
+import org.hibernate.annotations.TimeZoneStorageType;
 import org.hibernate.type.SqlTypes;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
 @Entity
-@Table(name="field_work")
+@Table(name = "field_work")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class FieldWork extends BaseEntity {
@@ -26,9 +29,11 @@ public class FieldWork extends BaseEntity {
 
     private String workTiming;
 
-    private Instant startDate;
+    @TimeZoneStorage(TimeZoneStorageType.NATIVE)
+    private OffsetDateTime startDate;
 
-    private Instant endDate;
+    @TimeZoneStorage(TimeZoneStorageType.NATIVE)
+    private OffsetDateTime endDate;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false)
@@ -41,4 +46,6 @@ public class FieldWork extends BaseEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false)
     private Collection<UUID> fieldParcelIds;
+
+    private Boolean isActive;
 }

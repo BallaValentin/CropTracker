@@ -10,11 +10,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public abstract class FieldWorkMapper {
+    @Mapping(target = "startDate", ignore = true)
     @Mapping(target = "endDate", ignore = true)
     public abstract FieldWork createFieldWorkToModel(CreateFieldWorkDTO createFieldWorkDTO);
 
@@ -22,13 +23,14 @@ public abstract class FieldWorkMapper {
     protected void afterCreateToModel(CreateFieldWorkDTO createFieldWorkDTO, @MappingTarget FieldWork fieldWork) {
         fieldWork.setFieldParcelIds(createFieldWorkDTO.getFieldParcelIds().stream().map(UUID::fromString).toList());
 
-        fieldWork.setStartDate(Instant.parse(createFieldWorkDTO.getStartDate()));
+        fieldWork.setStartDate(OffsetDateTime.parse(createFieldWorkDTO.getStartDate()));
 
         if (!createFieldWorkDTO.getEndDate().isBlank()) {
-            fieldWork.setEndDate(Instant.parse(createFieldWorkDTO.getEndDate()));
+            fieldWork.setEndDate(OffsetDateTime.parse(createFieldWorkDTO.getEndDate()));
         }
     }
 
+    @Mapping(target = "startDate", ignore = true)
     @Mapping(target = "endDate", ignore = true)
     public abstract FieldWork updateFieldWorkToModel(UpdateFieldWorkDTO updateFieldWorkDTO);
 
@@ -36,13 +38,14 @@ public abstract class FieldWorkMapper {
     protected void afterUpdateToModel(UpdateFieldWorkDTO updateFieldWorkDTO, @MappingTarget FieldWork fieldWork) {
         fieldWork.setFieldParcelIds(updateFieldWorkDTO.getFieldParcelIds().stream().map(UUID::fromString).toList());
 
-        fieldWork.setStartDate(Instant.parse(updateFieldWorkDTO.getStartDate()));
+        fieldWork.setStartDate(OffsetDateTime.parse(updateFieldWorkDTO.getStartDate()));
 
         if (!updateFieldWorkDTO.getEndDate().isBlank()) {
-            fieldWork.setEndDate(Instant.parse(updateFieldWorkDTO.getEndDate()));
+            fieldWork.setEndDate(OffsetDateTime.parse(updateFieldWorkDTO.getEndDate()));
         }
     }
 
+    @Mapping(target = "startDate", ignore = true)
     @Mapping(target = "endDate", ignore = true)
     public abstract GetFieldWorkDTO modelToGetFieldWork(FieldWork fieldWork);
 
@@ -60,6 +63,7 @@ public abstract class FieldWorkMapper {
         }
     }
 
+    @Mapping(target = "startDate", ignore = true)
     @Mapping(target = "endDate", ignore = true)
     public abstract GetPreviousWorkDTO modelToGetPreviousWork(FieldWork fieldWork);
 

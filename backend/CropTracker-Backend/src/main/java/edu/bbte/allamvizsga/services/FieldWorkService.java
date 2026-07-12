@@ -36,7 +36,7 @@ public class FieldWorkService {
     public void update(FieldWork fieldWork) {
         FieldWork foundFieldWork = fieldWorkRepository.findByUid(fieldWork.getUid());
 
-        if (foundFieldWork == null) {
+        if (foundFieldWork == null || !fieldWork.getIsActive()) {
             throw new EntityNotFoundException("Field work not found.");
         }
 
@@ -86,7 +86,7 @@ public class FieldWorkService {
     public FieldWork findById(UUID uid, User user) {
         FieldWork fieldWork = fieldWorkRepository.findByUid(uid);
 
-        if (fieldWork == null) {
+        if (fieldWork == null || !fieldWork.getIsActive()) {
             throw new EntityNotFoundException("Field work not found.");
         }
 
@@ -95,5 +95,14 @@ public class FieldWorkService {
         }
 
         return fieldWork;
+    }
+
+    public void deleteAll(User user, List<UUID> fieldWorkIds) {
+        fieldWorkIds.forEach(fieldWorkId -> {
+            System.out.println("Deleting field work");
+            FieldWork fieldWork = findById(fieldWorkId, user);
+            fieldWork.setIsActive(Boolean.FALSE);
+            fieldWorkRepository.save(fieldWork);
+        });
     }
 }

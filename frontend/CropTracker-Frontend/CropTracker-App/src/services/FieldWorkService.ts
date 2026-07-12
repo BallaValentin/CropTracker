@@ -77,3 +77,12 @@ export const getPreviousWorks = async(cropFieldId: string, numberOfDays: number,
 
     return response.data;
 }
+
+export const deleteSelectedFieldWorks = async(fieldWorkIds: string[]): Promise<void> => {
+    console.log("Sending delete-field-works request to server");
+    await fieldWorkApi.delete<void>("/delete", {
+        params: {
+            fieldWorkIds: fieldWorkIds.join(",")
+        },
+    });
+}

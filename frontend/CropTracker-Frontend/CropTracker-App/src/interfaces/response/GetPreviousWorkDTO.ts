@@ -7,5 +7,7 @@ export interface GetPreviousWorkDTO {
     workTiming: string
     startDate: string,
     endDate: string,
-    affectedRows: boolean[]
+    affectedRows: boolean[],
+    isActive: boolean,
+    isChecked: boolean
 }

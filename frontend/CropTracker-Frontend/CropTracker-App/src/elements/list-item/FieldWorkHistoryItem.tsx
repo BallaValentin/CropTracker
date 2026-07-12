@@ -1,12 +1,22 @@
-import { Box, Button, Divider, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Divider, Typography } from "@mui/material";
 import type { GetPreviousWorkDTO } from "../../interfaces/response/GetPreviousWorkDTO";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 interface FieldWorkItemProps {
   fieldWork: GetPreviousWorkDTO;
+  onItemCheck: (fieldWorkId: string, isChecked: boolean) => void;
 }
 
-function FieldWorkHistoryItem({ fieldWork }: FieldWorkItemProps) {
+function FieldWorkHistoryItem({ fieldWork, onItemCheck }: FieldWorkItemProps) {
+  const [itemChecked, setItemChecked] = useState<boolean>(false);
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    setItemChecked(isChecked);
+    onItemCheck(fieldWork.uid, isChecked);
+  };
+
   return (
     <Box
       sx={{
@@ -17,7 +27,8 @@ function FieldWorkHistoryItem({ fieldWork }: FieldWorkItemProps) {
       }}
     >
       <Box sx={{ display: "flex", gap: 5 }}>
-        <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Checkbox checked={itemChecked} onChange={handleCheckboxChange} />
           <Typography
             variant="subtitle1"
             color="textSecondary"

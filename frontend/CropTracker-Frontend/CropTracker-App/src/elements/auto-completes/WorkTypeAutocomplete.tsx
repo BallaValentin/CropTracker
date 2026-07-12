@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, TextField, Typography } from "@mui/material";
 import type { GetWorkTypeNameDTO } from "../../interfaces/response/GetWorkTypeNameDTO";
 
 interface WorkTypeAutocompleteProps {
@@ -27,7 +27,11 @@ function WorkTypeAutocomplete({
         onWorkTypeSelect(newValue?.uid || "");
       }}
       renderInput={(params) => (
-        <TextField color="success" {...params} label="Search Work Type" />
+        <TextField
+          color="success"
+          {...params}
+          label={<Typography fontWeight="bold">Search Work Type</Typography>}
+        />
       )}
     />
   );

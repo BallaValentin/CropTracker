@@ -69,10 +69,27 @@ function AddFieldWorkForm({
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
   const toDateTimeLocal = (date: Date): string => {
-    const pad = (num: number) => num.toString().padStart(2, "0");
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-      date.getDate(),
-    )}T${pad(date.getHours())}:${pad(date.getMinutes())}:00Z`;
+    const timezoneOffset = date.getTimezoneOffset();
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    const offsetSign = timezoneOffset > 0 ? "-" : "+";
+    const offsetHours = String(
+      Math.floor(Math.abs(timezoneOffset) / 60),
+    ).padStart(2, "0");
+    const offsetMinutes = String(Math.abs(timezoneOffset) % 60).padStart(
+      2,
+      "0",
+    );
+
+    console.log(
+      `Converted date: ${year}-${month}-${day}T${hours}:${minutes}:00${offsetSign}${offsetHours}:${offsetMinutes}`,
+    );
+    return `${year}-${month}-${day}T${hours}:${minutes}:00${offsetSign}${offsetHours}:${offsetMinutes}`;
   };
 
   const [createFieldWorkDTO, setCreateFieldWorkDTO] =
@@ -206,20 +223,27 @@ function AddFieldWorkForm({
     const newWorkTiming = event.target.value;
 
     if (newWorkTiming === "Past") {
-      setCreateFieldWorkDTO((prev) => ({
-        ...prev,
-        endDate: toDateTimeLocal(new Date()),
-      }));
+      if (!createFieldWorkDTO.endDate) {
+        let endDate = new Date();
+
+        if (createFieldWorkDTO.startDate) {
+          const startDate = new Date(createFieldWorkDTO.startDate);
+          endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+        }
+
+        setCreateFieldWorkDTO((prev) => ({
+          ...prev,
+          endDate: toDateTimeLocal(endDate),
+          workTiming: newWorkTiming,
+        }));
+      }
     } else {
       setCreateFieldWorkDTO((prev) => ({
         ...prev,
         endDate: "",
+        workTiming: newWorkTiming,
       }));
     }
-    setCreateFieldWorkDTO((prev) => ({
-      ...prev,
-      workTiming: event.target.value,
-    }));
   };
 
   const handleWorkParametersTextfieldChange = (
@@ -252,10 +276,42 @@ function AddFieldWorkForm({
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setCreateFieldWorkDTO((prev) => ({
-      ...prev,
-      [name]: value + ":00Z",
-    }));
+
+    setCreateFieldWorkDTO((prev) => {
+      if (name === "startDate" && prev.workTiming === "Past") {
+        const startDate = new Date(value);
+        const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+        return {
+          ...prev,
+          [name]: toDateTimeLocal(startDate),
+          endDate: toDateTimeLocal(endDate),
+        };
+      } else {
+        const date = new Date(value);
+        return {
+          ...prev,
+          [name]: toDateTimeLocal(date),
+        };
+      }
+    });
+
+    if (
+      name === "startDate" &&
+      createFieldWorkDTO.workTiming === "Past" &&
+      !createFieldWorkDTO.endDate
+    ) {
+      let endDate = new Date();
+
+      if (createFieldWorkDTO.startDate) {
+        const startDate = new Date(createFieldWorkDTO.startDate);
+        endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+      }
+
+      setCreateFieldWorkDTO((prev) => ({
+        ...prev,
+        endDate: toDateTimeLocal(endDate),
+      }));
+    }
   };
 
   const handleAddEntry = (field: FieldDefinition) => {

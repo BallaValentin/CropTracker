@@ -12,7 +12,7 @@ import java.util.UUID;
 @Data
 public class UpdateFieldWorkDTO {
     private static final String INSTANT_REGEX =
-            "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(:[0-9]{2})?(\\.\\d{1,9})?Z$";
+            "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(:[0-9]{2})(:[0-9]{2})?(Z|[+-][0-9]{2}:[0-9]{2})?$";
 
     private UUID cropFieldId;
 

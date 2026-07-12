@@ -61,4 +61,9 @@ public class FieldWorkSpecification {
             }
         });
     }
+
+    public static Specification<FieldWork> byIsActive() {
+        return ((root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("isActive"), Boolean.TRUE));
+    }
 }
