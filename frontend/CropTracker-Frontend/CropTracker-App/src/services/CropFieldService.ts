@@ -47,6 +47,7 @@ export const getCropFieldById = async (cropFieldId: string): Promise<GetCropFiel
     console.log("Sending get-cropfield request to server")
     const response = await cropFieldApi.get<GetCropFieldDTO>(`/findby?id=${cropFieldId}`);
 
+    console.log("Received crop field data:", response.data);
     return response.data
 }
 

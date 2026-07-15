@@ -1,13 +1,11 @@
 package edu.bbte.allamvizsga.specifications;
 
-import edu.bbte.allamvizsga.model.CropField;
-import edu.bbte.allamvizsga.model.FieldWork;
-import edu.bbte.allamvizsga.model.User;
-import edu.bbte.allamvizsga.model.WorkType;
+import edu.bbte.allamvizsga.model.*;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,12 +16,25 @@ public class FieldWorkSpecification {
             if (cropField == null) {
                 return criteriaBuilder.conjunction();
             } else {
-                return criteriaBuilder.equal(root.get("cropField"), cropField);
+                Join<CropFieldVersion, Object> cropFieldVersionJoin =
+                        root.join("cropFieldVersion");
+                return cropFieldVersionJoin.get("cropField").equalTo(cropField);
             }
         });
     }
 
-    public static Specification<FieldWork> withStartDateGreaterThanEqual(Instant startDate) {
+    public static Specification<FieldWork> byCropFieldVersion(CropFieldVersion cropFieldVersion) {
+        return ((root, query, criteriaBuilder) ->
+        {
+            if (cropFieldVersion == null) {
+                return criteriaBuilder.conjunction();
+            } else {
+                return criteriaBuilder.equal(root.get("cropFieldVersion"), cropFieldVersion);
+            }
+        });
+    }
+
+    public static Specification<FieldWork> withStartDateGreaterThanOrEqual(OffsetDateTime startDate) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"), startDate);
     }
@@ -40,8 +51,10 @@ public class FieldWorkSpecification {
 
     public static Specification<FieldWork> byUser(User user) {
         return (root, query, criteriaBuilder) -> {
-            Join<FieldWork, CropField> cropFieldJoin =
-                    root.join("cropField");
+            Join<FieldWork, CropFieldVersion> cropFieldVersionJoin =
+                    root.join("cropFieldVersion");
+            Join<CropFieldVersion, CropField> cropFieldJoin =
+                    cropFieldVersionJoin.join("cropField");
             return cropFieldJoin.get("user").equalTo(user);
         };
     }

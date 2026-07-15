@@ -4,8 +4,6 @@ import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useFieldWork } from "../hooks/caching/UseFieldWork";
 import FieldDetailMapPreview from "../leaflet/view/FieldDetailMapPreview";
-import { useCropField } from "../hooks/caching/UseCropField";
-import { useFieldParcels } from "../hooks/caching/UseFieldParcels";
 import { Box, Card, Divider, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import type { LatLngObject } from "../interfaces/helper/LatLngObject";
@@ -18,6 +16,8 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import FieldInfoContainer from "../elements/containers/FieldInfoContainer";
 import type { StringNumber } from "../interfaces/helper/StringNumber";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import { useFieldWorkCropField } from "../hooks/caching/UseFieldWorkCropField";
+import { useCropFieldVersionParcels } from "../hooks/caching/UseCropFieldVersionParcels";
 
 function FieldWorkDetailsPage() {
   const [rows, setRows] = useState<LatLngObject[][][] | null>(null);
@@ -36,12 +36,10 @@ function FieldWorkDetailsPage() {
     id || "",
     !!id && !!userData,
   );
-  const { data: cropFieldData, isLoading: isCropFieldLoading } = useCropField(
-    fieldWorkData?.cropFieldId || "",
-    !!id && !!fieldWorkData,
-  );
+  const { data: cropFieldData, isLoading: isCropFieldLoading } =
+    useFieldWorkCropField(id || "", !!id);
   const { data: fieldParcelsData, isLoading: isFieldParcelsLoading } =
-    useFieldParcels(
+    useCropFieldVersionParcels(
       fieldWorkData?.cropFieldId || "",
       !!fieldWorkData?.cropFieldId,
     );

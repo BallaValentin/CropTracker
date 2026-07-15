@@ -50,7 +50,7 @@ function SelectFieldRowsPanel({
   );
   const [showResults, setShowResults] = useState<boolean>(false);
   const [previousRows, setPreviousRows] = useState<boolean[]>(
-    Array(workTypes.length).fill(false),
+    Array(affectedRows.length).fill(false),
   );
   const [checkedFieldWorks, setCheckedFieldWorks] = useState<boolean[]>(
     Array(previousWorks.length).fill(false),
@@ -63,36 +63,22 @@ function SelectFieldRowsPanel({
   }, [workTypes, affectedRows]);
 
   useEffect(() => {
-    if (previousWorks) {
+    if (previousWorks && previousWorks.length > 0) {
       setCheckedFieldWorks(Array(previousWorks.length).fill(false));
-      let maxRowLength = 0;
-      previousWorks.forEach((work) => {
-        maxRowLength = Math.max(maxRowLength, work.affectedRows.length);
-      });
-      setPreviousRows(Array(maxRowLength).fill(false));
+      setPreviousRows(Array(affectedRows.length).fill(false));
     }
-  }, [previousWorks]);
+  }, [affectedRows.length, previousWorks]);
 
   const updateCheckedWorks = (updatedPreviousWorks: boolean[]) => {
     setCheckedFieldWorks(updatedPreviousWorks);
-    const updatedPreviousRows = Array(previousRows.length).fill(false);
-    previousWorks.forEach((work, index) => {
-      if (updatedPreviousWorks[index]) {
-        for (let j = 0; j < work.affectedRows.length; j++) {
-          updatedPreviousRows[j] =
-            updatedPreviousRows[j] || work.affectedRows[j];
-        }
-      }
-    });
-
-    setPreviousRows(updatedPreviousRows);
   };
 
   useEffect(() => {
     if (previousWorks && previousWorks.length > 0) {
-      const updatedPreviousRows = previousWorks[0].affectedRows;
+      const updatedPreviousRows = Array(affectedRows.length).fill(false);
       previousWorks.forEach((previousWork, index) => {
-        if (index !== 0) {
+        console.log("checkedFieldWorks[index]", checkedFieldWorks[index]);
+        if (checkedFieldWorks[index]) {
           for (let j = 0; j < updatedPreviousRows.length; j++) {
             updatedPreviousRows[j] =
               updatedPreviousRows[j] || previousWork.affectedRows[j];
@@ -101,7 +87,7 @@ function SelectFieldRowsPanel({
       });
       setPreviousRows(updatedPreviousRows);
     }
-  }, [previousWorks]);
+  }, [affectedRows.length, checkedFieldWorks, previousWorks]);
 
   const handleParcelSelect = (
     event: React.ChangeEvent<HTMLInputElement>,

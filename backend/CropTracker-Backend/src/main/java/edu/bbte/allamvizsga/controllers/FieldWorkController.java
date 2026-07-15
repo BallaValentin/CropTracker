@@ -5,21 +5,18 @@ import edu.bbte.allamvizsga.dto.request.fieldWork.UpdateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetPreviousWorkDTO;
 import edu.bbte.allamvizsga.mappers.FieldWorkMapper;
-import edu.bbte.allamvizsga.model.CropField;
-import edu.bbte.allamvizsga.model.FieldWork;
-import edu.bbte.allamvizsga.model.User;
-import edu.bbte.allamvizsga.model.WorkType;
+import edu.bbte.allamvizsga.model.*;
 import edu.bbte.allamvizsga.services.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @RestController
@@ -40,10 +37,11 @@ public class FieldWorkController {
                                   UUID cropFieldId, UUID workTypeId) {
         User user = userService.extractUser(authorizationHeader);
 
-        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
-        fieldWork.setCropField(cropField);
+        CropFieldVersion cropFieldVersion = cropFieldService.findCropFieldByUser(cropFieldId, user);
+        fieldWork.setCropFieldVersion(cropFieldVersion);
 
-        fieldWork.getFieldParcelIds().forEach(parcelId -> fieldParcelService.findByCropFieldAndUid(cropField, parcelId));
+        fieldWork.getFieldParcelIds().forEach(parcelId -> fieldParcelService.findByCropFieldAndUid(
+                cropFieldVersion.getCropField(), parcelId));
 
         WorkType workType = workTypesService.findByUser(user, workTypeId);
         fieldWork.setWorkType(workType);
@@ -92,7 +90,8 @@ public class FieldWorkController {
         CropField cropField = null;
 
         if (cropFieldId != null) {
-            cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
+            CropFieldVersion cropFieldVersion = cropFieldService.findCropFieldByUser(cropFieldId, user);
+            cropField = cropFieldVersion.getCropField();
         }
 
         List<FieldWork> fieldWorks = fieldWorkService.findAllPastWorks(user, workType, cropField, lastSeen, size);
@@ -106,9 +105,9 @@ public class FieldWorkController {
                                                                           String authorizationHeader,
                                                                           @RequestParam("cropFieldId") UUID cropFieldId) {
         User user = userService.extractUser(authorizationHeader);
-        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
+        CropFieldVersion cropFieldVersion = cropFieldService.findById(cropFieldId, user);
 
-        Collection<FieldWork> fieldWorks = fieldWorkService.findAllByCropField(cropField);
+        Collection<FieldWork> fieldWorks = fieldWorkService.findAllByCropField(cropFieldVersion);
 
         return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetFieldWork).toList());
     }
@@ -131,13 +130,13 @@ public class FieldWorkController {
                                                                             @RequestParam("workTypes") List<String> selectedWorkTypes) {
         User user = userService.extractUser(authorizationHeader);
 
-        CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
-        Instant refDate = Instant.parse(refDateString);
+        CropFieldVersion cropFieldVersion = cropFieldService.findCropFieldByUser(cropFieldId, user);
+        OffsetDateTime refDate = OffsetDateTime.parse(refDateString);
 
         List<UUID> selectedWorkTypeIds = selectedWorkTypes.stream().map(UUID::fromString).toList();
 
         List<FieldWork> previousFieldWorks = fieldWorkService.findAllWithinPastDays(
-                cropField, refDate, numberOfDays, selectedWorkTypeIds);
+                cropFieldVersion, refDate, numberOfDays, selectedWorkTypeIds);
 
         return ResponseEntity.ok(previousFieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList());
     }

@@ -105,6 +105,9 @@ function PlotDetailsPage() {
       queryClient.invalidateQueries({
         queryKey: ["fieldParcels", id],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["cropfields", id],
+      });
     },
   });
 

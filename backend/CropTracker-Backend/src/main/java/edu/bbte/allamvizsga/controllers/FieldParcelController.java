@@ -4,19 +4,15 @@ import edu.bbte.allamvizsga.dto.request.fieldParcel.CreateFieldParcelDTO;
 import edu.bbte.allamvizsga.dto.request.fieldParcel.UpdateFieldParcelDTO;
 import edu.bbte.allamvizsga.dto.response.fieldParcel.GetFieldParcelDTO;
 import edu.bbte.allamvizsga.exceptions.BadRequestException;
-import edu.bbte.allamvizsga.exceptions.ForbiddenException;
 import edu.bbte.allamvizsga.mappers.FieldParcelMapper;
-import edu.bbte.allamvizsga.model.CropCultivar;
-import edu.bbte.allamvizsga.model.CropField;
-import edu.bbte.allamvizsga.model.FieldParcel;
-import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.mappers.FieldParcelVersionMapper;
+import edu.bbte.allamvizsga.model.*;
 import edu.bbte.allamvizsga.services.CropCultivarService;
 import edu.bbte.allamvizsga.services.CropFieldService;
 import edu.bbte.allamvizsga.services.FieldParcelService;
 import edu.bbte.allamvizsga.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +34,7 @@ public class FieldParcelController {
     private final FieldParcelService fieldParcelService;
     private final CropCultivarService cropCultivarService;
     private final FieldParcelMapper fieldParcelMapper;
+    private final FieldParcelVersionMapper fieldParcelVersionMapper;
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
@@ -45,64 +42,74 @@ public class FieldParcelController {
                                   @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
-        CropField cropField = cropFieldService.findCropFieldByUser(
+        CropFieldVersion cropFieldVersion = cropFieldService.findById(
                 createFieldParcelDTO.getCropFieldId(), user);
 
         CropCultivar cropCultivar = cropCultivarService.findByID(createFieldParcelDTO.getCropCultivarId());
 
-        FieldParcel fieldParcel = fieldParcelMapper.createFieldParcelDTOtoModel(createFieldParcelDTO);
-        fieldParcel.setCropField(cropField);
-        fieldParcel.setCropCultivar(cropCultivar);
+        FieldParcel fieldParcel = fieldParcelMapper.createFieldParcelToModel(createFieldParcelDTO);
+        FieldParcelVersion fieldParcelVersion = fieldParcelVersionMapper.createFieldParcelToModel(createFieldParcelDTO);
+        fieldParcel.setCropField(cropFieldVersion.getCropField());
+        fieldParcelVersion.setCropCultivar(cropCultivar);
 
-        fieldParcelService.createFieldParcel(fieldParcel);
+        fieldParcelService.createFieldParcel(fieldParcel, fieldParcelVersion);
     }
 
     @PutMapping("/update")
-    public void updateCropField(@Valid @RequestBody UpdateFieldParcelDTO updateFieldParcelDTO,
+    public void updateFieldParcel(@Valid @RequestBody UpdateFieldParcelDTO updateFieldParcelDTO,
                                 @RequestParam(name = "id") UUID fieldParcelId,
                                 @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
-        CropField cropField = cropFieldService.findCropFieldByUser(
+        CropFieldVersion cropFieldVersion = cropFieldService.findCropFieldByUser(
                 updateFieldParcelDTO.getCropFieldId(), user);
 
         CropCultivar cropCultivar = cropCultivarService.findByID(updateFieldParcelDTO.getCropCultivarId());
 
-        FieldParcel updatedFieldParcel = fieldParcelMapper.updateFieldParcelDTOtoModel(updateFieldParcelDTO);
-        updatedFieldParcel.setCropCultivar(cropCultivar);
-        updatedFieldParcel.setCropField(cropField);
-        updatedFieldParcel.setUid(fieldParcelId);
+        FieldParcelVersion newFieldParcelVersion = fieldParcelVersionMapper.updateFieldParcelDTOtoModel(updateFieldParcelDTO);
+        newFieldParcelVersion.setCropCultivar(cropCultivar);
 
-        fieldParcelService.updateFieldParcel(updatedFieldParcel);
+        fieldParcelService.updateFieldParcel(fieldParcelId, newFieldParcelVersion);
     }
 
     @GetMapping("/findall")
-    public ResponseEntity<Collection<GetFieldParcelDTO>> getCropFields(
+    public ResponseEntity<Collection<GetFieldParcelDTO>> getFieldParcels(
             @RequestHeader("Authorization") String authorizationHeader,
-            @RequestParam(name = "cropFieldId") UUID cropFieldId) {
+            @RequestParam(name = "cropFieldId", required = false) UUID cropFieldId,
+            @RequestParam(name = "cropFieldVersionId", required = false) UUID cropFieldVersionId) {
+
+        if ((cropFieldId == null && cropFieldVersionId == null) || (cropFieldId != null && cropFieldVersionId != null)) {
+            throw new BadRequestException("Either cropFieldId or cropFieldVersion must be added.");
+        }
 
         User user = userService.extractUser(authorizationHeader);
 
-        CropField cropField = cropFieldService.findById(cropFieldId);
+        CropFieldVersion cropFieldVersion = null;
 
-        if (user != cropField.getUser()) {
-            throw new ForbiddenException("You cannot request the field parcels of this crop field");
+        System.out.println("Searching crop field");
+        if (cropFieldId != null) {
+            cropFieldVersion = cropFieldService.findById(cropFieldId, user);
         }
 
-        Collection<FieldParcel> fieldParcels = fieldParcelService.getFieldParcels(cropField);
+        if (cropFieldVersionId != null) {
+            cropFieldVersion = cropFieldService.findByVersionId(cropFieldVersionId, user);
+        }
 
-        Collection<GetFieldParcelDTO> getFieldParcelDTOS = fieldParcels.stream().map(fieldParcelMapper::modelToGetFieldParcelDTO).toList();
+        System.out.println("Searching field parcels");
+        Collection<FieldParcelVersion> fieldParcelVersions = fieldParcelService.getFieldParcels(cropFieldVersion);
+
+        Collection<GetFieldParcelDTO> getFieldParcelDTOS = fieldParcelVersions.stream().map(fieldParcelVersionMapper::modelToGetFieldParcel).toList();
         return ResponseEntity.ok(getFieldParcelDTOS);
     }
 
     @GetMapping("/findby")
-    public ResponseEntity<GetFieldParcelDTO> getCropFieldById(
+    public ResponseEntity<GetFieldParcelDTO> getFieldParcelById(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestParam(name = "id") UUID fieldParcelId
     ) {
         User user = userService.extractUser(authorizationHeader);
-        FieldParcel fieldParcel = fieldParcelService.findByID(fieldParcelId, user);
-        GetFieldParcelDTO getFieldParcelDTO = fieldParcelMapper.modelToGetFieldParcelDTO(fieldParcel);
+        FieldParcelVersion fieldParcelVersion = fieldParcelService.findByID(fieldParcelId, user);
+        GetFieldParcelDTO getFieldParcelDTO = fieldParcelVersionMapper.modelToGetFieldParcel(fieldParcelVersion);
         return ResponseEntity.ok(getFieldParcelDTO);
     }
 

@@ -1,10 +1,7 @@
 package edu.bbte.allamvizsga.services;
 
 import edu.bbte.allamvizsga.exceptions.ForbiddenException;
-import edu.bbte.allamvizsga.model.CropField;
-import edu.bbte.allamvizsga.model.FieldWork;
-import edu.bbte.allamvizsga.model.User;
-import edu.bbte.allamvizsga.model.WorkType;
+import edu.bbte.allamvizsga.model.*;
 import edu.bbte.allamvizsga.repository.FieldWorkRepository;
 import edu.bbte.allamvizsga.specifications.FieldWorkSpecification;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -34,7 +32,7 @@ public class FieldWorkService {
             throw new EntityNotFoundException("Field work not found.");
         }
 
-        if (fieldWork.getCropField() != foundFieldWork.getCropField()) {
+        if (fieldWork.getCropFieldVersion() != foundFieldWork.getCropFieldVersion()) {
             throw new ForbiddenException("Access denied to field work.");
         }
 
@@ -68,22 +66,22 @@ public class FieldWorkService {
         return fieldWorksWindows.getContent();
     }
 
-    public Collection<FieldWork> findAllByCropField(CropField cropField) {
+    public Collection<FieldWork> findAllByCropField(CropFieldVersion cropFieldVersion) {
         return fieldWorkRepository.findAll(Specification.allOf(
-                FieldWorkSpecification.byCropField(cropField)
+                FieldWorkSpecification.byCropFieldVersion(cropFieldVersion)
                         .and(FieldWorkSpecification.byWorkTiming("Scheduled"))
         ), Sort.by(Sort.Direction.DESC, "startDate"));
     }
 
     public List<FieldWork> findAllWithinPastDays(
-            CropField cropField, Instant referenceDate, Integer numberOfDays, List<UUID> selectedWorkTypes) {
+            CropFieldVersion cropFieldVersion, OffsetDateTime referenceDate, Integer numberOfDays, List<UUID> selectedWorkTypes) {
         if (referenceDate == null || numberOfDays == null || numberOfDays < 0) {
             return Collections.emptyList();
         }
-        Instant startDate = referenceDate.minus(numberOfDays, ChronoUnit.DAYS);
+        OffsetDateTime startDate = referenceDate.minusDays(numberOfDays);
 
-        return fieldWorkRepository.findAll(Specification.allOf(FieldWorkSpecification.byCropField(cropField).and(
-                FieldWorkSpecification.withStartDateGreaterThanEqual(startDate)
+        return fieldWorkRepository.findAll(Specification.allOf(FieldWorkSpecification.byCropFieldVersion(cropFieldVersion).and(
+                FieldWorkSpecification.withStartDateGreaterThanOrEqual(startDate)
                         .and(FieldWorkSpecification.byWorkTypeIn(selectedWorkTypes))
         )), Sort.by(Sort.Direction.ASC, "startDate"));
     }
@@ -95,7 +93,7 @@ public class FieldWorkService {
             throw new EntityNotFoundException("Field work not found.");
         }
 
-        if (fieldWork.getCropField().getUser() != user) {
+        if (fieldWork.getCropFieldVersion().getCropField().getUser() != user) {
             throw new ForbiddenException("Access denied to field work.");
         }
 
@@ -104,7 +102,6 @@ public class FieldWorkService {
 
     public void deleteAll(User user, List<UUID> fieldWorkIds) {
         fieldWorkIds.forEach(fieldWorkId -> {
-            System.out.println("Deleting field work");
             FieldWork fieldWork = findById(fieldWorkId, user);
             fieldWork.setIsActive(Boolean.FALSE);
             fieldWorkRepository.save(fieldWork);

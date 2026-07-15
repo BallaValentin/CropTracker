@@ -32,6 +32,9 @@ function CreateFieldParcelPage() {
       queryClient.invalidateQueries({
         queryKey: ["fieldParcels", cropFieldId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["cropfields", cropFieldId],
+      });
       navigate(`/cropfield-details/${cropFieldId}`, {
         state: {
           success: true,

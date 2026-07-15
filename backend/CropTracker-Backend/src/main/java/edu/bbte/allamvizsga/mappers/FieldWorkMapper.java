@@ -51,7 +51,7 @@ public abstract class FieldWorkMapper {
 
     @AfterMapping
     protected void afterModelToGet(FieldWork fieldWork, @MappingTarget GetFieldWorkDTO getFieldWorkDTO) {
-        getFieldWorkDTO.setCropFieldId(fieldWork.getCropField().getUid());
+        getFieldWorkDTO.setCropFieldId(fieldWork.getCropFieldVersion().getUid());
         getFieldWorkDTO.setWorkTypeId(fieldWork.getWorkType().getUid());
         getFieldWorkDTO.setWorkTypeName(fieldWork.getWorkType().getName());
 
@@ -71,8 +71,8 @@ public abstract class FieldWorkMapper {
     protected void afterModelToGetPrevious(FieldWork fieldWork, @MappingTarget GetPreviousWorkDTO getPreviousWorkDTO) {
         getPreviousWorkDTO.setWorkTypeName(fieldWork.getWorkType().getName());
         getPreviousWorkDTO.setWorkTypeId(fieldWork.getWorkType().getUid());
-        getPreviousWorkDTO.setCropFieldName(fieldWork.getCropField().getName());
-        getPreviousWorkDTO.setCropFieldId(fieldWork.getCropField().getUid());
+        getPreviousWorkDTO.setCropFieldName(fieldWork.getCropFieldVersion().getCropField().getName());
+        getPreviousWorkDTO.setCropFieldId(fieldWork.getCropFieldVersion().getUid());
 
         getPreviousWorkDTO.setStartDate(fieldWork.getStartDate().toString());
         if (fieldWork.getEndDate() == null) {

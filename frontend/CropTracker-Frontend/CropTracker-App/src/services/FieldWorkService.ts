@@ -44,7 +44,7 @@ export const getFieldWorksByCursor = async(lastSeen: string | null, cropFieldId:
 }
 
 export const getFieldWorksByCropField = async(cropFieldId: string): Promise<GetFieldWorkDTO[]> => {
-    console.log("Sending get-field-works request to server");
+    console.log("Sending get-field-works request to server for crop field ID:", cropFieldId);
     const response = await fieldWorkApi.get<GetFieldWorkDTO[]>("/findall", {
         params: {
             cropFieldId: cropFieldId

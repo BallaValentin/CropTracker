@@ -20,8 +20,8 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 public class FieldWork extends BaseEntity {
     @ManyToOne
-    @JoinColumn(name = "cropfield_id", nullable = false)
-    private CropField cropField;
+    @JoinColumn(name = "cropfield_version_id", nullable = false)
+    private CropFieldVersion cropFieldVersion;
 
     @ManyToOne
     @JoinColumn(name = "worktypes_id", nullable = false)

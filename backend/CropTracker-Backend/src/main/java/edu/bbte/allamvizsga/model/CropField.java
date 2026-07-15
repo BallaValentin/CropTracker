@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
-import org.locationtech.jts.geom.Polygon;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collection;
 
@@ -26,20 +24,12 @@ public class CropField extends BaseEntity {
     @OneToMany(mappedBy = "cropField", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<FieldParcel> fieldParcels;
 
-    @Column(precision = 18, scale = 15)
-    private BigDecimal latitude;
-
-    @Column(precision = 18, scale = 15)
-    private BigDecimal longitude;
-
-    @Column(columnDefinition = "POLYGON")
-    private Polygon polygonPoints;
+    @Column
+    @OneToMany(mappedBy = "cropField", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<CropFieldVersion> cropFieldVersions;
 
     @Column(nullable = false)
-    private Boolean isDeleted;
-
-    @Column(nullable = false)
-    private Double area;
+    private Boolean isActive;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

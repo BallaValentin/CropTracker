@@ -25,6 +25,17 @@ export const getFieldParcells = async(cropFieldId: string): Promise<GetFieldParc
         return response.data;
 }
 
+export const getFieldParcelsOfVersion = async(cropFieldVersionId: string): Promise<GetFieldParcelDTO[]> => {
+    console.log("Sending get-field-parcels-of-version request to server for cropFieldId:", cropFieldVersionId);
+    const response = await fieldParcelApi.get<GetFieldParcelDTO[]>('/findall', {
+        params: {
+            cropFieldVersionId: cropFieldVersionId
+        },
+    });
+
+    return response.data;
+}
+
 export const getFieldParcel = async(fieldParcelId: string): Promise<GetFieldParcelDTO> => {
     console.log("Sending get-field-parcel request to server");
         const response = await fieldParcelApi.get<GetFieldParcelDTO>('/findby', {
@@ -51,11 +62,13 @@ export const updateFieldParcel = async(updateFieldParcelDTO: UpdateFieldParcelDT
         });
 }
 
-export const deleteFieldParcel = async(fieldParcelId: string): Promise<void> => {
+export const deleteFieldParcel = async(fieldParcelId: string): Promise<string> => {
     console.log("Sending delete-field-parcel request to server");
-        await fieldParcelApi.delete("/delete", {
-            params: {
-                id: fieldParcelId
-            },
-        });
+    await fieldParcelApi.delete("/delete", {
+        params: {
+            id: fieldParcelId
+        },
+    });
+
+    return fieldParcelId;
 }
