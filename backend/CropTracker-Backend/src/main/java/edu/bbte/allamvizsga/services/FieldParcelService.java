@@ -98,7 +98,7 @@ public class FieldParcelService {
             throw new EntityNotFoundException("Field parcel not found");
         }
 
-        FieldParcelVersion fieldParcelVersion = fieldParcelVersionRepository.findByFieldParcelOrderByCreatedAtDesc(fieldParcel);
+        FieldParcelVersion fieldParcelVersion = fieldParcelVersionRepository.findFirstByFieldParcelOrderByCreatedAtDesc(fieldParcel);
 
         if (fieldParcelVersion == null) {
             throw new EntityNotFoundException("Field parcel not found.");
@@ -111,14 +111,28 @@ public class FieldParcelService {
         return fieldParcelVersion;
     }
 
-    public void findByCropFieldAndUid(CropField cropField, UUID uid) {
+    public FieldParcelVersion findByVersionID(UUID uid, User user) {
         FieldParcelVersion fieldParcelVersion = fieldParcelVersionRepository.findByUid(uid);
 
         if (fieldParcelVersion == null || !fieldParcelVersion.getFieldParcel().getIsActive()) {
+            throw new EntityNotFoundException("Field parcel not found");
+        }
+
+        if (fieldParcelVersion.getFieldParcel().getCropField().getUser() != user) {
+            throw new ForbiddenException("Access denied to field parcel.");
+        }
+
+        return fieldParcelVersion;
+    }
+
+    public void findByCropFieldAndUid(CropFieldVersion cropFieldVersion, UUID uid) {
+        FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
+
+        if (fieldParcel== null || !fieldParcel.getIsActive()) {
             throw new EntityNotFoundException("Field parcel not found.");
         }
 
-        if (fieldParcelVersion.getFieldParcel().getCropField() != cropField) {
+        if (fieldParcel.getCropField() != cropFieldVersion.getCropField()) {
             throw new ForbiddenException("Access denied to field parcel.");
         }
     }
@@ -130,15 +144,17 @@ public class FieldParcelService {
             throw new EntityNotFoundException("Field parcel not found");
         }
 
-        CropFieldVersion currentCropFieldVersion = fieldParcelUpdate.getCropFieldVersion();
+        FieldParcelVersion currentFieldParcelVersion = fieldParcelVersionRepository.findFirstByFieldParcelOrderByCreatedAtDesc(fieldParcel);
+        CropFieldVersion currentCropFieldVersion = currentFieldParcelVersion.getCropFieldVersion();
         polygonValidation(fieldParcelUpdate, currentCropFieldVersion);
+        fieldParcelUpdate.setFieldParcel(fieldParcel);
 
         CropFieldVersion versionUpdates = currentCropFieldVersion.createClone();
         CropFieldVersion newCropFieldVersion = cropFieldVersionRepository.save(versionUpdates);
 
         Collection<FieldParcelVersion> fieldParcelVersions = currentCropFieldVersion.getFieldParcelVersions();
         fieldParcelVersions.forEach(fieldParcelVersion1 -> {
-            if (!fieldParcelVersion1.getUid().equals(fieldParcelUpdate.getUid())) {
+            if (!fieldParcelVersion1.getFieldParcel().getUid().equals(fieldParcelUpdate.getFieldParcel().getUid())) {
                 FieldParcelVersion newFieldParcelVersion = fieldParcelVersion1.createClone();
                 newFieldParcelVersion.setCropFieldVersion(newCropFieldVersion);
                 fieldParcelVersionRepository.save(newFieldParcelVersion);
@@ -159,7 +175,7 @@ public class FieldParcelService {
         fieldParcel.setIsActive(Boolean.FALSE);
         fieldParcelRepository.save(fieldParcel);
 
-        FieldParcelVersion fieldParcelVersion = fieldParcelVersionRepository.findByFieldParcelOrderByCreatedAtDesc(fieldParcel);
+        FieldParcelVersion fieldParcelVersion = fieldParcelVersionRepository.findFirstByFieldParcelOrderByCreatedAtDesc(fieldParcel);
         CropFieldVersion currentFieldVersion = fieldParcelVersion.getCropFieldVersion();
 
         CropFieldVersion versionUpdates = currentFieldVersion.createClone();
@@ -169,7 +185,7 @@ public class FieldParcelService {
 
         fieldParcelVersions.forEach(fieldParcelVersion1 -> {
             if (!fieldParcelVersion1.getUid().equals(fieldParcelVersion.getUid()) &&
-            fieldParcelVersion1.getFieldParcel().getIsActive()) {
+                    fieldParcelVersion1.getFieldParcel().getIsActive()) {
                 FieldParcelVersion newFieldParcelVersion = fieldParcelVersion1.createClone();
                 newFieldParcelVersion.setCropFieldVersion(newCropFieldVersion);
                 fieldParcelVersionRepository.save(newFieldParcelVersion);

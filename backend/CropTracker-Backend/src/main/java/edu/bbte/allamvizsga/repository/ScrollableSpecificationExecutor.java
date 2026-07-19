@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface ScrollableSpecificationExecutor<T> extends JpaSpecificationExecutor<T> {
     default Window<T> scrollAll(Specification<T> specification, ScrollPosition scrollPosition, int limit, String sortProperty) {
-        return findBy(specification, query -> query.limit(limit).sortBy(Sort.by(sortProperty).ascending())
+        return findBy(specification, query -> query.limit(limit).sortBy(Sort.by(sortProperty).descending())
                 .scroll(scrollPosition));
     }
 }

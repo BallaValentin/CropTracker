@@ -69,7 +69,7 @@ public class CropFieldService {
         cropFieldVersionRepository.save(cropFieldVersion);
     }
 
-    public CropFieldVersion findCropFieldByUser(UUID uid, User user) {
+    public CropField findCropFieldByUser(UUID uid, User user) {
         CropFieldVersion cropFieldVersion = cropFieldVersionRepository.findByUid(uid);
 
         if (cropFieldVersion == null || !cropFieldVersion.getCropField().getIsActive()) {
@@ -80,7 +80,7 @@ public class CropFieldService {
             throw new ForbiddenException("Crop field access denied.");
         }
 
-        return cropFieldVersion;
+        return cropFieldVersion.getCropField();
     }
 
     public void updateCropField(UUID cropFieldId, String newName, User user, CropFieldVersion cropFieldVersion) {

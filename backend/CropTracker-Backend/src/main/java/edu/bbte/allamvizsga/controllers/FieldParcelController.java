@@ -57,12 +57,11 @@ public class FieldParcelController {
 
     @PutMapping("/update")
     public void updateFieldParcel(@Valid @RequestBody UpdateFieldParcelDTO updateFieldParcelDTO,
-                                @RequestParam(name = "id") UUID fieldParcelId,
-                                @RequestHeader("Authorization") String authorizationHeader) {
+                                  @RequestParam(name = "id") UUID fieldParcelId,
+                                  @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
-        CropFieldVersion cropFieldVersion = cropFieldService.findCropFieldByUser(
-                updateFieldParcelDTO.getCropFieldId(), user);
+        cropFieldService.findById(updateFieldParcelDTO.getCropFieldId(), user);
 
         CropCultivar cropCultivar = cropCultivarService.findByID(updateFieldParcelDTO.getCropCultivarId());
 
@@ -86,7 +85,6 @@ public class FieldParcelController {
 
         CropFieldVersion cropFieldVersion = null;
 
-        System.out.println("Searching crop field");
         if (cropFieldId != null) {
             cropFieldVersion = cropFieldService.findById(cropFieldId, user);
         }
@@ -95,7 +93,6 @@ public class FieldParcelController {
             cropFieldVersion = cropFieldService.findByVersionId(cropFieldVersionId, user);
         }
 
-        System.out.println("Searching field parcels");
         Collection<FieldParcelVersion> fieldParcelVersions = fieldParcelService.getFieldParcels(cropFieldVersion);
 
         Collection<GetFieldParcelDTO> getFieldParcelDTOS = fieldParcelVersions.stream().map(fieldParcelVersionMapper::modelToGetFieldParcel).toList();
@@ -105,10 +102,22 @@ public class FieldParcelController {
     @GetMapping("/findby")
     public ResponseEntity<GetFieldParcelDTO> getFieldParcelById(
             @RequestHeader("Authorization") String authorizationHeader,
-            @RequestParam(name = "id") UUID fieldParcelId
+            @RequestParam(name = "fieldParcelId", required = false) UUID fieldParcelId,
+            @RequestParam(name = "fieldParcelVersionId", required = false) UUID fieldParcelVersionId
     ) {
+        if ((fieldParcelId == null && fieldParcelVersionId == null) || (fieldParcelId != null && fieldParcelVersionId != null)) {
+            throw new BadRequestException("Either field parcel ot field parcel version must be defined.");
+        }
         User user = userService.extractUser(authorizationHeader);
-        FieldParcelVersion fieldParcelVersion = fieldParcelService.findByID(fieldParcelId, user);
+
+        FieldParcelVersion fieldParcelVersion = null;
+        if (fieldParcelId != null) {
+            fieldParcelVersion = fieldParcelService.findByID(fieldParcelId, user);
+        }
+        if (fieldParcelVersionId != null) {
+            fieldParcelVersion = fieldParcelService.findByVersionID(fieldParcelVersionId, user);
+        }
+
         GetFieldParcelDTO getFieldParcelDTO = fieldParcelVersionMapper.modelToGetFieldParcel(fieldParcelVersion);
         return ResponseEntity.ok(getFieldParcelDTO);
     }

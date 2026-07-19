@@ -27,8 +27,12 @@ function FieldWorkHistoryItem({ fieldWork, onItemCheck }: FieldWorkItemProps) {
       }}
     >
       <Box sx={{ display: "flex", gap: 5 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Checkbox checked={itemChecked} onChange={handleCheckboxChange} />
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Checkbox
+            checked={itemChecked}
+            onChange={handleCheckboxChange}
+            sx={{ mr: 1 }}
+          />
           <Typography
             variant="subtitle1"
             color="textSecondary"
@@ -38,16 +42,26 @@ function FieldWorkHistoryItem({ fieldWork, onItemCheck }: FieldWorkItemProps) {
             {fieldWork.startDate.substring(11, 16)}
           </Typography>
           {fieldWork.endDate ? (
-            <Typography
-              variant="subtitle1"
-              color="textSecondary"
-              fontSize={"medium"}
-              sx={{ fontStyle: "italic", fontWeight: "bold" }}
-            >
-              -{fieldWork.endDate.substring(11, 16)}
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Divider
+                sx={{
+                  width: 8,
+                  borderBottomWidth: 2,
+                  mx: 0.75,
+                  bgcolor: "text.secondary",
+                }}
+              />
+              <Typography
+                variant="subtitle1"
+                color="textSecondary"
+                fontSize={"medium"}
+                sx={{ fontStyle: "italic", fontWeight: "bold" }}
+              >
+                {fieldWork.endDate.substring(11, 16)}
+              </Typography>
+            </Box>
           ) : (
-            <Box sx={{ display: "block", width: "6ch" }} />
+            <Box sx={{ display: "block", width: "7ch" }} />
           )}
         </Box>
 

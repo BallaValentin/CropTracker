@@ -154,9 +154,9 @@ function SelectWorksDialog({
                     {fieldWork.endDate && (
                       <Divider
                         sx={{
-                          width: 16,
-                          height: 1,
-                          bgcolor: "text.secondary",
+                          width: 8,
+                          borderBottomWidth: 2,
+                          bgcolor: "black",
                           opacity: 0.5,
                           mx: 0.5,
                         }}
@@ -173,7 +173,7 @@ function SelectWorksDialog({
                         {`${fieldWork.endDate.substring(0, 10)} ${fieldWork.endDate.substring(11, 16)}`}
                       </Typography>
                     ) : (
-                      <Box sx={{ display: "block", width: "17ch" }} />
+                      <Box sx={{ display: "block", width: "16ch" }} />
                     )}
                   </Box>
                   <Typography>{fieldWork.workTypeName}</Typography>

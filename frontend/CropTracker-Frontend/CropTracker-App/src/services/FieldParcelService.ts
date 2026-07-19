@@ -37,10 +37,10 @@ export const getFieldParcelsOfVersion = async(cropFieldVersionId: string): Promi
 }
 
 export const getFieldParcel = async(fieldParcelId: string): Promise<GetFieldParcelDTO> => {
-    console.log("Sending get-field-parcel request to server");
+    console.log("Sending get-field-parcel request to server, for fieldParcelId:", fieldParcelId);
         const response = await fieldParcelApi.get<GetFieldParcelDTO>('/findby', {
             params: {
-                id: fieldParcelId
+                fieldParcelId: fieldParcelId
             },
         });
 

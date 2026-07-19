@@ -61,7 +61,7 @@ public class FieldWorkService {
         Window<FieldWork> fieldWorksWindows = fieldWorkRepository.scrollAll(
                 Specification.allOf(FieldWorkSpecification.byUser(user)
                         .and(FieldWorkSpecification.byWorkType(workType))
-                        .and(FieldWorkSpecification.byCropField(cropField))), scrollPosition, pageSize, "uid");
+                        .and(FieldWorkSpecification.byCropField(cropField))), scrollPosition, pageSize, "startDate");
 
         return fieldWorksWindows.getContent();
     }

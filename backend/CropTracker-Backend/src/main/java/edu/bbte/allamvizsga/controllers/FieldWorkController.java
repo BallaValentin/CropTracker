@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -37,12 +36,15 @@ public class FieldWorkController {
                                   UUID cropFieldId, UUID workTypeId) {
         User user = userService.extractUser(authorizationHeader);
 
-        CropFieldVersion cropFieldVersion = cropFieldService.findCropFieldByUser(cropFieldId, user);
+        System.out.println("Crop field search");
+        CropFieldVersion cropFieldVersion = cropFieldService.findById(cropFieldId, user);
         fieldWork.setCropFieldVersion(cropFieldVersion);
 
-        fieldWork.getFieldParcelIds().forEach(parcelId -> fieldParcelService.findByCropFieldAndUid(
-                cropFieldVersion.getCropField(), parcelId));
+        System.out.println("Field parcel search");
+        fieldWork.getFieldParcelIds().forEach(fieldParcelId -> fieldParcelService.findByCropFieldAndUid(
+                cropFieldVersion, fieldParcelId));
 
+        System.out.println("Work type search");
         WorkType workType = workTypesService.findByUser(user, workTypeId);
         fieldWork.setWorkType(workType);
 
@@ -52,10 +54,11 @@ public class FieldWorkController {
     @PostMapping("/create")
     public void create(@Valid @RequestBody CreateFieldWorkDTO createFieldWorkDTO,
                        @RequestHeader("Authorization") String authorizationHeader) {
+        System.out.println("Received create field work request");
         FieldWork fieldWork = fieldWorkMapper.createFieldWorkToModel(createFieldWorkDTO);
 
         setupFieldWork(fieldWork, authorizationHeader, createFieldWorkDTO.getCropFieldId(), createFieldWorkDTO.getWorkTypeId());
-
+        System.out.println("Field work has been set up");
         fieldWorkService.create(fieldWork);
     }
 
@@ -90,8 +93,7 @@ public class FieldWorkController {
         CropField cropField = null;
 
         if (cropFieldId != null) {
-            CropFieldVersion cropFieldVersion = cropFieldService.findCropFieldByUser(cropFieldId, user);
-            cropField = cropFieldVersion.getCropField();
+            cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
         }
 
         List<FieldWork> fieldWorks = fieldWorkService.findAllPastWorks(user, workType, cropField, lastSeen, size);
@@ -130,7 +132,7 @@ public class FieldWorkController {
                                                                             @RequestParam("workTypes") List<String> selectedWorkTypes) {
         User user = userService.extractUser(authorizationHeader);
 
-        CropFieldVersion cropFieldVersion = cropFieldService.findCropFieldByUser(cropFieldId, user);
+        CropFieldVersion cropFieldVersion = cropFieldService.findById(cropFieldId, user);
         OffsetDateTime refDate = OffsetDateTime.parse(refDateString);
 
         List<UUID> selectedWorkTypeIds = selectedWorkTypes.stream().map(UUID::fromString).toList();

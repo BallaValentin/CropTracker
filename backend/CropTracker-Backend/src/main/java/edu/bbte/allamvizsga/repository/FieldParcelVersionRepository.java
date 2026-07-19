@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Repository
 public interface FieldParcelVersionRepository extends JpaRepository<FieldParcelVersion, UUID>, JpaSpecificationExecutor<FieldParcelVersion> {
-    FieldParcelVersion findByFieldParcelOrderByCreatedAtDesc(FieldParcel fieldParcel);
+    FieldParcelVersion findFirstByFieldParcelOrderByCreatedAtDesc(FieldParcel fieldParcel);
 
     FieldParcelVersion findByUid(UUID uid);
 }
