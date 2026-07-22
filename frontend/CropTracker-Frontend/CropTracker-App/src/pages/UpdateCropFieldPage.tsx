@@ -9,9 +9,17 @@ import { queryClient } from "../query-client/QueryClient";
 import UpdateCropFieldForm from "../elements/forms/UpdateCropFieldForm";
 import { useCropField } from "../hooks/caching/UseCropField";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import type { ConfirmUpdateDTO } from "../interfaces/response/ConfirmUpdateDTO";
+import ConfirmCropFieldUpdateDialog from "../elements/dialogs/ConfirmCropFieldUpdateDialog";
+import { useState } from "react";
 
 function UpdatePlotPage() {
   const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
+  const [scheduledWorks, setScheduledWorks] = useState<number>(0);
+  const [ongoingWorks, setOngoingWorks] = useState<number>(0);
+  const [cropFieldUpdateData, setCropFieldUpdateData] =
+    useState<UpdateCropFieldDTO | null>(null);
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -25,23 +33,46 @@ function UpdatePlotPage() {
     mutationFn: ({
       cropFieldUpdateData,
       id,
+      confirmUpdate,
     }: {
       cropFieldUpdateData: UpdateCropFieldDTO;
       id: string;
-    }) => updateCropField(cropFieldUpdateData, id || ""),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cropfields", id] });
-      navigate(`/cropfield-details/${id}`, {
-        state: {
-          success: true,
-          message: "Field has been successfully updated",
-        },
-      });
+      confirmUpdate: boolean;
+    }) => updateCropField(cropFieldUpdateData, id || "", confirmUpdate),
+    onSuccess: (data: ConfirmUpdateDTO | null) => {
+      if (data?.confirmationRequired) {
+        setScheduledWorks(data.numberOfScheduled);
+        setOngoingWorks(data.numberOfOngoing);
+        setConfirmDialogOpen(true);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["cropfields", id] });
+        queryClient.invalidateQueries({
+          queryKey: ["fieldWorks", id],
+        });
+        navigate(`/cropfield-details/${id}`, {
+          state: {
+            success: true,
+            message: "Field has been successfully updated",
+          },
+        });
+      }
     },
   });
 
   const handleOnUpdate = (cropFieldUpdateData: UpdateCropFieldDTO) => {
-    mutate({ cropFieldUpdateData, id: id || "" });
+    setCropFieldUpdateData(cropFieldUpdateData);
+    mutate({ cropFieldUpdateData, id: id || "", confirmUpdate: false });
+  };
+
+  const handleCancel = () => {
+    setConfirmDialogOpen(false);
+  };
+
+  const handleConfirmUpdate = () => {
+    if (cropFieldUpdateData) {
+      mutate({ cropFieldUpdateData, id: id || "", confirmUpdate: true });
+    }
+    setConfirmDialogOpen(false);
   };
 
   if (isLoadingUser) {
@@ -72,6 +103,16 @@ function UpdatePlotPage() {
           onUpdate={handleOnUpdate}
           isPending={isPending}
         />
+        {confirmDialogOpen && (
+          <ConfirmCropFieldUpdateDialog
+            open={confirmDialogOpen}
+            isPending={isPending}
+            numberOfOngoing={ongoingWorks}
+            numberOfScheduled={scheduledWorks}
+            onConfirmCancel={handleCancel}
+            onConfirmUpdate={handleConfirmUpdate}
+          />
+        )}
       </MainContainer>
     </>
   );

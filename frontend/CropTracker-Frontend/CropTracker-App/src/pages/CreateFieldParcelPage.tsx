@@ -10,9 +10,17 @@ import { queryClient } from "../query-client/QueryClient";
 import { useMutation } from "@tanstack/react-query";
 import { createFieldParcel } from "../services/FieldParcelService";
 import type { CreateFieldParcelDTO } from "../interfaces/request/CreateFieldParcelDTO";
+import { useState } from "react";
+import type { ConfirmUpdateDTO } from "../interfaces/response/ConfirmUpdateDTO";
+import ConfirmCropFieldUpdateDialog from "../elements/dialogs/ConfirmCropFieldUpdateDialog";
 
 function CreateFieldParcelPage() {
   const [searchParams] = useSearchParams();
+  const [confirmUpdateAlert, setConfirmUpdateAlert] = useState<boolean>(false);
+  const [fieldParcelData, setFieldParcelData] =
+    useState<CreateFieldParcelDTO | null>(null);
+  const [ongoingWorks, setOngoingWorks] = useState<number>(0);
+  const [scheduledWorks, setScheduledWorks] = useState<number>(0);
 
   const cropFieldId = searchParams.get("cropFieldId") || "";
 
@@ -27,25 +35,52 @@ function CreateFieldParcelPage() {
   const navigate = useNavigate();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: createFieldParcel,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["fieldParcels", cropFieldId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["cropfields", cropFieldId],
-      });
-      navigate(`/cropfield-details/${cropFieldId}`, {
-        state: {
-          success: true,
-          message: "Field parcel created successfully!",
-        },
-      });
+    mutationFn: ({
+      createFieldParcelData,
+      confirmUpdate,
+    }: {
+      createFieldParcelData: CreateFieldParcelDTO;
+      confirmUpdate: boolean;
+    }) => createFieldParcel(createFieldParcelData, confirmUpdate),
+    onSuccess: (data: ConfirmUpdateDTO | null) => {
+      if (data?.confirmationRequired) {
+        setConfirmUpdateAlert(true);
+        setOngoingWorks(data.numberOfOngoing);
+        setScheduledWorks(data.numberOfScheduled);
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ["fieldParcels", cropFieldId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["cropfields", cropFieldId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["fieldWorks", cropFieldId],
+        });
+        navigate(`/cropfield-details/${cropFieldId}`, {
+          state: {
+            success: true,
+            message: "Field parcel created successfully!",
+          },
+        });
+      }
     },
   });
 
   const handleCreateParcel = (newFieldParcel: CreateFieldParcelDTO) => {
-    mutate(newFieldParcel);
+    setFieldParcelData(newFieldParcel);
+    mutate({ createFieldParcelData: newFieldParcel, confirmUpdate: false });
+  };
+
+  const handleConfirmUpdate = () => {
+    if (fieldParcelData) {
+      mutate({ createFieldParcelData: fieldParcelData, confirmUpdate: true });
+    }
+    setConfirmUpdateAlert(false);
+  };
+
+  const handleCancel = () => {
+    setConfirmUpdateAlert(false);
   };
 
   if (
@@ -88,6 +123,17 @@ function CreateFieldParcelPage() {
           cropfield={cropFieldData}
           fieldParcels={fieldParcelsData}
         />
+
+        {confirmUpdateAlert && (
+          <ConfirmCropFieldUpdateDialog
+            open={confirmUpdateAlert}
+            isPending={isPending}
+            numberOfOngoing={ongoingWorks}
+            numberOfScheduled={scheduledWorks}
+            onConfirmCancel={handleCancel}
+            onConfirmUpdate={handleConfirmUpdate}
+          />
+        )}
       </MainContainer>
     </Box>
   );

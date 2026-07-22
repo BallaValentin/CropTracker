@@ -4,6 +4,7 @@ import type { CreateCropFieldDTO } from "../interfaces/request/CreateCropFieldDT
 import type { UpdateCropFieldDTO } from "../interfaces/request/UpdateCropFieldDTO"
 import { attachAuthInterceptors } from "./AttachAuthInterceptors"
 import type { GetCropFieldNameDTO } from "../interfaces/response/GetCropFieldNameDTO"
+import type { ConfirmUpdateDTO } from "../interfaces/response/ConfirmUpdateDTO"
 
 export const cropFieldApi = axios.create({
     baseURL: "http://localhost:8080/api/cropfield",
@@ -20,9 +21,14 @@ export const createCropField = async(createCropField: CreateCropFieldDTO): Promi
     await cropFieldApi.post<void>("/create", createCropField);
 }
 
-export const updateCropField = async(updateCropField: UpdateCropFieldDTO, cropFieldId: string): Promise<void> => {
+export const updateCropField = async(updateCropField: UpdateCropFieldDTO, cropFieldId: string, confirmUpdate: boolean): Promise<ConfirmUpdateDTO | null> => {
     console.log("Sending update-cropfield request to server")
-    await cropFieldApi.put<void>(`/update?id=${cropFieldId}`, updateCropField);
+    const response = await cropFieldApi.put<ConfirmUpdateDTO | null>(`/update`, updateCropField, {
+        params: {
+        id: cropFieldId,
+        confirm: confirmUpdate
+    }});
+    return response.data;
 }
 
 export const getCropFields = async (): Promise<GetCropFieldDTO[]> => {

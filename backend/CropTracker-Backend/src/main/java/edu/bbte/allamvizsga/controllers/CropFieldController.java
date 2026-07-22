@@ -2,8 +2,10 @@ package edu.bbte.allamvizsga.controllers;
 
 import edu.bbte.allamvizsga.dto.request.cropfield.CreateCropFieldDTO;
 import edu.bbte.allamvizsga.dto.request.cropfield.UpdateCropFieldDTO;
+import edu.bbte.allamvizsga.dto.response.cropfield.ConfirmUpdateDTO;
 import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldDTO;
 import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldNameDTO;
+import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldWorkDTO;
 import edu.bbte.allamvizsga.mappers.CropFieldMapper;
 import edu.bbte.allamvizsga.mappers.CropFieldVersionMapper;
 import edu.bbte.allamvizsga.model.*;
@@ -49,12 +51,36 @@ public class CropFieldController {
     }
 
     @PutMapping("/update")
-    public void updateCropField(@Valid @RequestBody UpdateCropFieldDTO updateCropFieldDTO,
-                                @RequestParam(name = "id") UUID cropFieldId,
-                                @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> updateCropField(@Valid @RequestBody UpdateCropFieldDTO updateCropFieldDTO,
+                                             @RequestParam(name = "id") UUID cropFieldId,
+                                             @RequestParam(name = "confirm", required = false) Boolean confirm,
+                                             @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
         CropFieldVersion cropFieldVersion = cropFieldVersionMapper.updateCropFieldToModel(updateCropFieldDTO);
+
+        CropFieldVersion cropFieldToUpdate = cropFieldService.findById(cropFieldId, user);
+
+        Collection<FieldWork> ongoingWorks = fieldWorkService.findAllOngoing(cropFieldToUpdate);
+        Collection<FieldWork> scheduledWorks = fieldWorkService.findAllScheduled(cropFieldToUpdate);
+
+        if (!ongoingWorks.isEmpty() || !scheduledWorks.isEmpty()) {
+            if (confirm) {
+                CropFieldVersion newVersion = cropFieldService.updateCropField(cropFieldId, updateCropFieldDTO.getName(), user, cropFieldVersion);
+
+                scheduledWorks.forEach(fieldWork -> {
+                    fieldWork.setCropFieldVersion(newVersion);
+                    fieldWorkService.updateScheduledWork(fieldWork);
+                });
+
+                return ResponseEntity.ok(null);
+            } else {
+                ConfirmUpdateDTO confirmUpdateDTO = new ConfirmUpdateDTO(ongoingWorks.size(), scheduledWorks.size());
+                return ResponseEntity.ok(confirmUpdateDTO);
+            }
+        }
+
         cropFieldService.updateCropField(cropFieldId, updateCropFieldDTO.getName(), user, cropFieldVersion);
+        return ResponseEntity.ok(null);
     }
 
     @GetMapping("/findall")
@@ -93,7 +119,7 @@ public class CropFieldController {
     }
 
     @GetMapping(value = "/findby", params = "fieldWorkId")
-    public ResponseEntity<GetCropFieldDTO> getCropFieldByFieldWorkId(
+    public ResponseEntity<GetCropFieldWorkDTO> getCropFieldByFieldWorkId(
             @RequestParam(name = "fieldWorkId") UUID fieldWorkId,
             @RequestHeader("Authorization") String authorizationHeader
     ) {
@@ -102,9 +128,8 @@ public class CropFieldController {
         FieldWork fieldWork = fieldWorkService.findById(fieldWorkId, user);
         CropFieldVersion cropFieldVersion = fieldWork.getCropFieldVersion();
 
-        GetCropFieldDTO getCropFieldDTO = cropFieldVersionMapper.modelToGetCropField(cropFieldVersion);
-
-        return ResponseEntity.ok(getCropFieldDTO);
+        GetCropFieldWorkDTO getCropFieldWorkDTO = cropFieldVersionMapper.modelToGetCropFieldWork(cropFieldVersion);
+        return ResponseEntity.ok(getCropFieldWorkDTO);
     }
 
     @DeleteMapping("/delete")

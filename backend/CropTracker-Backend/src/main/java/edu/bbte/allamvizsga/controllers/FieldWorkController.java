@@ -28,23 +28,29 @@ public class FieldWorkController {
     private final FieldWorkService fieldWorkService;
     private final UserService userService;
     private final CropFieldService cropFieldService;
-    private final FieldParcelService fieldParcelService;
     private final WorkTypeService workTypesService;
     private final FieldWorkMapper fieldWorkMapper;
 
-    protected void setupFieldWork(FieldWork fieldWork, String authorizationHeader,
+    protected void setupFieldWorkForCreate(FieldWork fieldWork, String authorizationHeader,
                                   UUID cropFieldId, UUID workTypeId) {
         User user = userService.extractUser(authorizationHeader);
 
-        System.out.println("Crop field search");
         CropFieldVersion cropFieldVersion = cropFieldService.findById(cropFieldId, user);
         fieldWork.setCropFieldVersion(cropFieldVersion);
 
-        System.out.println("Field parcel search");
-        fieldWork.getFieldParcelIds().forEach(fieldParcelId -> fieldParcelService.findByCropFieldAndUid(
-                cropFieldVersion, fieldParcelId));
+        WorkType workType = workTypesService.findByUser(user, workTypeId);
+        fieldWork.setWorkType(workType);
 
-        System.out.println("Work type search");
+        fieldWork.setIsActive(Boolean.TRUE);
+    }
+
+    protected void setupFieldWorkForUpdate(FieldWork fieldWork, String authorizationHeader,
+                                  UUID cropFieldId, UUID workTypeId) {
+        User user = userService.extractUser(authorizationHeader);
+
+        CropFieldVersion cropFieldVersion = cropFieldService.findByVersionId(cropFieldId, user);
+        fieldWork.setCropFieldVersion(cropFieldVersion);
+
         WorkType workType = workTypesService.findByUser(user, workTypeId);
         fieldWork.setWorkType(workType);
 
@@ -57,8 +63,8 @@ public class FieldWorkController {
         System.out.println("Received create field work request");
         FieldWork fieldWork = fieldWorkMapper.createFieldWorkToModel(createFieldWorkDTO);
 
-        setupFieldWork(fieldWork, authorizationHeader, createFieldWorkDTO.getCropFieldId(), createFieldWorkDTO.getWorkTypeId());
-        System.out.println("Field work has been set up");
+        setupFieldWorkForCreate(fieldWork, authorizationHeader, createFieldWorkDTO.getCropFieldId(), createFieldWorkDTO.getWorkTypeId());
+
         fieldWorkService.create(fieldWork);
     }
 
@@ -66,10 +72,11 @@ public class FieldWorkController {
     public void update(@Valid @RequestBody UpdateFieldWorkDTO updateFieldWorkDTO,
                        @RequestParam("fieldWorkId") UUID fieldWorkId,
                        @RequestHeader("Authorization") String authorizationHeader) {
+
         FieldWork fieldWork = fieldWorkMapper.updateFieldWorkToModel(updateFieldWorkDTO);
         fieldWork.setUid(fieldWorkId);
 
-        setupFieldWork(fieldWork, authorizationHeader, updateFieldWorkDTO.getCropFieldId(), updateFieldWorkDTO.getWorkTypeId());
+        setupFieldWorkForUpdate(fieldWork, authorizationHeader, updateFieldWorkDTO.getCropFieldId(), updateFieldWorkDTO.getWorkTypeId());
 
         fieldWorkService.update(fieldWork);
     }
@@ -109,7 +116,7 @@ public class FieldWorkController {
         User user = userService.extractUser(authorizationHeader);
         CropFieldVersion cropFieldVersion = cropFieldService.findById(cropFieldId, user);
 
-        Collection<FieldWork> fieldWorks = fieldWorkService.findAllByCropField(cropFieldVersion);
+        Collection<FieldWork> fieldWorks = fieldWorkService.findAllByCropField(cropFieldVersion.getCropField());
 
         return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetFieldWork).toList());
     }

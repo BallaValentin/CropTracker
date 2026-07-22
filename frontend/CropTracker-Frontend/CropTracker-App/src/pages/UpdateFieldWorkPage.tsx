@@ -7,7 +7,6 @@ import ProgressCircle from "../elements/progress/ProgressCircle";
 import { Box, Button } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
-import { useFieldParcels } from "../hooks/caching/UseFieldParcels";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { type GetWorkTypeDTO } from "../interfaces/response/GetWorkTypeDTO";
@@ -22,6 +21,7 @@ import { useFieldWork } from "../hooks/caching/UseFieldWork";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import AddFieldWorkForm from "../elements/forms/AddFieldWorkForm";
 import { type GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
+import { useCropFieldVersionParcels } from "../hooks/caching/UseCropFieldVersionParcels";
 
 function UpdateFieldWorkPage() {
   const { id } = useParams();
@@ -60,7 +60,7 @@ function UpdateFieldWorkPage() {
       queryClient.invalidateQueries({
         queryKey: ["fieldWork", id],
       });
-      navigate(`/cropfield-details/${cropFieldData?.uid}`, {
+      navigate(`/cropfield-details/${cropFieldData?.cropFieldId}`, {
         state: {
           success: true,
           message: "Field work updated successfully!",
@@ -91,7 +91,10 @@ function UpdateFieldWorkPage() {
   };
 
   const { data: fieldParcelsData, isLoading: isFieldParcelsLoading } =
-    useFieldParcels(cropFieldData?.uid || "", !!cropFieldData?.uid);
+    useCropFieldVersionParcels(
+      fieldWorkData?.cropFieldId || "",
+      !!fieldWorkData?.cropFieldId,
+    );
 
   useEffect(() => {
     if (fieldParcelsData) {
@@ -113,6 +116,7 @@ function UpdateFieldWorkPage() {
 
   useEffect(() => {
     if (fieldWorkData) {
+      console.log("Received field work: ", fieldWorkData);
       setFieldWork(fieldWorkData);
     }
   }, [fieldWorkData]);
@@ -148,6 +152,7 @@ function UpdateFieldWorkPage() {
 
           {cropField && fieldParcels && workTypes && fieldWork && (
             <AddFieldWorkForm
+              isUpdating={true}
               fieldWorkToUpdate={fieldWork}
               cropField={cropField}
               fieldParcels={fieldParcels}

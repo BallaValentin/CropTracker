@@ -10,7 +10,6 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import { useMutation } from "@tanstack/react-query";
 import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import CheckIcon from "@mui/icons-material/Check";
-import { defaultMapPosition } from "../utils/Constants";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import CropFieldInfoPanel from "../elements/panels/CropFieldInfoPanel";
 import { deleteFieldParcel } from "../services/FieldParcelService";
@@ -20,6 +19,8 @@ import { useCropFieldWork } from "../hooks/caching/UseCropFieldWorks";
 import CropFieldWorksPanel from "../elements/panels/CropFieldWorksPanel";
 import { useCropField } from "../hooks/caching/UseCropField";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import type { ConfirmUpdateDTO } from "../interfaces/response/ConfirmUpdateDTO";
+import ConfirmCropFieldUpdateDialog from "../elements/dialogs/ConfirmCropFieldUpdateDialog";
 
 function PlotDetailsPage() {
   const {
@@ -27,19 +28,19 @@ function PlotDetailsPage() {
     isLoading: isUserLoading,
     error: userError,
   } = useCurrentProfile();
-  const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldDTO>({
-    uid: "",
-    name: "Unnamed Field",
-    markerPosition: defaultMapPosition,
-    polygonPoints: [],
-    area: 0,
-  });
+  const [cropFieldDetail, setCropFieldDetail] =
+    useState<GetCropFieldDTO | null>(null);
   const [fieldParcelsData, setFieldParcelsData] = useState<GetFieldParcelDTO[]>(
     [],
   );
 
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [parcelsSelected, setParcelsSelected] = useState<boolean[]>([]);
+
+  const [activeFieldParcelId, setActiveFieldParcelId] = useState<string>("");
+  const [confirmUpdateOpen, setConfirmUpdateOpen] = useState<boolean>(false);
+  const [ongoingWorksNumber, setOngoingWorksNumber] = useState<number>(0);
+  const [scheduledWorksNumber, setScheduledWorksNumber] = useState<number>(0);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -98,16 +99,31 @@ function PlotDetailsPage() {
     return { onGoingWorks: onGoing, scheduledWorks: scheduled };
   }, [fieldWorksData]);
 
-  const { mutate: deleteMutate } = useMutation({
-    mutationFn: deleteFieldParcel,
-    onSuccess: () => {
-      setFeedbackMessage("Field parcel deleted successfully!");
-      queryClient.invalidateQueries({
-        queryKey: ["fieldParcels", id],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["cropfields", id],
-      });
+  const { mutate: deleteMutate, isPending: isDeletePending } = useMutation({
+    mutationFn: ({
+      fieldParcelId,
+      confirmUpdate,
+    }: {
+      fieldParcelId: string;
+      confirmUpdate: boolean;
+    }) => deleteFieldParcel(fieldParcelId, confirmUpdate),
+    onSuccess: (data: ConfirmUpdateDTO | null) => {
+      if (data?.confirmationRequired) {
+        setConfirmUpdateOpen(true);
+        setOngoingWorksNumber(data.numberOfOngoing);
+        setScheduledWorksNumber(data.numberOfScheduled);
+      } else {
+        setFeedbackMessage("Field parcel deleted successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["fieldParcels", id],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["cropfields", id],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["fieldWorks", id],
+        });
+      }
     },
   });
 
@@ -143,7 +159,8 @@ function PlotDetailsPage() {
   };
 
   const deleteSelectedParcel = (fieldParcelId: string) => {
-    deleteMutate(fieldParcelId);
+    setActiveFieldParcelId(fieldParcelId);
+    deleteMutate({ fieldParcelId, confirmUpdate: false });
   };
 
   const handleAddFieldWorkClick = () => {
@@ -168,17 +185,28 @@ function PlotDetailsPage() {
     setParcelsSelected([...newParcelsSelected]);
   };
 
+  const handleConfirmCancel = () => {
+    setConfirmUpdateOpen(false);
+  };
+
+  const handleConfirmUpdate = () => {
+    deleteMutate({ fieldParcelId: activeFieldParcelId, confirmUpdate: true });
+    setConfirmUpdateOpen(false);
+  };
+
   if (isUserLoading) {
     return <ProgressCircle loadingMessage="Initializing user data..." />;
   }
 
-  if (isCropFieldLoading) {
-    <Box>
-      <MainHeader />
-      <MainContainer>
-        <ProgressCircle loadingMessage="Initializing crop field data..." />
-      </MainContainer>
-    </Box>;
+  if (isCropFieldLoading || !cropFieldDetail) {
+    return (
+      <Box>
+        <MainHeader />
+        <MainContainer>
+          <ProgressCircle loadingMessage="Initializing crop field data..." />
+        </MainContainer>
+      </Box>
+    );
   }
 
   if (userError) {
@@ -264,6 +292,17 @@ function PlotDetailsPage() {
               Add Field Work
             </Button>
           </Box>
+
+          {confirmUpdateOpen && (
+            <ConfirmCropFieldUpdateDialog
+              open={confirmUpdateOpen}
+              isPending={isDeletePending}
+              numberOfOngoing={ongoingWorksNumber}
+              numberOfScheduled={scheduledWorksNumber}
+              onConfirmCancel={handleConfirmCancel}
+              onConfirmUpdate={handleConfirmUpdate}
+            />
+          )}
         </MainContainer>
       </Box>
     </>

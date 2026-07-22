@@ -38,5 +38,6 @@ public abstract class FieldParcelVersionMapper {
         getFieldParcelDTO.setCultivarId(fieldParcelVersion.getCropCultivar().getUid());
         getFieldParcelDTO.setCultivarName(fieldParcelVersion.getCropCultivar().getCultivarName());
         getFieldParcelDTO.setSpecieName(fieldParcelVersion.getCropCultivar().getCropSpecie().getCommonName());
+        getFieldParcelDTO.setCreatedAt(fieldParcelVersion.getFieldParcel().getCreatedAt().toString());
     }
 }

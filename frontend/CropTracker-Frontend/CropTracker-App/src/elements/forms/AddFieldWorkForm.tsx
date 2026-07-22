@@ -37,6 +37,7 @@ interface AddFieldWorkFormProps {
     createFieldWorkDTO: CreateFieldWorkDTO | UpdateFieldWorkDTO,
   ) => void;
   onWorkTypeAdded: (createWorkTypeDTO: CreateWorkTypeDTO) => void;
+  isUpdating?: boolean;
   isPending: boolean;
 }
 
@@ -48,6 +49,7 @@ function AddFieldWorkForm({
   onSubmit,
   onWorkTypeAdded,
   isPending,
+  isUpdating = false,
 }: AddFieldWorkFormProps) {
   const [rowRanges, setRowRanges] = useState<[number, number][]>([]);
   const [previousWorks, setPreviousWorks] = useState<GetPreviousWorkDTO[]>([]);
@@ -94,8 +96,12 @@ function AddFieldWorkForm({
 
   const [createFieldWorkDTO, setCreateFieldWorkDTO] =
     useState<CreateFieldWorkDTO>({
-      cropFieldId: cropField.uid,
-      fieldParcelIds: fieldParcels.map((parcel) => parcel.uid),
+      cropFieldId: isUpdating
+        ? fieldWorkToUpdate?.cropFieldId || ""
+        : cropField.uid,
+      fieldParcelIds: isUpdating
+        ? fieldWorkToUpdate?.fieldParcelIds || []
+        : fieldParcels.map((parcel) => parcel.uid),
       workTypeId: fieldWorkToUpdate?.workTypeId || workTypes[0].uid,
       startDate: fieldWorkToUpdate?.startDate || toDateTimeLocal(new Date()),
       endDate: fieldWorkToUpdate?.endDate || "",
@@ -135,6 +141,15 @@ function AddFieldWorkForm({
       selectedWorkTypes: selectedWorkTypes,
     });
   };
+
+  useEffect(() => {
+    if (fieldWorkToUpdate) {
+      setCreateFieldWorkDTO((prev) => ({
+        ...prev,
+        cropFieldId: fieldWorkToUpdate.cropFieldId,
+      }));
+    }
+  }, [fieldWorkToUpdate]);
 
   useEffect(() => {
     let totalRows = 0;

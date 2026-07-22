@@ -74,6 +74,15 @@ function CreateFieldParcelForm({
   );
 
   useEffect(() => {
+    if (cropfield.uid) {
+      setNewFieldParcel((prev) => ({
+        ...prev,
+        cropFieldId: cropfield.uid,
+      }));
+    }
+  }, [cropfield.uid]);
+
+  useEffect(() => {
     const generatedRows =
       getGeneratedRows({
         polygonCoords: newFieldParcel.polygonPoints,
@@ -116,6 +125,7 @@ function CreateFieldParcelForm({
     if (fieldParcelToUpdate) {
       setNewFieldParcel({
         ...fieldParcelToUpdate,
+        cropFieldId: cropfield.uid,
         cropCultivarId: fieldParcelToUpdate.cultivarId,
 
         layoutParameters: {
@@ -123,7 +133,7 @@ function CreateFieldParcelForm({
         },
       });
     }
-  }, [fieldParcelToUpdate]);
+  }, [fieldParcelToUpdate, cropfield]);
 
   const { data: crops } = useCropSearch(searchTerm);
 

@@ -2,12 +2,10 @@ package edu.bbte.allamvizsga.services;
 
 import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.exceptions.ForbiddenException;
-import edu.bbte.allamvizsga.model.CropField;
-import edu.bbte.allamvizsga.model.CropFieldVersion;
-import edu.bbte.allamvizsga.model.FieldParcelVersion;
-import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.model.*;
 import edu.bbte.allamvizsga.repository.CropFieldRepository;
 import edu.bbte.allamvizsga.repository.CropFieldVersionRepository;
+import edu.bbte.allamvizsga.repository.FieldParcelRepository;
 import edu.bbte.allamvizsga.repository.FieldParcelVersionRepository;
 import edu.bbte.allamvizsga.services.util.SerialNumberGetter;
 import edu.bbte.allamvizsga.specifications.CropFieldSpecification;
@@ -29,6 +27,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class CropFieldService {
     private final CropFieldRepository cropFieldRepository;
+    private final FieldParcelRepository fieldParcelRepository;
     private final CropFieldVersionRepository cropFieldVersionRepository;
     private final FieldParcelVersionRepository fieldParcelVersionRepository;
     private final SerialNumberGetter snGetter;
@@ -83,7 +82,7 @@ public class CropFieldService {
         return cropFieldVersion.getCropField();
     }
 
-    public void updateCropField(UUID cropFieldId, String newName, User user, CropFieldVersion cropFieldVersion) {
+    public CropFieldVersion updateCropField(UUID cropFieldId, String newName, User user, CropFieldVersion cropFieldVersion) {
         CropField cropField = cropFieldRepository.findByUid(cropFieldId);
 
         if (cropField == null || !cropField.getIsActive()) {
@@ -120,6 +119,8 @@ public class CropFieldService {
             newFieldParcelVersion.setCropFieldVersion(newCropFieldVersion);
             fieldParcelVersionRepository.save(newFieldParcelVersion);
         });
+
+        return newCropFieldVersion;
     }
 
     public Collection<CropField> getCropFields(User user) {
@@ -187,5 +188,17 @@ public class CropFieldService {
 
         cropField.setIsActive(Boolean.FALSE);
         cropFieldRepository.save(cropField);
+    }
+
+    public CropFieldVersion findByParcelId(UUID fieldParcelId) {
+        FieldParcel fieldParcel = fieldParcelRepository.findByUid(fieldParcelId);
+
+        if (fieldParcel == null || !fieldParcel.getIsActive()) {
+            throw new EntityNotFoundException("Field parcel not found.");
+        }
+
+        CropField cropField = fieldParcel.getCropField();
+
+        return cropFieldVersionRepository.findFirstByCropFieldOrderByCreatedAtDesc(cropField);
     }
 }

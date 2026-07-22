@@ -4,6 +4,7 @@ import edu.bbte.allamvizsga.model.*;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -78,5 +79,15 @@ public class FieldWorkSpecification {
     public static Specification<FieldWork> byIsActive() {
         return ((root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("isActive"), Boolean.TRUE));
+    }
+
+    public static Specification<FieldWork> byStartDateBefore(OffsetDateTime offsetDateTime) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.lessThan(root.get("startDate"), offsetDateTime);
+    }
+
+    public static Specification<FieldWork> byStartDateAfter(OffsetDateTime offsetDateTime) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"), offsetDateTime);
     }
 }

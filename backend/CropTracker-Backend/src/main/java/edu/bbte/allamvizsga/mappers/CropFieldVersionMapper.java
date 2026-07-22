@@ -4,6 +4,7 @@ import edu.bbte.allamvizsga.dto.LatLngObject;
 import edu.bbte.allamvizsga.dto.request.cropfield.CreateCropFieldDTO;
 import edu.bbte.allamvizsga.dto.request.cropfield.UpdateCropFieldDTO;
 import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldDTO;
+import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldWorkDTO;
 import edu.bbte.allamvizsga.mappers.util.PolygonMapper;
 import edu.bbte.allamvizsga.model.CropField;
 import edu.bbte.allamvizsga.model.CropFieldVersion;
@@ -48,5 +49,15 @@ public abstract class CropFieldVersionMapper {
         getCropFieldDTO.setName(cropFieldVersion.getCropField().getName());
         getCropFieldDTO.setUid(cropFieldVersion.getCropField().getUid());
         getCropFieldDTO.setMarkerPosition(new LatLngObject(cropFieldVersion.getLatitude(), cropFieldVersion.getLongitude()));
+    }
+
+    @Mapping(target = "polygonPoints", source = "polygonPoints", qualifiedByName = "fromPolygon")
+    public abstract GetCropFieldWorkDTO modelToGetCropFieldWork(CropFieldVersion cropFieldVersion);
+
+    @AfterMapping
+    protected void afterModelToGetCropFieldWork(CropFieldVersion cropFieldVersion, @MappingTarget GetCropFieldWorkDTO getCropFieldWorkDTO) {
+        getCropFieldWorkDTO.setName(cropFieldVersion.getCropField().getName());
+        getCropFieldWorkDTO.setCropFieldId(cropFieldVersion.getCropField().getUid());
+        getCropFieldWorkDTO.setMarkerPosition(new LatLngObject(cropFieldVersion.getLatitude(), cropFieldVersion.getLongitude()));
     }
 }

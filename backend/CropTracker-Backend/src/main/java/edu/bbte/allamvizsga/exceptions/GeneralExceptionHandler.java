@@ -76,6 +76,7 @@ public class GeneralExceptionHandler {
     @ResponseBody
     public ErrorResponseDTO handleMethodArgumentNotValid(
             MethodArgumentNotValidException exception, HttpServletRequest request) {
+        System.out.println(exception.getBindingResult().getAllErrors().getFirst().getDefaultMessage());
         LocalDateTime timestamp = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String error = exception.getBindingResult().getAllErrors().getFirst().getDefaultMessage();

@@ -20,4 +20,5 @@ public class GetFieldParcelDTO {
     private Double area;
     private String layoutType;
     private Map<String, Object> layoutParameters;
+    private String createdAt;
 }

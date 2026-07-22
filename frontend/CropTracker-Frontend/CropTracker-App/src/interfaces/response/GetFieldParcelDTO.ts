@@ -11,5 +11,6 @@ export interface GetFieldParcelDTO {
     layoutType: string,
     layoutParameters: LayoutParameters,
     specieName: string,
-    cultivarName: string
+    cultivarName: string,
+    createdAt: string
 }

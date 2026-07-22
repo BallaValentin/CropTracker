@@ -63,7 +63,7 @@ public class FieldParcelService {
         }
     }
 
-    public void createFieldParcel(FieldParcel fieldParcel, FieldParcelVersion fieldParcelVersion) {
+    public FieldParcelVersion createFieldParcel(FieldParcel fieldParcel, FieldParcelVersion fieldParcelVersion) {
         CropFieldVersion currentCropFieldVersion = cropFieldVersionRepository.findFirstByCropFieldOrderByCreatedAtDesc(fieldParcel.getCropField());
         polygonValidation(fieldParcelVersion, currentCropFieldVersion);
         FieldParcel newFieldParcel = fieldParcelRepository.save(fieldParcel);
@@ -79,15 +79,15 @@ public class FieldParcelService {
 
         fieldParcelVersion.setCropFieldVersion(newCropFieldVersion);
         fieldParcelVersion.setFieldParcel(newFieldParcel);
-        fieldParcelVersionRepository.save(fieldParcelVersion);
 
+        return fieldParcelVersionRepository.save(fieldParcelVersion);
     }
 
     public Collection<FieldParcelVersion> getFieldParcels(CropFieldVersion cropFieldVersion) {
         return fieldParcelVersionRepository.findAll(
                 Specification.allOf(
                         FieldParcelVersionSpecification.byCropFieldVersion(cropFieldVersion)
-                ), Sort.by(Sort.Direction.ASC, "createdAt")
+                ), Sort.by(Sort.Direction.ASC, "fieldParcel.createdAt")
         );
     }
 
@@ -128,7 +128,7 @@ public class FieldParcelService {
     public void findByCropFieldAndUid(CropFieldVersion cropFieldVersion, UUID uid) {
         FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
 
-        if (fieldParcel== null || !fieldParcel.getIsActive()) {
+        if (fieldParcel == null || !fieldParcel.getIsActive()) {
             throw new EntityNotFoundException("Field parcel not found.");
         }
 
@@ -137,7 +137,7 @@ public class FieldParcelService {
         }
     }
 
-    public void updateFieldParcel(UUID fieldParcelId, FieldParcelVersion fieldParcelUpdate) {
+    public FieldParcelVersion updateFieldParcel(UUID fieldParcelId, FieldParcelVersion fieldParcelUpdate) {
         FieldParcel fieldParcel = fieldParcelRepository.findByUid(fieldParcelId);
 
         if (fieldParcel == null || !fieldParcel.getIsActive()) {
@@ -162,7 +162,7 @@ public class FieldParcelService {
         });
 
         fieldParcelUpdate.setCropFieldVersion(newCropFieldVersion);
-        fieldParcelVersionRepository.save(fieldParcelUpdate);
+        return fieldParcelVersionRepository.save(fieldParcelUpdate);
     }
 
     public void deleteById(UUID uid) {

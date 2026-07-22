@@ -2,15 +2,13 @@ package edu.bbte.allamvizsga.controllers;
 
 import edu.bbte.allamvizsga.dto.request.fieldParcel.CreateFieldParcelDTO;
 import edu.bbte.allamvizsga.dto.request.fieldParcel.UpdateFieldParcelDTO;
+import edu.bbte.allamvizsga.dto.response.cropfield.ConfirmUpdateDTO;
 import edu.bbte.allamvizsga.dto.response.fieldParcel.GetFieldParcelDTO;
 import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.mappers.FieldParcelMapper;
 import edu.bbte.allamvizsga.mappers.FieldParcelVersionMapper;
 import edu.bbte.allamvizsga.model.*;
-import edu.bbte.allamvizsga.services.CropCultivarService;
-import edu.bbte.allamvizsga.services.CropFieldService;
-import edu.bbte.allamvizsga.services.FieldParcelService;
-import edu.bbte.allamvizsga.services.UserService;
+import edu.bbte.allamvizsga.services.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
-import java.util.Collection;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping("/api/field-parcel")
@@ -32,14 +29,27 @@ public class FieldParcelController {
     private final UserService userService;
     private final CropFieldService cropFieldService;
     private final FieldParcelService fieldParcelService;
+    private final FieldWorkService fieldWorkService;
     private final CropCultivarService cropCultivarService;
     private final FieldParcelMapper fieldParcelMapper;
     private final FieldParcelVersionMapper fieldParcelVersionMapper;
 
+    protected ConfirmUpdateDTO getConfirmUpdate(CropFieldVersion cropFieldVersion) {
+        int ongoingWorks = fieldWorkService.findAllOngoing(cropFieldVersion).size();
+        int scheduledWorks = fieldWorkService.findAllScheduled(cropFieldVersion).size();
+
+        if (ongoingWorks > 0 || scheduledWorks > 0) {
+            return new ConfirmUpdateDTO(ongoingWorks, scheduledWorks);
+        }
+
+        return null;
+    }
+
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createFieldParcel(@Valid @RequestBody CreateFieldParcelDTO createFieldParcelDTO,
-                                  @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> createFieldParcel(@Valid @RequestBody CreateFieldParcelDTO createFieldParcelDTO,
+                                               @RequestParam(name = "confirm", required = false) Boolean confirm,
+                                               @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
         CropFieldVersion cropFieldVersion = cropFieldService.findById(
@@ -52,23 +62,105 @@ public class FieldParcelController {
         fieldParcel.setCropField(cropFieldVersion.getCropField());
         fieldParcelVersion.setCropCultivar(cropCultivar);
 
-        fieldParcelService.createFieldParcel(fieldParcel, fieldParcelVersion);
+        ConfirmUpdateDTO confirmUpdateDTO = getConfirmUpdate(cropFieldVersion);
+
+        if (confirmUpdateDTO == null) {
+            fieldParcelService.createFieldParcel(fieldParcel, fieldParcelVersion);
+            return ResponseEntity.ok(null);
+        }
+
+        if (confirm) {
+            FieldParcelVersion newFieldParcelVersion = fieldParcelService.createFieldParcel(fieldParcel, fieldParcelVersion);
+            CropFieldVersion newVersion = newFieldParcelVersion.getCropFieldVersion();
+
+            List<FieldWork> scheduledWorks = fieldWorkService.findAllScheduled(cropFieldVersion);
+
+            if (!scheduledWorks.isEmpty()) {
+                scheduledWorks.forEach(fieldWork -> {
+                    int newNumberOfRows = ((Number) fieldParcelVersion.getLayoutParameters().get("numberOfRows")).intValue();
+
+                    List<Boolean> newAffectedRows = new ArrayList<>(fieldWork.getAffectedRows());
+                    newAffectedRows.addAll(Collections.nCopies(newNumberOfRows, Boolean.FALSE));
+
+                    fieldWork.setCropFieldVersion(newVersion);
+
+                    fieldWork.setAffectedRows(newAffectedRows);
+                    fieldWorkService.updateScheduledWork(fieldWork);
+                });
+            }
+            return ResponseEntity.ok(null);
+        }
+
+        return ResponseEntity.ok(confirmUpdateDTO);
     }
 
     @PutMapping("/update")
-    public void updateFieldParcel(@Valid @RequestBody UpdateFieldParcelDTO updateFieldParcelDTO,
-                                  @RequestParam(name = "id") UUID fieldParcelId,
-                                  @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> updateFieldParcel(@Valid @RequestBody UpdateFieldParcelDTO updateFieldParcelDTO,
+                                               @RequestParam(name = "id") UUID fieldParcelId,
+                                               @RequestParam(name = "confirm", required = false) Boolean confirm,
+                                               @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
 
-        cropFieldService.findById(updateFieldParcelDTO.getCropFieldId(), user);
+        CropFieldVersion cropFieldVersion = cropFieldService.findById(updateFieldParcelDTO.getCropFieldId(), user);
 
         CropCultivar cropCultivar = cropCultivarService.findByID(updateFieldParcelDTO.getCropCultivarId());
 
-        FieldParcelVersion newFieldParcelVersion = fieldParcelVersionMapper.updateFieldParcelDTOtoModel(updateFieldParcelDTO);
-        newFieldParcelVersion.setCropCultivar(cropCultivar);
+        FieldParcelVersion parcelUpdates = fieldParcelVersionMapper.updateFieldParcelDTOtoModel(updateFieldParcelDTO);
+        parcelUpdates.setCropCultivar(cropCultivar);
 
-        fieldParcelService.updateFieldParcel(fieldParcelId, newFieldParcelVersion);
+
+        ConfirmUpdateDTO confirmUpdateDTO = getConfirmUpdate(cropFieldVersion);
+
+        if (confirmUpdateDTO == null) {
+            fieldParcelService.updateFieldParcel(fieldParcelId, parcelUpdates);
+            return ResponseEntity.ok(null);
+        }
+
+        if (confirm) {
+            FieldParcelVersion newParcelVersion = fieldParcelService.updateFieldParcel(fieldParcelId, parcelUpdates);
+            CropFieldVersion newVersion = newParcelVersion.getCropFieldVersion();
+
+            List<FieldWork> scheduledWorks = fieldWorkService.findAllScheduled(cropFieldVersion);
+
+            if (!scheduledWorks.isEmpty()) {
+                Collection<FieldParcelVersion> fieldParcelVersions =
+                        cropFieldVersion.getFieldParcelVersions()
+                                .stream()
+                                .sorted(Comparator.comparing(fieldParcelVersion -> fieldParcelVersion.getFieldParcel().getCreatedAt()))
+                                .toList();
+
+                scheduledWorks.forEach(fieldWork -> {
+
+                    List<Boolean> oldAffectedRows = new ArrayList<>(fieldWork.getAffectedRows());
+                    List<Boolean> newAffectedRows = new ArrayList<>();
+                    AtomicInteger offset = new AtomicInteger();
+
+                    fieldParcelVersions.forEach(fieldParcelVersion -> {
+                        int numberOfRows = ((Number) fieldParcelVersion.getLayoutParameters().get("numberOfRows")).intValue();
+                        if (!fieldParcelVersion.getFieldParcel().getUid().equals(fieldParcelId)) {
+                            newAffectedRows.addAll(oldAffectedRows.stream().toList()
+                                    .subList(offset.get(), offset.get() + numberOfRows));
+                        } else {
+                            int newNumberOfRows = ((Number) parcelUpdates.getLayoutParameters().get("numberOfRows")).intValue();
+                            if (numberOfRows == newNumberOfRows) {
+                                newAffectedRows.addAll(oldAffectedRows.subList(offset.get(), offset.get() + numberOfRows));
+                            } else {
+                                newAffectedRows.addAll(Collections.nCopies(newNumberOfRows, Boolean.FALSE));
+                            }
+                        }
+                        offset.addAndGet(numberOfRows);
+                    });
+
+                    fieldWork.setCropFieldVersion(newVersion);
+
+                    fieldWork.setAffectedRows(newAffectedRows);
+                    fieldWorkService.updateScheduledWork(fieldWork);
+                });
+            }
+            return ResponseEntity.ok(null);
+        }
+
+        return ResponseEntity.ok(confirmUpdateDTO);
     }
 
     @GetMapping("/findall")
@@ -123,7 +215,66 @@ public class FieldParcelController {
     }
 
     @DeleteMapping("/delete")
-    public void deleteCropFieldById(@RequestParam(name = "id") UUID fieldParcelId) {
-        fieldParcelService.deleteById(fieldParcelId);
+    public ResponseEntity<?> deleteCropFieldById(@RequestParam(name = "id") UUID fieldParcelId,
+                                                 @RequestParam(name = "confirm", required = false) Boolean confirm) {
+
+        CropFieldVersion cropFieldVersion = cropFieldService.findByParcelId(fieldParcelId);
+
+        ConfirmUpdateDTO confirmUpdateDTO = getConfirmUpdate(cropFieldVersion);
+
+        if (confirmUpdateDTO == null) {
+            fieldParcelService.deleteById(fieldParcelId);
+            return ResponseEntity.ok(null);
+        }
+
+        if (confirm) {
+            UUID cropFieldId = cropFieldVersion.getCropField().getUid();
+            User user = cropFieldVersion.getCropField().getUser();
+
+            CropFieldVersion oldVersion = cropFieldService.findById(cropFieldId, user);
+
+            Collection<FieldParcelVersion> fieldParcelVersions = oldVersion
+                    .getFieldParcelVersions()
+                    .stream()
+                    .sorted(Comparator.comparing(fieldParcelVersion -> fieldParcelVersion.getFieldParcel().getCreatedAt()))
+                    .toList();
+
+            List<FieldWork> scheduledWorks = fieldWorkService.findAllScheduled(oldVersion);
+
+            fieldParcelService.deleteById(fieldParcelId);
+
+            CropFieldVersion newVersion = cropFieldService.findById(cropFieldId, user);
+
+            if (!scheduledWorks.isEmpty()) {
+                scheduledWorks.forEach(fieldWork -> {
+
+                    AtomicInteger offset = new AtomicInteger();
+                    List<Boolean> oldAffectedRows = new ArrayList<>(fieldWork.getAffectedRows());
+                    List<Boolean> newAffectedRows = new ArrayList<>();
+
+                    fieldParcelVersions.forEach(fieldParcelVersion -> {
+                        int numberOfRows = ((Number) fieldParcelVersion.getLayoutParameters().get("numberOfRows")).intValue();
+
+                        if (!fieldParcelVersion.getFieldParcel().getUid().equals(fieldParcelId)) {
+                            newAffectedRows.addAll(oldAffectedRows.subList(
+                                    offset.get(), offset.get() + numberOfRows
+                            ));
+                        }
+
+                        offset.addAndGet(numberOfRows);
+                    });
+
+                    fieldWork.setCropFieldVersion(newVersion);
+                    fieldWork.setAffectedRows(newAffectedRows);
+                    fieldWorkService.updateScheduledWork(fieldWork);
+
+                });
+            }
+
+            return ResponseEntity.ok(null);
+        }
+
+
+        return ResponseEntity.ok(confirmUpdateDTO);
     }
 }

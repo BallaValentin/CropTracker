@@ -21,7 +21,7 @@ export const createFieldWork = async(createFieldWorkDTO: CreateFieldWorkDTO): Pr
 }
 
 export const updateFieldWork = async(updateFieldWorkDTO: UpdateFieldWorkDTO, fieldWorkId: string): Promise<void> => {
-    console.log("Sending update-field-work request to server");
+    console.log("Sending update-field-work request to server: ", updateFieldWorkDTO);
     await fieldWorkApi.put<void>("/update", updateFieldWorkDTO, {
         params: {
             fieldWorkId: fieldWorkId
@@ -54,6 +54,16 @@ export const getFieldWorksByCropField = async(cropFieldId: string): Promise<GetF
 }
 
 export const getFieldWork = async(fieldWorkId: string): Promise<GetFieldWorkDTO> => {
+    console.log("Sending get-field-work request to server");
+    const response = await fieldWorkApi.get<GetFieldWorkDTO>('/findby', {
+        params: {
+            id: fieldWorkId
+        },
+    })
+    return response.data;
+}
+
+export const getFieldWorkVersion = async(fieldWorkId: string): Promise<GetFieldWorkDTO> => {
     console.log("Sending get-field-work request to server");
     const response = await fieldWorkApi.get<GetFieldWorkDTO>('/findby', {
         params: {

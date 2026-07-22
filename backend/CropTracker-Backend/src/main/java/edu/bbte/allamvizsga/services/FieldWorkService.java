@@ -41,7 +41,8 @@ public class FieldWorkService {
 
     public Collection<FieldWork> findAll(User user) {
         return fieldWorkRepository.findAll(
-                Specification.allOf(FieldWorkSpecification.byUser(user)),
+                Specification.allOf(FieldWorkSpecification.byUser(user))
+                        .and(FieldWorkSpecification.byIsActive()),
                 Sort.by(Sort.Direction.DESC, "startDate"));
     }
 
@@ -60,17 +61,42 @@ public class FieldWorkService {
 
         Window<FieldWork> fieldWorksWindows = fieldWorkRepository.scrollAll(
                 Specification.allOf(FieldWorkSpecification.byUser(user)
+                        .and(FieldWorkSpecification.byIsActive())
                         .and(FieldWorkSpecification.byWorkType(workType))
+                        .and(FieldWorkSpecification.byWorkTiming("Past"))
                         .and(FieldWorkSpecification.byCropField(cropField))), scrollPosition, pageSize, "startDate");
 
         return fieldWorksWindows.getContent();
     }
 
-    public Collection<FieldWork> findAllByCropField(CropFieldVersion cropFieldVersion) {
+    public List<FieldWork> findAllScheduled(CropFieldVersion cropFieldVersion) {
         return fieldWorkRepository.findAll(Specification.allOf(
                 FieldWorkSpecification.byCropFieldVersion(cropFieldVersion)
+                        .and(FieldWorkSpecification.byIsActive())
+                        .and(FieldWorkSpecification.byWorkTiming("Scheduled"))
+                        .and(FieldWorkSpecification.byStartDateAfter(OffsetDateTime.now()))
+        ));
+    }
+
+    public List<FieldWork> findAllOngoing(CropFieldVersion cropFieldVersion) {
+        return fieldWorkRepository.findAll(Specification.allOf(
+                FieldWorkSpecification.byCropFieldVersion(cropFieldVersion)
+                        .and(FieldWorkSpecification.byIsActive())
+                        .and(FieldWorkSpecification.byWorkTiming("Scheduled"))
+                        .and(FieldWorkSpecification.byStartDateBefore(OffsetDateTime.now()))
+        ));
+    }
+
+    public Collection<FieldWork> findAllByCropField(CropField cropField) {
+        return fieldWorkRepository.findAll(Specification.allOf(
+                FieldWorkSpecification.byCropField(cropField)
+                        .and(FieldWorkSpecification.byIsActive())
                         .and(FieldWorkSpecification.byWorkTiming("Scheduled"))
         ), Sort.by(Sort.Direction.DESC, "startDate"));
+    }
+
+    public void updateScheduledWork(FieldWork fieldWork) {
+        fieldWorkRepository.save(fieldWork);
     }
 
     public List<FieldWork> findAllWithinPastDays(
@@ -80,8 +106,10 @@ public class FieldWorkService {
         }
         OffsetDateTime startDate = referenceDate.minusDays(numberOfDays);
 
-        return fieldWorkRepository.findAll(Specification.allOf(FieldWorkSpecification.byCropFieldVersion(cropFieldVersion).and(
-                FieldWorkSpecification.withStartDateGreaterThanOrEqual(startDate)
+        return fieldWorkRepository.findAll(
+                Specification.allOf(FieldWorkSpecification.byCropFieldVersion(cropFieldVersion)
+                        .and(FieldWorkSpecification.byIsActive())
+                        .and(FieldWorkSpecification.byStartDateAfter(startDate)
                         .and(FieldWorkSpecification.byWorkTypeIn(selectedWorkTypes))
         )), Sort.by(Sort.Direction.ASC, "startDate"));
     }

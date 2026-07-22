@@ -6,7 +6,6 @@ import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldNameDTO;
 import edu.bbte.allamvizsga.mappers.util.PolygonMapper;
 import edu.bbte.allamvizsga.model.CropField;
 import org.mapstruct.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring", uses = {PolygonMapper.class})
 public abstract class CropFieldMapper {
