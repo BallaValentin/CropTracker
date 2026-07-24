@@ -3,6 +3,7 @@ import type { GetCropCultivarDTO } from "../interfaces/response/GetCropCultivarD
 import type { CreateCropCultivarDTO } from "../interfaces/request/CreateCropCultivarDTO";
 import type { UpdateCropCultivarDTO } from "../interfaces/request/UpdateCropCultivarDTO";
 import { attachAuthInterceptors } from "./AttachAuthInterceptors";
+import type { GetSimpleCropCultivarDTO } from "../interfaces/response/GetSimpleCropCultivarDTO";
 
 export const cropCultivarApi = axios.create({
     baseURL: "http://localhost:8080/api/crop-cultivars",
@@ -14,9 +15,9 @@ export const cropCultivarApi = axios.create({
 
 attachAuthInterceptors(cropCultivarApi);
 
-export const getCropCultivarsWithPattern = async (pattern: string): Promise<GetCropCultivarDTO[]> => {
+export const getCropCultivarsWithPattern = async (pattern: string): Promise<GetSimpleCropCultivarDTO[]> => {
     console.log("Sending get-cropcultivars with pattern request to server")
-    const response = await cropCultivarApi.get<GetCropCultivarDTO[]>("/findall", {
+    const response = await cropCultivarApi.get<GetSimpleCropCultivarDTO[]>("/findall", {
         params: {
             pattern: pattern
         },

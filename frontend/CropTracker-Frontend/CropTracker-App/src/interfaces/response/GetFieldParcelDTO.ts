@@ -7,6 +7,7 @@ export interface GetFieldParcelDTO {
     area: number,
     cropFieldId: string,
     cultivarId: string,
+    specieId: string,
     polygonColor: string,
     layoutType: string,
     layoutParameters: LayoutParameters,

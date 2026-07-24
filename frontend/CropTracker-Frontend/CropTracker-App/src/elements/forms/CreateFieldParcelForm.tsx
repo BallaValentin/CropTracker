@@ -313,6 +313,19 @@ function CreateFieldParcelForm({
             >
               <Autocomplete
                 options={crops || []}
+                value={
+                  fieldParcelToUpdate
+                    ? {
+                        uid: fieldParcelToUpdate.cultivarId,
+                        specieId: fieldParcelToUpdate.specieId,
+                        cultivarName: fieldParcelToUpdate.cultivarName,
+                        specieName: fieldParcelToUpdate.specieName,
+                      }
+                    : null
+                }
+                isOptionEqualToValue={(option, value) =>
+                  option.uid === value.uid
+                }
                 getOptionLabel={(option) =>
                   `${option.specieName} - ${option.cultivarName}`
                 }

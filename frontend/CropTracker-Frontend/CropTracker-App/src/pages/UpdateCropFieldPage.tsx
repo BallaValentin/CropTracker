@@ -49,6 +49,9 @@ function UpdatePlotPage() {
         queryClient.invalidateQueries({
           queryKey: ["fieldWorks", id],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["fieldWork"],
+        });
         navigate(`/cropfield-details/${id}`, {
           state: {
             success: true,

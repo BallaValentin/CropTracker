@@ -15,6 +15,7 @@ public class GetFieldParcelDTO {
     private String polygonColor;
     private UUID cropFieldId;
     private UUID cultivarId;
+    private UUID specieId;
     private String cultivarName;
     private String specieName;
     private Double area;

@@ -3,6 +3,7 @@ package edu.bbte.allamvizsga.controllers;
 import edu.bbte.allamvizsga.dto.request.cropCultivar.CreateCropCultivarDTO;
 import edu.bbte.allamvizsga.dto.request.cropCultivar.UpdateCropCultivarDTO;
 import edu.bbte.allamvizsga.dto.response.cropCultivar.GetCropCultivarDTO;
+import edu.bbte.allamvizsga.dto.response.cropCultivar.GetSimpleCropCultivarDTO;
 import edu.bbte.allamvizsga.mappers.CropCultivarMapper;
 import edu.bbte.allamvizsga.model.CropCultivar;
 import edu.bbte.allamvizsga.model.CropSpecie;
@@ -89,15 +90,16 @@ public class CropCultivarController {
     }
 
     @GetMapping(value = "/findall", params = "pattern")
-    public ResponseEntity<Collection<GetCropCultivarDTO>> findAllWithPattern(
+    public ResponseEntity<Collection<GetSimpleCropCultivarDTO>> findAllWithPattern(
             @RequestParam("pattern") String pattern
     ) {
         Collection<CropCultivar> cropCultivars = cropCultivarService.findAllWithPattern(pattern);
 
         return ResponseEntity.ok(cropCultivars.stream().map(cropCultivar -> {
-            GetCropCultivarDTO getCropCultivarDTO = cropCultivarMapper.modelToGetCropCultivar(cropCultivar);
+            GetSimpleCropCultivarDTO getCropCultivarDTO = cropCultivarMapper.modelToGetSimpleCropCultivar(cropCultivar);
             getCropCultivarDTO.setSpecieName(cropCultivar.getCropSpecie().getCommonName());
             getCropCultivarDTO.setSpecieId(cropCultivar.getCropSpecie().getUid());
+            getCropCultivarDTO.setSpecieName(cropCultivar.getCropSpecie().getCommonName());
             return getCropCultivarDTO;
         }).toList());
     }

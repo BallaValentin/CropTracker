@@ -123,6 +123,9 @@ function PlotDetailsPage() {
         queryClient.invalidateQueries({
           queryKey: ["fieldWorks", id],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["fieldWork"],
+        });
       }
     },
   });
