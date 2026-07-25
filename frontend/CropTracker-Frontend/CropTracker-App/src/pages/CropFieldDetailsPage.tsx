@@ -21,6 +21,8 @@ import { useCropField } from "../hooks/caching/UseCropField";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import type { ConfirmUpdateDTO } from "../interfaces/response/ConfirmUpdateDTO";
 import ConfirmCropFieldUpdateDialog from "../elements/dialogs/ConfirmCropFieldUpdateDialog";
+import { deleteSelectedFieldWorks } from "../services/FieldWorkService";
+import DeleteFieldWorkDialog from "../elements/dialogs/DeleteFieldWorkDialog";
 
 function PlotDetailsPage() {
   const {
@@ -39,6 +41,7 @@ function PlotDetailsPage() {
 
   const [activeFieldParcelId, setActiveFieldParcelId] = useState<string>("");
   const [confirmUpdateOpen, setConfirmUpdateOpen] = useState<boolean>(false);
+  const [workToDelete, setWorkToDelete] = useState<string | null>(null);
   const [ongoingWorksNumber, setOngoingWorksNumber] = useState<number>(0);
   const [scheduledWorksNumber, setScheduledWorksNumber] = useState<number>(0);
 
@@ -130,6 +133,17 @@ function PlotDetailsPage() {
     },
   });
 
+  const { mutate: deleteFieldWorkMutate, isPending: isDeleteFieldWorkPending } =
+    useMutation({
+      mutationFn: deleteSelectedFieldWorks,
+      onSuccess: () => {
+        setFeedbackMessage("Field work deleted successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["fieldWorks", id],
+        });
+      },
+    });
+
   useEffect(() => {
     const { success, message } = location.state || {};
     if (success && message) {
@@ -188,13 +202,20 @@ function PlotDetailsPage() {
     setParcelsSelected([...newParcelsSelected]);
   };
 
-  const handleConfirmCancel = () => {
-    setConfirmUpdateOpen(false);
-  };
-
   const handleConfirmUpdate = () => {
     deleteMutate({ fieldParcelId: activeFieldParcelId, confirmUpdate: true });
     setConfirmUpdateOpen(false);
+  };
+
+  const handleWorkDelete = (fieldWorkId: string) => {
+    setWorkToDelete(fieldWorkId);
+  };
+
+  const handleConfirmWorkDelete = () => {
+    if (workToDelete) {
+      deleteFieldWorkMutate(workToDelete);
+      setWorkToDelete(null);
+    }
   };
 
   if (isUserLoading) {
@@ -264,6 +285,7 @@ function PlotDetailsPage() {
             placeholderText="You have no ongoing works at the moment"
             onDetailsClick={handleFieldWorkDetailsClick}
             onEditClick={handleFieldWorkEditClick}
+            onDeleteClick={handleWorkDelete}
           />
 
           <CropFieldWorksPanel
@@ -272,6 +294,7 @@ function PlotDetailsPage() {
             placeholderText="You have no works scheduled"
             onDetailsClick={handleFieldWorkDetailsClick}
             onEditClick={handleFieldWorkEditClick}
+            onDeleteClick={handleWorkDelete}
           />
 
           <Typography
@@ -302,8 +325,17 @@ function PlotDetailsPage() {
               isPending={isDeletePending}
               numberOfOngoing={ongoingWorksNumber}
               numberOfScheduled={scheduledWorksNumber}
-              onConfirmCancel={handleConfirmCancel}
+              onConfirmCancel={() => setConfirmUpdateOpen(false)}
               onConfirmUpdate={handleConfirmUpdate}
+            />
+          )}
+
+          {workToDelete && (
+            <DeleteFieldWorkDialog
+              onConfirmDelete={handleConfirmWorkDelete}
+              onConfirmCancel={() => setWorkToDelete(null)}
+              isPending={isDeleteFieldWorkPending}
+              open={!!workToDelete}
             />
           )}
         </MainContainer>

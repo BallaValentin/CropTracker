@@ -1,4 +1,15 @@
-import { Box, Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  IconButton,
+  Typography,
+} from "@mui/material";
 
 interface DeleteCropFieldDialogProps {
   onConfirmDelete: () => void;
@@ -13,10 +24,28 @@ function DeleteCropFieldDialog({
 }: DeleteCropFieldDialogProps) {
   return (
     <Box>
-      <Dialog open={open} onClose={onConfirmCancel}>
-        <DialogTitle>
-          Are you sure you want to delete this crop field?
+      <Dialog open={open} onClose={onConfirmCancel} maxWidth="md">
+        <DialogTitle sx={{ display: "flex", width: 600, position: "relative" }}>
+          <Typography
+            variant="h6"
+            component={"span"}
+            sx={{ fontWeight: "bold" }}
+          >
+            Delete Crop Field
+          </Typography>
+          <IconButton
+            onClick={onConfirmCancel}
+            sx={{ position: "absolute", top: 8, right: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
+        <Divider />
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this crop field?
+          </Typography>
+        </DialogContent>
         <DialogActions>
           <Button onClick={onConfirmCancel} color="primary">
             Cancel

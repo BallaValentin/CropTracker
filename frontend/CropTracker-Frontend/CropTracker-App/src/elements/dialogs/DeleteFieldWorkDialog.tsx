@@ -14,20 +14,31 @@ import {
 interface DeleteFieldWorkDialogProps {
   onConfirmDelete: () => void;
   onConfirmCancel: () => void;
+  isPending: boolean;
   open: boolean;
 }
 
 function DeleteFieldWorkDialog({
   onConfirmDelete,
   onConfirmCancel,
+  isPending,
   open,
 }: DeleteFieldWorkDialogProps) {
   return (
     <Box>
-      <Dialog open={open} onClose={onConfirmCancel}>
-        <DialogTitle sx={{ position: "relative", display: "flex" }}>
-          <Typography fontWeight="bold">Delete Field Work</Typography>
+      <Dialog open={open} onClose={onConfirmCancel} maxWidth="md">
+        <DialogTitle
+          sx={{
+            position: "relative",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography variant="h6" component={"span"} fontWeight="bold">
+            Confirm Delete Field Work
+          </Typography>
           <IconButton
+            disabled={isPending}
             onClick={onConfirmCancel}
             sx={{ position: "absolute", right: 8, top: 8 }}
           >
@@ -41,10 +52,14 @@ function DeleteFieldWorkDialog({
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onConfirmCancel} color="primary">
+          <Button
+            disabled={isPending}
+            onClick={onConfirmCancel}
+            color="primary"
+          >
             Cancel
           </Button>
-          <Button onClick={onConfirmDelete} color="error">
+          <Button disabled={isPending} onClick={onConfirmDelete} color="error">
             Delete
           </Button>
         </DialogActions>
