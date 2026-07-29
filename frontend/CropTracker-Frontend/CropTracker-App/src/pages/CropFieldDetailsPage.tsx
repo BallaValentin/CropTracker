@@ -1,15 +1,14 @@
-import { Alert, Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { useMutation } from "@tanstack/react-query";
 import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
-import CheckIcon from "@mui/icons-material/Check";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import CropFieldInfoPanel from "../elements/panels/CropFieldInfoPanel";
 import { deleteFieldParcel } from "../services/FieldParcelService";
@@ -23,6 +22,7 @@ import type { ConfirmUpdateDTO } from "../interfaces/response/ConfirmUpdateDTO";
 import ConfirmCropFieldUpdateDialog from "../elements/dialogs/ConfirmCropFieldUpdateDialog";
 import { deleteSelectedFieldWorks } from "../services/FieldWorkService";
 import DeleteFieldWorkDialog from "../elements/dialogs/DeleteFieldWorkDialog";
+import { addSnackbar } from "../utils/SnackbarHelper";
 
 function PlotDetailsPage() {
   const {
@@ -36,7 +36,6 @@ function PlotDetailsPage() {
     [],
   );
 
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [parcelsSelected, setParcelsSelected] = useState<boolean[]>([]);
 
   const [activeFieldParcelId, setActiveFieldParcelId] = useState<string>("");
@@ -48,6 +47,7 @@ function PlotDetailsPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
+  const feedbackRef = useRef<string | null>(null);
 
   const { data: cropFieldData, isLoading: isCropFieldLoading } = useCropField(
     id || "",
@@ -116,7 +116,7 @@ function PlotDetailsPage() {
         setOngoingWorksNumber(data.numberOfOngoing);
         setScheduledWorksNumber(data.numberOfScheduled);
       } else {
-        setFeedbackMessage("Field parcel deleted successfully!");
+        addSnackbar("Field parcel deleted successfully!");
         queryClient.invalidateQueries({
           queryKey: ["fieldParcels", id],
         });
@@ -137,7 +137,7 @@ function PlotDetailsPage() {
     useMutation({
       mutationFn: deleteSelectedFieldWorks,
       onSuccess: () => {
-        setFeedbackMessage("Field work deleted successfully!");
+        addSnackbar("Field work deleted successfully!");
         queryClient.invalidateQueries({
           queryKey: ["fieldWorks", id],
         });
@@ -146,10 +146,14 @@ function PlotDetailsPage() {
 
   useEffect(() => {
     const { success, message } = location.state || {};
-    if (success && message) {
-      setFeedbackMessage(message);
-      const timer = setTimeout(() => setFeedbackMessage(null), 7000);
-      return () => clearTimeout(timer);
+    if (
+      success &&
+      message &&
+      (!feedbackRef.current || feedbackRef.current !== location.key)
+    ) {
+      feedbackRef.current = location.key;
+      addSnackbar(message);
+      navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
 
@@ -244,20 +248,10 @@ function PlotDetailsPage() {
       <Box>
         <MainHeader />
         <MainContainer>
-          {feedbackMessage && (
-            <Alert
-              icon={<CheckIcon fontSize="inherit" />}
-              severity="success"
-              sx={{ mt: 10 }}
-            >
-              {feedbackMessage}
-            </Alert>
-          )}
           <Typography
             variant="h4"
             component={"h1"}
             sx={{
-              mt: feedbackMessage ? 0 : 16,
               mb: 2,
               color: "success.main",
               fontWeight: "bold",

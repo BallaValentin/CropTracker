@@ -72,9 +72,10 @@ function WorkHistoryPage() {
     },
   });
 
-  const { mutate: deleteFieldWorksMutate } = useMutation({
-    mutationFn: deleteSelectedFieldWorks,
-  });
+  const { mutate: deleteFieldWorksMutate, isPending: isDeletePending } =
+    useMutation({
+      mutationFn: deleteSelectedFieldWorks,
+    });
 
   const handleWorkTypeSearch = (searchTerm: string) => {
     workTypeMutate(searchTerm);
@@ -352,6 +353,7 @@ function WorkHistoryPage() {
           </InfiniteScroll>
         </Box>
         <DeleteFieldWorkDialog
+          isPending={isDeletePending}
           onConfirmDelete={handleFieldWorkDelete}
           onConfirmCancel={() => setDialogToggled(false)}
           open={dialogToggled}

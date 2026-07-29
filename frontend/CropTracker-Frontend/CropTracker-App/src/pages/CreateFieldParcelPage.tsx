@@ -64,6 +64,7 @@ function CreateFieldParcelPage() {
           state: {
             success: true,
             message: "Field parcel created successfully!",
+            key: `${Date.now()}`,
           },
         });
       }

@@ -64,6 +64,7 @@ function UpdateFieldWorkPage() {
         state: {
           success: true,
           message: "Field work updated successfully!",
+          key: `${Date.now()}`,
         },
       });
     },

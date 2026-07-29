@@ -1,4 +1,4 @@
-import { Alert, Box } from "@mui/material";
+import { Box } from "@mui/material";
 import RegisterForm from "../elements/forms/RegisterForm";
 import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "../services/AuthService";
@@ -6,22 +6,11 @@ import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { CreateUserDTO } from "../interfaces/request/CreateUserDTO";
 import type { ErrorResponse } from "../interfaces/error/ErrorResponse";
-import { useEffect, useState } from "react";
 import type { GetVerifyEmailDTO } from "../interfaces/response/GetVerifyEmailDTO";
+import { addSnackbar } from "../utils/SnackbarHelper";
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState<string>("");
-
-  useEffect(() => {
-    if (!errorMessage) return;
-
-    const timer = setTimeout(() => {
-      setErrorMessage("");
-    }, 6000);
-
-    return () => clearTimeout(timer);
-  }, [errorMessage]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: registerUser,
@@ -31,7 +20,9 @@ function RegisterPage() {
     onError: (err: AxiosError) => {
       if (err.response?.status === 400) {
         const message = (err.response.data as ErrorResponse).message;
-        setErrorMessage(message || "");
+        if (message) {
+          addSnackbar(message);
+        }
       }
     },
   });
@@ -42,7 +33,6 @@ function RegisterPage() {
 
   return (
     <Box>
-      {errorMessage && <Alert color="error">{errorMessage}</Alert>}
       <RegisterForm onSubmit={handleRegister} isPending={isPending} />
     </Box>
   );

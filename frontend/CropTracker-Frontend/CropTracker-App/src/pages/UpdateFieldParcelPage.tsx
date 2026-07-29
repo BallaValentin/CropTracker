@@ -86,6 +86,7 @@ function UpdateFieldParcelPage() {
           state: {
             success: true,
             message: "Field parcel updated successfully!",
+            key: `${Date.now()}`,
           },
         });
       }

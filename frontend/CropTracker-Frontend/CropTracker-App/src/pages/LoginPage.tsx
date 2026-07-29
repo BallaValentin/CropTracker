@@ -1,36 +1,33 @@
-import { Alert, Box } from "@mui/material";
+import { Box } from "@mui/material";
 import LoginForm from "../elements/forms/LoginForm";
 import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "../services/AuthService";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { LoginUserDTO } from "../interfaces/request/LoginUserDTO";
-import { useEffect, useState } from "react";
-import CheckIcon from "@mui/icons-material/Check";
+import { useEffect, useRef, useState } from "react";
 import type { LoginResponseDTO } from "../interfaces/response/LoginResponseDTO";
 import { queryClient } from "../query-client/QueryClient";
+import { addSnackbar } from "../utils/SnackbarHelper";
 
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loginError, setLoginError] = useState<string | null>(null);
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+
+  const feedbackRef = useRef<string | null>(null);
 
   useEffect(() => {
     const { successMessage } = location.state || {};
 
-    if (successMessage) {
-      setFeedbackMessage(successMessage);
+    if (
+      successMessage &&
+      (!feedbackRef.current || feedbackRef.current !== location.key)
+    ) {
+      feedbackRef.current = location.key;
+      addSnackbar(successMessage);
+      navigate(location.pathname, { replace: true, state: {} });
     }
-
-    const timer = setTimeout(() => {
-      setFeedbackMessage(null);
-      location.state.successMessage = "";
-    }, 7000);
-
-    return () => {
-      clearTimeout(timer);
-    };
   }, [location, navigate]);
 
   const { mutate, isPending } = useMutation({
@@ -57,21 +54,6 @@ function LoginPage() {
 
   return (
     <Box>
-      {feedbackMessage && (
-        <Alert
-          icon={<CheckIcon fontSize="inherit" />}
-          sx={{
-            position: "absolute",
-            top: 8,
-            left: "1.25%",
-            width: "95%",
-            zIndex: 1200,
-          }}
-          severity="success"
-        >
-          {feedbackMessage}
-        </Alert>
-      )}
       <LoginForm
         onLoginSubmit={handlelogin}
         isPending={isPending}

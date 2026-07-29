@@ -39,6 +39,7 @@ function AddFieldWorkPage() {
         state: {
           success: true,
           message: "Field work created successfully!",
+          key: `${Date.now()}`,
         },
       });
     },

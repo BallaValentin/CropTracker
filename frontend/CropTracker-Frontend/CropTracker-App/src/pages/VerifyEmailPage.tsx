@@ -43,6 +43,7 @@ function VerifyEmailPage() {
       navigate("/signin", {
         state: {
           successMessage: "Account has been successfully verified.",
+          key: `${Date.now()}`,
         },
       });
     },

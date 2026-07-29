@@ -56,6 +56,7 @@ function UpdatePlotPage() {
           state: {
             success: true,
             message: "Field has been successfully updated",
+            key: `${Date.now()}`,
           },
         });
       }

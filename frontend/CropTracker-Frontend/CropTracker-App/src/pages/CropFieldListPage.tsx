@@ -1,23 +1,24 @@
-import { Alert, Box, Divider, Fab, Typography } from "@mui/material";
+import { Box, Divider, Fab, Typography } from "@mui/material";
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useLocation, useNavigate } from "react-router-dom";
-import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
 import { useUserCropFields } from "../hooks/caching/UseUserCropFields";
 import CropFieldCard from "../elements/cards/CropFieldCard";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import { addSnackbar } from "../utils/SnackbarHelper";
 
 function PlotsListPage() {
   const [cropFields, setCropFields] = useState<GetCropFieldDTO[]>([]);
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [fabHovered, setFabHovered] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const feedbackRef = useRef<string | null>(null);
 
   const { data: user, isLoading, error: userError } = useCurrentProfile();
   const { data: cropFieldsData, isLoading: isLoadingCropFields } =
@@ -31,10 +32,14 @@ function PlotsListPage() {
 
   useEffect(() => {
     const { success, message } = location.state || {};
-    if (success && message) {
-      setFeedbackMessage(message);
-      const timer = setTimeout(() => setFeedbackMessage(null), 7000);
-      return () => clearTimeout(timer);
+    if (
+      success &&
+      message &&
+      (!feedbackRef.current || feedbackRef.current !== location.key)
+    ) {
+      feedbackRef.current = location.key;
+      addSnackbar(message);
+      navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
 
@@ -64,21 +69,8 @@ function PlotsListPage() {
       <Box>
         <MainHeader />
         <MainContainer>
-          {feedbackMessage && (
-            <Alert
-              icon={<CheckIcon fontSize="inherit" />}
-              sx={{
-                mt: 10,
-                mr: 1,
-              }}
-              severity="success"
-            >
-              {feedbackMessage}
-            </Alert>
-          )}
-
           {cropFields.length === 0 ? (
-            <Box sx={{ mt: feedbackMessage ? 0 : 16 }}>
+            <Box>
               <ColumnCenterContainer>
                 <Typography variant="h4">
                   You haven't added any fields yet.
@@ -99,7 +91,7 @@ function PlotsListPage() {
                 component={"h1"}
                 color="success"
                 letterSpacing={"0.02em"}
-                sx={{ mt: feedbackMessage ? 0 : 16, fontWeight: "bold" }}
+                sx={{ fontWeight: "bold" }}
                 variant="h3"
               >
                 My Fields

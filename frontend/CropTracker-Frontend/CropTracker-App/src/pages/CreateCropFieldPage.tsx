@@ -21,7 +21,8 @@ function CreateCropFieldPage() {
       navigate("/show-cropfields", {
         state: {
           success: true,
-          message: "New field has been successfully added",
+          message: "New crop field has been successfully added",
+          key: `${Date.now()}`,
         },
       });
     },
