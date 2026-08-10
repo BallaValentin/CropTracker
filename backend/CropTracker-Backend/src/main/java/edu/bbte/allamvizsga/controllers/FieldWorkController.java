@@ -4,6 +4,7 @@ import edu.bbte.allamvizsga.dto.request.fieldWork.CreateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.request.fieldWork.UpdateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetPreviousWorkDTO;
+import edu.bbte.allamvizsga.dto.response.fieldWork.GetWorkStatDTO;
 import edu.bbte.allamvizsga.mappers.FieldWorkMapper;
 import edu.bbte.allamvizsga.model.*;
 import edu.bbte.allamvizsga.services.*;
@@ -32,7 +33,7 @@ public class FieldWorkController {
     private final FieldWorkMapper fieldWorkMapper;
 
     protected void setupFieldWorkForCreate(FieldWork fieldWork, String authorizationHeader,
-                                  UUID cropFieldId, UUID workTypeId) {
+                                           UUID cropFieldId, UUID workTypeId) {
         User user = userService.extractUser(authorizationHeader);
 
         CropFieldVersion cropFieldVersion = cropFieldService.findById(cropFieldId, user);
@@ -45,7 +46,7 @@ public class FieldWorkController {
     }
 
     protected void setupFieldWorkForUpdate(FieldWork fieldWork, String authorizationHeader,
-                                  UUID cropFieldId, UUID workTypeId) {
+                                           UUID cropFieldId, UUID workTypeId) {
         User user = userService.extractUser(authorizationHeader);
 
         CropFieldVersion cropFieldVersion = cropFieldService.findByVersionId(cropFieldId, user);
@@ -148,6 +149,17 @@ public class FieldWorkController {
                 cropFieldVersion, refDate, numberOfDays, selectedWorkTypeIds);
 
         return ResponseEntity.ok(previousFieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList());
+    }
+
+    @GetMapping("/get-work-stats")
+    public ResponseEntity<Collection<GetWorkStatDTO>> getWorkStats(@RequestHeader("Authorization")
+                                                                   String authorizationHeader,
+                                                                   @RequestParam("numberOfDays") int numberOfDays) {
+        User user = userService.extractUser(authorizationHeader);
+
+        Collection<FieldWork> fieldWorks = fieldWorkService.findAllWithinDays(user, numberOfDays);
+
+        return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetWorkStat).toList());
     }
 
     @DeleteMapping("/delete")

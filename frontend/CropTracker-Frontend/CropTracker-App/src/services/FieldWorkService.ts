@@ -4,6 +4,7 @@ import type { GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
 import type { UpdateFieldWorkDTO } from "../interfaces/request/UpdateFieldWorkDTO";
 import { attachAuthInterceptors } from "./AttachAuthInterceptors";
 import type { GetPreviousWorkDTO } from "../interfaces/response/GetPreviousWorkDTO";
+import type { GetWorkStatDTO } from "../interfaces/response/GetWorkStatDTO";
 
 export const fieldWorkApi = axios.create({
     baseURL: "http://localhost:8080/api/field-works",
@@ -40,6 +41,16 @@ export const getFieldWorksByCursor = async(lastSeen: string | null, cropFieldId:
         }
     });
     console.log("Received response from server:", response.data);
+    return response.data;
+}
+
+export const getFieldWorksWithinDays = async (numberOfDays: number =  365): Promise<GetWorkStatDTO[]> => {
+    console.log("Sending get-field-works-within-days request to server");
+    const response = await fieldWorkApi.get<GetWorkStatDTO[]>("/find-within-days", {
+        params: {
+            numberOfDays: numberOfDays
+        }
+    });
     return response.data;
 }
 

@@ -23,8 +23,31 @@ import VerifyEmailPage from "./pages/VerifyEmailPage";
 import UpdateFieldParcelPage from "./pages/UpdateFieldParcelPage";
 import CreateFieldParcelPage from "./pages/CreateFieldParcelPage";
 import { SelectionProvider } from "./contexts/MenuSelectProvider";
+import WorkStatisticsPage from "./pages/WorkStatisticsPage";
 
 function App() {
+  const routes = [
+    { path: "/signin", element: <LoginPage /> },
+    { path: "/signup", element: <RegisterPage /> },
+    { path: "/", element: <MainPage /> },
+    { path: "/verify-email", element: <VerifyEmailPage /> },
+    { path: "/forgot-password", element: <ForgotPasswordPage /> },
+    { path: "/change-password", element: <ChangePasswordPage /> },
+    { path: "/show-users", element: <UsersListPage /> },
+    { path: "/show-cropfields", element: <CropFieldListPage /> },
+    { path: "/create-cropfield", element: <CreateCropFieldPage /> },
+    { path: "/cropfield-details/:id", element: <CropFieldDetailsPage /> },
+    { path: "/update-cropfield/:id", element: <UpdateCropFieldPage /> },
+    { path: "/create-field-parcel", element: <CreateFieldParcelPage /> },
+    { path: "/update-field-parcel/:id", element: <UpdateFieldParcelPage /> },
+    { path: "/add-field-work/:id", element: <AddFieldWorkPage /> },
+    { path: "/update-field-work/:id", element: <UpdateFieldWorkPage /> },
+    { path: "/field-work-details/:id", element: <FieldWorkDetailsPage /> },
+    { path: "/work-history", element: <WorkHistoryPage /> },
+    { path: "/work-statistics", element: <WorkStatisticsPage /> },
+    { path: "/show-crops", element: <CropsListPage /> },
+    { path: "/error", element: <ErrorPage /> },
+  ];
   return (
     <>
       <SelectionProvider>
@@ -33,58 +56,9 @@ function App() {
             <QueryClientProvider client={queryClient}>
               <Router>
                 <Routes>
-                  <Route path="/signin" element={<LoginPage />} />
-                  <Route path="/signup" element={<RegisterPage />} />
-                  <Route path="/" element={<MainPage />} />
-                  <Route path="/show-users" element={<UsersListPage />} />
-                  <Route
-                    path="/show-cropfields"
-                    element={<CropFieldListPage />}
-                  />
-                  <Route path="/error" element={<ErrorPage />} />
-                  <Route path="/verify-email" element={<VerifyEmailPage />} />
-                  <Route
-                    path="/forgot-password"
-                    element={<ForgotPasswordPage />}
-                  />
-                  <Route
-                    path="/change-password"
-                    element={<ChangePasswordPage />}
-                  />
-                  <Route
-                    path="/create-cropfield"
-                    element={<CreateCropFieldPage />}
-                  />
-                  <Route
-                    path="/cropfield-details/:id"
-                    element={<CropFieldDetailsPage />}
-                  />
-                  <Route
-                    path="/update-cropfield/:id"
-                    element={<UpdateCropFieldPage />}
-                  />
-                  <Route
-                    path="/create-field-parcel"
-                    element={<CreateFieldParcelPage />}
-                  />
-                  <Route
-                    path="/update-field-parcel/:id"
-                    element={<UpdateFieldParcelPage />}
-                  />
-                  <Route path="/show-crops" element={<CropsListPage />} />
-                  <Route
-                    path="/add-field-work/:id"
-                    element={<AddFieldWorkPage />}
-                  />
-                  <Route
-                    path="/update-field-work/:id"
-                    element={<UpdateFieldWorkPage />}
-                  />
-                  <Route path="/work-history" element={<WorkHistoryPage />} />
-                  <Route
-                    path="/field-work-details/:id"
-                    element={<FieldWorkDetailsPage />}
-                  />
+                  {routes.map((route) => (
+                    <Route path={route["path"]} element={route["element"]} />
+                  ))}
                 </Routes>
               </Router>
             </QueryClientProvider>

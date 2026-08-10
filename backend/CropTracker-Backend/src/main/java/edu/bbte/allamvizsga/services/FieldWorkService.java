@@ -46,6 +46,17 @@ public class FieldWorkService {
                 Sort.by(Sort.Direction.DESC, "startDate"));
     }
 
+    public Collection<FieldWork> findAllWithinDays(User user, int numberOfDays) {
+        OffsetDateTime pastDateTime = OffsetDateTime.now().minusDays(numberOfDays);
+
+        return fieldWorkRepository.findAll(Specification.allOf(
+                FieldWorkSpecification.byUser(user)
+                        .and(FieldWorkSpecification.byIsActive())
+                        .and(FieldWorkSpecification.byStartDateAfter(pastDateTime))),
+                Sort.by(Sort.Direction.DESC, "startDate")
+        );
+    }
+
     protected ScrollPosition getScrollPosition(UUID lastSeen) {
         if (lastSeen == null) {
             return ScrollPosition.keyset();
@@ -110,8 +121,8 @@ public class FieldWorkService {
                 Specification.allOf(FieldWorkSpecification.byCropFieldVersion(cropFieldVersion)
                         .and(FieldWorkSpecification.byIsActive())
                         .and(FieldWorkSpecification.byStartDateAfter(startDate)
-                        .and(FieldWorkSpecification.byWorkTypeIn(selectedWorkTypes))
-        )), Sort.by(Sort.Direction.ASC, "startDate"));
+                                .and(FieldWorkSpecification.byWorkTypeIn(selectedWorkTypes))
+                        )), Sort.by(Sort.Direction.ASC, "startDate"));
     }
 
     public FieldWork findById(UUID uid, User user) {

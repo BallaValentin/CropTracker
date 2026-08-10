@@ -4,6 +4,7 @@ import edu.bbte.allamvizsga.dto.request.fieldWork.CreateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.request.fieldWork.UpdateFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetFieldWorkDTO;
 import edu.bbte.allamvizsga.dto.response.fieldWork.GetPreviousWorkDTO;
+import edu.bbte.allamvizsga.dto.response.fieldWork.GetWorkStatDTO;
 import edu.bbte.allamvizsga.model.FieldWork;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -69,16 +70,33 @@ public abstract class FieldWorkMapper {
 
     @AfterMapping
     protected void afterModelToGetPrevious(FieldWork fieldWork, @MappingTarget GetPreviousWorkDTO getPreviousWorkDTO) {
-        getPreviousWorkDTO.setWorkTypeName(fieldWork.getWorkType().getName());
         getPreviousWorkDTO.setWorkTypeId(fieldWork.getWorkType().getUid());
-        getPreviousWorkDTO.setCropFieldName(fieldWork.getCropFieldVersion().getCropField().getName());
+        getPreviousWorkDTO.setWorkTypeName(fieldWork.getWorkType().getName());
         getPreviousWorkDTO.setCropFieldId(fieldWork.getCropFieldVersion().getUid());
+        getPreviousWorkDTO.setCropFieldName(fieldWork.getCropFieldVersion().getCropField().getName());
 
         getPreviousWorkDTO.setStartDate(fieldWork.getStartDate().toString());
         if (fieldWork.getEndDate() == null) {
             getPreviousWorkDTO.setEndDate("");
         } else {
             getPreviousWorkDTO.setEndDate(fieldWork.getEndDate().toString());
+        }
+    }
+
+    @Mapping(target = "startDate", ignore = true)
+    @Mapping(target = "endDate", ignore = true)
+    public abstract GetWorkStatDTO modelToGetWorkStat(FieldWork fieldWork);
+
+    @AfterMapping
+    protected void afterModelToGetWorkStat(FieldWork fieldWork, @MappingTarget GetWorkStatDTO getWorkStatDTO) {
+        getWorkStatDTO.setWorkTypeId(fieldWork.getWorkType().getUid());
+        getWorkStatDTO.setCropFieldId(fieldWork.getCropFieldVersion().getUid());
+
+        getWorkStatDTO.setStartDate(fieldWork.getStartDate().toString());
+        if (fieldWork.getEndDate() == null) {
+            getWorkStatDTO.setEndDate("");
+        } else {
+            getWorkStatDTO.setEndDate(fieldWork.getEndDate().toString());
         }
     }
 }

@@ -20,6 +20,7 @@ import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
 import GrassIcon from "@mui/icons-material/Grass";
 import HistoryIcon from "@mui/icons-material/History";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
 import type { CacheUserData } from "../../interfaces/response/CacheUserData";
 import { useSelection } from "../../contexts/MenuSelectProvider";
 
@@ -66,6 +67,13 @@ function MainDrawer({ userData }: MainDrawerProps) {
       label: "Work History",
       page: "/work-history",
       icon: <HistoryIcon />,
+    },
+    {
+      role: "GROWER",
+      key: "work-statistics",
+      label: "Work Statistics",
+      page: "/work-statistics",
+      icon: <ShowChartIcon />,
     },
   ];
 
