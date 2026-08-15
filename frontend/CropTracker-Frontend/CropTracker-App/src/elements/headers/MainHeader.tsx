@@ -26,8 +26,13 @@ import { queryClient } from "../../query-client/QueryClient";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useCurrentProfile } from "../../hooks/caching/UseCurrentUser";
 import { useRefreshToken } from "../../hooks/caching/UseRefreshToken";
+import LanguageSelect from "../selects/LanguageSelect";
 
-function MainHeader() {
+interface MainHeaderProps {
+  hasLogin?: boolean;
+}
+
+function MainHeader({ hasLogin = true }: MainHeaderProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -122,7 +127,7 @@ function MainHeader() {
               </Typography>
             </>
           )}
-          {userData ? (
+          {userData && hasLogin ? (
             <>
               <Button onClick={handleClick}>
                 <Avatar src={avatarURL || ""} alt="Avatar" />
@@ -178,10 +183,12 @@ function MainHeader() {
                 </MenuItem>
               </Menu>
             </>
-          ) : (
+          ) : hasLogin ? (
             <Button color="inherit" onClick={handleLoginClick}>
               Login
             </Button>
+          ) : (
+            <LanguageSelect />
           )}
         </Toolbar>
       </AppBar>

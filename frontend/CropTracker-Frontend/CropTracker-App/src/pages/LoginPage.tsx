@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import type { LoginResponseDTO } from "../interfaces/response/LoginResponseDTO";
 import { queryClient } from "../query-client/QueryClient";
 import { addSnackbar } from "../utils/SnackbarHelper";
+import MainHeader from "../elements/headers/MainHeader";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ function LoginPage() {
 
   return (
     <Box>
+      <MainHeader hasLogin={false} />
       <LoginForm
         onLoginSubmit={handlelogin}
         isPending={isPending}

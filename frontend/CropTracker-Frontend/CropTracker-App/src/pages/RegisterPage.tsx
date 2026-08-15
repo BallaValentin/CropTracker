@@ -8,6 +8,7 @@ import type { CreateUserDTO } from "../interfaces/request/CreateUserDTO";
 import type { ErrorResponse } from "../interfaces/error/ErrorResponse";
 import type { GetVerifyEmailDTO } from "../interfaces/response/GetVerifyEmailDTO";
 import { addSnackbar } from "../utils/SnackbarHelper";
+import MainHeader from "../elements/headers/MainHeader";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ function RegisterPage() {
 
   return (
     <Box>
+      <MainHeader hasLogin={false} />
       <RegisterForm onSubmit={handleRegister} isPending={isPending} />
     </Box>
   );
