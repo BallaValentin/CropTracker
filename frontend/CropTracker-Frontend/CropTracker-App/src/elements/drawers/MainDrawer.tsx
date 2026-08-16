@@ -23,12 +23,14 @@ import HistoryIcon from "@mui/icons-material/History";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import type { CacheUserData } from "../../interfaces/response/CacheUserData";
 import { useSelection } from "../../contexts/MenuSelectProvider";
+import { useTranslation } from "react-i18next";
 
 interface MainDrawerProps {
   userData: CacheUserData | undefined;
 }
 
 function MainDrawer({ userData }: MainDrawerProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [hovered, setHovered] = useState<boolean>(false);
   const userRoles = userData?.roles ?? [];
@@ -39,39 +41,47 @@ function MainDrawer({ userData }: MainDrawerProps) {
     isDrawerExpanded || hovered ? expandedDrawerWidth : collapsedDrawerWidth;
 
   const menuItems = [
-    { role: "ALL", key: "home", label: "Home", page: "/", icon: <HomeIcon /> },
+    {
+      role: "ALL",
+      key: "home",
+      label: t("elements.drawers.mainDrawer.homeLink") || "Home",
+      page: "/",
+      icon: <HomeIcon />,
+    },
     {
       role: "ADMIN",
       key: "show-users",
-      label: "Show Users",
+      label: t("elements.drawers.mainDrawer.showUsersLink") || "Show Users",
       page: "/show-users",
       icon: <SupervisorAccountIcon />,
     },
     {
       role: "ADMIN",
       key: "show-crops",
-      label: "Show Crops",
+      label: t("elements.drawers.mainDrawer.showCropsLink") || "Show Crops",
       page: "/show-crops",
       icon: <GrassIcon />,
     },
     {
       role: "GROWER",
       key: "show-cropfield",
-      label: "Show Fields",
+      label: t("elements.drawers.mainDrawer.showFieldsLink") || "Show Fields",
       page: "/show-cropfields",
       icon: <AgricultureIcon />,
     },
     {
       role: "GROWER",
       key: "work-history",
-      label: "Work History",
+      label: t("elements.drawers.mainDrawer.workHistoryLink") || "Work History",
       page: "/work-history",
       icon: <HistoryIcon />,
     },
     {
       role: "GROWER",
       key: "work-statistics",
-      label: "Work Statistics",
+      label:
+        t("elements.drawers.mainDrawer.workStatisticsLink") ||
+        "Work Statistics",
       page: "/work-statistics",
       icon: <ShowChartIcon />,
     },

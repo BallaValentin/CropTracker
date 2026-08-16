@@ -9,6 +9,7 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { useZoom } from "../../hooks/leaflet/UseMapZoom";
 import { useMapDistance } from "../../hooks/leaflet/UseMapDistance";
+import { useTranslation } from "react-i18next";
 
 interface DrawingToolsProps {
   onPolygonCreated: (polygon: LatLngObject[]) => void;
@@ -48,6 +49,8 @@ function FieldParcelDrawControl({
   lineRef,
   onEditModeUpdate,
 }: DrawingToolsProps) {
+  const { t } = useTranslation();
+
   const map = useMap();
   const tooltipRef = useRef<L.Tooltip | null>(null);
 
@@ -162,17 +165,50 @@ function FieldParcelDrawControl({
       "custom-en" as Parameters<typeof map.pm.setLang>[0],
       {
         buttonTitles: {
-          drawPolyButton: "Draw parcel outline",
-          editButton: "Edit parcel and reference line",
-          deleteButton: "Delete parcel outline",
-          drawLineButton: "Draw reference line",
+          drawPolyButton: t(
+            "leaflet.control.parcelDrawControl.buttonTitles.drawPolyButton",
+            {
+              defaultValue: "Draw parcel outline",
+            },
+          ),
+          editButton: t(
+            "leaflet.control.parcelDrawControl.buttonTitles.editButton",
+            {
+              defaultValue: "Edit parcel and reference line",
+            },
+          ),
+          deleteButton: t(
+            "leaflet.control.parcelDrawControl.buttonTitles.deleteButton",
+            {
+              defaultValue: "Remove parcel outline",
+            },
+          ),
+          drawLineButton: t(
+            "leaflet.control.parcelDrawControl.buttonTitles.drawLineButton",
+            {
+              defaultValue: "Draw reference line",
+            },
+          ),
         },
         actions: {
-          finish: "Finish",
-          removeLastVertex: "Remove last point",
-          cancel: "Cancel",
-          reset: "Reset",
-          clear: "Clear",
+          finish: t("leaflet.control.parcelDrawControl.actions.finish", {
+            defaultValue: "Finish",
+          }),
+          removeLastVertex: t(
+            "leaflet.control.parcelDrawControl.actions.removeLastVertex",
+            {
+              defaultValue: "Remove last point",
+            },
+          ),
+          cancel: t("leaflet.control.parceldDrawControl.actions.cancel", {
+            defaultValue: "Cancel",
+          }),
+          reset: t("leaflet.control.parcelDrawControl.actions.reset", {
+            defaultValue: "Reset",
+          }),
+          clear: t("leaflet.control.parcelDrawControl.actions.clear", {
+            defaultValue: "Clear",
+          }),
         },
       },
       "en",

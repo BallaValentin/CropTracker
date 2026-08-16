@@ -27,12 +27,14 @@ import { useDrawer } from "../../contexts/DrawerProvider";
 import { useCurrentProfile } from "../../hooks/caching/UseCurrentUser";
 import { useRefreshToken } from "../../hooks/caching/UseRefreshToken";
 import LanguageSelect from "../selects/LanguageSelect";
+import { useTranslation } from "react-i18next";
 
 interface MainHeaderProps {
   hasLogin?: boolean;
 }
 
 function MainHeader({ hasLogin = true }: MainHeaderProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -65,7 +67,9 @@ function MainHeader({ hasLogin = true }: MainHeaderProps) {
         state: {
           statusCode: err.code,
           statusText: err.cause,
-          errorMessage: "Failed to sign out, try again later",
+          errorMessage:
+            t("elements.headers.mainHeader.signOutErrorMessage") ||
+            "Error signing out. Please try again later",
         },
       });
     },
@@ -154,7 +158,10 @@ function MainHeader({ hasLogin = true }: MainHeaderProps) {
                 }}
               >
                 <Tooltip
-                  title="Manage account"
+                  title={
+                    t("elements.headers.mainHeader.manageAccountTooltip") ||
+                    "Manage Account"
+                  }
                   placement="top"
                   slotProps={{
                     popper: {
@@ -179,13 +186,17 @@ function MainHeader({ hasLogin = true }: MainHeaderProps) {
                 <Divider />
                 <MenuItem onClick={handleLogout}>
                   <LogoutIcon sx={{ mr: 1 }} />
-                  {isPending ? "Logging out..." : "Logout"}
+                  {isPending
+                    ? t("elements.headers.mainHeader.signOutPending") ||
+                      "Signing out..."
+                    : t("elements.headers.mainHeader.signOutButton") ||
+                      "Sign Out"}
                 </MenuItem>
               </Menu>
             </>
           ) : hasLogin ? (
             <Button color="inherit" onClick={handleLoginClick}>
-              Login
+              {t("elements.headers.mainHeader.loginButton") || "Login"}
             </Button>
           ) : (
             <LanguageSelect />

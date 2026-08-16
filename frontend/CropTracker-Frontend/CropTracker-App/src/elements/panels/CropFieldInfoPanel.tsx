@@ -21,6 +21,7 @@ import {
   getGeneratedRows,
 } from "../../utils/GenerateShapesUtil";
 import FieldParcelItem from "../list-item/FieldParcelItem";
+import { useTranslation } from "react-i18next";
 
 interface CropFieldInfoPanelProps {
   isLoading: boolean;
@@ -43,6 +44,8 @@ function CropFieldInfoPanel({
   onConfirmDelete,
   onParcelSelected,
 }: CropFieldInfoPanelProps) {
+  const { t } = useTranslation();
+
   const [rows, setRows] = useState<LatLngObject[][][]>([]);
   const [rowRectangles, setRowRectangles] = useState<LatLngObject[][]>([]);
   const [cropCoords, setCropCoords] = useState<LatLngObject[]>([]);
@@ -95,7 +98,8 @@ function CropFieldInfoPanel({
         size="medium"
         color="success"
       >
-        Add new field parcel
+        {t("elements.panels.cropFieldInfoPanel.addFieldParcelButton") ||
+          "Add Field Parcel"}
       </Button>
     );
   };
@@ -133,8 +137,8 @@ function CropFieldInfoPanel({
             color="text.secondary"
             sx={{ mb: 4, fontStyle: "italic" }}
           >
-            Here you can view the details of your field. The map below shows the
-            location and boundaries of your field.
+            {t("elements.panels.cropFieldInfoPanel.fieldDetailsInfo") ||
+              "Below you can find the details of the crop field, including its name, location, and size. You can also view the list of field parcels associated with this crop field."}
           </Typography>
 
           <Paper
@@ -167,13 +171,6 @@ function CropFieldInfoPanel({
           </Paper>
         </Box>
         <Box sx={{ flex: 1, p: 2 }}>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ mb: 4, fontStyle: "italic" }}
-          >
-            Here you can view the list of parcels of your field.
-          </Typography>
           {!isLoading && fieldParcels.length > 0 ? (
             <Box
               sx={{
@@ -198,7 +195,11 @@ function CropFieldInfoPanel({
                   <ListSubheader
                     sx={{ fontWeight: "bold", lineHeight: "40px" }}
                   >
-                    Field parcels list
+                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                      {t(
+                        "elements.panels.cropFieldInfoPanel.parcelListTitle",
+                      ) || "Field Parcels"}
+                    </Typography>
                     <Divider
                       sx={{ borderBottomWidth: 2.5, borderColor: "grey.300" }}
                     />
@@ -230,7 +231,9 @@ function CropFieldInfoPanel({
                   letterSpacing: "0.05rem",
                 }}
               >
-                You have no field parcels added.
+                {t(
+                  "elements.panels.cropFieldInfoPanel.parcelListEmptyMessage",
+                ) || "No field parcels added yet."}
               </Typography>
               {cropFieldDetail.polygonPoints.length > 3 && <AddParcelButton />}
             </ColumnCenterContainer>

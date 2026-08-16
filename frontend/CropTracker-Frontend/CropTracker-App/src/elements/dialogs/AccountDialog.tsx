@@ -16,6 +16,7 @@ import type { UpdateUserDTO } from "../../interfaces/request/UpdateUserDTO";
 import type { AxiosError } from "axios";
 import type { CacheUserData } from "../../interfaces/response/CacheUserData";
 import CloseIcon from "@mui/icons-material/Close";
+import { useTranslation } from "react-i18next";
 
 interface AccountDialogProps {
   isOpen: boolean;
@@ -24,6 +25,8 @@ interface AccountDialogProps {
 }
 
 function AccountDialog({ isOpen, onClose, userData }: AccountDialogProps) {
+  const { t } = useTranslation();
+
   const { mutate, isPending } = useMutation({
     mutationFn: updateProfile,
     onSuccess: () => {
@@ -42,7 +45,7 @@ function AccountDialog({ isOpen, onClose, userData }: AccountDialogProps) {
     <Box>
       <Dialog open={isOpen} onClose={onClose}>
         <DialogTitle sx={{ textAlign: "center", position: "relative" }}>
-          Manage Account
+          {t("elements.dialogs.accountDialog.dialogTitle") || "Manage Account"}
           <IconButton
             sx={{ position: "absolute", right: 8, top: 8 }}
             onClick={onClose}

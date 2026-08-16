@@ -11,8 +11,11 @@ import { useUserCropFields } from "../hooks/caching/UseUserCropFields";
 import CropFieldCard from "../elements/cards/CropFieldCard";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import { addSnackbar } from "../utils/SnackbarHelper";
+import { useTranslation } from "react-i18next";
 
 function PlotsListPage() {
+  const { t } = useTranslation();
+
   const [cropFields, setCropFields] = useState<GetCropFieldDTO[]>([]);
   const [fabHovered, setFabHovered] = useState(false);
   const navigate = useNavigate();
@@ -58,7 +61,12 @@ function PlotsListPage() {
       <Box>
         <MainHeader />
         <MainContainer>
-          <ProgressCircle loadingMessage="Loading crop fields..." />
+          <ProgressCircle
+            loadingMessage={
+              t("pages.cropFieldListPage.loadingMessage") ||
+              "Loading crop fields..."
+            }
+          />
         </MainContainer>
       </Box>
     );
@@ -73,15 +81,16 @@ function PlotsListPage() {
             <Box>
               <ColumnCenterContainer>
                 <Typography variant="h4">
-                  You haven't added any fields yet.
+                  {t("pages.cropFieldListPage.noCropFieldsMessage") ||
+                    "No crop fields added yet."}
                 </Typography>
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ mt: 2 }}
                 >
-                  Click the button below to create your first field and start
-                  tracking your crops!
+                  {t("pages.cropFieldListPage.noCropFieldsMessage2") ||
+                    "Click the button below to create your first field and start tracking your crops!"}
                 </Typography>
               </ColumnCenterContainer>
             </Box>
@@ -94,7 +103,7 @@ function PlotsListPage() {
                 sx={{ fontWeight: "bold" }}
                 variant="h3"
               >
-                My Fields
+                {t("pages.cropFieldListPage.pageTitle") || "My Crop Fields"}
               </Typography>
               <Divider
                 sx={{
@@ -141,7 +150,8 @@ function PlotsListPage() {
               }}
             >
               <Typography variant="button" sx={{ fontWeight: "bold" }}>
-                Add Crop Field
+                {t("pages.cropFieldListPage.addCropFieldButton") ||
+                  "Add Crop Field"}
               </Typography>
             </Box>
             <Fab

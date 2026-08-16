@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { useTranslation } from "react-i18next";
 
 interface DeleteFieldParcelDialogProps {
   onConfirmDelete: () => void;
@@ -22,6 +23,8 @@ function DeleteFieldParcelDialog({
   onConfirmCancel,
   open,
 }: DeleteFieldParcelDialogProps) {
+  const { t } = useTranslation();
+
   return (
     <Box>
       <Dialog open={open} onClose={onConfirmCancel} maxWidth="md">
@@ -31,7 +34,8 @@ function DeleteFieldParcelDialog({
             component={"span"}
             sx={{ fontWeight: "bold" }}
           >
-            Confirm Delete Field Parcel
+            {t("elements.dialogs.deleteFieldParcelDialog.dialogTitle") ||
+              "Delete Field Parcel"}
           </Typography>
           <IconButton
             sx={{ position: "absolute", top: 8, right: 8 }}
@@ -43,15 +47,18 @@ function DeleteFieldParcelDialog({
         <Divider />
         <DialogContent>
           <Typography>
-            Are you sure you want to delete this field parcel?
+            {t("elements.dialogs.deleteFieldParcelDialog.dialogContent") ||
+              "Are you sure you want to delete this field parcel?"}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={onConfirmCancel} color="primary">
-            Cancel
+            {t("elements.dialogs.deleteFieldParcelDialog.cancelButton") ||
+              "Cancel"}
           </Button>
           <Button onClick={onConfirmDelete} color="error">
-            Delete
+            {t("elements.dialogs.deleteFieldParcelDialog.deleteButton") ||
+              "Delete"}
           </Button>
         </DialogActions>
       </Dialog>

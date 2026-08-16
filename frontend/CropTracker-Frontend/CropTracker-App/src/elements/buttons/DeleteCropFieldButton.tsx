@@ -1,6 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, IconButton, Typography } from "@mui/material";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface DeleteCropFieldButtonProps {
   onDeleteButtonClicked: () => void;
@@ -9,6 +10,8 @@ interface DeleteCropFieldButtonProps {
 function DeleteCropFieldButton({
   onDeleteButtonClicked,
 }: DeleteCropFieldButtonProps) {
+  const { t } = useTranslation();
+
   const [deleteButtonHovered, setDeleteButtonHovered] = useState(false);
   return (
     <Box
@@ -35,7 +38,7 @@ function DeleteCropFieldButton({
         }}
       >
         <Typography variant="caption" sx={{ fontWeight: "bold", px: 1 }}>
-          Delete Crop Field
+          {t("elements.buttons.deleteCropFieldButton") || "Delete Crop Field"}
         </Typography>
       </Box>
       <IconButton

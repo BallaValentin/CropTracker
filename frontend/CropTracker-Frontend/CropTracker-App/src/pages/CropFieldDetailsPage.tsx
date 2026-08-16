@@ -23,6 +23,7 @@ import ConfirmCropFieldUpdateDialog from "../elements/dialogs/ConfirmCropFieldUp
 import { deleteSelectedFieldWorks } from "../services/FieldWorkService";
 import DeleteFieldWorkDialog from "../elements/dialogs/DeleteFieldWorkDialog";
 import { addSnackbar } from "../utils/SnackbarHelper";
+import { useTranslation } from "react-i18next";
 
 function PlotDetailsPage() {
   const {
@@ -30,6 +31,9 @@ function PlotDetailsPage() {
     isLoading: isUserLoading,
     error: userError,
   } = useCurrentProfile();
+
+  const { t } = useTranslation();
+
   const [cropFieldDetail, setCropFieldDetail] =
     useState<GetCropFieldDTO | null>(null);
   const [fieldParcelsData, setFieldParcelsData] = useState<GetFieldParcelDTO[]>(
@@ -116,7 +120,10 @@ function PlotDetailsPage() {
         setOngoingWorksNumber(data.numberOfOngoing);
         setScheduledWorksNumber(data.numberOfScheduled);
       } else {
-        addSnackbar("Field parcel deleted successfully!");
+        addSnackbar(
+          t("pages.cropFieldDetailsPage.deleteFieldParcelSuccess") ||
+            "Field parcel deleted successfully.",
+        );
         queryClient.invalidateQueries({
           queryKey: ["fieldParcels", id],
         });
@@ -137,7 +144,10 @@ function PlotDetailsPage() {
     useMutation({
       mutationFn: deleteSelectedFieldWorks,
       onSuccess: () => {
-        addSnackbar("Field work deleted successfully!");
+        addSnackbar(
+          t("pages.cropFieldDetailsPage.deleteFieldWorkSuccess") ||
+            "Field work deleted successfully.",
+        );
         queryClient.invalidateQueries({
           queryKey: ["fieldWorks", id],
         });
@@ -164,7 +174,14 @@ function PlotDetailsPage() {
   }, [cropFieldData]);
 
   if (isUserLoading || isCropFieldLoading || isFieldWorksLoading) {
-    return <ProgressCircle loadingMessage="Initializing data..." />;
+    return (
+      <ProgressCircle
+        loadingMessage={
+          t("pages.cropFieldDetailsPage.loadingCropFieldMessage") ||
+          "Loading crop field details..."
+        }
+      />
+    );
   }
 
   const handleUpdateClick = () => {
@@ -223,7 +240,14 @@ function PlotDetailsPage() {
   };
 
   if (isUserLoading) {
-    return <ProgressCircle loadingMessage="Initializing user data..." />;
+    return (
+      <ProgressCircle
+        loadingMessage={
+          t("pages.cropFieldDetailsPage.loadingCropFieldMessage") ||
+          "Loading crop field details..."
+        }
+      />
+    );
   }
 
   if (isCropFieldLoading || !cropFieldDetail) {
@@ -231,7 +255,12 @@ function PlotDetailsPage() {
       <Box>
         <MainHeader />
         <MainContainer>
-          <ProgressCircle loadingMessage="Initializing crop field data..." />
+          <ProgressCircle
+            loadingMessage={
+              t("pages.cropFieldDetailsPage.loadingCropFieldMessage") ||
+              "Loading crop field details..."
+            }
+          />
         </MainContainer>
       </Box>
     );
@@ -275,8 +304,14 @@ function PlotDetailsPage() {
 
           <CropFieldWorksPanel
             fieldWorks={onGoingWorks}
-            title="Ongoing Works"
-            placeholderText="You have no ongoing works at the moment"
+            title={
+              t("pages.cropFieldDetailsPage.ongoingWorksTitle") ||
+              "Ongoing Works"
+            }
+            placeholderText={
+              t("pages.cropFieldDetailsPage.noOngoingWorksMessage") ||
+              "No ongoing works for this crop field."
+            }
             onDetailsClick={handleFieldWorkDetailsClick}
             onEditClick={handleFieldWorkEditClick}
             onDeleteClick={handleWorkDelete}
@@ -284,8 +319,14 @@ function PlotDetailsPage() {
 
           <CropFieldWorksPanel
             fieldWorks={scheduledWorks}
-            title="Scheduled Works"
-            placeholderText="You have no works scheduled"
+            title={
+              t("pages.cropFieldDetailsPage.scheduledWorksTitle") ||
+              "Scheduled Works"
+            }
+            placeholderText={
+              t("pages.cropFieldDetailsPage.noScheduledWorksMessage") ||
+              "No scheduled works for this crop field."
+            }
             onDetailsClick={handleFieldWorkDetailsClick}
             onEditClick={handleFieldWorkEditClick}
             onDeleteClick={handleWorkDelete}
@@ -295,9 +336,8 @@ function PlotDetailsPage() {
             variant="body2"
             sx={{ mt: 4, color: "text.secondary", fontStyle: "italic" }}
           >
-            You can edit the details of your field or update its boundaries by
-            clicking the button below. This will take you to the edit page where
-            you can make changes to your field's information and shape.
+            {t("pages.cropFieldDetailsPage.editCropFieldInfo") ||
+              "You can edit the crop field information by clicking the button below."}
           </Typography>
           <Button
             sx={{ mt: 3 }}
@@ -305,11 +345,13 @@ function PlotDetailsPage() {
             color="success"
             onClick={handleUpdateClick}
           >
-            Edit Field
+            {t("pages.cropFieldDetailsPage.editCropFieldButton") ||
+              "Edit Crop Field"}
           </Button>
           <Box sx={{ display: "flex", mr: 3, justifyContent: "flex-end" }}>
             <Button color="success" onClick={handleAddFieldWorkClick}>
-              Add Field Work
+              {t("pages.cropFieldDetailsPage.addFieldWorkButton") ||
+                "Add Field Work"}
             </Button>
           </Box>
 

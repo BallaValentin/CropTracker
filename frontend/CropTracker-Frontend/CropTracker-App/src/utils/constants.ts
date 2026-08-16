@@ -1,4 +1,4 @@
-export const expandedDrawerWidth: number = 240;
+export const expandedDrawerWidth: number = 300;
 export const collapsedDrawerWidth: number = 72;
 export const defaultMapPosition = {
     lat: 51.505,

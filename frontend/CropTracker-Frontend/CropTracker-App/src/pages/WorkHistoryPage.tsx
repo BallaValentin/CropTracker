@@ -28,8 +28,11 @@ import { useMutation } from "@tanstack/react-query";
 import type { GetWorkTypeNameDTO } from "../interfaces/response/GetWorkTypeNameDTO";
 import { getWorkTypeNames } from "../services/WorkTypeService";
 import DeleteFieldWorkDialog from "../elements/dialogs/DeleteFieldWorkDialog";
+import { useTranslation } from "react-i18next";
 
 function WorkHistoryPage() {
+  const { t } = useTranslation();
+
   const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();
   const [fieldWorks, setFieldWorks] = useState<GetPreviousWorkDTO[]>([]);
   const navigate = useNavigate();
@@ -177,7 +180,13 @@ function WorkHistoryPage() {
   }, [getNextWorks, cropFieldId, workTypeId, fieldWorks]);
 
   if (isLoadingUser) {
-    return <ProgressCircle loadingMessage="Loading work history..." />;
+    return (
+      <ProgressCircle
+        loadingMessage={t("pages.workHistoryPage.loadingText", {
+          defaultValue: "Loading work history...",
+        })}
+      />
+    );
   }
 
   if (userError) {
@@ -197,7 +206,9 @@ function WorkHistoryPage() {
           sx={{ fontWeight: "bold", mt: 10 }}
           variant="h3"
         >
-          Work History
+          {t("pages.workHistoryPage.pageTitle", {
+            defaultValue: "Work History",
+          })}
         </Typography>
         <Divider sx={{ mb: 1 }} />
 
@@ -217,10 +228,14 @@ function WorkHistoryPage() {
               sx={{ mb: 2 }}
             >
               {fieldWorks.filter((fieldWork) => fieldWork.isChecked).length}{" "}
-              items selected
+              {t("pages.workHistoryPage.itemsSelected", {
+                defaultValue: "items selected",
+              })}
             </Typography>
             <Button color="primary" onClick={() => setDialogToggled(true)}>
-              Delete
+              {t("pages.workHistoryPage.deleteButton", {
+                defaultValue: "Delete",
+              })}
             </Button>
           </Box>
         ) : (
@@ -271,7 +286,9 @@ function WorkHistoryPage() {
                   fontSize={"medium"}
                   color="text.secondary"
                 >
-                  Loading past works
+                  {t("pages.workHistoryPage.loadingWorks", {
+                    defaultValue: "Loading past works",
+                  })}
                 </Typography>
               </Box>
             }
@@ -282,7 +299,9 @@ function WorkHistoryPage() {
                 color="text.secondary"
                 sx={{ display: "block", mt: 3, textAlign: "center" }}
               >
-                All works are loaded.
+                {t("pages.workHistoryPage.allWorksLoaded", {
+                  defaultValue: "All works are loaded.",
+                })}
               </Typography>
             }
           >

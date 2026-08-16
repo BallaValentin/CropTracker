@@ -21,6 +21,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import type { FieldDefinition } from "../../interfaces/helper/FieldDefinition";
 import { standardNameRegex } from "../../utils/Constants";
 import { getNameError } from "../../utils/FormSubmitHelper";
+import { useTranslation } from "react-i18next";
 
 interface AddNewWorkTypeDialogProps {
   onConfirmAdd: (createWorkTypeDTO: CreateWorkTypeDTO) => void;
@@ -33,6 +34,8 @@ function AddNewWorkTypeDialog({
   onConfirmCancel,
   open,
 }: AddNewWorkTypeDialogProps) {
+  const { t } = useTranslation();
+
   const [createWorkTypeData, setCreateWorkTypeData] =
     useState<CreateWorkTypeDTO>({
       name: "",
@@ -161,7 +164,10 @@ function AddNewWorkTypeDialog({
   return (
     <Box>
       <Dialog open={open} onClose={onConfirmCancel} maxWidth="md">
-        <DialogTitle sx={{ fontWeight: "bold" }}>Add New Work Type</DialogTitle>
+        <DialogTitle sx={{ fontWeight: "bold" }}>
+          {t("elements.dialogs.addNewWorkTypeDialog.dialogTitle") ||
+            "Add New Work Type"}
+        </DialogTitle>
         <Divider />
         <DialogContent>
           <Box
@@ -177,10 +183,18 @@ function AddNewWorkTypeDialog({
                 fullWidth
                 type="text"
                 name="name"
-                label="Work Type Name"
+                label={
+                  t(
+                    "elements.dialogs.addNewWorkTypeDialog.workTypeNameTextField",
+                  ) || "Work Type Name"
+                }
                 color="success"
                 value={createWorkTypeData.name}
-                placeholder="Add work type name"
+                placeholder={
+                  t(
+                    "elements.dialogs.addNewWorkTypeDialog.workTypeNamePlaceholder",
+                  ) || "Add new work type name"
+                }
                 onChange={handleWorkTypeNameChange}
                 error={!!createWorkTypeError.nameError}
                 helperText={createWorkTypeError.nameError}
@@ -206,7 +220,9 @@ function AddNewWorkTypeDialog({
                   }}
                 >
                   <Typography sx={{ fontWeight: "bold" }}>
-                    Field definitions
+                    {t(
+                      "elements.dialogs.addNewWorkTypeDialog.fieldDefinitions",
+                    ) || "Field Definitions"}
                   </Typography>
                   <IconButton onClick={handleAddFieldDefinition}>
                     <AddIcon />
@@ -227,7 +243,11 @@ function AddNewWorkTypeDialog({
                   >
                     <TextField
                       color="success"
-                      label="Field Name"
+                      label={
+                        t(
+                          "elements.dialogs.addNewWorkTypeDialog.fieldNameTextField",
+                        ) || "Field Name"
+                      }
                       variant="outlined"
                       value={fieldDefinition.name}
                       required
@@ -246,22 +266,42 @@ function AddNewWorkTypeDialog({
 
                     <FormControl sx={{ flex: 1 }}>
                       <InputLabel color="success" id={`type-label-${index}`}>
-                        Field Type
+                        {t(
+                          "elements.dialogs.addNewWorkTypeDialog.fieldTypeLabel",
+                        ) || "Field Type"}
                       </InputLabel>
                       <Select
                         color="success"
                         labelId={`type-label-${index}`}
-                        label="Field Type"
+                        label={
+                          t(
+                            "elements.dialogs.addNewWorkTypeDialog.fieldTypeLabel",
+                          ) || "Field Type"
+                        }
                         value={fieldDefinition.type}
                         onChange={(e) =>
                           handleFieldChange(index, "type", e.target.value)
                         }
                       >
-                        <MenuItem value="string">Text</MenuItem>
-                        <MenuItem value="string[]">Multiple Text</MenuItem>
-                        <MenuItem value="number">Number</MenuItem>
+                        <MenuItem value="string">
+                          {t(
+                            "elements.dialogs.addNewWorkTypeDialog.stringMenuItem",
+                          ) || "Text"}
+                        </MenuItem>
+                        <MenuItem value="string[]">
+                          {t(
+                            "elements.dialogs.addNewWorkTypeDialog.stringArrayMenuItem",
+                          ) || "Multiple Text"}
+                        </MenuItem>
+                        <MenuItem value="number">
+                          {t(
+                            "elements.dialogs.addNewWorkTypeDialog.numberMenuItem",
+                          ) || "Number"}
+                        </MenuItem>
                         <MenuItem value="stringNumber[]">
-                          Multiple Text and Number
+                          {t(
+                            "elements.dialogs.addNewWorkTypeDialog.stringNumberMenuItem",
+                          ) || "Multiple Text & Number"}
                         </MenuItem>
                       </Select>
                     </FormControl>
@@ -276,10 +316,11 @@ function AddNewWorkTypeDialog({
         </DialogContent>
         <DialogActions>
           <Button onClick={onConfirmCancel} color="error">
-            Cancel
+            {t("elements.dialogs.addNewWorkTypeDialog.cancelButton") ||
+              "Cancel"}
           </Button>
           <Button onClick={handleConfirm} color="success">
-            Save
+            {t("elements.dialogs.addNewWorkTypeDialog.saveButton") || "Save"}
           </Button>
         </DialogActions>
       </Dialog>

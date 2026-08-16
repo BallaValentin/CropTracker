@@ -3,6 +3,7 @@ import CasinoOutlinedIcon from "@mui/icons-material/CasinoOutlined";
 import { Box, Button, Paper, Typography } from "@mui/material";
 import { HexColorPicker } from "react-colorful";
 import { PastelPresets } from "../../utils/Constants";
+import { useTranslation } from "react-i18next";
 
 interface PastelColorPickerProps {
   color: string;
@@ -10,6 +11,8 @@ interface PastelColorPickerProps {
 }
 
 function PastelColorPicker({ color, onColorChange }: PastelColorPickerProps) {
+  const { t } = useTranslation();
+
   const generateRandomPastelColor = () => {
     const red = Math.floor(Math.random() * 55 + 200);
     const green = Math.floor(Math.random() * 55 + 200);
@@ -42,7 +45,8 @@ function PastelColorPicker({ color, onColorChange }: PastelColorPickerProps) {
           variant="body2"
           sx={{ fontWeight: 600, flexGrow: 1 }}
         >
-          Overlay Color
+          {t("elements.colorPickers.pastelColorPicker.colorPickerTitle") ||
+            "Overlay Color"}
         </Typography>
         <Box
           sx={{
@@ -107,7 +111,8 @@ function PastelColorPicker({ color, onColorChange }: PastelColorPickerProps) {
           },
         }}
       >
-        Generate Random Pastel
+        {t("elements.colorPickers.pastelColorPicker.generateColorButton") ||
+          "Get Random Color"}
       </Button>
     </Paper>
   );

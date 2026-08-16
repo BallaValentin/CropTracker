@@ -4,6 +4,7 @@ import { useCropFieldDraw } from "../../hooks/leaflet/UseCropFieldDraw";
 import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import L from "leaflet";
 import { useMapDistance } from "../../hooks/leaflet/UseMapDistance";
+import { useTranslation } from "react-i18next";
 
 interface CropFieldDrawControlProps {
   markerAdded: boolean;
@@ -24,6 +25,7 @@ function CropFieldDrawControl({
   onMarkerCreated,
   onMarkerDeleted,
 }: CropFieldDrawControlProps) {
+  const { t } = useTranslation();
   const map = useMap();
 
   const { _onCreated, _onDeleted, _onUpdated } = useCropFieldDraw({
@@ -45,17 +47,42 @@ function CropFieldDrawControl({
       "custom-en" as Parameters<typeof map.pm.setLang>[0],
       {
         buttonTitles: {
-          drawPolyButton: "Draw crop field outline",
-          editButton: "Edit crop field",
-          deleteButton: "Remove crop field outline",
-          drawMarkerButton: "Set crop field position",
+          drawPolyButton: t(
+            "leaflet.control.cropFieldDrawControl.buttonTitles.drawPolyButton",
+            { defaultValue: "Draw crop field outline" },
+          ),
+          editButton: t(
+            "leaflet.control.cropFieldDrawControl.buttonTitles.editButton",
+            { defaultValue: "Edit crop field" },
+          ),
+          deleteButton: t(
+            "leaflet.control.cropFieldDrawControl.buttonTitles.deleteButton",
+            { defaultValue: "Remove crop field outline" },
+          ),
+          drawMarkerButton: t(
+            "leaflet.control.cropFieldDrawControl.buttonTitles.drawMarkerButton",
+            { defaultValue: "Set crop field marker" },
+          ),
         },
         actions: {
-          finish: "Finish",
-          removeLastVertex: "Remove last point",
-          cancel: "Cancel",
-          reset: "Reset",
-          clear: "Clear",
+          finish: t("leaflet.control.cropFieldDrawControl.actions.finish", {
+            defaultValue: "Finish",
+          }),
+          removeLastVertex: t(
+            "leaflet.control.cropFieldDrawControl.actions.removeLastVertex",
+            {
+              defaultValue: "Remove last point",
+            },
+          ),
+          cancel: t("leaflet.control.cropFieldDrawControl.actions.cancel", {
+            defaultValue: "Cancel",
+          }),
+          reset: t("leaflet.control.cropFieldDrawControl.actions.reset", {
+            defaultValue: "Reset",
+          }),
+          clear: t("leaflet.control.cropFieldDrawControl.actions.clear", {
+            defaultValue: "Clear",
+          }),
         },
       },
       "en",

@@ -27,6 +27,7 @@ import type { CreateWorkTypeDTO } from "../../interfaces/request/CreateWorkTypeD
 import type { GetFieldWorkDTO } from "../../interfaces/response/GetFieldWorkDTO";
 import type { UpdateFieldWorkDTO } from "../../interfaces/request/UpdateFieldWorkDTO";
 import type { GetPreviousWorkDTO } from "../../interfaces/response/GetPreviousWorkDTO";
+import { useTranslation } from "react-i18next";
 
 interface AddFieldWorkFormProps {
   fieldWorkToUpdate?: GetFieldWorkDTO | null;
@@ -51,6 +52,8 @@ function AddFieldWorkForm({
   isPending,
   isUpdating = false,
 }: AddFieldWorkFormProps) {
+  const { t } = useTranslation();
+
   const [rowRanges, setRowRanges] = useState<[number, number][]>([]);
   const [previousWorks, setPreviousWorks] = useState<GetPreviousWorkDTO[]>([]);
   const [currentWorkTypeIndex, setCurrentWorkTypeIndex] = useState<number>(
@@ -170,8 +173,8 @@ function AddFieldWorkForm({
     }
   }, [fieldParcels, fieldWorkToUpdate]);
 
-  const getEmptyWorkParameters = () => {
-    return activeFields.reduce<
+  const getEmptyWorkParameters = (updatedActiveFields: FieldDefinition[]) => {
+    return updatedActiveFields.reduce<
       Record<string, string | number | string[] | number[] | StringNumber[]>
     >((acc, field) => {
       if (field.type === "stringNumber[]") {
@@ -190,6 +193,7 @@ function AddFieldWorkForm({
         acc[field.name] = "";
       }
 
+      console.log("Received acc: ", acc);
       return acc;
     }, {});
   };
@@ -229,7 +233,9 @@ function AddFieldWorkForm({
       setCreateFieldWorkDTO((prev) => ({
         ...prev,
         workTypeId: workTypes[index].uid,
-        parameters: { ...getEmptyWorkParameters },
+        parameters: {
+          ...getEmptyWorkParameters(workTypes[index].fieldDefinitions),
+        },
       }));
     }
   };
@@ -330,13 +336,16 @@ function AddFieldWorkForm({
   };
 
   const handleAddEntry = (field: FieldDefinition) => {
+    console.log(createFieldWorkDTO.parameters[field.name]);
     if (Array.isArray(createFieldWorkDTO.parameters[field.name])) {
       let updatedEntries: StringNumber[] | string[] | number[];
+      console.log("Field type: ", field.type);
 
       if (field.type === "stringNumber[]") {
         const entries = createFieldWorkDTO.parameters[
           field.name
         ] as StringNumber[];
+        console.log("Entries updated: ", entries);
         const hasEmptyEntry = entries.some(
           (entry) => entry.numberValue === 0 && entry.textValue.trim() === "",
         );
@@ -475,7 +484,7 @@ function AddFieldWorkForm({
             letterSpacing: "0.02em",
           }}
         >
-          Add Field Work
+          {t("elements.forms.addFieldWorkForm.formTitle") || "Add Field Work"}
         </Typography>
 
         <Box sx={{ border: "1px solid lightgray", borderRadius: 2, p: 2 }}>
@@ -485,14 +494,15 @@ function AddFieldWorkForm({
               component="h2"
               sx={{ fontWeight: 600, color: "text.primary" }}
             >
-              Field Work Categorization & Schedule
+              {t("elements.forms.addFieldWorkForm.schedulingSection") ||
+                "Field Work Categorization & Schedule"}
             </Typography>
             <Typography
               variant="body2"
               sx={{ color: "text.secondary", mt: 0.5 }}
             >
-              Define the type of field work being performed and set the
-              operational timeframe.
+              {t("elements.forms.addFieldWorkForm.schedulingSectionSubtext") ||
+                "Field Work Categorization & Schedule Define the type of field work being performed and set the operational timeframe."}
             </Typography>
           </Box>
 
@@ -508,12 +518,16 @@ function AddFieldWorkForm({
             >
               <FormControl fullWidth variant="outlined">
                 <InputLabel id="worktype-select-label" color="success">
-                  Work Type
+                  {t("elements.forms.addFieldWorkForm.workTypeLabel") ||
+                    "Work Type"}
                 </InputLabel>
                 <Select
                   labelId="worktype-select-label"
                   id="worktype-select"
-                  label="Work Type"
+                  label={
+                    t("elements.forms.addFieldWorkForm.workTypeLabel") ||
+                    "Work Type"
+                  }
                   value={currentWorkTypeIndex}
                   onChange={handleWorkTypeChange}
                   color="success"
@@ -527,7 +541,13 @@ function AddFieldWorkForm({
                 >
                   {workTypes.map((workType, index) => (
                     <MenuItem key={workType.uid} value={index}>
-                      {workType.name}
+                      {t(
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workType.name}.name`,
+                        {
+                          defaultValue: workType.name,
+                          returnObjects: false,
+                        },
+                      ) || workType.name}
                     </MenuItem>
                   ))}
 
@@ -536,25 +556,38 @@ function AddFieldWorkForm({
                     sx={{ display: "flex", alignItems: "center", gap: 1 }}
                   >
                     <AddIcon />
-                    <Typography>Add new work type</Typography>
+                    <Typography>
+                      {t("elements.forms.addFieldWorkForm.addWorkTypeButton") ||
+                        "Add New Work Type"}
+                    </Typography>
                   </MenuItem>
                 </Select>
               </FormControl>
 
               <FormControl fullWidth variant="outlined">
                 <InputLabel id="worktiming-select-label" color="success">
-                  Work Timing
+                  {t("elements.forms.addFieldWorkForm.workTimingLabel") ||
+                    "Work Timing"}
                 </InputLabel>
                 <Select
                   labelId="worktiming-select-label"
                   id="worktiming-select"
-                  label="Work Timing"
+                  label={
+                    t("elements.forms.addFieldWorkForm.workTimingLabel") ||
+                    "Work Timing"
+                  }
                   value={createFieldWorkDTO.workTiming}
                   onChange={handleWorkTimingChange}
                   color="success"
                 >
-                  <MenuItem value="Scheduled">Scheduled Work</MenuItem>
-                  <MenuItem value="Past">Past Work</MenuItem>
+                  <MenuItem value="Scheduled">
+                    {t("elements.forms.addFieldWorkForm.scheduledWorkOption") ||
+                      "Scheduled Work"}
+                  </MenuItem>
+                  <MenuItem value="Past">
+                    {t("elements.forms.addFieldWorkForm.pastWorkOption") ||
+                      "Past Work"}
+                  </MenuItem>
                 </Select>
               </FormControl>
             </Box>
@@ -568,7 +601,10 @@ function AddFieldWorkForm({
             >
               <TextField
                 sx={{ flex: 1 }}
-                label="Select starting Date and Time"
+                label={
+                  t("elements.forms.addFieldWorkForm.startDateTextfield") ||
+                  "Select Starting Date & Time"
+                }
                 name="startDate"
                 color="success"
                 type="datetime-local"
@@ -584,7 +620,10 @@ function AddFieldWorkForm({
               {createFieldWorkDTO.workTiming === "Past" ? (
                 <TextField
                   sx={{ flex: 1 }}
-                  label="Select ending Date and Time"
+                  label={
+                    t("elements.forms.addFieldWorkForm.endDateTextfield") ||
+                    "Select Ending Date & Time"
+                  }
                   value={
                     createFieldWorkDTO.endDate?.slice(0, 16) ||
                     "2026-01-01T12:00"
@@ -612,13 +651,19 @@ function AddFieldWorkForm({
             gap: 2.5,
           }}
         >
-          {activeFields.map((field) => (
+          {activeFields.map((field, fieldIndex) => (
             <Box key={field.name}>
               {field.type === "string" && (
                 <Box sx={{ width: 400 }}>
                   <FormControl fullWidth variant="outlined">
                     <TextField
-                      label={field.name}
+                      label={t(
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                        {
+                          defaultValue: field.name,
+                          returnObjects: false,
+                        },
+                      )}
                       name={field.name}
                       value={createFieldWorkDTO.parameters[field.name] || ""}
                       color="success"
@@ -633,7 +678,14 @@ function AddFieldWorkForm({
                 <Box sx={{ width: 400 }}>
                   <FormControl fullWidth variant="outlined">
                     <TextField
-                      label={field.name}
+                      label={t(
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+
+                        {
+                          defaultValue: field.name,
+                          returnObjects: false,
+                        },
+                      )}
                       name={field.name}
                       value={createFieldWorkDTO.parameters[field.name] || 0}
                       color="success"
@@ -651,12 +703,24 @@ function AddFieldWorkForm({
                       id={`${field.name}-select-label`}
                       color="success"
                     >
-                      {field.name}
+                      {t(
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                        {
+                          defaultValue: field.name,
+                          returnObjects: false,
+                        },
+                      )}
                     </InputLabel>
                     <Select
                       labelId={`${field.name}-select-label`}
                       id={`${field.name}-select`}
-                      label={field.name}
+                      label={t(
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                        {
+                          defaultValue: field.name,
+                          returnObjects: false,
+                        },
+                      )}
                       color="success"
                       value={createFieldWorkDTO.parameters[field.name] || ""}
                       onChange={(e) =>
@@ -666,8 +730,16 @@ function AddFieldWorkForm({
                         )
                       }
                     >
-                      {field.options.map((option) => (
-                        <MenuItem value={option}>{option}</MenuItem>
+                      {field.options.map((option, optionIndex) => (
+                        <MenuItem value={option}>
+                          {t(
+                            `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.options.option${optionIndex + 1}`,
+                            {
+                              defaultValue: option,
+                              returnObjects: false,
+                            },
+                          )}
+                        </MenuItem>
                       ))}
                     </Select>
                   </FormControl>
@@ -677,6 +749,13 @@ function AddFieldWorkForm({
               {field.type === "stringNumber[]" && (
                 <Box sx={{ width: 800 }}>
                   <StringNumberList
+                    label={t(
+                      `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                      {
+                        defaultValue: field.name,
+                        returnObjects: false,
+                      },
+                    )}
                     entries={
                       (createFieldWorkDTO.parameters[
                         field.name
@@ -693,6 +772,13 @@ function AddFieldWorkForm({
               {field.type === "string[]" && (
                 <Box sx={{ width: 400 }}>
                   <SimpleTypeList
+                    label={t(
+                      `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                      {
+                        defaultValue: field.name,
+                        returnObjects: false,
+                      },
+                    )}
                     entries={
                       (createFieldWorkDTO.parameters[field.name] as string[]) ||
                       []
@@ -708,6 +794,13 @@ function AddFieldWorkForm({
               {field.type === "number[]" && (
                 <Box sx={{ width: 400 }}>
                   <SimpleTypeList
+                    label={t(
+                      `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                      {
+                        defaultValue: field.name,
+                        returnObjects: false,
+                      },
+                    )}
                     entries={
                       (createFieldWorkDTO.parameters[field.name] as number[]) ||
                       []
@@ -742,7 +835,12 @@ function AddFieldWorkForm({
             color="success"
             disabled={isPending}
           >
-            {isPending ? "Saving..." : "Save Field Work"}
+            {isPending
+              ? t(
+                  "elements.forms.addFieldWorkForm.saveFieldWorkButtonPending",
+                ) || "Saving Field Work..."
+              : t("elements.forms.addFieldWorkForm.saveFieldWorkButton") ||
+                "Saving Field Work"}
           </Button>
         </Box>
       </form>

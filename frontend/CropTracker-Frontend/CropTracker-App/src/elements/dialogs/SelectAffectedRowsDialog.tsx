@@ -16,6 +16,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 import type { GetWorkTypeDTO } from "../../interfaces/response/GetWorkTypeDTO";
+import { useTranslation } from "react-i18next";
 
 interface AffectedWorksDialogProps {
   isPending: boolean;
@@ -36,6 +37,7 @@ function SelectAffectedRowsDialog({
   checkedWorkTypes,
   onSelectWorkType,
 }: AffectedWorksDialogProps) {
+  const { t } = useTranslation();
   const [numberOfDays, setNumberOfDays] = useState("");
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +77,8 @@ function SelectAffectedRowsDialog({
         <DialogTitle
           sx={{ display: "flex", fontWeight: "bold", position: "relative" }}
         >
-          Select previous affected rows
+          {t("elements.dialogs.selectAffectedRowsDialog.dialogTitle") ||
+            "Select previous affected rows"}
           <IconButton
             disabled={isPending}
             sx={{ position: "absolute", top: 8, right: 8 }}
@@ -87,7 +90,10 @@ function SelectAffectedRowsDialog({
         <Divider />
         <DialogContent>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-            <Typography>Select affected rows from the previous</Typography>
+            <Typography>
+              {t("elements.dialogs.selectAffectedRowsDialog.dialogContent1") ||
+                "Select affected rows from the previous"}
+            </Typography>
             <TextField
               color="success"
               type="number"
@@ -102,7 +108,11 @@ function SelectAffectedRowsDialog({
               }}
               onChange={handleChange}
             />
-            <Typography>{"day(s)."}</Typography>
+            <Typography>
+              {" "}
+              {t("elements.dialogs.selectAffectedRowsDialog.dialogContent2") ||
+                "day(s)"}
+            </Typography>
           </Box>
           <Box
             sx={{
@@ -112,7 +122,8 @@ function SelectAffectedRowsDialog({
             }}
           >
             <Typography sx={{ fontWeight: "bold" }}>
-              Get affected rows only from these worktypes
+              {t("elements.dialogs.selectAffectedRowsDialog.workTypesSelect") ||
+                "Get affected rows from these work types"}
             </Typography>
             <Checkbox onChange={(e) => handleCheckAll(e)} />
           </Box>
@@ -127,7 +138,15 @@ function SelectAffectedRowsDialog({
                   justifyContent: "space-between",
                 }}
               >
-                <Typography>{workType.name}</Typography>
+                <Typography>
+                  {t(
+                    `elements.forms.addFieldWorkForm.systemWorkTypes.${workType.name}.name`,
+                    {
+                      defaultValue: workType.name,
+                      returnObjects: false,
+                    },
+                  ) || workType.name}
+                </Typography>
                 <Checkbox
                   checked={checkedWorkTypes[index]}
                   onChange={(e) =>
@@ -140,10 +159,12 @@ function SelectAffectedRowsDialog({
         </DialogContent>
         <DialogActions>
           <Button disabled={isPending} onClick={onConfirmCancel} color="error">
-            Cancel
+            {t("elements.dialogs.selectAffectedRowsDialog.cancelButton") ||
+              "Cancel"}
           </Button>
           <Button disabled={isPending} onClick={handleConfirm} color="success">
-            Apply
+            {t("elements.dialogs.selectAffectedRowsDialog.applyButton") ||
+              "Apply"}
           </Button>
         </DialogActions>
       </Dialog>

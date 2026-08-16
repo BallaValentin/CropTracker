@@ -19,6 +19,8 @@ import {
   getPersonNameError,
   getUsernameError,
 } from "../../utils/FormSubmitHelper";
+import LanguageSelect from "../selects/LanguageSelect";
+import { useTranslation } from "react-i18next";
 
 interface EditUserFormProps {
   onSubmit: (userUpdates: UpdateUserDTO) => void;
@@ -27,6 +29,8 @@ interface EditUserFormProps {
 }
 
 function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
+  const { t } = useTranslation();
+
   const toBase64 = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -126,7 +130,10 @@ function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
             </FormLabel>
 
             <Tooltip
-              title="Change profile picture"
+              title={
+                t("elements.forms.editUserForm.changeProfilePicture") ||
+                "Change Profile Picture"
+              }
               placement="top"
               slotProps={{
                 popper: {
@@ -164,15 +171,34 @@ function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
           <Divider sx={{ mt: 2 }} />
           <FormControl>
             <Grid container spacing={4} alignItems="center" sx={{ mt: 2 }}>
+              <Grid
+                size={12}
+                container
+                spacing={2}
+                alignItems="center"
+                sx={{ mt: 2 }}
+              >
+                <Grid size={3}>
+                  <Typography sx={{ fontWeight: "bold" }} variant="subtitle1">
+                    {t("elements.forms.editUserForm.language") || "Language"}
+                  </Typography>
+                </Grid>
+
+                <Grid size={9}>
+                  <LanguageSelect />
+                </Grid>
+              </Grid>
               <Grid size={3}>
                 <Typography sx={{ fontWeight: "bold" }} variant="subtitle1">
-                  Username
+                  {t("elements.forms.editUserForm.username") || "Username"}
                 </Typography>
               </Grid>
               <Grid size={9}>
                 <TextField
                   fullWidth
-                  label="Username"
+                  label={
+                    t("elements.forms.editUserForm.usernameLabel") || "Username"
+                  }
                   name="username"
                   value={userUpdates.username}
                   error={!!updateError.usernameError}
@@ -184,7 +210,7 @@ function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
             <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
               <Grid size={3}>
                 <Typography sx={{ fontWeight: "bold" }} variant="subtitle1">
-                  Full name
+                  {t("elements.forms.editUserForm.fullname") || "Full Name"}
                 </Typography>
               </Grid>
               <Grid size={9}>
@@ -196,7 +222,10 @@ function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
                   }}
                 >
                   <TextField
-                    label="First name"
+                    label={
+                      t("elements.forms.editUserForm.firstNameLabel") ||
+                      "First Name"
+                    }
                     name="firstName"
                     value={userUpdates.firstName}
                     error={!!updateError.firstNameError}
@@ -205,7 +234,10 @@ function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
                   />
 
                   <TextField
-                    label="Last name"
+                    label={
+                      t("elements.forms.editUserForm.lastNameLabel") ||
+                      "Last Name"
+                    }
                     name="lastName"
                     value={userUpdates.lastName}
                     error={!!updateError.lastNameError}
@@ -221,7 +253,11 @@ function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
               type="submit"
               sx={{ mt: 2 }}
             >
-              {isUpdating ? "Updating profile..." : "Update profile"}
+              {isUpdating
+                ? t("elements.forms.editUserForm.updateProfileButtonPending") ||
+                  "Updating profile..."
+                : t("elements.forms.editUserForm.updateProfileButton") ||
+                  "Update Profile"}
             </Button>
           </FormControl>
         </form>

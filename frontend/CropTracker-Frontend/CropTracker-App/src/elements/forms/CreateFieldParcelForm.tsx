@@ -28,6 +28,7 @@ import {
 } from "../../utils/GenerateShapesUtil";
 import type { UpdateFieldParcelDTO } from "../../interfaces/request/UpdateFieldParcelDTO";
 import PastelColorPicker from "../color-pickers/PastelColorPicker";
+import { useTranslation } from "react-i18next";
 
 interface CreateFieldParcelFormProps {
   fieldParcelToUpdate?: GetFieldParcelDTO | null;
@@ -46,6 +47,8 @@ function CreateFieldParcelForm({
   isPending,
   fieldParcels,
 }: CreateFieldParcelFormProps) {
+  const { t } = useTranslation();
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [newFieldParcel, setNewFieldParcel] = useState<CreateFieldParcelDTO>({
     cropFieldId: cropfield.uid,
@@ -270,7 +273,8 @@ function CreateFieldParcelForm({
           variant="h6"
           sx={{ p: 2, fontWeight: "bold", letterSpacing: "0.05rem" }}
         >
-          Create or Edit Field Parcel
+          {t("elements.forms.addFieldParcelForm.formTitle") ||
+            "Add Field Parcel"}
         </Typography>
         <Box sx={{ display: "flex", height: "100%" }}>
           <Box sx={{ flex: 1, p: 2 }}>
@@ -327,7 +331,7 @@ function CreateFieldParcelForm({
                   option.uid === value.uid
                 }
                 getOptionLabel={(option) =>
-                  `${option.specieName} - ${option.cultivarName}`
+                  `${t(`elements.forms.addFieldParcelForm.crops.${option.specieName}`)} - ${option.cultivarName}`
                 }
                 loading={isPending}
                 onInputChange={(_event, newInputValue) => {
@@ -340,7 +344,11 @@ function CreateFieldParcelForm({
                   <TextField
                     color="success"
                     {...params}
-                    label="Search Crop Cultivar"
+                    label={
+                      t(
+                        "elements.forms.addFieldParcelForm.searchCultivarLabel",
+                      ) || "Search Crop Cultivar"
+                    }
                   />
                 )}
               />
@@ -352,17 +360,27 @@ function CreateFieldParcelForm({
 
               <FormControl sx={{ mt: 2, mb: 2, width: 200 }}>
                 <InputLabel color="success" id="layout-type-lavel">
-                  Layout Type
+                  {t("elements.forms.addFieldParcelForm.layoutTypeLabel") ||
+                    "Layout Type"}
                 </InputLabel>
                 <Select
                   color="success"
                   labelId="layout-type-label"
-                  label="Layout type"
+                  label={
+                    t("elements.forms.addFieldParcelForm.layoutTypeLabel") ||
+                    "Layout Type"
+                  }
                   value={newFieldParcel.layoutType}
                   onChange={handleLayoutChange}
                 >
-                  <MenuItem value={LayoutTypes.SingleRow}>Single-Row</MenuItem>
-                  <MenuItem value={LayoutTypes.MultiRow}>Multi-Row</MenuItem>
+                  <MenuItem value={LayoutTypes.SingleRow}>
+                    {t("elements.forms.addFieldParcelForm.singleRowOption") ||
+                      "Single-Row"}
+                  </MenuItem>
+                  <MenuItem value={LayoutTypes.MultiRow}>
+                    {t("elements.forms.addFieldParcelForm.multiRowOption") ||
+                      "Multi-Row"}
+                  </MenuItem>
                 </Select>
               </FormControl>
 
@@ -370,7 +388,10 @@ function CreateFieldParcelForm({
                 color="success"
                 name="targetRowCount"
                 type="number"
-                label="Number of Rows"
+                label={
+                  t("elements.forms.addFieldParcelForm.numberOfRows") ||
+                  "Number Of Rows"
+                }
                 value={newFieldParcel.layoutParameters.numberOfRows}
                 onChange={handleRowCountChange}
               />
@@ -381,7 +402,10 @@ function CreateFieldParcelForm({
                     color="success"
                     name="linesPerRow"
                     type="number"
-                    label="Lines per Row"
+                    label={
+                      t("elements.forms.addFieldParcelForm.linesPerRow") ||
+                      "Lines Per Row"
+                    }
                     value={newFieldParcel.layoutParameters.linesPerRow}
                     onChange={handleLayoutParamsChange}
                   />
@@ -391,7 +415,10 @@ function CreateFieldParcelForm({
                   color="success"
                   name="bedSpacing"
                   type="number"
-                  label="Bed Spacing(cm)"
+                  label={
+                    t("elements.forms.addFieldParcelForm.bedSpacing") ||
+                    "Bed Spacing(cm)"
+                  }
                   value={newFieldParcel.layoutParameters.bedSpacing}
                   onChange={handleLayoutParamsChange}
                 />
@@ -401,7 +428,10 @@ function CreateFieldParcelForm({
                     color="success"
                     name="rowSpacing"
                     type="number"
-                    label="Rows Distance(cm)"
+                    label={
+                      t("elements.forms.addFieldParcelForm.rowsDistance") ||
+                      "Rows Distance(cm)"
+                    }
                     value={newFieldParcel.layoutParameters.rowSpacing}
                     onChange={handleLayoutParamsChange}
                   />
@@ -411,7 +441,10 @@ function CreateFieldParcelForm({
                   color="success"
                   name="plantSpacing"
                   type="number"
-                  label="Crop Spacing(cm)"
+                  label={
+                    t("elements.forms.addFieldParcelForm.cropSpacing") ||
+                    "Crop Spacing(cm)"
+                  }
                   value={newFieldParcel.layoutParameters.plantSpacing}
                   onChange={handleLayoutParamsChange}
                 />
@@ -419,14 +452,20 @@ function CreateFieldParcelForm({
                   color="success"
                   name="marginSpacing"
                   type="number"
-                  label="Row Margins(cm)"
+                  label={
+                    t("elements.forms.addFieldParcelForm.rowMargin") ||
+                    "Row Margins(cm)"
+                  }
                   value={newFieldParcel.layoutParameters.marginSpacing}
                   onChange={handleLayoutParamsChange}
                 />
               </Box>
 
               <Box sx={{ display: "flex", gap: 2 }}>
-                <Typography variant="caption">Number of crops:</Typography>
+                <Typography variant="caption">
+                  {t("elements.forms.addFieldParcelForm.numberOfCrops") ||
+                    "Number of Crops: "}
+                </Typography>
                 <Typography variant="body2" sx={{ fontWeight: "600" }}>
                   {newFieldParcel.layoutParameters.numberOfCrops}
                 </Typography>
@@ -445,7 +484,12 @@ function CreateFieldParcelForm({
                   variant="contained"
                   color="success"
                 >
-                  {isPending ? "Saving..." : "Save Field Parcel"}
+                  {isPending
+                    ? t(
+                        "elements.forms.addFieldParcelForm.saveButtonPending",
+                      ) || "Saving Field Parcel..."
+                    : t("elements.forms.addFieldParcelForm.saveButton") ||
+                      "Save Field Parcel"}
                 </Button>
               </Box>
             </form>

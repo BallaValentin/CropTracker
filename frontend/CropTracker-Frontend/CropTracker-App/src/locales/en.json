@@ -1,1 +1,355 @@
-{}
+{
+    "elements": {
+        "autocompletes": {
+            "cropFieldAutocomplete": {
+                "defaultValue": "All Crop Fields",
+                "searchLabel": "Search Crop Field"
+            },
+            "workTypeAutocomplete": {
+                "defaultValue": "All Work Types",
+                "searchLabel": "Search Work Type"
+            }
+        },
+        "buttons": {
+            "deleteCropFieldButton": "Delete Crop Field"
+        },
+        "cards": {
+            "cropFieldCard": {
+                "detailsButton": "Details",
+                "deleteSuccessMessage": "Crop field deleted successfully."
+            }
+        },
+        "colorPickers": {
+            "pastelColorPicker": {
+                "colorPickerTitle": "Overlay Color",
+                "generateColorButton": "Get Random Color"
+            }
+        },
+        "dialogs": {
+            "accountDialog": {
+                "dialogTitle": "Manage Account"
+            },
+            "addNewWorkTypeDialog": {
+                "dialogTitle": "Add New Work Type",
+                "workTypeNameTextField": "Work Type Name",
+                "workTypeNamePlaceholder": "Add new work type name",
+                "fieldDefinitions": "Field Definitions",
+                "fieldNameTextField": "Field Name",
+                "fieldTypeLabel": "Field Type",
+                "stringMenuItem": "Text",
+                "stringArrayMenuItem": "Multiple Text",
+                "numberMenuItem": "Number",
+                "stringNumberMenuItem": "Multiple Text & Number",
+                "cancelButton": "Cancel",
+                "saveButton": "Save"
+            },
+            "deleteCropFieldDialog": {
+                "dialogTitle": "Delete Crop Field",
+                "dialogContent": "Are you sure you want to delete this crop field?",
+                "cancelButton": "Cancel",
+                "deleteButton": "Delete"
+            },
+            "deleteFieldParcelDialog": {
+                "dialogTitle": "Delete Field Parcel",
+                "dialogContent": "Are you sure you want to delete this field parcel?",
+                "cancelButton": "Cancel",
+                "deleteButton": "Delete"
+            },
+            "selectAffectedRowsDialog": {
+                "dialogTitle": "Select previous affected rows",
+                "dialogContent1": "Select affected rows from the previous",
+                "dialogContent2": "day(s)",
+                "workTypesSelect": "Get affected rows from these work types",
+                "cancelButton": "Cancel",
+                "applyButton": "Apply"
+            },
+            "selectWorksDialog": {
+                "dialogTitle": "Select previous works",
+                "foundText": "Found: ",
+                "selectedText": "Selected: ",
+                "okButton": "Ok"
+            }
+        },
+        "drawers": {
+            "mainDrawer": {
+                "homeLink": "Home",
+                "showUsersLink": "Show Users",
+                "showCropsLink": "Show Crops",
+                "showFieldsLink": "Show Fields",
+                "workHistoryLink": "Work History",
+                "workStatisticsLink": "Work Statistics"
+
+            }
+        },
+        "forms": {
+            "addFieldWorkForm": {
+                "formTitle": "Add Field Work",
+                "schedulingSection": "Field Work Categorization & Schedule",
+                "schedulingSectionSubtext": "Field Work Categorization & Schedule Define the type of field work being performed and set the operational timeframe.",
+                "workTypeLabel": "Work Type",
+                "addWorkTypeButton": "Add New Work Type",
+                "workTimingLabel": "Work Timing",
+                "scheduledWorkOption": "Scheduled Work",
+                "pastWorkOption": "Past Work",
+                "startDateTextfield": "Select Starting Date & Time",
+                "endDateTextfield": "Select Ending Date & Time",
+                "saveFieldWorkButton": "Save Field Work",
+                "saveFieldWorkButtonPending": "Saving Field Work...",
+                "systemWorkTypes": {
+                    "Harvesting": {
+                        "name": "Harvesting",
+                        "fields": {
+                            "field1": {
+                                "name": "Harvested Quantity"
+                            },
+                            "field2": {
+                                "name": "Quantity Name",
+                                "options": {
+                                    "option4": "bushels",
+                                    "option5": "bales"
+                                }
+                            }
+                        }
+                    },
+                    "Irrigation": {
+                        "name": "Irrigation",
+                        "fields": {
+                            "field1": {
+                                "name": "Water Volume"
+                            },
+                            "field2": {
+                                "name": "Water Volume Type",
+                                "options": {
+                                    "option2": "liters"
+                                }
+                            }
+                        }
+                    },
+                    "Scouting": {
+                        "name": "Scouting",
+                        "fields": {
+                            "field1": {
+                                "name": "Observations"
+                            }
+                        }
+                    },
+                    "Sowing": {
+                        "name": "Sowing",
+                        "fields": {
+                            "field1": {
+                                "name": "Quantity"
+                            }
+                        }
+                    },
+                    "Tillage": {
+                        "name": "Irrigation",
+                        "fields": {
+                            "field1": {
+                                "name": "Tillage Type",
+                                "options": {
+                                    "option1": "Primary Plowing",
+                                    "option2": "Secondary Plowing",
+                                    "option3": "Subsoiling",
+                                    "option4": "Strip-Till"
+                                }
+                            },
+                            "field2": {
+                                "name": "Target Depth (cm)"
+                            }
+                        }
+                    },
+                    "Fertilization": {
+                        "name": "Fertilization",
+                        "fields": {
+                            "field1": {
+                                "name": "Used Fertilizers"
+                            },
+                            "field2": {
+                                "name": "Quantities Type"
+                            }
+                        }
+                    },
+                    "Spraying": {
+                        "name": "Spraying",
+                        "fields": {
+                            "field1": {
+                                "name": "Used Chemicals"
+                            },
+                            "field2": {
+                                "name": "Chemical Quantity Types"
+                            },
+                            "field3": {
+                                "name": "Carrier Volume"
+                            },
+                            "field4": {
+                                "name": "Carrier Volume Type"
+                            }
+                        }
+                    },
+                    "Maintenance": {
+                        "name": "Maintenance",
+                        "fields": {
+                            "field1": {
+                                "name": "Maintenance Type"
+                            }
+                        }
+                    }
+                }
+            },
+            "addFieldParcelForm": {
+                "crops": {
+                    "Strawberry": "Strawberry"
+                },
+                "formTitle": "Add Field Parcel",
+                "searchCultivarLabel": "Search Crop Cultivar",
+                "layoutTypeLabel": "Layout Type",
+                "singleRowOption": "Single-Row",
+                "multiRowOption": "Multi-Row",
+                "numberOfRows": "Number Of Rows",
+                "linesPerRow": "Lines Per Row",
+                "bedSpacing": "Bed Spacing(cm)",
+                "rowsDistance": "Rows Distance(cm)",
+                "cropSpacing": "Crop Spacing(cm)",
+                "rowMargin": "Row Margins(cm)",
+                "numberOfCrops": "Number of crops: ",
+                "saveButtonPending": "Saving Field Parcel...",
+                "saveButton": "Save Field Parcel"
+
+            },
+            "editUserForm": {
+                "changeProfilePicture": "Change Profile Picture",
+                "language": "Language",
+                "username": "Username",
+                "usernameLabel": "Username",
+                "fullname": "Full Name",
+                "firstNameLabel": "First Name",
+                "lastNameLabel": "Last Name",
+                "updateProfileButton": "Update Profile",
+                "updateProfileButtonPending": "Updating profile..."
+            },
+            "loginForm": {
+                "formTitle": "Login",
+                "usernameLabel": "Username",
+                "passwordLabel": "Password",
+                "forgotPassword": "Forgot Password? ",
+                "forgotPasswordLink": "Click here",
+                "loginButton": "Login",
+                "loginButtonPending": "Logging in...",
+                "dontHaveAccount": "Don't have an account? ",
+                "registerLink": "Register"
+            },
+            "registerForm": {
+                "passwordMatchingError": "Passwords do not match",
+                "roleError": "Please select a role",
+                "formTitle": "Register",
+                "usernameLabel": "Username",
+                "usernamePlaceholder": "ex. john_smith",
+                "emailLabel": "Email",
+                "emailPlaceholder": "ex. john.smith@example.com",
+                "passwordLabel": "Password",
+                "repeatPasswordLabel": "Repeat Password",
+                "firstNameLabel": "First Name",
+                "firstNamePlaceholder": "ex. John",
+                "lastNameLabel": "Last Name",
+                "lastNamePlaceholder": "ex. Smith",
+                "roleSelectLabel": "Select Role",
+                "growerRole": "Grower",
+                "workerRole": "Worker",
+                "registerButton": "Register",
+                "registerButtonPending": "Registering...",
+                "alreadyHaveAccount": "Already have an account? ",
+                "loginLink": "Login"
+            }
+        },
+        "headers": {
+            "mainHeader": {
+                "signOutErrorMessage": "Error signing out. Please try again",
+                "manageAccountTooltip": "Manage Account",
+                "signOutButton": "Sign Out",
+                "signOutPending": "Signing out...",
+                "loginButton": "Login"
+            }
+        },
+        "panels": {
+            "cropFieldInfoPanel": {
+                "addFieldParcelButton": "Add Field Parcel",
+                "fieldDetailsInfo": "Below you can find the details of the crop field, including its name, location, and size. You can also view the list of field parcels associated with this crop field.",
+                "parcelListTitle": "Field Parcels",
+                "parcelListEmptyMessage": "No field parcels added yet."
+            },
+            "selectFieldRowsPanel": {
+                "panelTitle": "Select field parcels for work",
+                "panelText": "Select the parcels to work on",
+                "showPreviousWorks": "Show affected rows from previous works",
+                "hideRowsCheckbox": "Hide previous affected rows"
+            }
+        }
+    },
+    "leaflet": {
+        "customLayers": {
+            "streetView": "Street View",
+            "satelliteView": "Satellite View"
+        },
+         "control": {
+            "cropFieldDrawControl": {
+                "buttonTitles": {
+                    "drawPolyButton": "Draw crop field outline",
+                    "editButton": "Edit crop field",
+                    "deleteButton": "Remove crop field outline",
+                    "drawMarkerButton": "Set crop field marker"
+                },
+                "actions": {
+                    "finish": "Finish",
+                    "removeLastVertex": "Remove last point",
+                    "cancel": "Cancel",
+                    "reset": "Reset",
+                    "clear": "Clear"
+                }
+            },
+            "parcelDrawControl": {
+                "buttonTitles": {
+                    "drawPolyButton": "Draw parcel outline",
+                    "editButton": "Edit parcel and reference line",
+                    "deleteButton": "Remove parcel outline",
+                    "drawLineButton": "Draw reference line"
+                },
+                "actions": {
+                    "finish": "Finish",
+                    "removeLastVertex": "Remove last point",
+                    "cancel": "Cancel",
+                    "reset": "Reset",
+                    "clear": "Clear"
+                }
+            }
+        }
+    },
+    "pages": {
+        "cropFieldListPage": {
+            "loadingMessage": "Loading crop fields...",
+            "noCropFieldsMessage": "No crop fields added yet.",
+            "noCropFieldsMessage2": "Click the button below to create your first field and start tracking your crops!",
+            "pageTitle": "My Crop Fields",
+            "addCropFieldButton": "Add Crop Field"
+        },
+        "cropFieldDetailsPage": {
+            "deleteFieldParcelSuccess": "Field parcel deleted successfully.",
+            "deleteFieldWorkSuccess": "Field work deleted successfully.",
+            "loadingCropFieldMessage": "Loading crop field details...",
+            "ongoingWorksTitle": "Ongoing Works",
+            "noOngoingWorksMessage": "No ongoing works for this crop field.",
+            "scheduledWorksTitle": "Scheduled Works",
+            "noScheduledWorksMessage": "No scheduled works for this crop field.",
+            "editCropFieldInfo": "You can edit the crop field information by clicking the button below.",
+            "editCropFieldButton": "Edit Crop Field",
+            "addFieldWorkButton": "Add Field Work"
+        },
+        "workHistoryPage": {
+            "loadingText": "Loading work history...",
+            "pageTitle": "Work History",
+            "itemsSelected": "items selected",
+            "deleteButton": "Delete",
+            "loadingWorks": "Loading past works",
+            "allWorksLoaded": "All works are loaded."
+        }
+    }
+}

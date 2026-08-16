@@ -1,9 +1,17 @@
+import { useTranslation } from "react-i18next";
 import { LayerGroup, LayersControl, TileLayer } from "react-leaflet";
 
 function CustomLayers() {
+  const { t } = useTranslation();
+
   return (
     <>
-      <LayersControl.BaseLayer checked name="OpenStreetMap">
+      <LayersControl.BaseLayer
+        checked
+        name={t("leaflet.customLayers.streetView", {
+          defaultValue: "Street View",
+        })}
+      >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -12,7 +20,11 @@ function CustomLayers() {
         />
       </LayersControl.BaseLayer>
 
-      <LayersControl.BaseLayer name="SatelliteView">
+      <LayersControl.BaseLayer
+        name={t("leaflet.customLayers.satelliteView", {
+          defaultValue: "Satellite View",
+        })}
+      >
         <LayerGroup>
           <TileLayer
             attribution="Tiles &copy; Esri..."

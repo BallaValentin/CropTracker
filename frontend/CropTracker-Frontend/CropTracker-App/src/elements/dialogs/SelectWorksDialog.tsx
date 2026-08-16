@@ -16,6 +16,7 @@ import type { GetPreviousWorkDTO } from "../../interfaces/response/GetPreviousWo
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface SelectWorksDialogProps {
   onBack: () => void;
@@ -34,6 +35,8 @@ function SelectWorksDialog({
   checkedFieldWorks,
   onCheckFieldWork,
 }: SelectWorksDialogProps) {
+  const { t } = useTranslation();
+
   const [checkedNumber, setCheckedNumber] = useState<number>(0);
 
   useEffect(() => {
@@ -86,8 +89,9 @@ function SelectWorksDialog({
           <IconButton onClick={() => onBack()}>
             <ArrowBackIosNewIcon fontSize="small" />
           </IconButton>
-          <Typography variant="h5" sx={{ fontWeight: "600" }}>
-            Select previous works
+          <Typography variant="h6" sx={{ fontWeight: "600" }}>
+            {t("elements.dialogs.selectWorksDialog.dialogTitle") ||
+              "Select previous works"}
           </Typography>
           <IconButton
             sx={{ position: "absolute", top: 8, right: 8 }}
@@ -109,7 +113,8 @@ function SelectWorksDialog({
             <Box sx={{ display: "flex", alignItems: "center", gap: 10 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <Typography fontSize={"medium"} variant="caption">
-                  Found:
+                  {t("elements.dialogs.selectWorksDialog.foundText") ||
+                    "Found: "}
                 </Typography>
                 <Typography sx={{ fontWeight: "bold" }}>
                   {fieldWorks.length}
@@ -118,7 +123,8 @@ function SelectWorksDialog({
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <Typography fontSize={"medium"} variant="caption">
-                  Selected:
+                  {t("elements.dialogs.selectWorksDialog.selectedText") ||
+                    "Selected: "}
                 </Typography>
                 <Typography sx={{ fontWeight: "bold" }}>
                   {checkedNumber}
@@ -188,7 +194,7 @@ function SelectWorksDialog({
         </DialogContent>
         <DialogActions>
           <Button onClick={onConfirmCancel} color="success">
-            Ok
+            {t("elements.dialogs.selectWorksDialog.okButton") || "Ok"}
           </Button>
         </DialogActions>
       </Dialog>

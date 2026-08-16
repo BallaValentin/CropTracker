@@ -10,6 +10,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 interface DeleteCropFieldDialogProps {
   onConfirmDelete: () => void;
@@ -22,6 +23,8 @@ function DeleteCropFieldDialog({
   onConfirmCancel,
   open,
 }: DeleteCropFieldDialogProps) {
+  const { t } = useTranslation();
+
   return (
     <Box>
       <Dialog open={open} onClose={onConfirmCancel} maxWidth="md">
@@ -31,7 +34,8 @@ function DeleteCropFieldDialog({
             component={"span"}
             sx={{ fontWeight: "bold" }}
           >
-            Delete Crop Field
+            {t("elements.dialogs.deleteCropFieldDialog.dialogTitle") ||
+              "Delete Crop Field"}
           </Typography>
           <IconButton
             onClick={onConfirmCancel}
@@ -43,15 +47,18 @@ function DeleteCropFieldDialog({
         <Divider />
         <DialogContent>
           <Typography>
-            Are you sure you want to delete this crop field?
+            {t("elements.dialogs.deleteCropFieldDialog.dialogContent") ||
+              "Are you sure you want to delete this crop field?"}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={onConfirmCancel} color="primary">
-            Cancel
+            {t("elements.dialogs.deleteCropFieldDialog.cancelButton") ||
+              "Cancel"}
           </Button>
           <Button onClick={onConfirmDelete} color="error">
-            Delete
+            {t("elements.dialogs.deleteCropFieldDialog.deleteButton") ||
+              "Delete"}
           </Button>
         </DialogActions>
       </Dialog>

@@ -21,6 +21,7 @@ import {
   getPersonNameError,
   getUsernameError,
 } from "../../utils/FormSubmitHelper";
+import { useTranslation } from "react-i18next";
 
 interface RegisterFormProps {
   onSubmit: (registerData: CreateUserDTO) => void;
@@ -48,6 +49,8 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     emailError: "",
     roleError: "",
   });
+
+  const { t } = useTranslation();
 
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -80,7 +83,9 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     if (registerData.password != registerData.password2) {
       setRegisterError((prev) => ({
         ...prev,
-        passwordRepeatError: "Passwords must match.",
+        passwordRepeatError:
+          t("elements.forms.registerForm.passwordRepeatError") ||
+          "Passwords do not match.",
       }));
       isValid = false;
     } else {
@@ -93,7 +98,8 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     if (!registerData.isWorker && !registerData.isGrower) {
       setRegisterError((prev) => ({
         ...prev,
-        roleError: "At least one role must be choosen.",
+        roleError:
+          t("elements.forms.registerForm.roleError") || "Please select a role.",
       }));
       isValid = false;
     } else {
@@ -131,7 +137,7 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
         alignItems: "center",
         justifyContent: "center",
         margin: "auto",
-        mt: 5,
+        mt: 25,
       }}
     >
       <Card
@@ -141,20 +147,25 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
         }}
       >
         <Typography variant="h4" gutterBottom sx={{ textAlign: "center" }}>
-          Sign up
+          {t("elements.forms.registerForm.formTitle") || "Register"}
         </Typography>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <FormControl sx={{ mt: 2 }} fullWidth>
               <Typography variant="body1" gutterBottom>
-                Username
+                {t("elements.forms.registerForm.usernameLabel") || "Username"}
               </Typography>
               <TextField
                 error={!!registerError.usernameError}
                 helperText={registerError.usernameError || " "}
                 name="username"
                 value={registerData.username}
-                placeholder={registerData.username ? "" : "ex. user"}
+                placeholder={
+                  registerData.username
+                    ? ""
+                    : t("elements.forms.registerForm.usernamePlaceholder") ||
+                      "ex. john_smith"
+                }
                 onChange={handleFormChange}
                 fullWidth
               />
@@ -162,14 +173,20 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
 
             <FormControl sx={{ mt: 2 }} fullWidth>
               <Typography variant="body1" gutterBottom>
-                First Name
+                {t("elements.forms.registerForm.firstNameLabel") ||
+                  "First Name"}
               </Typography>
               <TextField
                 error={!!registerError.firstNameError}
                 helperText={registerError.firstNameError || " "}
                 name="firstName"
                 value={registerData.firstName}
-                placeholder={registerData.firstName ? "" : "ex. John"}
+                placeholder={
+                  registerData.firstName
+                    ? ""
+                    : t("elements.forms.registerForm.firstNamePlaceholder") ||
+                      "ex. John"
+                }
                 onChange={handleFormChange}
                 fullWidth
               />
@@ -177,14 +194,19 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
 
             <FormControl sx={{ mt: 2 }} fullWidth>
               <Typography variant="body1" gutterBottom>
-                Last Name
+                {t("elements.forms.registerForm.lastNameLabel") || "Last Name"}
               </Typography>
               <TextField
                 error={!!registerError.lastNameError}
                 helperText={registerError.lastNameError || " "}
                 name="lastName"
                 value={registerData.lastName}
-                placeholder={registerData.lastName ? "" : "ex. Smith"}
+                placeholder={
+                  registerData.lastName
+                    ? ""
+                    : t("elements.forms.registerForm.lastNamePlaceholder") ||
+                      "ex. Smith"
+                }
                 onChange={handleFormChange}
                 fullWidth
               />
@@ -192,7 +214,7 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
 
               <FormControl sx={{ mt: 2 }} fullWidth>
                 <Typography variant="body1" gutterBottom>
-                  Email
+                  {t("elements.forms.registerForm.emailLabel") || "Email"}
                 </Typography>
                 <TextField
                   error={!!registerError.emailError}
@@ -200,7 +222,10 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                   name="email"
                   value={registerData.email}
                   placeholder={
-                    registerData.email ? "" : "ex. john.smith@email.com"
+                    registerData.email
+                      ? ""
+                      : t("elements.forms.registerForm.emailPlaceholder") ||
+                        "ex. john.smith@example.com"
                   }
                   onChange={handleFormChange}
                   fullWidth
@@ -209,7 +234,7 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
 
               <FormControl sx={{ mt: 2 }} fullWidth>
                 <Typography variant="body1" gutterBottom>
-                  Password
+                  {t("elements.forms.registerForm.passwordLabel") || "Password"}
                 </Typography>
                 <TextField
                   error={!!registerError.passwordError}
@@ -224,7 +249,8 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
 
               <FormControl sx={{ mt: 2 }} fullWidth>
                 <Typography variant="body1" gutterBottom>
-                  Repeat Password
+                  {t("elements.forms.registerForm.repeatPasswordLabel") ||
+                    "Repeat Password"}
                 </Typography>
                 <TextField
                   error={!!registerError.passwordRepeatError}
@@ -240,7 +266,10 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
               <Divider sx={{ mt: 2 }} />
 
               <FormControl sx={{ mt: 2 }} fullWidth>
-                <Typography variant="body1">Sign up as</Typography>
+                <Typography variant="body1">
+                  {t("elements.forms.registerForm.roleSelectLabel") ||
+                    "Select Role"}
+                </Typography>
                 <FormGroup>
                   <FormControlLabel
                     control={
@@ -249,7 +278,9 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                         onChange={toggleGrower}
                       />
                     }
-                    label="Grower"
+                    label={
+                      t("elements.forms.registerForm.growerRole") || "Grower"
+                    }
                   />
                   <FormControlLabel
                     control={
@@ -258,7 +289,9 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                         onChange={toggleWorker}
                       />
                     }
-                    label="Worker"
+                    label={
+                      t("elements.forms.registerForm.workerRole") || "Worker"
+                    }
                   />
                 </FormGroup>
                 {registerError.roleError && (
@@ -275,14 +308,19 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                 color="primary"
                 disabled={isPending}
               >
-                {isPending ? "Creating Account..." : "Create Account"}
+                {isPending
+                  ? t("elements.forms.registerForm.registerButtonPending") ||
+                    "Registering..."
+                  : t("elements.forms.registerForm.registerButton") ||
+                    "Register"}
               </Button>
 
               <Box sx={{ mt: 1, textAlign: "center" }}>
                 <Typography variant="body1">
-                  Already have an account? &nbsp;
+                  {t("elements.forms.registerForm.alreadyHaveAccount") ||
+                    "Already have an account?"}
                   <Link href="/signin" underline="hover">
-                    Sign in
+                    {t("elements.forms.registerForm.loginLink") || "Login"}
                   </Link>
                 </Typography>
               </Box>

@@ -15,6 +15,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import type React from "react";
 
 interface StringNumberListProps {
+  label: string;
   entries: StringNumber[];
   field: FieldDefinition;
   onNewEntryAdded: (field: FieldDefinition) => void;
@@ -27,6 +28,7 @@ interface StringNumberListProps {
 }
 
 function StringNumberList({
+  label,
   entries,
   field,
   onNewEntryAdded,
@@ -84,7 +86,7 @@ function StringNumberList({
           mb: 1,
         }}
       >
-        <Typography>{field.name}</Typography>
+        <Typography>{label}</Typography>
         <IconButton onClick={(e) => handleAddNewStringNumber(e, field)}>
           <AddIcon />
         </IconButton>

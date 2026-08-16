@@ -1,5 +1,6 @@
 import { Autocomplete, TextField, Typography } from "@mui/material";
 import type { GetCropFieldNameDTO } from "../../interfaces/response/GetCropFieldNameDTO";
+import { useTranslation } from "react-i18next";
 
 interface CropFieldAutocompleteProps {
   onCropFieldSelect: (cropFieldId: string) => void;
@@ -14,11 +15,25 @@ function CropFieldAutocomplete({
   cropFields,
   isPending,
 }: CropFieldAutocompleteProps) {
+  const { t } = useTranslation();
+
+  const defaultOption = t(
+    "elements.autocompletes.cropFieldAutocomplete.defaultValue",
+    {
+      defaultValue: "All Crop Fields",
+    },
+  );
+
   return (
     <Autocomplete
       options={cropFields || []}
-      defaultValue={{ name: "All Crop Fields", uid: "" }}
-      getOptionLabel={(option) => `${option.name}`}
+      defaultValue={{
+        name: defaultOption,
+        uid: "",
+      }}
+      getOptionLabel={(option) =>
+        !option.uid ? defaultOption : `${option.name}`
+      }
       loading={isPending}
       onInputChange={(_event, newInputValue) => {
         onCropFieldSearch(newInputValue);
@@ -30,7 +45,13 @@ function CropFieldAutocomplete({
         <TextField
           color="success"
           {...params}
-          label={<Typography fontWeight="bold">Search Crop Field</Typography>}
+          label={
+            <Typography fontWeight="bold">
+              {t("elements.autocompletes.cropFieldAutocomplete.searchLabel", {
+                defaultValue: "Search Crop Field",
+              })}
+            </Typography>
+          }
         />
       )}
     />

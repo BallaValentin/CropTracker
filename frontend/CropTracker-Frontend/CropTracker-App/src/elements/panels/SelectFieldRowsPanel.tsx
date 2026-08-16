@@ -19,6 +19,7 @@ import SelectAffectedRowsDialog from "../dialogs/SelectAffectedRowsDialog";
 import type { GetWorkTypeDTO } from "../../interfaces/response/GetWorkTypeDTO";
 import type { GetPreviousWorkDTO } from "../../interfaces/response/GetPreviousWorkDTO";
 import SelectWorksDialog from "../dialogs/SelectWorksDialog";
+import { useTranslation } from "react-i18next";
 
 interface SelectFieldRowsPanelProps {
   isPending: boolean;
@@ -43,6 +44,8 @@ function SelectFieldRowsPanel({
   onRowsSearch,
   onRowClick,
 }: SelectFieldRowsPanelProps) {
+  const { t } = useTranslation();
+
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [hidden, setHidden] = useState<boolean>(false);
   const [checkedWorkTypes, setCheckedWorkTypes] = useState<boolean[]>(
@@ -145,7 +148,8 @@ function SelectFieldRowsPanel({
         variant="h6"
         sx={{ p: 2, fontWeight: "bold", letterSpacing: "0.05rem" }}
       >
-        Select field parcels for work
+        {t("elements.panels.selectFieldRowsPanel.panelTitle") ||
+          "Select field parcels for work"}
       </Typography>
       <Box sx={{ display: "flex", height: "100%" }}>
         <Box sx={{ flex: 1, p: 2 }}>
@@ -183,7 +187,8 @@ function SelectFieldRowsPanel({
             <List
               subheader={
                 <ListSubheader sx={{ fontWeight: "bold", lineHeight: "40px" }}>
-                  Select the parcels to work on
+                  {t("elements.panels.selectFieldRowsPanel.panelText") ||
+                    "Select the parcels to work on"}
                 </ListSubheader>
               }
             >
@@ -205,13 +210,17 @@ function SelectFieldRowsPanel({
               ))}
             </List>
             <Button onClick={handleShowPrevWorks} color="success">
-              Show affected rows from previous works
+              {t("elements.panels.selectFieldRowsPanel.showPreviousWorks") ||
+                "Show affected rows from previous works"}
             </Button>
           </Box>
 
           <Box sx={{ mt: "auto", display: "flex", justifyContent: "flex-end" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography>Hide previous affected rows</Typography>
+              <Typography>
+                {t("elements.panels.selectFieldRowsPanel.hideRowsCheckbox") ||
+                  "Hide previous affected rows"}
+              </Typography>
               <Checkbox onChange={handleCheck} />
             </Box>
           </Box>
