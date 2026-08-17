@@ -2,6 +2,7 @@ import { Box, Button, Checkbox, Divider, Typography } from "@mui/material";
 import type { GetPreviousWorkDTO } from "../../interfaces/response/GetPreviousWorkDTO";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface FieldWorkItemProps {
   fieldWork: GetPreviousWorkDTO;
@@ -9,6 +10,8 @@ interface FieldWorkItemProps {
 }
 
 function FieldWorkHistoryItem({ fieldWork, onItemCheck }: FieldWorkItemProps) {
+  const { t } = useTranslation();
+
   const [itemChecked, setItemChecked] = useState<boolean>(false);
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +83,12 @@ function FieldWorkHistoryItem({ fieldWork, onItemCheck }: FieldWorkItemProps) {
             fontSize={"medium"}
             sx={{ fontWeight: "bold" }}
           >
-            {fieldWork.workTypeName}
+            {t(
+              `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWork.workTypeName}.name`,
+              {
+                defaultValue: fieldWork.workTypeName,
+              },
+            )}
           </Typography>
         </Box>
       </Box>
@@ -90,7 +98,9 @@ function FieldWorkHistoryItem({ fieldWork, onItemCheck }: FieldWorkItemProps) {
         component={Link}
         to={`/field-work-details/${fieldWork.uid}`}
       >
-        View Details
+        {t("elements.listItems.fieldWorkHistoryItem.detailsButton", {
+          defaultValue: "View Details",
+        })}
       </Button>
     </Box>
   );

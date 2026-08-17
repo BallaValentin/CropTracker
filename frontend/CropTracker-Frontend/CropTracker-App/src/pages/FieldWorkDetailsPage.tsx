@@ -18,8 +18,11 @@ import type { StringNumber } from "../interfaces/helper/StringNumber";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import { useFieldWorkCropField } from "../hooks/caching/UseFieldWorkCropField";
 import { useCropFieldVersionParcels } from "../hooks/caching/UseCropFieldVersionParcels";
+import { useTranslation } from "react-i18next";
 
 function FieldWorkDetailsPage() {
+  const { t } = useTranslation();
+
   const [rows, setRows] = useState<LatLngObject[][][] | null>(null);
   const [rowRectangles, setRowRectangles] = useState<LatLngObject[][] | null>(
     null,
@@ -149,14 +152,29 @@ function FieldWorkDetailsPage() {
         </Typography>
         <Card sx={{ minHeight: 800, p: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <FieldInfoContainer labelText="Work Type">
-              <Typography>{fieldWorkData.workTypeName}</Typography>
+            <FieldInfoContainer
+              labelText={t("pages.fieldWorkDetailsPage.workTypeLabel", {
+                defaultValue: "Work Type",
+              })}
+            >
+              <Typography>
+                {t(
+                  `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.name`,
+                  {
+                    defaultValue: fieldWorkData.workTypeName,
+                  },
+                )}
+              </Typography>
             </FieldInfoContainer>
             <Box
               sx={{ display: "flex", gap: 10, justifyContent: "space-between" }}
             >
               {fieldWorkData.startDate && (
-                <FieldInfoContainer labelText="Starting Date">
+                <FieldInfoContainer
+                  labelText={t("pages.fieldWorkDetailsPage.startDateLabel", {
+                    defaultValue: "Starting Date",
+                  })}
+                >
                   <Box sx={{ display: "flex", gap: 1 }}>
                     <CalendarMonthIcon />
                     <Typography>
@@ -166,7 +184,11 @@ function FieldWorkDetailsPage() {
                 </FieldInfoContainer>
               )}
               {fieldWorkData.endDate && (
-                <FieldInfoContainer labelText="Ending Date">
+                <FieldInfoContainer
+                  labelText={t("pages.fieldWorkDetailsPage.endDateLabel", {
+                    defaultValue: "Ending Date",
+                  })}
+                >
                   <Box sx={{ display: "flex", gap: 1 }}>
                     <CalendarMonthIcon />
                     <Typography>
@@ -178,13 +200,34 @@ function FieldWorkDetailsPage() {
             </Box>
 
             {Object.entries(fieldWorkData.parameters).map(([key, value]) => {
+              console.log(
+                t(
+                  `elements.forms.addFieldWorkForm.systemWorkTypes.${key}.options.${value}`,
+                ),
+              );
               if (
                 (!Array.isArray(value) && typeof value === "string") ||
                 typeof value === "number"
               ) {
                 return (
-                  <FieldInfoContainer labelText={key}>
-                    <Typography>{value ? value : "N/A"}</Typography>
+                  <FieldInfoContainer
+                    labelText={t(
+                      `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.fields.${key}.name`,
+                      {
+                        defaultValue: key,
+                      },
+                    )}
+                  >
+                    <Typography>
+                      {value
+                        ? t(
+                            `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.fields.${key}.options.${value}`,
+                            {
+                              defaultValue: value,
+                            },
+                          )
+                        : "N/A"}
+                    </Typography>
                   </FieldInfoContainer>
                 );
               }
@@ -194,7 +237,11 @@ function FieldWorkDetailsPage() {
                   <Box sx={{ width: 800 }}>
                     <Typography color="success">{key}</Typography>
                     <Box
-                      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                      }}
                     >
                       <Divider />
                       {value.map((element) => {
@@ -228,7 +275,9 @@ function FieldWorkDetailsPage() {
             })}
           </Box>
           <Typography variant="h6" sx={{ fontWeight: "bold", my: 2 }}>
-            Affected parcels
+            {t("pages.fieldWorkDetailsPage.parcelsAffected", {
+              defaultValue: "Affected parcels",
+            })}
           </Typography>
           <Box sx={{ height: 400, my: 2 }}>
             <FieldDetailMapPreview

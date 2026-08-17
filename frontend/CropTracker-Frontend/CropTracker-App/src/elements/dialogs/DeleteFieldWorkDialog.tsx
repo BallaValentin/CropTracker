@@ -10,6 +10,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 interface DeleteFieldWorkDialogProps {
   onConfirmDelete: () => void;
@@ -24,6 +25,8 @@ function DeleteFieldWorkDialog({
   isPending,
   open,
 }: DeleteFieldWorkDialogProps) {
+  const { t } = useTranslation();
+
   return (
     <Box>
       <Dialog open={open} onClose={onConfirmCancel} maxWidth="md">
@@ -35,7 +38,9 @@ function DeleteFieldWorkDialog({
           }}
         >
           <Typography variant="h6" component={"span"} fontWeight="bold">
-            Confirm Delete Field Work
+            {t("elements.dialogs.deleteFieldWorkDialog.dialogTitle", {
+              defaultValue: "Delete Field Work",
+            })}
           </Typography>
           <IconButton
             disabled={isPending}
@@ -48,7 +53,9 @@ function DeleteFieldWorkDialog({
         <Divider />
         <DialogContent>
           <Typography>
-            Are you sure you want to delete this field work?
+            {t("elements.dialogs.deleteFieldWorkDialog.dialogContent", {
+              defaultValue: "Are you sure you want to delete this field work?",
+            })}
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -57,10 +64,14 @@ function DeleteFieldWorkDialog({
             onClick={onConfirmCancel}
             color="primary"
           >
-            Cancel
+            {t("elements.dialogs.deleteFieldWorkDialog.cancelButton", {
+              defaultValue: "Cancel",
+            })}
           </Button>
           <Button disabled={isPending} onClick={onConfirmDelete} color="error">
-            Delete
+            {t("elements.dialogs.deleteFieldWorkDialog.deleteButton", {
+              defaultValue: "Delete",
+            })}
           </Button>
         </DialogActions>
       </Dialog>

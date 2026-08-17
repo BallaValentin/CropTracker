@@ -14,6 +14,7 @@ import UpdateIcon from "@mui/icons-material/Update";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import FieldParcelPropItem from "./FieldParcelPropItem";
+import { useTranslation } from "react-i18next";
 
 interface FieldParcelItemProps {
   parcel: GetFieldParcelDTO;
@@ -32,6 +33,7 @@ function FieldParcelItem({
   onParcelUpdate,
   onParcelDelete,
 }: FieldParcelItemProps) {
+  const { t } = useTranslation();
   const handleParcelSelect = (
     event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
   ) => {
@@ -84,7 +86,11 @@ function FieldParcelItem({
           <IconButton onClick={handleParcelSelect}>
             {selected ? <KeyboardArrowDownIcon /> : <ChevronRightIcon />}
           </IconButton>
-          <ListItemText primary={`Parcel ${index + 1}`} />
+          <ListItemText
+            primary={`${t("elements.listItems.fieldParcelItem.name", {
+              defaultValue: "Parcel",
+            })} ${index + 1}`}
+          />
         </Box>
 
         <Box sx={{ display: "flex", gap: 1 }}>
@@ -109,22 +115,32 @@ function FieldParcelItem({
       >
         <List component="div" disablePadding sx={{ pl: 5, pr: 2, pb: 1 }}>
           <FieldParcelPropItem
-            propName={"Layout Type"}
-            propValue={parcel.layoutType}
+            propName={t("elements.listItems.fieldParcelItem.layoutType", {
+              defaultValue: "Layout Type",
+            })}
+            propValue={t(`layoutOptions.${parcel.layoutType}`, {
+              defaultValue: parcel.layoutType,
+            })}
           />
 
           <FieldParcelPropItem
-            propName={"Crop Specie"}
-            propValue={`${parcel.specieName} - ${parcel.cultivarName}`}
+            propName={t("elements.listItems.fieldParcelItem.cropSpecie", {
+              defaultValue: "Crop Specie",
+            })}
+            propValue={`${t(`elements.forms.addFieldParcelForm.crops.${parcel.specieName}`)} - ${parcel.cultivarName}`}
           />
 
           <FieldParcelPropItem
-            propName={"Rows Count"}
+            propName={t("elements.listItems.fieldParcelItem.rowsCount", {
+              defaultValue: "Number of rows",
+            })}
             propValue={`${parcel.layoutParameters.numberOfRows}`}
           />
 
           <FieldParcelPropItem
-            propName={"Area"}
+            propName={t("elements.listItems.fieldParcelItem.area", {
+              defaultValue: "Area",
+            })}
             propValue={`${(parcel.area / 10000).toFixed(2)} ha`}
           />
         </List>

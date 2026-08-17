@@ -651,14 +651,14 @@ function AddFieldWorkForm({
             gap: 2.5,
           }}
         >
-          {activeFields.map((field, fieldIndex) => (
+          {activeFields.map((field) => (
             <Box key={field.name}>
               {field.type === "string" && (
                 <Box sx={{ width: 400 }}>
                   <FormControl fullWidth variant="outlined">
                     <TextField
                       label={t(
-                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.${field.name}.name`,
                         {
                           defaultValue: field.name,
                           returnObjects: false,
@@ -679,7 +679,7 @@ function AddFieldWorkForm({
                   <FormControl fullWidth variant="outlined">
                     <TextField
                       label={t(
-                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.${field.name}.name`,
 
                         {
                           defaultValue: field.name,
@@ -704,7 +704,7 @@ function AddFieldWorkForm({
                       color="success"
                     >
                       {t(
-                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.${field.name}.name`,
                         {
                           defaultValue: field.name,
                           returnObjects: false,
@@ -715,14 +715,16 @@ function AddFieldWorkForm({
                       labelId={`${field.name}-select-label`}
                       id={`${field.name}-select`}
                       label={t(
-                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.${field.name}.name`,
                         {
                           defaultValue: field.name,
                           returnObjects: false,
                         },
                       )}
                       color="success"
-                      value={createFieldWorkDTO.parameters[field.name] || ""}
+                      value={
+                        createFieldWorkDTO.parameters[field.name] || "option1"
+                      }
                       onChange={(e) =>
                         handleWorkParametersSelectChange(
                           field.name,
@@ -731,9 +733,12 @@ function AddFieldWorkForm({
                       }
                     >
                       {field.options.map((option, optionIndex) => (
-                        <MenuItem value={option}>
+                        <MenuItem
+                          key={`option${optionIndex + 1}`}
+                          value={`option${optionIndex + 1}`}
+                        >
                           {t(
-                            `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.options.option${optionIndex + 1}`,
+                            `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.${field.name}.options.option${optionIndex + 1}`,
                             {
                               defaultValue: option,
                               returnObjects: false,
@@ -750,7 +755,7 @@ function AddFieldWorkForm({
                 <Box sx={{ width: 800 }}>
                   <StringNumberList
                     label={t(
-                      `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                      `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.${field.name}.name`,
                       {
                         defaultValue: field.name,
                         returnObjects: false,
@@ -773,7 +778,7 @@ function AddFieldWorkForm({
                 <Box sx={{ width: 400 }}>
                   <SimpleTypeList
                     label={t(
-                      `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                      `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.${field.name}.name`,
                       {
                         defaultValue: field.name,
                         returnObjects: false,
@@ -795,7 +800,7 @@ function AddFieldWorkForm({
                 <Box sx={{ width: 400 }}>
                   <SimpleTypeList
                     label={t(
-                      `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.field${fieldIndex + 1}.name`,
+                      `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.${field.name}.name`,
                       {
                         defaultValue: field.name,
                         returnObjects: false,

@@ -55,6 +55,12 @@
                 "cancelButton": "Cancel",
                 "deleteButton": "Delete"
             },
+            "deleteFieldWorkDialog": {
+                "dialogTitle": "Delete Field Work",
+                "dialogContent": "Are you sure you want to delete this field work?",
+                "cancelButton": "Cancel",
+                "deleteButton": "Delete"
+            },
             "selectAffectedRowsDialog": {
                 "dialogTitle": "Select previous affected rows",
                 "dialogContent1": "Select affected rows from the previous",
@@ -99,10 +105,10 @@
                     "Harvesting": {
                         "name": "Harvesting",
                         "fields": {
-                            "field1": {
+                            "harvestedQuantity": {
                                 "name": "Harvested Quantity"
                             },
-                            "field2": {
+                            "quantityType": {
                                 "name": "Quantity Name",
                                 "options": {
                                     "option4": "bushels",
@@ -114,10 +120,10 @@
                     "Irrigation": {
                         "name": "Irrigation",
                         "fields": {
-                            "field1": {
+                            "waterVolume": {
                                 "name": "Water Volume"
                             },
-                            "field2": {
+                            "waterVolumeType": {
                                 "name": "Water Volume Type",
                                 "options": {
                                     "option2": "liters"
@@ -128,7 +134,7 @@
                     "Scouting": {
                         "name": "Scouting",
                         "fields": {
-                            "field1": {
+                            "observations": {
                                 "name": "Observations"
                             }
                         }
@@ -136,7 +142,7 @@
                     "Sowing": {
                         "name": "Sowing",
                         "fields": {
-                            "field1": {
+                            "quantity": {
                                 "name": "Quantity"
                             }
                         }
@@ -144,7 +150,7 @@
                     "Tillage": {
                         "name": "Irrigation",
                         "fields": {
-                            "field1": {
+                            "tillageType": {
                                 "name": "Tillage Type",
                                 "options": {
                                     "option1": "Primary Plowing",
@@ -153,7 +159,7 @@
                                     "option4": "Strip-Till"
                                 }
                             },
-                            "field2": {
+                            "targetDepthCm": {
                                 "name": "Target Depth (cm)"
                             }
                         }
@@ -161,10 +167,10 @@
                     "Fertilization": {
                         "name": "Fertilization",
                         "fields": {
-                            "field1": {
+                            "usedFertilizers": {
                                 "name": "Used Fertilizers"
                             },
-                            "field2": {
+                            "quantityTypes": {
                                 "name": "Quantities Type"
                             }
                         }
@@ -172,16 +178,16 @@
                     "Spraying": {
                         "name": "Spraying",
                         "fields": {
-                            "field1": {
+                            "usedChemicals": {
                                 "name": "Used Chemicals"
                             },
-                            "field2": {
+                            "chemicalQuantityTypes": {
                                 "name": "Chemical Quantity Types"
                             },
-                            "field3": {
+                            "carrierVolume": {
                                 "name": "Carrier Volume"
                             },
-                            "field4": {
+                            "carrierVolumeType": {
                                 "name": "Carrier Volume Type"
                             }
                         }
@@ -189,7 +195,7 @@
                     "Maintenance": {
                         "name": "Maintenance",
                         "fields": {
-                            "field1": {
+                            "maintenanceType": {
                                 "name": "Maintenance Type"
                             }
                         }
@@ -259,6 +265,27 @@
                 "registerButtonPending": "Registering...",
                 "alreadyHaveAccount": "Already have an account? ",
                 "loginLink": "Login"
+            },
+            "createCropFieldForm": {
+                "defaultValue": "Unnamed crop field",
+                "markerMissingError": "Field location marker is missing",
+                "formTitle": "Create crop field",
+                "formText": "Complete the details below to add this area to your collection.",
+                "fieldNameLabel": "Field Name",
+                "placeholderText": "Your field`s name",
+                "longText": "Select the location and the outline of your crop field on the map. You can either place a marker to set the center of your field or draw a polygon to define its boundaries. If you draw a polygon, the center will be calculated automatically.",
+                "createButton": "Create Field",
+                "createButtonPending": "Creating Field..."
+            },
+            "updateCropFieldForm": {
+                "markerMissingError": "Field location marker is missing",
+                "formTitle": "Update crop field",
+                "formText": "Update the details below to modify this field.",
+                "fieldNameLabel": "Field Name",
+                "placeholderText": "Your field`s name",
+                "longText": "Select the location and the outline of your crop field on the map. You can either place a marker to set the center of your field or draw a polygon to define its boundaries. If you draw a polygon, the center will be calculated automatically.",
+                "updateButton": "Update Field",
+                "updateButtonPending": "Updating Field..."
             }
         },
         "headers": {
@@ -270,12 +297,28 @@
                 "loginButton": "Login"
             }
         },
+        "listItems": {
+            "fieldParcelItem": {
+                "name": "Parcel",
+                "layoutType": "Layout type",
+                "cropSpecie": "Crop specie",
+                "rowsCount": "Number of rows",
+                "area": "Area"
+            },
+            "fieldWorkHistoryItem": {
+                "detailsButton": "View Details"
+            }
+        },
         "panels": {
             "cropFieldInfoPanel": {
                 "addFieldParcelButton": "Add Field Parcel",
                 "fieldDetailsInfo": "Below you can find the details of the crop field, including its name, location, and size. You can also view the list of field parcels associated with this crop field.",
                 "parcelListTitle": "Field Parcels",
                 "parcelListEmptyMessage": "No field parcels added yet."
+            },
+            "cropFieldWorksPanel" : {
+                "editButton": "Edit",
+                "deleteButton": "Delete"
             },
             "selectFieldRowsPanel": {
                 "panelTitle": "Select field parcels for work",
@@ -324,6 +367,9 @@
         }
     },
     "pages": {
+        "createCropFieldPage": {
+            "succcesMessage": "Crop field has been successully added."
+        },
         "cropFieldListPage": {
             "loadingMessage": "Loading crop fields...",
             "noCropFieldsMessage": "No crop fields added yet.",
@@ -343,6 +389,16 @@
             "editCropFieldButton": "Edit Crop Field",
             "addFieldWorkButton": "Add Field Work"
         },
+        "fieldWorkDetailsPage": {
+            "workTypeLabel": "Work Type",
+            "startDateLabel": "Starting Date",
+            "endDateLabel": "Ending Date",
+            "parcelsAffected": "Affected parcels"
+        },
+        "updateCropFieldPage": {
+            "loadingText": "Loading crop field details",
+            "fieldUpdatedMessage": "Crop field has been successfully updated"
+        },
         "workHistoryPage": {
             "loadingText": "Loading work history...",
             "pageTitle": "Work History",
@@ -351,5 +407,9 @@
             "loadingWorks": "Loading past works",
             "allWorksLoaded": "All works are loaded."
         }
+    },
+    "layoutOptions": {
+        "SINGLE-ROW": "Single-Row",
+        "MULTI-ROW": "Multi-Row"
     }
 }

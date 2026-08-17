@@ -14,6 +14,7 @@ import EditableMap from "../../leaflet/view/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import ErrorIcon from "@mui/icons-material/Error";
 import { getNameError, getPolygonError } from "../../utils/FormSubmitHelper";
+import { useTranslation } from "react-i18next";
 
 interface UpdateCropFieldFormProps {
   cropField: GetCropFieldDTO;
@@ -26,6 +27,8 @@ function UpdateCropFieldForm({
   onUpdate,
   isPending,
 }: UpdateCropFieldFormProps) {
+  const { t } = useTranslation();
+
   const [cropFieldUpdateData, setCropFieldUpdateData] =
     useState<UpdateCropFieldDTO>({
       name: cropField.name,
@@ -67,7 +70,9 @@ function UpdateCropFieldForm({
 
     const markerError =
       !markerAdded || cropFieldUpdateData.markerPosition == null
-        ? "Field location marker is missing"
+        ? t("elements.forms.updateCropFieldForm.markerMissingError", {
+            defaultValue: "Field location marker is missing",
+          })
         : "";
 
     setCropFieldError((prev) => ({
@@ -139,22 +144,33 @@ function UpdateCropFieldForm({
           letterSpacing: "0.02em",
         }}
       >
-        Update crop field
+        {t("elements.forms.updateCropFieldForm.formTitle", {
+          defaultValue: "Update crop field",
+        })}
       </Typography>
 
       <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-        Update the details below to modify this field.
+        {t("elements.forms.updateCropFieldForm.formText", {
+          defaultValue: "Update the details below to modify this field.",
+        })}
       </Typography>
 
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2} sx={{ mb: 4 }}>
           <FormControl sx={{ mt: 2 }} fullWidth>
             <TextField
-              label="Field Name"
+              label={t("elements.forms.updateCropFieldForm.fieldNameLabel", {
+                defaultValue: "Field Name",
+              })}
               color="success"
               name="username"
               value={cropFieldUpdateData.name}
-              placeholder="Your username"
+              placeholder={t(
+                "elements.forms.updateCropFieldForm.placeholderText",
+                {
+                  defaultValue: "Your field`s name",
+                },
+              )}
               required
               error={!!cropFieldError.nameError}
               helperText={cropFieldError.nameError || " "}
@@ -173,10 +189,10 @@ function UpdateCropFieldForm({
             lineHeight: 1.6,
           }}
         >
-          Select the location and the outline of your crop field on the map. You
-          can either place a marker to set the center of your field or draw a
-          polygon to define its boundaries. If you draw a polygon, the center
-          will be calculated automatically.
+          {t("elements.forms.updateCropFieldForm.longText", {
+            defaultValue:
+              "Select the location and the outline of your crop field on the map. You can either place a marker to set the center of your field or draw a polygon to define its boundaries. If you draw a polygon, the center will be calculated automatically.",
+          })}
         </Typography>
         <EditableMap
           hasMarker={true}
@@ -222,7 +238,13 @@ function UpdateCropFieldForm({
           }}
           type="submit"
         >
-          {isPending ? "Updating Field..." : "Update Field"}
+          {isPending
+            ? t("elements.forms.updateCropFieldForm.updateButtonPending", {
+                defaultValue: "Updating Field...",
+              })
+            : t("elements.forms.updateCropFieldForm.updateButton", {
+                defaultValue: "Update Field",
+              })}
         </Button>
       </form>
     </Box>

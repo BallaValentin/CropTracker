@@ -12,8 +12,11 @@ import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import type { ConfirmUpdateDTO } from "../interfaces/response/ConfirmUpdateDTO";
 import ConfirmCropFieldUpdateDialog from "../elements/dialogs/ConfirmCropFieldUpdateDialog";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function UpdatePlotPage() {
+  const { t } = useTranslation();
+
   const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
   const [scheduledWorks, setScheduledWorks] = useState<number>(0);
@@ -55,7 +58,9 @@ function UpdatePlotPage() {
         navigate(`/cropfield-details/${id}`, {
           state: {
             success: true,
-            message: "Field has been successfully updated",
+            message: t("pages.updateCropFieldPage.fieldUpdatedMessage", {
+              defaultValue: "Field has been successfully updated",
+            }),
             key: `${Date.now()}`,
           },
         });
@@ -80,7 +85,13 @@ function UpdatePlotPage() {
   };
 
   if (isLoadingUser) {
-    return <ProgressCircle loadingMessage="Loading user data" />;
+    return (
+      <ProgressCircle
+        loadingMessage={t("pages.updateCropFieldPage.loadingText", {
+          defaultValue: "Loadinf crop field details",
+        })}
+      />
+    );
   }
 
   if (
@@ -89,7 +100,13 @@ function UpdatePlotPage() {
     !cropField.markerPosition ||
     !cropField.polygonPoints
   ) {
-    return <ProgressCircle loadingMessage="Loading field details" />;
+    return (
+      <ProgressCircle
+        loadingMessage={t("pages.updateCropFieldPage.loadingText", {
+          defaultValue: "Loadinf crop field details",
+        })}
+      />
+    );
   }
 
   if (userError) {

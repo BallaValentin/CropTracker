@@ -242,10 +242,12 @@ function PlotDetailsPage() {
   if (isUserLoading) {
     return (
       <ProgressCircle
-        loadingMessage={
-          t("pages.cropFieldDetailsPage.loadingCropFieldMessage") ||
-          "Loading crop field details..."
-        }
+        loadingMessage={t(
+          "pages.cropFieldDetailsPage.loadingCropFieldMessage",
+          {
+            defaultValue: "Loading crop field details...",
+          },
+        )}
       />
     );
   }
@@ -256,10 +258,12 @@ function PlotDetailsPage() {
         <MainHeader />
         <MainContainer>
           <ProgressCircle
-            loadingMessage={
-              t("pages.cropFieldDetailsPage.loadingCropFieldMessage") ||
-              "Loading crop field details..."
-            }
+            loadingMessage={t(
+              "pages.cropFieldDetailsPage.loadingCropFieldMessage",
+              {
+                defaultValue: "Loading crop field details...",
+              },
+            )}
           />
         </MainContainer>
       </Box>
@@ -304,14 +308,15 @@ function PlotDetailsPage() {
 
           <CropFieldWorksPanel
             fieldWorks={onGoingWorks}
-            title={
-              t("pages.cropFieldDetailsPage.ongoingWorksTitle") ||
-              "Ongoing Works"
-            }
-            placeholderText={
-              t("pages.cropFieldDetailsPage.noOngoingWorksMessage") ||
-              "No ongoing works for this crop field."
-            }
+            title={t("pages.cropFieldDetailsPage.ongoingWorksTitle", {
+              defaultValue: "Ongoing Works",
+            })}
+            placeholderText={t(
+              "pages.cropFieldDetailsPage.noOngoingWorksMessage",
+              {
+                defaultValue: "No ongoing works for this crop field.",
+              },
+            )}
             onDetailsClick={handleFieldWorkDetailsClick}
             onEditClick={handleFieldWorkEditClick}
             onDeleteClick={handleWorkDelete}

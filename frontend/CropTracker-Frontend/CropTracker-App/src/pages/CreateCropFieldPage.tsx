@@ -1,5 +1,4 @@
 import { Box } from "@mui/material";
-import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
 import { useMutation } from "@tanstack/react-query";
@@ -9,9 +8,12 @@ import type { CreateCropFieldDTO } from "../interfaces/request/CreateCropFieldDT
 import CreateCropFieldForm from "../elements/forms/CreateCropFieldForm";
 import { queryClient } from "../query-client/QueryClient";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import { useTranslation } from "react-i18next";
 
 function CreateCropFieldPage() {
-  const { isLoading: isUserLoading, error: userError } = useCurrentProfile();
+  const { t } = useTranslation();
+
+  const { error: userError } = useCurrentProfile();
   const navigate = useNavigate();
 
   const { mutate, isPending } = useMutation({
@@ -21,16 +23,14 @@ function CreateCropFieldPage() {
       navigate("/show-cropfields", {
         state: {
           success: true,
-          message: "New crop field has been successfully added",
+          message: t("pages.createCropFieldPage.successMessage", {
+            defaultValue: "Crop field has been successully added.",
+          }),
           key: `${Date.now()}`,
         },
       });
     },
   });
-
-  if (isUserLoading) {
-    return <ProgressCircle loadingMessage="Loading your data..." />;
-  }
 
   if (userError) {
     if (userError.response?.status === 401) {

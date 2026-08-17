@@ -17,6 +17,7 @@ import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import { defaultMapPosition } from "../../utils/Constants";
 import ErrorIcon from "@mui/icons-material/Error";
 import { getNameError, getPolygonError } from "../../utils/FormSubmitHelper";
+import { useTranslation } from "react-i18next";
 
 interface CreateCropFieldFormProps {
   isPending: boolean;
@@ -24,9 +25,13 @@ interface CreateCropFieldFormProps {
 }
 
 function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
+  const { t } = useTranslation();
+
   const [createCropFieldData, setCreateCropFieldData] =
     useState<CreateCropFieldDTO>({
-      name: "Unnamed Field",
+      name: t("elements.forms.createCropFieldForm.defaultValue", {
+        defaultValue: "Unnamed crop field",
+      }),
       markerPosition: null,
       polygonPoints: [],
       area: 0,
@@ -58,7 +63,9 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
 
     const markerError =
       !markerAdded || createCropFieldData.markerPosition == null
-        ? "Field location marker is missing"
+        ? t("elements.forms.createCropFieldForm.markerMissingError", {
+            defaultValue: "Field location marker is missing",
+          })
         : "";
 
     setCropFieldError((prev) => ({
@@ -136,22 +143,34 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
             letterSpacing: "0.02em",
           }}
         >
-          Create New Crop Field
+          {t("elements.forms.createCropFieldForm.formTitle", {
+            defaultValue: "Create crop field",
+          })}
         </Typography>
 
         <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-          Complete the details below to add this area to your collection.
+          {t("elements.forms.createCropFieldForm.formText", {
+            defaultValue:
+              "Complete the details below to add this area to your collection.",
+          })}
         </Typography>
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2} sx={{ mb: 4 }}>
             <FormControl sx={{ mt: 2 }} fullWidth>
               <TextField
-                label="Field Name"
+                label={t("elements.forms.createCropFieldForm.fieldNameLabel", {
+                  defaultValue: "Field Name",
+                })}
                 color="success"
                 name="username"
                 value={createCropFieldData.name}
-                placeholder="Your username"
+                placeholder={t(
+                  "elements.forms.createCropFieldForm.placeholderText",
+                  {
+                    defaultValue: "Your field`s name",
+                  },
+                )}
                 required
                 onChange={changePlotName}
                 fullWidth
@@ -170,10 +189,10 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
               lineHeight: 1.6,
             }}
           >
-            Select the location and the outline of your crop field on the map.
-            You can either place a marker to set the center of your field or
-            draw a polygon to define its boundaries. If you draw a polygon, the
-            center will be calculated automatically.
+            {t("elements.forms.createCropFieldForm.longText", {
+              defaultValue:
+                "Select the location and the outline of your crop field on the map. You can either place a marker to set the center of your field or draw a polygon to define its boundaries. If you draw a polygon, the center will be calculated automatically.",
+            })}
           </Typography>
           <EditableMap
             markerPosition={
@@ -220,7 +239,13 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
             }}
             type="submit"
           >
-            {isPending ? "Uploading Field..." : "Create Field"}
+            {isPending
+              ? t("elements.forms.createCropFieldForm.createButtonPending", {
+                  defaultValue: "Creating Field...",
+                })
+              : t("elements.forms.createCropFieldForm.createButton", {
+                  defaultValue: "Create Field",
+                })}
           </Button>
         </form>
       </Box>

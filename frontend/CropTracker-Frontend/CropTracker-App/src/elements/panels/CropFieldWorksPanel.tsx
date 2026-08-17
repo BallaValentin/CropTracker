@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import type { GetFieldWorkDTO } from "../../interfaces/response/GetFieldWorkDTO";
+import { useTranslation } from "react-i18next";
 
 interface CropFieldWorkPanelProps {
   fieldWorks: GetFieldWorkDTO[];
@@ -27,6 +28,8 @@ function CropFieldWorksPanel({
   onEditClick,
   onDeleteClick,
 }: CropFieldWorkPanelProps) {
+  const { t } = useTranslation();
+
   const handleDetailsClick = (
     event: React.MouseEvent<HTMLElement>,
     fieldWorkId: string,
@@ -113,14 +116,18 @@ function CropFieldWorksPanel({
                   onClick={(e) => handleEditClick(e, work.uid)}
                   color="success"
                 >
-                  Edit
+                  {t("elements.panels.cropFieldWorksPanel.editButton", {
+                    defaultValue: "Edit",
+                  })}
                 </Button>
 
                 <Button
                   onClick={(e) => handleDeleteClick(e, work.uid)}
                   color="error"
                 >
-                  Delete
+                  {t("elements.panels.cropFieldWorksPanel.deleteButton", {
+                    defaultValue: "Delete",
+                  })}
                 </Button>
               </Box>
             </ListItemButton>
