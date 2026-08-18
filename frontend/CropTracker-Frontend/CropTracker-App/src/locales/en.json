@@ -406,6 +406,9 @@
             "deleteButton": "Delete",
             "loadingWorks": "Loading past works",
             "allWorksLoaded": "All works are loaded."
+        },
+        "workStatisticsPage": {
+            "pageTitle": "Work Statistics"
         }
     },
     "layoutOptions": {

@@ -45,12 +45,13 @@ export const getFieldWorksByCursor = async(lastSeen: string | null, cropFieldId:
 }
 
 export const getFieldWorksWithinDays = async (numberOfDays: number =  365): Promise<GetWorkStatDTO[]> => {
-    console.log("Sending get-field-works-within-days request to server");
-    const response = await fieldWorkApi.get<GetWorkStatDTO[]>("/find-within-days", {
+    console.log("Sending get-field-works-stats to server");
+    const response = await fieldWorkApi.get<GetWorkStatDTO[]>("/get-work-stats", {
         params: {
             numberOfDays: numberOfDays
         }
     });
+
     return response.data;
 }
 

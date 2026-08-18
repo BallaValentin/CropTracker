@@ -53,7 +53,7 @@ public class FieldWorkService {
                 FieldWorkSpecification.byUser(user)
                         .and(FieldWorkSpecification.byIsActive())
                         .and(FieldWorkSpecification.byStartDateAfter(pastDateTime))),
-                Sort.by(Sort.Direction.DESC, "startDate")
+                Sort.by(Sort.Direction.ASC, "startDate")
         );
     }
 
@@ -117,12 +117,7 @@ public class FieldWorkService {
         }
         OffsetDateTime startDate = referenceDate.minusDays(numberOfDays);
 
-        return fieldWorkRepository.findAll(
-                Specification.allOf(FieldWorkSpecification.byCropFieldVersion(cropFieldVersion)
-                        .and(FieldWorkSpecification.byIsActive())
-                        .and(FieldWorkSpecification.byStartDateAfter(startDate)
-                                .and(FieldWorkSpecification.byWorkTypeIn(selectedWorkTypes))
-                        )), Sort.by(Sort.Direction.ASC, "startDate"));
+        return fieldWorkRepository.findAll(Sort.by(Sort.Direction.ASC, "startDate"));
     }
 
     public FieldWork findById(UUID uid, User user) {

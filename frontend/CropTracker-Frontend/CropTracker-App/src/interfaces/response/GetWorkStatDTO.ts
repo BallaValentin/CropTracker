@@ -2,6 +2,7 @@ import type { StringNumber } from "../helper/StringNumber";
 
 export interface GetWorkStatDTO {
     uid: string;
+    workTypeName: string;
     workTypeId: string;
     cropFieldId: string;
     workTiming: string;

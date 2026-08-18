@@ -28,6 +28,7 @@ import type { GetFieldWorkDTO } from "../../interfaces/response/GetFieldWorkDTO"
 import type { UpdateFieldWorkDTO } from "../../interfaces/request/UpdateFieldWorkDTO";
 import type { GetPreviousWorkDTO } from "../../interfaces/response/GetPreviousWorkDTO";
 import { useTranslation } from "react-i18next";
+import { toDateTimeLocal } from "../../utils/DateTimeHelper";
 
 interface AddFieldWorkFormProps {
   fieldWorkToUpdate?: GetFieldWorkDTO | null;
@@ -72,30 +73,6 @@ function AddFieldWorkForm({
   );
 
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-
-  const toDateTimeLocal = (date: Date): string => {
-    const timezoneOffset = date.getTimezoneOffset();
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-
-    const offsetSign = timezoneOffset > 0 ? "-" : "+";
-    const offsetHours = String(
-      Math.floor(Math.abs(timezoneOffset) / 60),
-    ).padStart(2, "0");
-    const offsetMinutes = String(Math.abs(timezoneOffset) % 60).padStart(
-      2,
-      "0",
-    );
-
-    console.log(
-      `Converted date: ${year}-${month}-${day}T${hours}:${minutes}:00${offsetSign}${offsetHours}:${offsetMinutes}`,
-    );
-    return `${year}-${month}-${day}T${hours}:${minutes}:00${offsetSign}${offsetHours}:${offsetMinutes}`;
-  };
 
   const [createFieldWorkDTO, setCreateFieldWorkDTO] =
     useState<CreateFieldWorkDTO>({

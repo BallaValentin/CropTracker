@@ -10,6 +10,7 @@ public class GetWorkStatDTO {
     private UUID uid;
     private UUID cropFieldId;
     private UUID workTypeId;
+    private String workTypeName;
     private String workTiming;
     private String startDate;
     private String endDate;
