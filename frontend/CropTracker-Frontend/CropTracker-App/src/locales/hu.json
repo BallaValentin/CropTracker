@@ -402,6 +402,17 @@
             "deleteButton": "Törlés",
             "loadingWorks": "Korábbi munkák betöltése",
             "allWorksLoaded": "Minden munka betöltve."
+        },
+        "workStatisticsPage": {
+            "pageTitle": "Munka statisztikák",
+            "loadingMessage": "Munka statisztikák betöltése...",
+            "afterDateLabel": "Dátum után",
+            "beforeDateLabel": "Dátum előtt",
+            "summaryText": "Összegzés",
+            "sum": "Összeg:",
+            "average": "Átlag:",
+            "max": "Legtöbb:",
+            "min": "Legkevesebb:"
         }
     },
     "layoutOptions": {

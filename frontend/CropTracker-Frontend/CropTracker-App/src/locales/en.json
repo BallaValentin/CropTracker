@@ -408,7 +408,15 @@
             "allWorksLoaded": "All works are loaded."
         },
         "workStatisticsPage": {
-            "pageTitle": "Work Statistics"
+            "pageTitle": "Work Statistics",
+            "loadingMessage": "Loading work statistics...",
+            "afterDateLabel": "After Date",
+            "beforeDateLabel": "Before Date",
+            "summaryText": "Summary",
+            "sum": "Total:",
+            "average": "Average:",
+            "max": "Maximum:",
+            "min": "Minimum:"
         }
     },
     "layoutOptions": {
