@@ -1,19 +1,22 @@
 import { Box, Button, Card, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
-import MapPreview from "../../leaflet/MapPreview";
+import MapPreview from "../../leaflet/view/MapPreview";
 import DeleteCropFieldButton from "../buttons/DeleteCropFieldButton";
 import DeleteCropFieldDialog from "../dialogs/DeleteCropFieldDialog";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { deleteCropFieldById } from "../../services/CropFieldService";
 import { queryClient } from "../../query-client/QueryClient";
+import { useTranslation } from "react-i18next";
 
 interface CropFieldCardProps {
   cropField: GetCropFieldDTO;
 }
 
 function PlotCard({ cropField }: CropFieldCardProps) {
+  const { t } = useTranslation();
+
   const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -24,7 +27,9 @@ function PlotCard({ cropField }: CropFieldCardProps) {
       navigate("/show-cropfields", {
         state: {
           success: true,
-          message: "Field has been successfully deleted",
+          message:
+            t("elements.cards.cropFieldCard.deleteSuccessMessage") ||
+            "Crop field deleted successfully.",
         },
       });
     },
@@ -90,7 +95,7 @@ function PlotCard({ cropField }: CropFieldCardProps) {
               navigate(`/cropfield-details/${cropField.uid}`);
             }}
           >
-            Details
+            {t("elements.cards.cropFieldCard.detailsButton") || "Details"}
           </Button>
 
           <Box sx={{ flexGrow: 1 }} />

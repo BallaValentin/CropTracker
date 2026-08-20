@@ -1,0 +1,472 @@
+{
+    "elements": {
+        "autocompletes": {
+            "cropFieldAutocomplete": {
+                "defaultValue": "Minden termőföld",
+                "searchLabel": "Termőföld keresése"
+            },
+            "workTypeAutocomplete": {
+                "defaultValue": "Minden munkatípus",
+                "searchLabel": "Munkatípus keresése"
+            }
+        },
+        "buttons": {
+            "deleteCropFieldButton": "Termőföld törlése"
+        },
+        "cards": {
+            "cropFieldCard": {
+                "detailsButton": "Részletek",
+                "deleteSuccessMessage": "A termőföld sikeresen törölve lett."
+            }
+        },
+        "colorPickers": {
+            "pastelColorPicker": {
+                "colorPickerTitle": "Parcella színe",
+                "generateColorButton": "Véletlenszerű szín választása"
+            }
+        },
+        "dialogs": {
+            "accountDialog": {
+                "dialogTitle": "Fiók kezelése"
+            },
+            "addNewWorkTypeDialog": {
+                "dialogTitle": "Új munkatípus hozzáadása",
+                "workTypeNameTextField": "Munkatípus neve",
+                "workTypeNamePlaceholder": "Új munkatípus nevének megadása",
+                "fieldDefinitions": "Meződefiníciók",
+                "fieldNameTextField": "Mező neve",
+                "fieldTypeLabel": "Mező típusa",
+                "stringMenuItem": "Szöveg",
+                "stringArrayMenuItem": "Több szöveg",
+                "numberMenuItem": "Szám",
+                "stringNumberMenuItem": "Több szöveg és szám",
+                "cancelButton": "Mégse",
+                "saveButton": "Mentés"
+            },
+            "confirmCropFieldUpdateDialog": {
+            "dialogTitle": "Tábla módosításának megerősítése",
+            "dialogContent1": "A tábla módosítása hatással lesz ",
+            "dialogContent2": " folyamatban lévő és ",
+            "dialogContent3": " ütemezett munkafolyamatra.",
+            "dialogContentLongText": "A megerősítés után az ütemezett munkák automatikusan az új elrendezést fogják használni, a folyamatban lévő munkák azonban továbbra is a jelenlegi elrendezéshez lesznek kötve.",
+            "dialogQuery": "Szeretnéd folytatni a módosítást?",
+            "cancelButton": "Mégse",
+            "updateButton": "Módosítás"
+            },
+            "deleteCropFieldDialog": {
+                "dialogTitle": "Termőföld törlése",
+                "dialogContent": "Biztosan törölni szeretnéd ezt a termőföldet? Ez a művelet nem visszavonható.",
+                "cancelButton": "Mégse",
+                "deleteButton": "Törlés"
+            },
+            "deleteFieldParcelDialog": {
+                "dialogTitle": "Parcella törlése",
+                "dialogContent": "Biztosan törölni szeretnéd ezt a parcellát?",
+                "cancelButton": "Mégse",
+                "deleteButton": "Törlés"
+            },
+            "deleteFieldWorkDialog": {
+                "dialogTitle": "Munkafolyamat törlése",
+                "dialogContent": "Biztosan törölni szeretnéd ezt a munkát?",
+                "cancelButton": "Mégse",
+                "deleteButton": "Törlés"
+            },
+            "selectAffectedRowsDialog": {
+                "dialogTitle": "Korábban érintett sorok kiválasztása",
+                "dialogContent1": "Érintett sorok kiválasztása az előző",
+                "dialogContent2": "napból",
+                "workTypesSelect": "Sorok választása az alábbi munkatípusokból",
+                "cancelButton": "Mégse",
+                "applyButton": "Alkalmaz"
+            },
+            "selectWorksDialog": {
+                "dialogTitle": "Korábbi munkák kiválasztása",
+                "foundText": "Találatok: ",
+                "selectedText": "Kiválasztva: ",
+                "okButton": "OK"
+            }
+        },
+        "drawers": {
+            "mainDrawer": {
+                "homeLink": "Főoldal",
+                "showUsersLink": "Felhasználók megtekintése",
+                "showCropsLink": "Ültetvények megtekintése",
+                "showFieldsLink": "Termőföldek megtekintése",
+                "workHistoryLink": "Munka előzmények",
+                "workStatisticsLink": "Munka statisztikák"
+            }
+        },
+        "forms": {
+            "addFieldWorkForm": {
+                "formTitle": "Munkafolyamat hozzáadása",
+                "schedulingSection": "Mnnkafolyamat kategorizálása és ütemezése",
+                "schedulingSectionSubtext": "Munkafolyamat kategorizálása és ütemezése. Add meg az elvégzendő terepi munka típusát, és állítsd be a munkavégzés időkeretét.",
+                "workTypeLabel": "Munkatípus",
+                "addWorkTypeButton": "Új munkatípus hozzáadása",
+                "workTimingLabel": "Munkavégzés időzítése",
+                "scheduledWorkOption": "Ütemezett munka",
+                "pastWorkOption": "Korábbi munka",
+                "startDateTextfield": "Kezdési dátum és idő kiválasztása",
+                "endDateTextfield": "Befejezési dátum és idő kiválasztása",
+                "saveFieldWorkButton": "Munkafolyamat mentése",
+                "saveFieldWorkButtonPending": "Munkafolyamat mentése folyamatban...",
+                "systemWorkTypes": {
+                    "Harvesting": {
+                        "name": "Aratás",
+                        "fields": {
+                            "harvestedQuantity": {
+                                "name": "Betakarított mennyiség"
+                            },
+                            "quantityType": {
+                                "name": "Mennyiség neve",
+                                "options": {
+                                    "option1": "g",
+                                    "option2": "kg",
+                                    "option3": "t",
+                                    "option4": "bushel",
+                                    "option5": "bála"
+                                }
+                            }
+                        }
+                    },
+                    "Irrigation": {
+                        "name": "Öntözés",
+                        "fields": {
+                            "waterVolume": {
+                                "name": "Használt vízmennyiség"
+                            },
+                            "waterVolumeType": {
+                                "name": "Vízmennyiség típusa",
+                                "options": {
+                                    "option1": "m³",
+                                    "option2": "liter",
+                                    "option3": "mm"
+                                }
+                            }
+                        }
+                    },
+                    "Scouting": {
+                        "name": "Megfigyelés",
+                        "fields": {
+                            "observations": {
+                                "name": "Észrevételek"
+                            }
+                        }
+                    },
+                    "Sowing": {
+                        "name": "Vetés",
+                         "fields": {
+                            "quantity": {
+                                "name": "Mennyiség"
+                            }
+                        }
+                    },
+                    "Tillage": {
+                        "name": "Talajművelés",
+                        "fields": {
+                            "tillageType": {
+                                "name": "Talajművelés típusa",
+                                "options": {
+                                    "option1": "Alapvető szántás",
+                                    "option2": "Másodlagos talajművelés",
+                                    "option3": "Altalajlazítás",
+                                    "option4": "Sávos talajművelés"
+                                }
+                            },
+                            "targetDepthCm": {
+                                "name": "Célmélység (cm)"
+                            }
+                        }   
+                    },
+                    "Fertilization": {
+                        "name": "Trágyázás",
+                        "fields": {
+                            "usedFertilizers": {
+                                "name": "Használt műtrágyák"
+                            },
+                            "quantityTypes": {
+                                "name": "Mennyiségek típusa",
+                                "options": {
+                                    "option1": "g",
+                                    "option2": "kg",
+                                    "option3": "t",
+                                    "option4": "lbs"
+                                }
+                            }
+                        }
+                    },
+                    "Spraying": {
+                        "name": "Permetezés",
+                        "fields": {
+                            "usedChemicals": {
+                                "name": "Használt vegyszerek"
+                            },
+                            "chemicalQuantityTypes": {
+                                "name": "Vegyszer mennyiségi egységei",
+                                "options": {
+                                    "option1": "ml",
+                                    "option2": "l",
+                                    "option3": "g",
+                                    "option4": "kg",
+                                    "option5": "oz"
+                                }
+                            },
+                            "carrierVolume": {
+                                "name": "Hordozóanyag mennyisége"
+                            },
+                            "carrierVolumeType": {
+                                "name": "Hordozóanyag mennyiségi egysége",
+                                "options": {
+                                    "option1": "l/ha",
+                                    "option2": "gal/acre"
+                                }
+                            }
+                        }
+                    },
+                    "Maintenance": {
+                        "name": "Karbantartás",
+                        "fields": {
+                            "maintenanceType": {
+                                "name": "Karbantartás típusa"
+                            }
+                        }
+                    }
+                }
+            },
+            "addFieldParcelForm": {
+                "crops": {
+                    "Strawberry": "Eper"
+                },
+                "formTitle": "Parcella hozzáadása",
+                "searchCultivarLabel": "Termesztett növényfajta keresése",
+                "layoutTypeLabel": "Elrendezés típusa",
+                "singleRowOption": "Egysoros",
+                "multiRowOption": "Többsoros",
+                "numberOfRows": "Sorok száma",
+                "linesPerRow": "Soronkénti vonalak száma",
+                "bedSpacing": "Ágyástávolság (cm)",
+                "rowsDistance": "Sortávolság (cm)",
+                "cropSpacing": "Növénytávolság (cm)",
+                "rowMargin": "Sorszélek távolsága (cm)",
+                "numberOfCrops": "Növények száma: ",
+                "saveButtonPending": "Parcella mentése...",
+                "saveButton": "Parcella mentése"
+            },
+            "editUserForm": {
+                "changeProfilePicture": "Profilkép módosítása",
+                "language": "Nyelv",
+                "username": "Felhasználónév",
+                "usernameLabel": "Felhasználónév",
+                "fullname": "Teljes név",
+                "firstNameLabel": "Keresztnév",
+                "lastNameLabel": "Családnév",
+                "updateProfileButton": "Profil frissítése",
+                "updateProfileButtonPending": "Profil frissítése folyamatban..."
+            },
+            "loginForm": {
+                "formTitle": "Bejelentkezés",
+                "usernameLabel": "Felhasználónév",
+                "passwordLabel": "Jelszó",
+                "forgotPassword": "Elfelejtett jelszó? ",
+                "forgotPasswordLink": "Kattints ide",
+                "loginButton": "Bejelentkezés",
+                "loginButtonPending": "Bejelentkezés folyamatban...",
+                "dontHaveAccount": "Nincs még fiókod ",
+                "registerLink": "Regisztrálj itt"
+            },
+            "registerForm": {
+                "passwordMatchingError": "A jelszavak nem egyeznek",
+                "roleError": "Kérlek válassz egy szerepkört",
+                "formTitle": "Regisztráció",
+                "usernameLabel": "Felhasználónév",
+                "usernamePlaceholder": "ex. john_smith",
+                "emailLabel": "Email",
+                "emailPlaceholder": "ex. john.smith@example.com",
+                "passwordLabel": "Jelszó",
+                "repeatPasswordLabel": "Jelszó ismétlése",
+                "firstNameLabel": "Keresztnév",
+                "firstNamePlaceholder": "ex. John",
+                "lastNameLabel": "Családnév",
+                "lastNamePlaceholder": "ex. Smith",
+                "roleSelectLabel": "Szerepkör kiválasztása",
+                "growerRole": "Gazda",
+                "workerRole": "Munkás",
+                "registerButton": "Regisztráció",
+                "registerButtonPending": "Regisztráció folyamatban...",
+                "alreadyHaveAccount": "Már van fiókod? ",
+                "loginLink": "Bejelentkezés"
+            },
+            "createCropFieldForm": {
+                "defaultValue": "Névtelen földterület",
+                "markerMissingError": "Hiányzik a terület helyét jelölő pont",
+                "formTitle": "Termőföld létrehozása",
+                "formText": "Töltsd ki az alábbi adatokat, hogy hozzáadd ezt a területet a gyűjteményedhez",
+                "fieldNameLabel": "Termőföld neve",
+                "placeholderText": "A termőföld neve",
+                "longText": "Válaszd ki a termőterület helyét és körvonalát a térképen. Elhelyezhetsz egy jelölőt a terület középpontjának megadásához, vagy rajzolhatsz egy sokszöget a határainak meghatározásához. Ha sokszöget rajzolsz, a középpont automatikusan kiszámításra kerül.",
+                "createButton": "Termőföld létrehozása",
+                "createButtonPending": "Termőföld létrehozása folyamatban..."
+            },
+            "updateCropFieldForm": {
+                "markerMissingError": "Hiányzik a terület helyét jelölő pont",
+                "formTitle": "Termőföld frissítése",
+                "formText": "Az alábbi adatok módosításával frissítheted ezt a termőföldet.",
+                "fieldNameLabel": "Termőföld neve",
+                "placeholderText": "A termőföld neve",
+                "longText": "Válaszd ki a termőterület helyét és körvonalát a térképen. Elhelyezhetsz egy jelölőt a terület középpontjának megadásához, vagy rajzolhatsz egy sokszöget a határainak meghatározásához. Ha sokszöget rajzolsz, a középpont automatikusan kiszámításra kerül.",
+                "updateButton": "Termőföld frissítése",
+                "updateButtonPending": "Termőföld frissítése..."
+            }
+        },
+        "headers": {
+            "mainHeader": {
+                "signOutErrorMessage": "Hiba a kijelentkezés során. Kérlek próbáld újra.",
+                "manageAccountTooltip": "Fiók kezelése",
+                "signOutButton": "Kijelentkezés",
+                "signOutPending": "Kijelentkezés folyamatban...",
+                "loginButton": "Bejelentkezés"
+            }
+        },
+        "listItems": {
+            "fieldParcelItem": {
+                "name": "Parcella",
+                "layoutType": "Elrendezés",
+                "cropSpecie": "Növényfajta",
+                "rowsCount": "Sorok száma",
+                "cropsCount": "Ültetvények száma",
+                "area": "Terület"
+            },
+            "fieldWorkHistoryItem": {
+                "detailsButton": "Részletek"
+            }
+        },
+        "panels": {
+            "cropFieldInfoPanel": {
+                "addFieldParcelButton": "Parcella hozzáadása",
+                "fieldDetailsInfo": "Itt találod a termőföld adatait, beleértve a nevét, helyét és méretét. Megtekintheted a hozzá tartozó parcellák listáját is.",
+                "parcelListTitle": "Parcellák",
+                "parcelListEmptyMessage": "Még nincs parcella hozzáadva."
+            },
+            "cropFieldWorksPanel" : {
+                "editButton": "Szerkesztés",
+                "deleteButton": "Törlés"
+            },
+            "selectFieldRowsPanel": {
+                "panelTitle": "Munkavégzéshez használt parcellák kiválasztása",
+                "panelText": "Parcellák kiválasztása",
+                "showPreviousWorks": "Korábbi munkák által érintett sorok megjelenítése",
+                "hideRowsCheckbox": "Érintett sorok elrejtése"
+            }
+        }
+    },
+    "leaflet": {
+        "customLayers": {
+            "streetView": "Térképnézet",
+            "satelliteView": "Műholdnézet"
+        },
+        "control": {
+            "cropFieldDrawControl": {
+                "buttonTitles": {
+                    "drawPolyButton": "Termőföld körvonalának rajzolása",
+                    "editButton": "Termőföld szerkesztése",
+                    "deleteButton": "Termőföld körvonalának eltávolítása",
+                    "drawMarkerButton": "Termőföld helyének beállítása"
+                },
+                "actions": {
+                    "finish": "Befejezés",
+                    "removeLastVertex": "Utolsó pont eltávolítása",
+                    "cancel": "Mégse",
+                    "reset": "Visszaállítás",
+                    "clear": "Törlés"
+                }
+            },
+            "parcelDrawControl": {
+                "buttonTitles": {
+                    "drawPolyButton": "Parcella körvonalának rajzolása",
+                    "editButton": "Parcella és referenciavonal szerkesztése",
+                    "deleteButton": "Parcella körvonalának eltávolítása",
+                    "drawLineButton": "Referenciavonal rajzolása"
+                },
+                "actions": {
+                    "finish": "Befejezés",
+                    "removeLastVertex": "Utolsó pont eltávolítása",
+                    "cancel": "Mégse",
+                    "reset": "Visszaállítás",
+                    "clear": "Törlés"
+                }
+            }
+        }
+    },
+    "pages": {
+        "addFieldWorkPage": {
+            "successMessage": "Munkafolyamat sikeresen hozzáadva!"
+        },
+        "updateFieldWorkPage": {
+            "successMessage": "Munkafolyamat sikeresen frissítve!"
+        },
+         "createCropFieldPage": {
+            "succcesMessage": "Termőföld sikeresen hozzáadva!"
+        },
+        "createFieldParcelPage": {
+            "loadingMessage": "Termőföld adatainak betöltése...",
+            "succcesMessage": "Parcella sikeresen hozzáadva!"
+        },
+        "updateFieldParcelPage": {
+            "loadingMessage": "Termőföld adatainak betöltése...",
+            "succcesMessage": "Parcella sikeresen frissítve!"
+        },
+        "cropFieldListPage": {
+            "loadingMessage": "Termőföldek betöltése...",
+            "noCropFieldsMessage": "Még nincs termőföld hozzáadva.",
+            "noCropFieldsMessage2": "Kattints az alábbi gombra, hogy létrehozd az első meződet és elkezdhesd nyomon követni a terméseidet!",
+            "pageTitle": "Termőföldjeim",
+            "addCropFieldButton": "Termőföld hozzáadása"
+        },
+        "cropFieldDetailsPage": {
+            "loadingCropFieldMessage": "Termőföld adatainak betöltése...",
+            "ongoingWorksTitle": "Folyamatban lévő munkák",
+            "noOngoingWorksMessage": "Nincs folyamatban lévő munka ehhez a termőföldhöz.",
+            "scheduledWorksTitle": "Tervezett munkák",
+            "noScheduledWorksMessage": "Nincs tervezett munka ehhez a termőföldhöz.",
+            "editCropFieldInfo": "Szerkesztheted a termőföld információit a lenti gombra kattintva.",
+            "editCropFieldButton": "Termőföld szerkesztése",
+            "addFieldWorkButton": "Munkafolyamat hozzáadása"
+        },
+        "fieldWorkDetailsPage": {
+            "loadingMessage": "Munkafolyamat adatainak betöltése...",
+            "workTypeLabel": "Munkatípus",
+            "startDateLabel": "Kezdési idő",
+            "endDateLabel": "Befejezési idő",
+            "parcelsAffected": "Dolgozott parcellák"
+        },
+        "updateCropFieldPage": {
+            "loadingText": "Termőföld adatainak betöltése",
+            "fieldUpdatedMessage": "Termőföld sikeresen frissítve"
+        },
+        "workHistoryPage": {
+            "loadingText": "Munkaelőzmények betöltése...",
+            "pageTitle": "Munkafolyamat előzmények",
+            "itemsSelected": "munka kiválasztva",
+            "deleteButton": "Törlés",
+            "loadingWorks": "Korábbi munkák betöltése",
+            "allWorksLoaded": "Minden munka betöltve."
+        },
+        "workStatisticsPage": {
+            "pageTitle": "Munka statisztikák",
+            "workTypeFilter": "Szűrés munktípus szerint",
+            "cropFieldFilter": "Szűrés földterület szerint",
+            "loadingMessage": "Munka statisztikák betöltése...",
+            "afterDateLabel": "Dátum után",
+            "beforeDateLabel": "Dátum előtt",
+            "summaryText": "Összegzés",
+            "sum": "Összeg:",
+            "average": "Átlag:",
+            "max": "Legtöbb:",
+            "min": "Legkevesebb:"
+        }
+    },
+    "layoutOptions": {
+        "SINGLE-ROW": "Egysoros",
+        "MULTI-ROW": "Többsoros"
+    }
+}

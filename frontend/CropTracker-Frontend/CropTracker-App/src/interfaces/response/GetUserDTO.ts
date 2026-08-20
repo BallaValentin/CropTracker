@@ -1,5 +1,5 @@
 import type { GetCropFieldDTO } from "./GetCropFieldDTO";
-import type { Role } from "../Role";
+import type { Role } from "../helper/Role";
 
 export interface GetUserDTO {
     username: string,

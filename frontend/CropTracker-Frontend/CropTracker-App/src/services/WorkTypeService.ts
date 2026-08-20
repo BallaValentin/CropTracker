@@ -1,31 +1,39 @@
 import axios from "axios";
 import type { GetWorkTypeDTO } from "../interfaces/response/GetWorkTypeDTO";
 import type { CreateWorkTypeDTO } from "../interfaces/request/CreateWorkTypeDTO";
+import { attachAuthInterceptors } from "./AttachAuthInterceptors";
+import type { GetWorkTypeNameDTO } from "../interfaces/response/GetWorkTypeNameDTO";
 
 export const workTypeApi = axios.create({
     baseURL: "http://localhost:8080/api/work-types",
     headers: {
         Accept: "application/json"
     }
-})
+});
+
+attachAuthInterceptors(workTypeApi);
 
 export const getUserWorkTypes = async(): Promise<GetWorkTypeDTO[]> => {
     console.log("Sending get-work-type request to server");
-    const response = await workTypeApi.get<GetWorkTypeDTO[]>("/findall", {
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
+    const response = await workTypeApi.get<GetWorkTypeDTO[]>("/findall");
+
+    return response.data;
+}
+
+export const getWorkTypeNames = async(pattern: string): Promise<GetWorkTypeNameDTO[]> => {
+    console.log("Sending get-work-type-names request to server");
+    const response = await workTypeApi.get<GetWorkTypeNameDTO[]>("/findall", {
+        params: {
+            pattern: pattern
         }
     });
 
+    console.log("Received response from server:", response.data);
     return response.data;
 }
 
 export const createWorkType = async(createWorkTypeDTO: CreateWorkTypeDTO): Promise<void> => {
     console.log("Sending create-work-type request to server");
 
-    await workTypeApi.post<void>("/create", createWorkTypeDTO, {
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
-        }
-    })
+    await workTypeApi.post<void>("/create", createWorkTypeDTO);
 }

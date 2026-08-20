@@ -4,15 +4,21 @@ import {
   collapsedDrawerWidth,
   expandedDrawerWidth,
 } from "../../utils/Constants";
+import { useCurrentProfile } from "../../hooks/caching/UseCurrentUser";
+import { useRefreshToken } from "../../hooks/caching/UseRefreshToken";
 
 interface MainContainerProps {
   children: React.ReactNode;
-  hasDrawer: boolean;
 }
 
-function MainContainer({ children, hasDrawer }: MainContainerProps) {
+function MainContainer({ children }: MainContainerProps) {
   const { isDrawerExpanded } = useDrawer();
-  const drawerWidth = hasDrawer
+
+  const { isSuccess: isAuthVerified } = useRefreshToken();
+
+  const { data: userData } = useCurrentProfile(isAuthVerified);
+
+  const drawerWidth = userData
     ? isDrawerExpanded
       ? expandedDrawerWidth
       : collapsedDrawerWidth

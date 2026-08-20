@@ -11,24 +11,38 @@ import {
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
-import type { LatLngObject } from "../../interfaces/LatLngObject";
-import EditableMap from "../../leaflet/EditableMap";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
+import EditableMap from "../../leaflet/view/EditableMap";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import { defaultMapPosition } from "../../utils/Constants";
+import ErrorIcon from "@mui/icons-material/Error";
+import { getNameError, getPolygonError } from "../../utils/FormSubmitHelper";
+import { useTranslation } from "react-i18next";
 
 interface CreateCropFieldFormProps {
   isPending: boolean;
-  onSubmit: (createPlot: CreateCropFieldDTO) => void;
+  onSubmit: (createCropFieldDTO: CreateCropFieldDTO) => void;
 }
 
 function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
+  const { t } = useTranslation();
+
   const [createCropFieldData, setCreateCropFieldData] =
     useState<CreateCropFieldDTO>({
-      name: "Unnamed Field",
+      name: t("elements.forms.createCropFieldForm.defaultValue", {
+        defaultValue: "Unnamed crop field",
+      }),
       markerPosition: null,
       polygonPoints: [],
       area: 0,
     });
+  const [createCropFieldError, setCropFieldError] = useState<
+    Record<string, string>
+  >({
+    nameError: "",
+    markerError: "",
+    polygonError: "",
+  });
 
   const [markerAdded, setMarkerAdded] = useState(false);
 
@@ -38,7 +52,34 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("Marker Position:", createCropFieldData.markerPosition);
+
+    const nameError = getNameError(createCropFieldData.name) || "";
+    if (nameError) {
+      setCropFieldError((prev) => ({
+        ...prev,
+        nameError: nameError,
+      }));
+    }
+
+    const markerError =
+      !markerAdded || createCropFieldData.markerPosition == null
+        ? t("elements.forms.createCropFieldForm.markerMissingError", {
+            defaultValue: "Field location marker is missing",
+          })
+        : "";
+
+    setCropFieldError((prev) => ({
+      ...prev,
+      markerError: markerError,
+    }));
+
+    const polygonError =
+      getPolygonError(createCropFieldData.polygonPoints) || "";
+    setCropFieldError((prev) => ({
+      ...prev,
+      polygonError: polygonError,
+    }));
+    if (nameError || !!markerError || !!polygonError) return;
     onSubmit(createCropFieldData);
   };
 
@@ -77,6 +118,7 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         const { latitude, longitude } = pos.coords;
+        setMarkerAdded(true);
         setCreateCropFieldData((prev) => ({
           ...prev,
           markerPosition: {
@@ -101,25 +143,39 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
             letterSpacing: "0.02em",
           }}
         >
-          Create New Plot
+          {t("elements.forms.createCropFieldForm.formTitle", {
+            defaultValue: "Create crop field",
+          })}
         </Typography>
 
         <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-          Complete the details below to add this area to your collection.
+          {t("elements.forms.createCropFieldForm.formText", {
+            defaultValue:
+              "Complete the details below to add this area to your collection.",
+          })}
         </Typography>
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2} sx={{ mb: 4 }}>
             <FormControl sx={{ mt: 2 }} fullWidth>
               <TextField
-                label="Field Name"
+                label={t("elements.forms.createCropFieldForm.fieldNameLabel", {
+                  defaultValue: "Field Name",
+                })}
                 color="success"
                 name="username"
                 value={createCropFieldData.name}
-                placeholder="Your username"
+                placeholder={t(
+                  "elements.forms.createCropFieldForm.placeholderText",
+                  {
+                    defaultValue: "Your field`s name",
+                  },
+                )}
                 required
                 onChange={changePlotName}
                 fullWidth
+                error={!!createCropFieldError.nameError}
+                helperText={createCropFieldError.nameError || " "}
               />
             </FormControl>
           </Grid>
@@ -133,26 +189,43 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
               lineHeight: 1.6,
             }}
           >
-            Select the location and the outline of your plot on the map. You can
-            either place a marker to set the center of your plot or draw a
-            polygon to define its boundaries. If you draw a polygon, the center
-            will be calculated automatically.
+            {t("elements.forms.createCropFieldForm.longText", {
+              defaultValue:
+                "Select the location and the outline of your crop field on the map. You can either place a marker to set the center of your field or draw a polygon to define its boundaries. If you draw a polygon, the center will be calculated automatically.",
+            })}
           </Typography>
           <EditableMap
-            cropField={{
-              uid: "",
-              name: createCropFieldData.name,
-              markerPosition:
-                createCropFieldData.markerPosition || defaultMapPosition,
-              polygonPoints: createCropFieldData.polygonPoints,
-              area: createCropFieldData.area,
-            }}
+            markerPosition={
+              createCropFieldData.markerPosition || defaultMapPosition
+            }
+            polygonPoints={createCropFieldData.polygonPoints}
             markerAdded={markerAdded}
             onMarkerCreated={handleMarkerCreated}
             onPolygonCreated={handlePolygonCreated}
             onMarkerDeleted={handleMarkerDeleted}
             onPolygonDeleted={handlePolygonDeleted}
           />
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2 }}>
+            {createCropFieldError.markerError && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <ErrorIcon fontSize="small" color="error" />
+                <Typography color="error">
+                  {createCropFieldError.markerError}
+                </Typography>
+              </Box>
+            )}
+
+            {createCropFieldError.polygonError && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <ErrorIcon fontSize="small" color="error" />
+                <Typography color="error">
+                  {createCropFieldError.polygonError}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+
           <Button
             disabled={isPending}
             sx={{
@@ -166,7 +239,13 @@ function CreatePlotForm({ isPending, onSubmit }: CreateCropFieldFormProps) {
             }}
             type="submit"
           >
-            {isPending ? "Uploading Field..." : "Create Field"}
+            {isPending
+              ? t("elements.forms.createCropFieldForm.createButtonPending", {
+                  defaultValue: "Creating Field...",
+                })
+              : t("elements.forms.createCropFieldForm.createButton", {
+                  defaultValue: "Create Field",
+                })}
           </Button>
         </form>
       </Box>

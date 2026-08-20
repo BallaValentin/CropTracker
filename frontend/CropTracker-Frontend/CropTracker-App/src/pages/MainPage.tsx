@@ -1,22 +1,23 @@
 import { Box, GlobalStyles, Typography } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainContainer from "../elements/containers/MainContainer";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import InvalidAuthTokenDialog from "../elements/dialogs/InvalidAuthTokenDialog";
 import { useEffect, useState } from "react";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 
 function MainPage() {
-  const { data: user, isLoading } = useUserProfile();
+  const { isLoading } = useCurrentProfile(
+    !!sessionStorage.getItem("accessToken"),
+  );
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     setDialogOpen(searchParams.get("error") === "unauthorized");
-    console.log(searchParams);
   }, [searchParams]);
 
   const handleClose = () => {
@@ -39,9 +40,9 @@ function MainPage() {
   return (
     <>
       <GlobalStyles styles={{ body: { margin: 0 } }} />
-      <Box sx={{ bgcolor: "#d0edc5ff" }}>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+      <Box sx={{ bgcolor: "#f4f8f4" }}>
+        <MainHeader />
+        <MainContainer>
           <ColumnCenterContainer>
             <Typography variant="h2" component={"h1"}>
               Welcome to Crop Tracker!

@@ -2,6 +2,7 @@ import axios from "axios";
 import type { GetCropSpecieDTO } from "../interfaces/response/GetCropSpecieDTO";
 import type { CreateCropSpecieDTO } from "../interfaces/request/CreateCropSpecieDTO";
 import type { UpdateCropSpecieDTO } from "../interfaces/request/UpdateCropSpecieDTO";
+import { attachAuthInterceptors } from "./AttachAuthInterceptors";
 
 export const cropSpecieApi = axios.create({
     baseURL: "http://localhost:8080/api/crop-species",
@@ -11,15 +12,14 @@ export const cropSpecieApi = axios.create({
     withCredentials: true
 });
 
+attachAuthInterceptors(cropSpecieApi);
+
 export const getCropSpecieInCategory = async (categoryId: string): Promise<GetCropSpecieDTO[]> => {
     console.log("Sending get-cropspecies with patterb request to server")
     const response = await cropSpecieApi.get<GetCropSpecieDTO[]>("/findall", {
         params: {
             categoryId: categoryId,
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
-        }
     })
 
     return response.data
@@ -28,11 +28,7 @@ export const getCropSpecieInCategory = async (categoryId: string): Promise<GetCr
 export const createCropSpecie = async (createCropSpecieDTO: CreateCropSpecieDTO): Promise<GetCropSpecieDTO> => {
     console.log("Sending get-cropspecies with pattern request to server", createCropSpecieDTO)
     
-    const response = await cropSpecieApi.post<GetCropSpecieDTO>("/create", createCropSpecieDTO, {
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
-        }
-    });
+    const response = await cropSpecieApi.post<GetCropSpecieDTO>("/create", createCropSpecieDTO);
 
     return response.data;
 }
@@ -43,9 +39,6 @@ export const updateCropSpecie = async (updateCropSpecieDTO: UpdateCropSpecieDTO,
         params: {
             id: cropSpecieId
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
-        }
     });
 
     return response.data;
@@ -56,9 +49,6 @@ export const deleteCropSpecie = async (cropSpecieId: string): Promise<void> => {
         params: {
             id: cropSpecieId
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
-        }
     })
 
     return response.data

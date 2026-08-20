@@ -15,7 +15,13 @@ import {
 } from "@mui/material";
 import type { CreateUserDTO } from "../../interfaces/request/CreateUserDTO";
 import { useState } from "react";
-import type { RegisterErrorDTO } from "../../interfaces/response/RegisterErrorDTO";
+import {
+  getEmailError,
+  getPasswordError,
+  getPersonNameError,
+  getUsernameError,
+} from "../../utils/FormSubmitHelper";
+import { useTranslation } from "react-i18next";
 
 interface RegisterFormProps {
   onSubmit: (registerData: CreateUserDTO) => void;
@@ -34,15 +40,17 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
     isWorker: false,
   });
 
-  const [registerError, setRegisterError] = useState<RegisterErrorDTO>({
-    usernameError: false,
-    firstNameError: false,
-    lastNameError: false,
-    passwordError: false,
-    passwordRepeatError: false,
-    emailError: false,
-    roleError: false,
+  const [registerError, setRegisterError] = useState<Record<string, string>>({
+    usernameError: "",
+    firstNameError: "",
+    lastNameError: "",
+    passwordError: "",
+    passwordRepeatError: "",
+    emailError: "",
+    roleError: "",
   });
+
+  const { t } = useTranslation();
 
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -52,47 +60,53 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
   const isFormValid = () => {
     let isValid = true;
 
-    if (!/^[A-Za-z][A-Za-z0-9_]{2,}$/.test(registerData.username)) {
-      setRegisterError((prev) => ({ ...prev, usernameError: true }));
-      isValid = false;
-    }
+    const usernameError = getUsernameError(registerData.username) || "";
+    setRegisterError((prev) => ({ ...prev, usernameError: usernameError }));
+    isValid = isValid || usernameError;
 
-    if (!/^[A-Z][a-z]+$/.test(registerData.firstName)) {
-      setRegisterError((prev) => ({ ...prev, firstNameError: true }));
-      isValid = false;
-    }
+    const firstNameError = getPersonNameError(registerData.firstName) || "";
+    setRegisterError((prev) => ({ ...prev, firstNameError: firstNameError }));
+    isValid = isValid || firstNameError;
 
-    if (!/^[A-Z][a-z]+$/.test(registerData.lastName)) {
-      setRegisterError((prev) => ({ ...prev, lastNameError: true }));
-      isValid = false;
-    }
+    const lastNameError = getPersonNameError(registerData.lastName) || "";
+    setRegisterError((prev) => ({ ...prev, lastNameError: lastNameError }));
+    isValid = isValid || lastNameError;
 
-    if (
-      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
-        registerData.email,
-      )
-    ) {
-      setRegisterError((prev) => ({ ...prev, emailError: true }));
-      isValid = false;
-    }
+    const emailError = getEmailError(registerData.email) || "";
+    setRegisterError((prev) => ({ ...prev, emailError: emailError }));
+    isValid = isValid || emailError;
 
-    if (
-      !/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
-        registerData.password,
-      )
-    ) {
-      setRegisterError((prev) => ({ ...prev, passwordError: true }));
-      isValid = false;
-    }
+    const passwordError = getPasswordError(registerData.password) || "";
+    setRegisterError((prev) => ({ ...prev, passwordError: passwordError }));
+    isValid = isValid || passwordError;
 
     if (registerData.password != registerData.password2) {
-      setRegisterError((prev) => ({ ...prev, passwordRepeatError: true }));
+      setRegisterError((prev) => ({
+        ...prev,
+        passwordRepeatError:
+          t("elements.forms.registerForm.passwordRepeatError") ||
+          "Passwords do not match.",
+      }));
       isValid = false;
+    } else {
+      setRegisterError((prev) => ({
+        ...prev,
+        passwordRepeatError: "",
+      }));
     }
 
     if (!registerData.isWorker && !registerData.isGrower) {
-      setRegisterError((prev) => ({ ...prev, roleError: true }));
+      setRegisterError((prev) => ({
+        ...prev,
+        roleError:
+          t("elements.forms.registerForm.roleError") || "Please select a role.",
+      }));
       isValid = false;
+    } else {
+      setRegisterError((prev) => ({
+        ...prev,
+        roleError: "",
+      }));
     }
 
     return isValid;
@@ -123,7 +137,7 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
         alignItems: "center",
         justifyContent: "center",
         margin: "auto",
-        mt: 5,
+        mt: 25,
       }}
     >
       <Card
@@ -133,131 +147,128 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
         }}
       >
         <Typography variant="h4" gutterBottom sx={{ textAlign: "center" }}>
-          Sign up
+          {t("elements.forms.registerForm.formTitle") || "Register"}
         </Typography>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <FormControl sx={{ mt: 2 }} fullWidth>
               <Typography variant="body1" gutterBottom>
-                Username
+                {t("elements.forms.registerForm.usernameLabel") || "Username"}
               </Typography>
               <TextField
-                error={registerError.usernameError}
+                error={!!registerError.usernameError}
+                helperText={registerError.usernameError || " "}
                 name="username"
-                placeholder="Your username"
-                required
+                value={registerData.username}
+                placeholder={
+                  registerData.username
+                    ? ""
+                    : t("elements.forms.registerForm.usernamePlaceholder") ||
+                      "ex. john_smith"
+                }
                 onChange={handleFormChange}
                 fullWidth
               />
-              {registerError.usernameError && (
-                <FormHelperText>
-                  Your username must start with a letter and can only contain
-                  letters and digits.
-                </FormHelperText>
-              )}
             </FormControl>
 
             <FormControl sx={{ mt: 2 }} fullWidth>
               <Typography variant="body1" gutterBottom>
-                First Name
+                {t("elements.forms.registerForm.firstNameLabel") ||
+                  "First Name"}
               </Typography>
               <TextField
-                error={registerError.firstNameError}
+                error={!!registerError.firstNameError}
+                helperText={registerError.firstNameError || " "}
                 name="firstName"
-                placeholder="Your first name"
-                required
+                value={registerData.firstName}
+                placeholder={
+                  registerData.firstName
+                    ? ""
+                    : t("elements.forms.registerForm.firstNamePlaceholder") ||
+                      "ex. John"
+                }
                 onChange={handleFormChange}
                 fullWidth
               />
-              {registerError.firstNameError && (
-                <FormHelperText>
-                  Firstname must contain only letters.
-                </FormHelperText>
-              )}
             </FormControl>
 
             <FormControl sx={{ mt: 2 }} fullWidth>
               <Typography variant="body1" gutterBottom>
-                Last Name
+                {t("elements.forms.registerForm.lastNameLabel") || "Last Name"}
               </Typography>
               <TextField
-                error={registerError.lastNameError}
+                error={!!registerError.lastNameError}
+                helperText={registerError.lastNameError || " "}
                 name="lastName"
-                placeholder="Your last name"
-                required
+                value={registerData.lastName}
+                placeholder={
+                  registerData.lastName
+                    ? ""
+                    : t("elements.forms.registerForm.lastNamePlaceholder") ||
+                      "ex. Smith"
+                }
                 onChange={handleFormChange}
                 fullWidth
               />
-              {registerError.lastNameError && (
-                <FormHelperText>
-                  Lastname must contain only letters.
-                </FormHelperText>
-              )}
               <FormControl />
 
               <FormControl sx={{ mt: 2 }} fullWidth>
                 <Typography variant="body1" gutterBottom>
-                  Email
+                  {t("elements.forms.registerForm.emailLabel") || "Email"}
                 </Typography>
                 <TextField
-                  error={registerError.emailError}
+                  error={!!registerError.emailError}
+                  helperText={registerError.emailError || " "}
                   name="email"
-                  placeholder="Your email address"
-                  required
+                  value={registerData.email}
+                  placeholder={
+                    registerData.email
+                      ? ""
+                      : t("elements.forms.registerForm.emailPlaceholder") ||
+                        "ex. john.smith@example.com"
+                  }
                   onChange={handleFormChange}
                   fullWidth
                 />
-                {registerError.emailError && (
-                  <FormHelperText>
-                    Must be a valid email address.
-                  </FormHelperText>
-                )}
               </FormControl>
 
               <FormControl sx={{ mt: 2 }} fullWidth>
                 <Typography variant="body1" gutterBottom>
-                  Password
+                  {t("elements.forms.registerForm.passwordLabel") || "Password"}
                 </Typography>
                 <TextField
-                  error={registerError.passwordError}
+                  error={!!registerError.passwordError}
+                  helperText={registerError.passwordError || " "}
                   name="password"
                   type="password"
-                  placeholder="Your password"
-                  required
+                  value={registerData.password}
                   onChange={handleFormChange}
                   fullWidth
                 />
-                {registerError.passwordError && (
-                  <FormHelperText>
-                    Password must contain uppercase, lowercase letters, digits
-                    and special characters.
-                  </FormHelperText>
-                )}
               </FormControl>
 
               <FormControl sx={{ mt: 2 }} fullWidth>
                 <Typography variant="body1" gutterBottom>
-                  Repeat Password
+                  {t("elements.forms.registerForm.repeatPasswordLabel") ||
+                    "Repeat Password"}
                 </Typography>
                 <TextField
-                  error={registerError.passwordRepeatError}
+                  error={!!registerError.passwordRepeatError}
+                  helperText={registerError.passwordRepeatError || " "}
                   name="password2"
                   type="password"
-                  placeholder="Repeat your password"
-                  required
+                  value={registerData.password2}
                   onChange={handleFormChange}
                   fullWidth
                 />
-                {registerError.passwordRepeatError && (
-                  <FormHelperText>The two passwords must match.</FormHelperText>
-                )}
               </FormControl>
 
               <Divider sx={{ mt: 2 }} />
 
               <FormControl sx={{ mt: 2 }} fullWidth>
                 <Typography variant="body1">
-                  I want to use this application as
+                  {t("elements.forms.registerForm.roleSelectLabel") ||
+                    "Select Role"}
                 </Typography>
                 <FormGroup>
                   <FormControlLabel
@@ -267,7 +278,9 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                         onChange={toggleGrower}
                       />
                     }
-                    label="Grower"
+                    label={
+                      t("elements.forms.registerForm.growerRole") || "Grower"
+                    }
                   />
                   <FormControlLabel
                     control={
@@ -276,12 +289,14 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                         onChange={toggleWorker}
                       />
                     }
-                    label="Worker"
+                    label={
+                      t("elements.forms.registerForm.workerRole") || "Worker"
+                    }
                   />
                 </FormGroup>
                 {registerError.roleError && (
-                  <FormHelperText>
-                    One of the roles must be choosen.
+                  <FormHelperText sx={{ color: "error" }}>
+                    {registerError.roleError}
                   </FormHelperText>
                 )}
               </FormControl>
@@ -293,14 +308,19 @@ function RegisterForm({ onSubmit, isPending }: RegisterFormProps) {
                 color="primary"
                 disabled={isPending}
               >
-                {isPending ? "Creating Account..." : "Create Account"}
+                {isPending
+                  ? t("elements.forms.registerForm.registerButtonPending") ||
+                    "Registering..."
+                  : t("elements.forms.registerForm.registerButton") ||
+                    "Register"}
               </Button>
 
               <Box sx={{ mt: 1, textAlign: "center" }}>
                 <Typography variant="body1">
-                  Already have an account? &nbsp;
+                  {t("elements.forms.registerForm.alreadyHaveAccount") ||
+                    "Already have an account?"}
                   <Link href="/signin" underline="hover">
-                    Sign in
+                    {t("elements.forms.registerForm.loginLink") || "Login"}
                   </Link>
                 </Typography>
               </Box>

@@ -6,7 +6,8 @@ export const mailApi = axios.create({
     baseURL: "http://localhost:8080/api/mail",
     headers: {
         Accept: "application/json"
-    }
+    },
+    withCredentials: true
 });
 
 export const sendPasswordResetMail = async(passwordResetMail: PasswordVerificationEmailDTO): Promise<void> => {

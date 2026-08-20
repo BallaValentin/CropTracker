@@ -14,9 +14,4 @@ import java.util.UUID;
 @Repository
 public interface CropFieldRepository extends JpaRepository<CropField, UID>, JpaSpecificationExecutor<CropField> {
     CropField findByUid(UUID uid);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE CropField cf SET cf.isDeleted = true WHERE cf.uid = :uid")
-    void softDeleteById(UUID uid);
 }

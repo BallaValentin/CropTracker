@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class InitialAvatarGenerator {
-    public static BufferedImage generateAvatar(Integer size, String name) {
+    public static BufferedImage generateAvatar(Integer size, String firstName, String lastName) {
         BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2d = image.createGraphics();
 
@@ -15,7 +15,10 @@ public class InitialAvatarGenerator {
         g2d.setColor(bgColor);
         g2d.fillOval(0, 0, size, size);
 
-        String initial = name == null || name.isBlank() ? "?" : name.substring(0, 1).toUpperCase();
+        String firstLetter = (firstName != null && !firstName.isBlank()) ? firstName.substring(0, 1) : "?";
+        String lastLetter  = (lastName != null && !lastName.isBlank()) ? lastName.substring(0, 1) : "?";
+
+        String initial = firstLetter + lastLetter;
 
         g2d.setColor(Color.WHITE);
         Font font = new Font("SansSerif", Font.BOLD, size / 2);

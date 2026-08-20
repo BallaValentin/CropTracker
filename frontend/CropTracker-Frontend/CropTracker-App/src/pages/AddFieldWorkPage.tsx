@@ -3,35 +3,31 @@ import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import { Box, Button } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
-import { useFieldParcels } from "../hooks/UseFieldParcels";
+import { useFieldParcels } from "../hooks/caching/UseFieldParcels";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddFieldWorkForm from "../elements/forms/AddFieldWorkForm";
 import { type GetWorkTypeDTO } from "../interfaces/response/GetWorkTypeDTO";
-import { useWorkTypes } from "../hooks/UseWorkTypes";
+import { useWorkTypes } from "../hooks/caching/UseWorkTypes";
 import { createFieldWork } from "../services/FieldWorkService";
 import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDTO";
 import { createWorkType } from "../services/WorkTypeService";
 import { queryClient } from "../query-client/QueryClient";
 import type { CreateWorkTypeDTO } from "../interfaces/request/CreateWorkTypeDTO";
-import { useCropField } from "../hooks/UseCropField";
+import { useCropField } from "../hooks/caching/UseCropField";
+import { useTranslation } from "react-i18next";
 
 function AddFieldWorkPage() {
+  const { t } = useTranslation();
+
   const { id } = useParams();
   const navigate = useNavigate();
   const [cropField, setCropField] = useState<GetCropFieldDTO | null>(null);
   const [fieldParcels, setFieldParcels] = useState<GetFieldParcelDTO[]>([]);
   const [workTypes, setWorkTypes] = useState<GetWorkTypeDTO[]>([]);
-
-  const {
-    data: user,
-    isLoading: isUserLoading,
-    error: userError,
-  } = useUserProfile();
 
   const { data: cropFieldData, isLoading: isCropFieldLoading } = useCropField(
     id || "",
@@ -45,7 +41,10 @@ function AddFieldWorkPage() {
       navigate(`/cropfield-details/${id}`, {
         state: {
           success: true,
-          message: "Field work created successfully!",
+          message: t("pages.addFieldWorkPage.successMessage", {
+            defaultValue: "Field work created successfully!",
+          }),
+          key: `${Date.now()}`,
         },
       });
     },
@@ -93,21 +92,11 @@ function AddFieldWorkPage() {
     }
   }, [workTypesData]);
 
-  if (userError) {
-    if (userError.response?.status === 401) {
-      navigate("/?error=unauthorized");
-    }
-  }
-
-  if (isUserLoading) {
-    return <ProgressCircle loadingMessage="Initializing user data..." />;
-  }
-
   if (isCropFieldLoading || isFieldParcelsLoading || isWorkTypesLoading) {
     return (
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           <ProgressCircle loadingMessage="Initializing data..." />
         </MainContainer>
       </Box>
@@ -117,8 +106,8 @@ function AddFieldWorkPage() {
   return (
     <>
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           <Button
             color="success"
             startIcon={<ArrowBackIcon />}

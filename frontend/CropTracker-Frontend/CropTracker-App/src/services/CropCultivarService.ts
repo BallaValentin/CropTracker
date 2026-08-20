@@ -2,6 +2,8 @@ import axios from "axios";
 import type { GetCropCultivarDTO } from "../interfaces/response/GetCropCultivarDTO";
 import type { CreateCropCultivarDTO } from "../interfaces/request/CreateCropCultivarDTO";
 import type { UpdateCropCultivarDTO } from "../interfaces/request/UpdateCropCultivarDTO";
+import { attachAuthInterceptors } from "./AttachAuthInterceptors";
+import type { GetSimpleCropCultivarDTO } from "../interfaces/response/GetSimpleCropCultivarDTO";
 
 export const cropCultivarApi = axios.create({
     baseURL: "http://localhost:8080/api/crop-cultivars",
@@ -11,15 +13,14 @@ export const cropCultivarApi = axios.create({
     withCredentials: true
 });
 
-export const getCropCultivarsWithPattern = async (pattern: string): Promise<GetCropCultivarDTO[]> => {
+attachAuthInterceptors(cropCultivarApi);
+
+export const getCropCultivarsWithPattern = async (pattern: string): Promise<GetSimpleCropCultivarDTO[]> => {
     console.log("Sending get-cropcultivars with pattern request to server")
-    const response = await cropCultivarApi.get<GetCropCultivarDTO[]>("/findall", {
+    const response = await cropCultivarApi.get<GetSimpleCropCultivarDTO[]>("/findall", {
         params: {
             pattern: pattern
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
-        }
     })
 
     return response.data
@@ -31,9 +32,6 @@ export const getCropCultivarsInSpecie = async (specieId: string): Promise<GetCro
         params: {
             specieId: specieId
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
-        }
     })
 
     return response.data;
@@ -42,11 +40,7 @@ export const getCropCultivarsInSpecie = async (specieId: string): Promise<GetCro
 export const createCropCultivar = async (createCropCultivarDTO: CreateCropCultivarDTO): Promise<GetCropCultivarDTO> => {
     console.log("Sending create-cropcultivar request to server: ", createCropCultivarDTO)
     
-    const response = await cropCultivarApi.post<GetCropCultivarDTO>("/create", createCropCultivarDTO, {
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
-        }
-    });
+    const response = await cropCultivarApi.post<GetCropCultivarDTO>("/create", createCropCultivarDTO);
 
     return response.data;
 
@@ -58,9 +52,6 @@ export const updateCropCultivar = async (updateCropCultivarDTO: UpdateCropCultiv
         params: {
             id: cultivarId
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
-        }
     });
 
     return response.data;
@@ -72,8 +63,5 @@ export const deleteCropCultivar = async (cultivarId: string): Promise<void> => {
         params: {
             id: cultivarId
         },
-        headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem('accessToken')}`
-        }
     });
 }

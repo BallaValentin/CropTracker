@@ -18,22 +18,74 @@ import {
 } from "../../utils/Constants";
 import { useDrawer } from "../../contexts/DrawerProvider";
 import { useState } from "react";
-import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
 import GrassIcon from "@mui/icons-material/Grass";
 import HistoryIcon from "@mui/icons-material/History";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
+import type { CacheUserData } from "../../interfaces/response/CacheUserData";
+import { useSelection } from "../../contexts/MenuSelectProvider";
+import { useTranslation } from "react-i18next";
 
 interface MainDrawerProps {
-  userData: GetUserDTO | undefined;
+  userData: CacheUserData | undefined;
 }
 
 function MainDrawer({ userData }: MainDrawerProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [hovered, setHovered] = useState<boolean>(false);
   const userRoles = userData?.roles ?? [];
+  const { selectedOption, setSelectedOption } = useSelection();
 
   const { isDrawerExpanded } = useDrawer();
   const drawerWidth =
     isDrawerExpanded || hovered ? expandedDrawerWidth : collapsedDrawerWidth;
+
+  const menuItems = [
+    {
+      role: "ALL",
+      key: "home",
+      label: t("elements.drawers.mainDrawer.homeLink") || "Home",
+      page: "/",
+      icon: <HomeIcon />,
+    },
+    {
+      role: "ADMIN",
+      key: "show-users",
+      label: t("elements.drawers.mainDrawer.showUsersLink") || "Show Users",
+      page: "/show-users",
+      icon: <SupervisorAccountIcon />,
+    },
+    {
+      role: "ADMIN",
+      key: "show-crops",
+      label: t("elements.drawers.mainDrawer.showCropsLink") || "Show Crops",
+      page: "/show-crops",
+      icon: <GrassIcon />,
+    },
+    {
+      role: "GROWER",
+      key: "show-cropfield",
+      label: t("elements.drawers.mainDrawer.showFieldsLink") || "Show Fields",
+      page: "/show-cropfields",
+      icon: <AgricultureIcon />,
+    },
+    {
+      role: "GROWER",
+      key: "work-history",
+      label: t("elements.drawers.mainDrawer.workHistoryLink") || "Work History",
+      page: "/work-history",
+      icon: <HistoryIcon />,
+    },
+    {
+      role: "GROWER",
+      key: "work-statistics",
+      label:
+        t("elements.drawers.mainDrawer.workStatisticsLink") ||
+        "Work Statistics",
+      page: "/work-statistics",
+      icon: <ShowChartIcon />,
+    },
+  ];
 
   return (
     <Box>
@@ -56,64 +108,31 @@ function MainDrawer({ userData }: MainDrawerProps) {
         }}
       >
         <List>
-          <ListItem key={"home"} disablePadding>
-            <ListItemButton onClick={() => navigate("/")}>
-              <ListItemIcon>
-                <HomeIcon />
-              </ListItemIcon>
-              {(isDrawerExpanded || hovered) && (
-                <ListItemText>Home</ListItemText>
-              )}
-            </ListItemButton>
-          </ListItem>
-          {userRoles.findIndex((role) => role.name === "ADMIN") > -1 && (
-            <ListItem key={"show-users"} disablePadding>
-              <ListItemButton onClick={() => navigate("/show-users")}>
-                <ListItemIcon>
-                  <SupervisorAccountIcon />
-                </ListItemIcon>
-                {(isDrawerExpanded || hovered) && (
-                  <ListItemText>Show Users</ListItemText>
-                )}
-              </ListItemButton>
-            </ListItem>
-          )}
-          {userRoles.findIndex((role) => role.name === "GROWER") > -1 && (
-            <ListItem key={"show-plots"} disablePadding>
-              <ListItemButton onClick={() => navigate("/show-cropfields")}>
-                <ListItemIcon>
-                  <AgricultureIcon />
-                </ListItemIcon>
-                {(isDrawerExpanded || hovered) && (
-                  <ListItemText>Show Fields</ListItemText>
-                )}
-              </ListItemButton>
-            </ListItem>
-          )}
-          {userRoles.findIndex((role) => role.name === "ADMIN") > -1 && (
-            <ListItem key={"show-crops"} disablePadding>
-              <ListItemButton onClick={() => navigate("/show-crops")}>
-                <ListItemIcon>
-                  <GrassIcon />
-                </ListItemIcon>
-                {(isDrawerExpanded || hovered) && (
-                  <ListItemText>Show Crops</ListItemText>
-                )}
-              </ListItemButton>
-            </ListItem>
-          )}
-          {userRoles.findIndex((role) => role.name === "GROWER") > -1 && (
-            <ListItem key={"work-history"} disablePadding>
-              <ListItemButton onClick={() => navigate("/work-history")}>
-                <ListItemIcon>
-                  <HistoryIcon />
-                </ListItemIcon>
-                {(isDrawerExpanded || hovered) && (
-                  <ListItemText>Work History</ListItemText>
-                )}
-              </ListItemButton>
-            </ListItem>
-          )}
+          {menuItems.map((menuItem, index) => {
+            const hasAccess =
+              menuItem["role"] === "ALL" ||
+              userRoles.some((role) => role.name === menuItem["role"]);
+
+            if (!hasAccess) return null;
+
+            return (
+              <ListItem key={menuItem["key"]} disablePadding>
+                <ListItemButton
+                  selected={selectedOption === index}
+                  onClick={() => {
+                    setSelectedOption(index);
+                    navigate(menuItem["page"]);
+                  }}
+                >
+                  <ListItemIcon>{menuItem["icon"]}</ListItemIcon>
+                  {(isDrawerExpanded || hovered) && (
+                    <ListItemText>{menuItem["label"]}</ListItemText>
+                  )}
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
+          ,
         </List>
       </Drawer>
     </Box>

@@ -1,10 +1,10 @@
 package edu.bbte.allamvizsga.services;
 
+import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.model.CropCultivar;
 import edu.bbte.allamvizsga.model.CropSpecie;
 import edu.bbte.allamvizsga.repository.CropCultivarRepository;
 import edu.bbte.allamvizsga.specifications.CropCultivarSpecification;
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class CropCultivarService {
         if (cropCultivarWithName != null && cropCultivar.getCropSpecie().equals(
                 cropCultivarWithName.getCropSpecie()
         )) {
-            throw new EntityExistsException("Crop cultivar with name " + cropCultivar.getCultivarName() + " already exists");
+            throw new BadRequestException("Crop cultivar name already taken.");
         }
 
         return cropCultivarRepository.save(cropCultivar);
@@ -49,7 +49,7 @@ public class CropCultivarService {
         CropCultivar cropCultivar = cropCultivarRepository.findByUid(uid);
 
         if (cropCultivar == null) {
-            throw new EntityNotFoundException("Couldn`t find crop cultivar with id: " + uid);
+            throw new EntityNotFoundException("Crop cultivar not found.");
         }
 
         return cropCultivar;
@@ -59,7 +59,7 @@ public class CropCultivarService {
         CropCultivar oldVersion = cropCultivarRepository.findByUid(cropCultivar.getUid());
 
         if (oldVersion == null) {
-            throw new EntityNotFoundException("Couldn`t find crop cultivar with id " + cropCultivar.getUid());
+            throw new EntityNotFoundException("Crop cultivar not found.");
         }
 
         Collection<CropCultivar> cropCultivarsWithName = cropCultivarRepository.findAll(
@@ -72,8 +72,7 @@ public class CropCultivarService {
             if (cropCultivarWithName.getCropSpecie().equals(
                     cropCultivar.getCropSpecie()
             ) && !cropCultivarWithName.getUid().equals(cropCultivar.getUid())) {
-                throw new EntityExistsException("Crop cultivar with name " + cropCultivar.getCultivarName() +
-                        " already exists in " + cropCultivar.getCropSpecie().getCommonName() + " specie");
+                throw new BadRequestException("Crop cultivar name already taken,");
             }
         });
 
@@ -84,7 +83,7 @@ public class CropCultivarService {
         CropCultivar cropCultivar = cropCultivarRepository.findByUid(cropCultivarId);
 
         if (cropCultivar == null) {
-            throw new EntityNotFoundException("Couldn`t find crop cultivar with id " + cropCultivarId);
+            throw new EntityNotFoundException("Crop cultivar not found.");
         }
 
         cropCultivarRepository.deleteById(cropCultivarId);

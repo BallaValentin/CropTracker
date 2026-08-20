@@ -8,6 +8,7 @@ import edu.bbte.allamvizsga.mappers.UserMapper;
 import edu.bbte.allamvizsga.model.Role;
 import edu.bbte.allamvizsga.model.User;
 import edu.bbte.allamvizsga.repository.RoleRepository;
+import edu.bbte.allamvizsga.services.ImageService;
 import edu.bbte.allamvizsga.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
     private final UserService userService;
+    private final ImageService imageService;
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
 
@@ -78,15 +80,13 @@ public class AdminController {
     }
 
     @GetMapping("/get-user-avatar")
-    public ResponseEntity<Resource> getUserAvatar(@RequestParam String userID) throws MalformedURLException {
-        String uploadDir = "./images/" + userID + "/profile.png";
-        Path path = Paths.get(uploadDir);
-
-        Resource resource = new UrlResource(path.toUri());
+    public ResponseEntity<Resource> getUserAvatar(@RequestParam UUID userID) {
+        User user = userService.findUserById(userID);
+        Resource userAvatar = imageService.getUserAvatar(user);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
-                .body(resource);
+                .body(userAvatar);
     }
 
     @PutMapping("/set-status")

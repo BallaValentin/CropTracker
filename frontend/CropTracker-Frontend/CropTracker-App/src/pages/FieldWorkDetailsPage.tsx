@@ -2,14 +2,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useUserProfile } from "../hooks/UseUserProfile";
-import { useFieldWork } from "../hooks/UseFieldWork";
-import FieldDetailMapPreview from "../leaflet/FieldDetailMapPreview";
-import { useCropField } from "../hooks/UseCropField";
-import { useFieldParcels } from "../hooks/UseFieldParcels";
+import { useFieldWork } from "../hooks/caching/UseFieldWork";
+import FieldDetailMapPreview from "../leaflet/view/FieldDetailMapPreview";
 import { Box, Card, Divider, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import type { LatLngObject } from "../interfaces/LatLngObject";
+import type { LatLngObject } from "../interfaces/helper/LatLngObject";
 import {
   getGeneratedCrops,
   getGeneratedRectabgles,
@@ -17,9 +14,15 @@ import {
 } from "../utils/GenerateShapesUtil";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import FieldInfoContainer from "../elements/containers/FieldInfoContainer";
-import type { StringNumber } from "../interfaces/StringNumber";
+import type { StringNumber } from "../interfaces/helper/StringNumber";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import { useFieldWorkCropField } from "../hooks/caching/UseFieldWorkCropField";
+import { useCropFieldVersionParcels } from "../hooks/caching/UseCropFieldVersionParcels";
+import { useTranslation } from "react-i18next";
 
 function FieldWorkDetailsPage() {
+  const { t } = useTranslation();
+
   const [rows, setRows] = useState<LatLngObject[][][] | null>(null);
   const [rowRectangles, setRowRectangles] = useState<LatLngObject[][] | null>(
     null,
@@ -31,17 +34,18 @@ function FieldWorkDetailsPage() {
     data: userData,
     isLoading: isUserLoading,
     error: userError,
-  } = useUserProfile();
+  } = useCurrentProfile();
   const { data: fieldWorkData, isLoading: isFieldWorkLoading } = useFieldWork(
     id || "",
     !!id && !!userData,
   );
-  const { data: cropFieldData, isLoading: isCropFieldLoading } = useCropField(
-    fieldWorkData?.cropFieldId || "",
-    !!id && !!fieldWorkData,
-  );
+  const { data: cropFieldData, isLoading: isCropFieldLoading } =
+    useFieldWorkCropField(id || "", !!id);
   const { data: fieldParcelsData, isLoading: isFieldParcelsLoading } =
-    useFieldParcels(fieldWorkData?.cropFieldId || "");
+    useCropFieldVersionParcels(
+      fieldWorkData?.cropFieldId || "",
+      !!fieldWorkData?.cropFieldId,
+    );
 
   const navigate = useNavigate();
 
@@ -55,8 +59,7 @@ function FieldWorkDetailsPage() {
         referenceRow: parcel.layoutParameters.referenceRow,
         numberOfRows: parcel.layoutParameters.numberOfRows,
         rowDistance:
-          parcel.layoutParameters.bedSpacing +
-          parcel.layoutParameters.rowWidth / 2,
+          parcel.layoutParameters.bedSpacing + parcel.layoutParameters.rowWidth,
       });
     });
 
@@ -109,7 +112,13 @@ function FieldWorkDetailsPage() {
     !rowRectangles ||
     !cropCoords
   ) {
-    return <ProgressCircle loadingMessage="Initializing data..." />;
+    return (
+      <ProgressCircle
+        loadingMessage={t("pages.fieldWorkDetailsPage.loadingMessage", {
+          defaultValue: "Loading field work data...",
+        })}
+      />
+    );
   }
 
   const convertDate = (originalDate: string) => {
@@ -135,104 +144,159 @@ function FieldWorkDetailsPage() {
   }
 
   return (
-    <MainContainer hasDrawer={userData != null}>
-      <MainHeader userData={userData} />
-      <Card sx={{ minHeight: 800, p: 2, mt: 20 }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <FieldInfoContainer labelText="Work Type">
-            <Typography>{fieldWorkData.workTypeName}</Typography>
-          </FieldInfoContainer>
-          <Box
-            sx={{ display: "flex", gap: 10, justifyContent: "space-between" }}
-          >
-            {fieldWorkData.startDate && (
-              <FieldInfoContainer labelText="Starting Date">
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <CalendarMonthIcon />
-                  <Typography>
-                    {convertDate(fieldWorkData.startDate)}
-                  </Typography>
-                </Box>
-              </FieldInfoContainer>
-            )}
-            {fieldWorkData.endDate && (
-              <FieldInfoContainer labelText="Ending Date">
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <CalendarMonthIcon />
-                  <Typography>{convertDate(fieldWorkData.endDate)}</Typography>
-                </Box>
-              </FieldInfoContainer>
-            )}
-          </Box>
-
-          {Object.entries(fieldWorkData.parameters).map(([key, value]) => {
-            if (
-              (!Array.isArray(value) && typeof value === "string") ||
-              typeof value === "number"
-            ) {
-              return (
-                <FieldInfoContainer labelText={key}>
-                  <Typography>{value ? value : "N/A"}</Typography>
-                </FieldInfoContainer>
-              );
-            }
-
-            if (Array.isArray(value)) {
-              return (
-                <Box sx={{ width: 800 }}>
-                  <Typography color="success">{key}</Typography>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    <Divider />
-                    {value.map((element) => {
-                      if (isStringNumber(element)) {
-                        const snElement = element as StringNumber;
-                        return (
-                          <Box sx={{ display: "flex", gap: 5 }}>
-                            <FieldInfoContainer>
-                              <Typography>
-                                {snElement.textValue || "N/A"}
-                              </Typography>
-                            </FieldInfoContainer>
-                            <FieldInfoContainer>
-                              <Typography>
-                                {snElement.numberValue ?? "N/A"}
-                              </Typography>
-                            </FieldInfoContainer>
-                          </Box>
-                        );
-                      } else {
-                        <FieldInfoContainer>
-                          <Typography>{element || "N/A"}</Typography>
-                        </FieldInfoContainer>;
-                      }
-                    })}
-                    <Divider />
-                  </Box>
-                </Box>
-              );
-            }
-          })}
-        </Box>
-        <Typography variant="h6" sx={{ fontWeight: "bold", my: 2 }}>
-          Affected parcels
+    <Box>
+      <MainHeader />
+      <MainContainer>
+        <Typography
+          component={"h1"}
+          color="success"
+          letterSpacing={"0.02em"}
+          sx={{ fontWeight: "bold", my: 10 }}
+          variant="h3"
+        >
+          {cropFieldData.name}
         </Typography>
-        <Box sx={{ height: 400, my: 2 }}>
-          <FieldDetailMapPreview
-            mapHeight={400}
-            uid={fieldWorkData.uid}
-            markerPosition={cropFieldData.markerPosition}
-            polygonPoints={cropFieldData.polygonPoints}
-            fieldParcels={fieldParcelsData}
-            rows={rows.flat()}
-            rowRectangles={rowRectangles}
-            cropCoords={cropCoords}
-            affectedRows={fieldWorkData.affectedRows}
-          />
-        </Box>
-      </Card>
-    </MainContainer>
+        <Card sx={{ minHeight: 800, p: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <FieldInfoContainer
+              labelText={t("pages.fieldWorkDetailsPage.workTypeLabel", {
+                defaultValue: "Work Type",
+              })}
+            >
+              <Typography>
+                {t(
+                  `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.name`,
+                  {
+                    defaultValue: fieldWorkData.workTypeName,
+                  },
+                )}
+              </Typography>
+            </FieldInfoContainer>
+            <Box
+              sx={{ display: "flex", gap: 10, justifyContent: "space-between" }}
+            >
+              {fieldWorkData.startDate && (
+                <FieldInfoContainer
+                  labelText={t("pages.fieldWorkDetailsPage.startDateLabel", {
+                    defaultValue: "Starting Date",
+                  })}
+                >
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <CalendarMonthIcon />
+                    <Typography>
+                      {convertDate(fieldWorkData.startDate)}
+                    </Typography>
+                  </Box>
+                </FieldInfoContainer>
+              )}
+              {fieldWorkData.endDate && (
+                <FieldInfoContainer
+                  labelText={t("pages.fieldWorkDetailsPage.endDateLabel", {
+                    defaultValue: "Ending Date",
+                  })}
+                >
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <CalendarMonthIcon />
+                    <Typography>
+                      {convertDate(fieldWorkData.endDate)}
+                    </Typography>
+                  </Box>
+                </FieldInfoContainer>
+              )}
+            </Box>
+
+            {Object.entries(fieldWorkData.parameters).map(([key, value]) => {
+              if (
+                (!Array.isArray(value) && typeof value === "string") ||
+                typeof value === "number"
+              ) {
+                return (
+                  <FieldInfoContainer
+                    labelText={t(
+                      `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.fields.${key}.name`,
+                      {
+                        defaultValue: key,
+                      },
+                    )}
+                  >
+                    <Typography>
+                      {value
+                        ? t(
+                            `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.fields.${key}.options.${value}`,
+                            {
+                              defaultValue: value,
+                            },
+                          )
+                        : "N/A"}
+                    </Typography>
+                  </FieldInfoContainer>
+                );
+              }
+
+              if (Array.isArray(value)) {
+                return (
+                  <Box sx={{ width: 800 }}>
+                    <Typography color="success">{key}</Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                      }}
+                    >
+                      <Divider />
+                      {value.map((element) => {
+                        if (isStringNumber(element)) {
+                          const snElement = element as StringNumber;
+                          return (
+                            <Box sx={{ display: "flex", gap: 5 }}>
+                              <FieldInfoContainer>
+                                <Typography>
+                                  {snElement.textValue || "N/A"}
+                                </Typography>
+                              </FieldInfoContainer>
+                              <FieldInfoContainer>
+                                <Typography>
+                                  {snElement.numberValue ?? "N/A"}
+                                </Typography>
+                              </FieldInfoContainer>
+                            </Box>
+                          );
+                        } else {
+                          <FieldInfoContainer>
+                            <Typography>{element || "N/A"}</Typography>
+                          </FieldInfoContainer>;
+                        }
+                      })}
+                      <Divider />
+                    </Box>
+                  </Box>
+                );
+              }
+            })}
+          </Box>
+          <Typography variant="h6" sx={{ fontWeight: "bold", my: 2 }}>
+            {t("pages.fieldWorkDetailsPage.parcelsAffected", {
+              defaultValue: "Affected parcels",
+            })}
+          </Typography>
+          <Box sx={{ height: 400, my: 2 }}>
+            <FieldDetailMapPreview
+              mapHeight={400}
+              uid={fieldWorkData.uid}
+              markerPosition={cropFieldData.markerPosition}
+              polygonPoints={cropFieldData.polygonPoints}
+              fieldParcels={fieldParcelsData}
+              rows={rows.flat()}
+              rowRectangles={rowRectangles}
+              cropCoords={cropCoords}
+              affectedRows={fieldWorkData.affectedRows}
+              parcelsSelected={[]}
+            />
+          </Box>
+        </Card>
+      </MainContainer>
+    </Box>
   );
 }
 

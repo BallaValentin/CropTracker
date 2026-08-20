@@ -3,7 +3,9 @@ package edu.bbte.allamvizsga.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.util.Collection;
 
 @EqualsAndHashCode(callSuper = true)
@@ -36,6 +38,13 @@ public class User extends BaseEntity{
 
     @Column(nullable = false)
     private String lastName;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(nullable = false)
+    private Boolean isVerified;
 
     @Column(nullable = false)
     private Boolean isActive;

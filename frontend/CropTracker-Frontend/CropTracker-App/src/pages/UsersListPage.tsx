@@ -1,8 +1,7 @@
-import { Alert, Avatar, Box, Button, Typography } from "@mui/material";
+import { Avatar, Box, Button, Typography } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import type { GridColDef } from "@mui/x-data-grid";
-import { useAdminUsers } from "../hooks/UseAdminUsers";
+import { useAdminUsers } from "../hooks/caching/UseAdminUsers";
 import UsersTable from "../elements/tables/UsersTable";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainContainer from "../elements/containers/MainContainer";
@@ -11,22 +10,20 @@ import UserStatusDialog from "../elements/dialogs/UserStatusDialog";
 import { useMutation } from "@tanstack/react-query";
 import { updateRoles, updateStatus } from "../services/AdminService";
 import type { GetAdminUserDTO } from "../interfaces/response/GetAdminUserDTO";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import CheckIcon from "@mui/icons-material/Check";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
 import UserRoleDialog from "../elements/dialogs/UserRoleDialog";
 import { useNavigate } from "react-router-dom";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import { addSnackbar } from "../utils/SnackbarHelper";
 
 function UsersListPage() {
-  const { data: user, isLoading, error: userError } = useUserProfile();
+  const { data: user, isLoading, error: userError } = useCurrentProfile();
   const { data: adminUsers, isLoading: isLoadingUsers } = useAdminUsers();
   const [statusDialogOpen, setStatusDialogOpen] = useState<boolean>(false);
   const [rolesDialogOpen, setRolesDialogOpen] = useState<boolean>(false);
   const [users, setUsers] = useState<GetAdminUserDTO[]>([]);
   const [dialogUser, setDialogUser] = useState<GetAdminUserDTO | null>(null);
   const [isActive, setIsActive] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
@@ -38,21 +35,19 @@ function UsersListPage() {
     mutationFn: updateStatus,
     onError: () => {
       if (isActive) {
-        setError("Failed to suspend the selected user.");
+        addSnackbar("Failed to suspend the selected user.");
       } else {
-        setError("Failed to add back the selected user.");
+        addSnackbar("Failed to add back the selected user.");
       }
       setStatusDialogOpen(false);
-      setTimeout(() => setError(null), 7000);
     },
     onSuccess: () => {
       if (!isActive) {
-        setSuccess("The selected user has been successfully suspended.");
+        addSnackbar("The selected user has been successfully suspended.");
       } else {
-        setSuccess("The selected user has been successfully added back.");
+        addSnackbar("The selected user has been successfully added back.");
       }
       setStatusDialogOpen(false);
-      setTimeout(() => setSuccess(null), 7000);
     },
   });
 
@@ -74,14 +69,12 @@ function UsersListPage() {
   const { mutate: mutateRoles, isPending: isRolesPending } = useMutation({
     mutationFn: updateRoles,
     onError: () => {
-      setError("Failed to update user roles");
+      addSnackbar("Failed to update user roles");
       setRolesDialogOpen(false);
-      setTimeout(() => setError(null), 7000);
     },
     onSuccess: () => {
-      setSuccess("User roles have been successfully updated");
+      addSnackbar("User roles have been successfully updated");
       setRolesDialogOpen(false);
-      setTimeout(() => setSuccess(null), 7000);
     },
   });
 
@@ -101,7 +94,7 @@ function UsersListPage() {
         ),
       );
     } else {
-      setError("Selected user is missing");
+      addSnackbar("Selected user is missing");
     }
   };
 
@@ -208,39 +201,9 @@ function UsersListPage() {
 
   return (
     <Box>
-      <MainHeader userData={user} />
-      <MainContainer hasDrawer={Boolean(user?.username)}>
+      <MainHeader />
+      <MainContainer>
         <Box sx={{ position: "relative" }}>
-          {error && (
-            <Alert
-              icon={<ErrorOutlineIcon />}
-              sx={{
-                position: "absolute",
-                top: 8,
-                left: "1.25%",
-                width: "95%",
-                zIndex: 1200,
-              }}
-              severity="error"
-            >
-              {error}
-            </Alert>
-          )}
-          {success && (
-            <Alert
-              icon={<CheckIcon />}
-              sx={{
-                position: "absolute",
-                top: 8,
-                left: "1.25%",
-                width: "95%",
-                zIndex: 1200,
-              }}
-              severity="success"
-            >
-              {success}
-            </Alert>
-          )}
           <ColumnCenterContainer>
             <UsersTable
               columns={columns}

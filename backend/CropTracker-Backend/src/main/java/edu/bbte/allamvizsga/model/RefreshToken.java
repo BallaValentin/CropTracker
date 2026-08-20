@@ -16,16 +16,16 @@ import java.util.UUID;
 @Table(name = "refresh_token")
 @Data
 public class RefreshToken extends BaseEntity{
-    private UUID token;
+    private String token;
     private Instant expires;
     @ManyToOne
     @JoinColumn(name = "user_uid")
     private User user;
 
-    public RefreshToken(User user, UUID token) {
+    public RefreshToken(User user, String token) {
         this.user = user;
         this.token = token;
-        this.expires = Instant.now().plus(24, ChronoUnit.HOURS);
+        this.expires = Instant.now().plus(30, ChronoUnit.DAYS);
     }
 
     public RefreshToken() {

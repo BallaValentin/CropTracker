@@ -3,6 +3,7 @@ package edu.bbte.allamvizsga.controllers;
 import edu.bbte.allamvizsga.dto.request.cropCultivar.CreateCropCultivarDTO;
 import edu.bbte.allamvizsga.dto.request.cropCultivar.UpdateCropCultivarDTO;
 import edu.bbte.allamvizsga.dto.response.cropCultivar.GetCropCultivarDTO;
+import edu.bbte.allamvizsga.dto.response.cropCultivar.GetSimpleCropCultivarDTO;
 import edu.bbte.allamvizsga.mappers.CropCultivarMapper;
 import edu.bbte.allamvizsga.model.CropCultivar;
 import edu.bbte.allamvizsga.model.CropSpecie;
@@ -34,9 +35,7 @@ public class CropCultivarController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<GetCropCultivarDTO> create(@Valid @RequestBody CreateCropCultivarDTO createCropCultivarDTO) {
-        String cropSpecieId = createCropCultivarDTO.getSpecieId();
-        UUID specieId = UUID.fromString(cropSpecieId);
-        CropSpecie cropSpecie = cropSpecieService.findByID(specieId);
+        CropSpecie cropSpecie = cropSpecieService.findByID(createCropCultivarDTO.getSpecieId());
         CropCultivar cropCultivar = cropCultivarMapper.createCropCultivarToModel(createCropCultivarDTO);
         cropCultivar.setCropSpecie(cropSpecie);
 
@@ -51,13 +50,10 @@ public class CropCultivarController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update")
-    public ResponseEntity<GetCropCultivarDTO> create(@Valid @RequestBody UpdateCropCultivarDTO updateCropCultivarDTO,
-                       @RequestParam("id") String cropCultivarId) {
-        String cropSpecieId = updateCropCultivarDTO.getSpecieId();
-        UUID specieId = UUID.fromString(cropSpecieId);
-        UUID cultivarId = UUID.fromString(cropCultivarId);
+    public ResponseEntity<GetCropCultivarDTO> update(@Valid @RequestBody UpdateCropCultivarDTO updateCropCultivarDTO,
+                                                     @RequestParam("id") UUID cultivarId) {
 
-        CropSpecie cropSpecie = cropSpecieService.findByID(specieId);
+        CropSpecie cropSpecie = cropSpecieService.findByID(updateCropCultivarDTO.getSpecieId());
         CropCultivar cropCultivar = cropCultivarMapper.updateCropCultivarToModel(updateCropCultivarDTO);
         cropCultivar.setCropSpecie(cropSpecie);
         cropCultivar.setUid(cultivarId);
@@ -73,17 +69,15 @@ public class CropCultivarController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete")
-    public void create(@RequestParam("id") String cropCultivarId) {
-        UUID cultivarId = UUID.fromString(cropCultivarId);
+    public void create(@RequestParam("id") UUID cultivarId) {
 
         cropCultivarService.delete(cultivarId);
     }
 
     @GetMapping(value = "/findall", params = "specieId")
     public ResponseEntity<Collection<GetCropCultivarDTO>> findAllInSpecie(
-            @RequestParam("specieId") String cropSpecieId
+            @RequestParam("specieId") UUID specieId
     ) {
-        UUID specieId = UUID.fromString(cropSpecieId);
         CropSpecie cropSpecie = cropSpecieService.findByID(specieId);
         Collection<CropCultivar> cropCultivars = cropCultivarService.findAllInSpecie(cropSpecie);
 
@@ -96,15 +90,16 @@ public class CropCultivarController {
     }
 
     @GetMapping(value = "/findall", params = "pattern")
-    public ResponseEntity<Collection<GetCropCultivarDTO>> findAllWithPattern(
+    public ResponseEntity<Collection<GetSimpleCropCultivarDTO>> findAllWithPattern(
             @RequestParam("pattern") String pattern
     ) {
         Collection<CropCultivar> cropCultivars = cropCultivarService.findAllWithPattern(pattern);
 
         return ResponseEntity.ok(cropCultivars.stream().map(cropCultivar -> {
-            GetCropCultivarDTO getCropCultivarDTO = cropCultivarMapper.modelToGetCropCultivar(cropCultivar);
+            GetSimpleCropCultivarDTO getCropCultivarDTO = cropCultivarMapper.modelToGetSimpleCropCultivar(cropCultivar);
             getCropCultivarDTO.setSpecieName(cropCultivar.getCropSpecie().getCommonName());
             getCropCultivarDTO.setSpecieId(cropCultivar.getCropSpecie().getUid());
+            getCropCultivarDTO.setSpecieName(cropCultivar.getCropSpecie().getCommonName());
             return getCropCultivarDTO;
         }).toList());
     }

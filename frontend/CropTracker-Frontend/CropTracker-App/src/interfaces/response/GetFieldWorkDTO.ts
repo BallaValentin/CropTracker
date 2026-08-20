@@ -1,4 +1,4 @@
-import type { StringNumber } from "../StringNumber";
+import type { StringNumber } from "../helper/StringNumber";
 
 export interface GetFieldWorkDTO {
     uid: string;

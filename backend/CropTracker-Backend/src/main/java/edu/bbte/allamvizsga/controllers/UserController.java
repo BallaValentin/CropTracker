@@ -1,6 +1,5 @@
 package edu.bbte.allamvizsga.controllers;
 
-import edu.bbte.allamvizsga.dto.request.user.AvatarUpdatesDTO;
 import edu.bbte.allamvizsga.dto.request.user.ChangePasswordDTO;
 import edu.bbte.allamvizsga.dto.request.user.UserUpdateDTO;
 import edu.bbte.allamvizsga.dto.response.user.UserDataDTO;
@@ -8,6 +7,7 @@ import edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import edu.bbte.allamvizsga.mappers.UserMapper;
 import edu.bbte.allamvizsga.model.ResetPasswordToken;
 import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.services.ImageService;
 import edu.bbte.allamvizsga.services.ResetPasswordTokenService;
 import edu.bbte.allamvizsga.services.UserService;
 import edu.bbte.allamvizsga.util.JwtUtil;
@@ -16,16 +16,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -37,17 +30,11 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final ResetPasswordTokenService resetPasswordTokenService;
-
-    @PutMapping("/change-avatar")
-    public void changeAvatar(@Valid @RequestBody AvatarUpdatesDTO avatarUpdates,
-                             @RequestHeader("Authorization") String authorizationHeader) throws IOException {
-        User user = userService.extractUser(authorizationHeader);
-        userService.changeAvatar(user, avatarUpdates.getNewAvatarSrc());
-    }
+    private final ImageService imageService;
 
     @GetMapping("/fetch-user-data")
     public ResponseEntity<UserDataDTO> fetchUserData(
-            @RequestHeader("Authorization") String authorizationHeader) throws IOException {
+            @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
         UserDataDTO userData = userMapper.modelToUserData(user);
 
@@ -56,46 +43,40 @@ public class UserController {
 
     @GetMapping("/get-avatar")
     public ResponseEntity<Resource> getAvatar(
-            @RequestHeader("Authorization") String authorizationHeader) throws MalformedURLException {
+            @RequestHeader("Authorization") String authorizationHeader) {
 
         User user = userService.extractUser(authorizationHeader);
-        UUID userID = user.getUid();
-
-        String uploadDir = "./images/" + userID + "/profile.png";
-        Path path = Paths.get(uploadDir);
-
-        Resource resource = new UrlResource(path.toUri());
+        Resource userAvatar = imageService.getUserAvatar(user);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
-                .body(resource);
+                .body(userAvatar);
     }
 
     @PutMapping("/update-profile")
-    public ResponseEntity<UserDataDTO> updateProfile(
+    public void updateProfile(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody UserUpdateDTO userUpdates) {
 
-        log.info("Extracting user");
         User user = userService.extractUser(authorizationHeader);
-        log.info("Updating user");
-        User updatedUser = userService.updateUser(user, userUpdates);
-        log.info("Mapping response");
-        UserDataDTO userData = userMapper.modelToUserData(updatedUser);
+        user.setUsername(userUpdates.getUsername());
+        user.setFirstName(userUpdates.getFirstName());
+        user.setLastName(userUpdates.getLastName());
 
-        return ResponseEntity.ok(userData);
+        System.out.println(userUpdates);
+
+        userService.updateUser(user, userUpdates.getAvatarUrl());
     }
 
     @PutMapping("/update-password")
     public void updatePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
-        UUID tokenID = UUID.fromString(changePasswordDTO.getToken());
 
         if (!changePasswordDTO.getPassword1().equals(changePasswordDTO.getPassword2())) {
             throw new InvalidSignupException("Passwords do not match");
         }
 
         ResetPasswordToken resetPasswordToken = resetPasswordTokenService
-                .findByUid(tokenID);
+                .findByUid(changePasswordDTO.getToken());
 
         User tokenUser = resetPasswordToken.getUser();
 

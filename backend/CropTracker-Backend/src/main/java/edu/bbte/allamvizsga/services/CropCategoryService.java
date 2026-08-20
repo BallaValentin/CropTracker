@@ -23,7 +23,7 @@ public class CropCategoryService {
         CropCategory cropCategory = cropCategoryRepository.findByUid(categoryId);
 
         if (cropCategory == null) {
-            throw new EntityNotFoundException("Couldn`t find category with id " + categoryId);
+            throw new EntityNotFoundException("Crop category not found.");
         }
 
         return cropCategory;

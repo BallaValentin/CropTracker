@@ -20,46 +20,46 @@ import { logoutUser } from "../../services/AuthService";
 import type { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import AccountDialog from "../dialogs/AccountDialog";
-import { getAvatar, updateAvatar } from "../../services/UserService";
 import MenuIcon from "@mui/icons-material/Menu";
 import MainDrawer from "../drawers/MainDrawer";
 import { queryClient } from "../../query-client/QueryClient";
 import { useDrawer } from "../../contexts/DrawerProvider";
-import type { GetUserDTO } from "../../interfaces/response/GetUserDTO";
+import { useCurrentProfile } from "../../hooks/caching/UseCurrentUser";
+import { useRefreshToken } from "../../hooks/caching/UseRefreshToken";
+import LanguageSelect from "../selects/LanguageSelect";
+import { useTranslation } from "react-i18next";
 
 interface MainHeaderProps {
-  userData: GetUserDTO | undefined;
+  hasLogin?: boolean;
 }
 
-function MainHeader({ userData }: MainHeaderProps) {
+function MainHeader({ hasLogin = true }: MainHeaderProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [avatarURL, setAvatarURL] = useState<string | null>(null);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState<boolean>(false);
   const open = Boolean(anchorEl);
-  const accessToken = sessionStorage.getItem("accessToken");
+
+  const { isSuccess: isAuthVerified } = useRefreshToken();
+
+  const { data: userData } = useCurrentProfile(isAuthVerified);
 
   const { toggleDrawer } = useDrawer();
 
   useEffect(() => {
-    if (!userData?.username) {
+    if (!userData) {
       return;
     }
-    const fetchAvatar = async () => {
-      const blob: Blob = await getAvatar();
-      const imageURL = URL.createObjectURL(blob);
-      setAvatarURL(imageURL);
-    };
 
-    fetchAvatar();
+    setAvatarURL(userData.avatarURL);
   }, [userData]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: logoutUser,
     onSuccess: () => {
       sessionStorage.removeItem("accessToken");
-      queryClient.removeQueries({ queryKey: ["userProfile"] });
+      queryClient.clear();
       navigate("/signin");
     },
     onError: (err: AxiosError) => {
@@ -67,25 +67,9 @@ function MainHeader({ userData }: MainHeaderProps) {
         state: {
           statusCode: err.code,
           statusText: err.cause,
-          errorMessage: "Failed to sign out, try again later",
-        },
-      });
-    },
-  });
-
-  const changeAvatar = useMutation({
-    mutationFn: updateAvatar,
-    onSuccess: async () => {
-      const blob = await getAvatar();
-      const imageURL = URL.createObjectURL(blob);
-      setAvatarURL(imageURL);
-    },
-    onError: (err: AxiosError) => {
-      navigate("error", {
-        state: {
-          statusCode: err.response?.status ?? 500,
-          statusText: err.response?.statusText ?? "Internal Server Error",
-          errorMessage: "Failed to change your profile image, try again later",
+          errorMessage:
+            t("elements.headers.mainHeader.signOutErrorMessage") ||
+            "Error signing out. Please try again later",
         },
       });
     },
@@ -117,25 +101,18 @@ function MainHeader({ userData }: MainHeaderProps) {
     setDialogOpen(false);
   };
 
-  const handleAvatarChange = async (newImageSrc: string) => {
-    setIsUploadingAvatar(true);
-    changeAvatar.mutate(newImageSrc);
-    setIsUploadingAvatar(false);
-  };
-
   return (
     <Box>
-      <AccountDialog
-        isUploading={isUploadingAvatar}
-        isOpen={dialogOpen}
-        avatarURL={avatarURL || ""}
-        handleClose={handleDialogClose}
-        userData={userData}
-        onImageChange={handleAvatarChange}
-      />
+      {dialogOpen && (
+        <AccountDialog
+          isOpen={dialogOpen}
+          onClose={handleDialogClose}
+          userData={userData}
+        />
+      )}
       <AppBar position="fixed" sx={{ bgcolor: "green" }}>
         <Toolbar>
-          {accessToken && userData ? (
+          {userData ? (
             <>
               <IconButton onClick={toggleDrawer}>
                 <MenuIcon fontSize="large" sx={{ mr: 1 }} />
@@ -154,7 +131,7 @@ function MainHeader({ userData }: MainHeaderProps) {
               </Typography>
             </>
           )}
-          {accessToken && userData ? (
+          {userData && hasLogin ? (
             <>
               <Button onClick={handleClick}>
                 <Avatar src={avatarURL || ""} alt="Avatar" />
@@ -181,7 +158,10 @@ function MainHeader({ userData }: MainHeaderProps) {
                 }}
               >
                 <Tooltip
-                  title="Manage account"
+                  title={
+                    t("elements.headers.mainHeader.manageAccountTooltip") ||
+                    "Manage Account"
+                  }
                   placement="top"
                   slotProps={{
                     popper: {
@@ -206,14 +186,20 @@ function MainHeader({ userData }: MainHeaderProps) {
                 <Divider />
                 <MenuItem onClick={handleLogout}>
                   <LogoutIcon sx={{ mr: 1 }} />
-                  {isPending ? "Logging out..." : "Logout"}
+                  {isPending
+                    ? t("elements.headers.mainHeader.signOutPending") ||
+                      "Signing out..."
+                    : t("elements.headers.mainHeader.signOutButton") ||
+                      "Sign Out"}
                 </MenuItem>
               </Menu>
             </>
-          ) : (
+          ) : hasLogin ? (
             <Button color="inherit" onClick={handleLoginClick}>
-              Login
+              {t("elements.headers.mainHeader.loginButton") || "Login"}
             </Button>
+          ) : (
+            <LanguageSelect />
           )}
         </Toolbar>
       </AppBar>

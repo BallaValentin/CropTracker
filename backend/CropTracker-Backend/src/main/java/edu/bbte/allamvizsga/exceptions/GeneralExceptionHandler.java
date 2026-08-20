@@ -6,10 +6,12 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +24,33 @@ public class GeneralExceptionHandler {
     public ErrorResponseDTO handleBadCredentialsException(
             BadCredentialsException exception, HttpServletRequest request
     ) {
-        log.debug("Sign in failed");
+        log.debug("Sign in failed.");
+        LocalDateTime dateTime = LocalDateTime.now();
+        Integer statusCode = HttpStatus.BAD_REQUEST.value();
+        String message = exception.getMessage();
+        String path = request.getRequestURI();
+        return new ErrorResponseDTO(dateTime, statusCode, message, path);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseDTO handleTypeMismatch(
+            MethodArgumentTypeMismatchException exception, HttpServletRequest request
+    ) {
+        log.debug("Invalid UUID in request header.");
+        LocalDateTime dateTime = LocalDateTime.now();
+        Integer statusCode = HttpStatus.BAD_REQUEST.value();
+        String message = exception.getMessage();
+        String path = request.getRequestURI();
+        return new ErrorResponseDTO(dateTime, statusCode, message, path);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseDTO handleJsonMappingException(
+            HttpMessageNotReadableException exception, HttpServletRequest request
+    ) {
+        log.debug("Invalid UUID in request body.");
         LocalDateTime dateTime = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String message = exception.getMessage();
@@ -35,7 +63,7 @@ public class GeneralExceptionHandler {
     public ErrorResponseDTO handleInvalidSignupException(
             InvalidSignupException exception, HttpServletRequest request
     ) {
-        log.debug("Sign up failed");
+        log.debug("Sign up failed.");
         LocalDateTime dateTime = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String message = exception.getMessage();
@@ -48,21 +76,10 @@ public class GeneralExceptionHandler {
     @ResponseBody
     public ErrorResponseDTO handleMethodArgumentNotValid(
             MethodArgumentNotValidException exception, HttpServletRequest request) {
+        System.out.println(exception.getBindingResult().getAllErrors().getFirst().getDefaultMessage());
         LocalDateTime timestamp = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String error = exception.getBindingResult().getAllErrors().getFirst().getDefaultMessage();
-        String path = request.getRequestURI();
-        return new ErrorResponseDTO(timestamp, statusCode, error, path);
-    }
-
-    @ExceptionHandler(EntityExistsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public ErrorResponseDTO handleEntityExists(
-            EntityExistsException exception, HttpServletRequest request) {
-        LocalDateTime timestamp = LocalDateTime.now();
-        Integer statusCode = HttpStatus.BAD_REQUEST.value();
-        String error = exception.getMessage();
         String path = request.getRequestURI();
         return new ErrorResponseDTO(timestamp, statusCode, error, path);
     }
@@ -84,6 +101,7 @@ public class GeneralExceptionHandler {
     @ResponseBody
     public ErrorResponseDTO handleBadRequest(
             BadRequestException exception, HttpServletRequest request) {
+        System.out.println(exception.getMessage());
         LocalDateTime timestamp = LocalDateTime.now();
         Integer statusCode = HttpStatus.BAD_REQUEST.value();
         String error = exception.getMessage();

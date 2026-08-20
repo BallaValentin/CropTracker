@@ -2,10 +2,11 @@ package edu.bbte.allamvizsga.services;
 
 import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.exceptions.ForbiddenException;
-import edu.bbte.allamvizsga.model.CropField;
-import edu.bbte.allamvizsga.model.FieldParcel;
+import edu.bbte.allamvizsga.model.*;
+import edu.bbte.allamvizsga.repository.CropFieldVersionRepository;
 import edu.bbte.allamvizsga.repository.FieldParcelRepository;
-import edu.bbte.allamvizsga.specifications.FieldParcelSpecification;
+import edu.bbte.allamvizsga.repository.FieldParcelVersionRepository;
+import edu.bbte.allamvizsga.specifications.FieldParcelVersionSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.locationtech.jts.geom.Geometry;
@@ -23,93 +24,173 @@ import java.util.UUID;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class FieldParcelService {
     private final FieldParcelRepository fieldParcelRepository;
+    private final CropFieldVersionRepository cropFieldVersionRepository;
+    private final FieldParcelVersionRepository fieldParcelVersionRepository;
 
-    protected void polygonValidation(FieldParcel fieldParcel) {
+    protected void polygonValidation(FieldParcelVersion fieldParcelVersion,
+                                     CropFieldVersion cropFieldVersion) {
+        if (!fieldParcelVersion.getPolygonPoints().isValid()) {
+            throw new BadRequestException("Invalid polygon shape.");
+        }
+
         double precisionTolerance = 0.000001;
         double areaTolerance = 0.00000001;
 
-        Polygon fieldParcelPolygon = fieldParcel.getPolygonPoints();
-        Polygon cropFieldPolygon = (Polygon) fieldParcel.getCropField().getPolygonPoints().buffer(precisionTolerance);
+        Polygon fieldParcelPolygon = fieldParcelVersion.getPolygonPoints();
+        Polygon cropFieldPolygon = (Polygon) cropFieldVersion.getPolygonPoints().buffer(precisionTolerance);
 
         if (!cropFieldPolygon.covers(fieldParcelPolygon)) {
-            throw new BadRequestException("Field parcel polygon must be inside crop field polygon");
+            throw new BadRequestException("Field parcel polygon must be fully inside crop field polygon.");
         }
 
-        Collection<FieldParcel> fieldParcels = fieldParcel.getCropField().getFieldParcels();
+        Collection<FieldParcelVersion> fieldParcelVersions = cropFieldVersion.getFieldParcelVersions();
 
-        for (FieldParcel parcel : fieldParcels) {
-            if (parcel.getUid().equals(fieldParcel.getUid())) {
+        for (FieldParcelVersion parcel : fieldParcelVersions) {
+            if (parcel.getUid().equals(fieldParcelVersion.getUid())) {
                 continue;
             }
 
             if (parcel.getPolygonPoints().getEnvelopeInternal().intersects(
-                    fieldParcel.getPolygonPoints().getEnvelopeInternal()
+                    fieldParcelVersion.getPolygonPoints().getEnvelopeInternal()
             )) {
-                if (parcel.getPolygonPoints().overlaps(fieldParcel.getPolygonPoints())) {
-                    Geometry intersection = parcel.getPolygonPoints().intersection(fieldParcel.getPolygonPoints());
+                if (parcel.getPolygonPoints().overlaps(fieldParcelVersion.getPolygonPoints())) {
+                    Geometry intersection = parcel.getPolygonPoints().intersection(fieldParcelVersion.getPolygonPoints());
                     if (intersection.getArea() > areaTolerance) {
-                        throw new BadRequestException("Field parcel polygon shouldn`t intersect other polygon");
+                        throw new BadRequestException("No field parcel polygon intersections allowed.");
                     }
                 }
             }
         }
     }
 
-    public void createFieldParcel(FieldParcel fieldParcel) {
-        polygonValidation(fieldParcel);
-        fieldParcelRepository.save(fieldParcel);
+    public FieldParcelVersion createFieldParcel(FieldParcel fieldParcel, FieldParcelVersion fieldParcelVersion) {
+        CropFieldVersion currentCropFieldVersion = cropFieldVersionRepository.findFirstByCropFieldOrderByCreatedAtDesc(fieldParcel.getCropField());
+        polygonValidation(fieldParcelVersion, currentCropFieldVersion);
+        FieldParcel newFieldParcel = fieldParcelRepository.save(fieldParcel);
+
+        CropFieldVersion versionUpdates = currentCropFieldVersion.createClone();
+        CropFieldVersion newCropFieldVersion = cropFieldVersionRepository.save(versionUpdates);
+
+        currentCropFieldVersion.getFieldParcelVersions().forEach(fieldParcelVersion1 -> {
+            FieldParcelVersion newFieldParcelVersion = fieldParcelVersion1.createClone();
+            newFieldParcelVersion.setCropFieldVersion(newCropFieldVersion);
+            fieldParcelVersionRepository.save(newFieldParcelVersion);
+        });
+
+        fieldParcelVersion.setCropFieldVersion(newCropFieldVersion);
+        fieldParcelVersion.setFieldParcel(newFieldParcel);
+
+        return fieldParcelVersionRepository.save(fieldParcelVersion);
     }
 
-    public Collection<FieldParcel> getFieldParcels(CropField cropField) {
-        return fieldParcelRepository.findAll(
+    public Collection<FieldParcelVersion> getFieldParcels(CropFieldVersion cropFieldVersion) {
+        return fieldParcelVersionRepository.findAll(
                 Specification.allOf(
-                        FieldParcelSpecification.byCropField(cropField)
-                ), Sort.by(Sort.Direction.ASC, "createdAt")
+                        FieldParcelVersionSpecification.byCropFieldVersion(cropFieldVersion)
+                ), Sort.by(Sort.Direction.ASC, "fieldParcel.createdAt")
         );
     }
 
-    public FieldParcel findByID(UUID uid) {
-        return fieldParcelRepository.findByUid(uid);
-    }
-
-    public FieldParcel findByCropField(CropField cropField, UUID uid) {
-        FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
-        if (fieldParcel == null) {
-            throw new EntityNotFoundException("Couldn`t find field parcel");
-        }
-        if (fieldParcel.getCropField() != cropField ||
-                cropField.getIsDeleted()) {
-            throw new ForbiddenException("Couldn't access this plot because you are not it's owner");
-        }
-        return fieldParcel;
-    }
-
-    public FieldParcel findByCropFieldAndUid(CropField cropField, UUID uid) {
+    public FieldParcelVersion findByID(UUID uid, User user) {
         FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
 
-        if (fieldParcel == null) {
-            throw new EntityNotFoundException("Couldn`t find filed parcel with id " + uid);
+        if (fieldParcel == null || !fieldParcel.getIsActive()) {
+            throw new EntityNotFoundException("Field parcel not found");
         }
 
-        if (fieldParcel.getCropField() != cropField) {
-            throw new ForbiddenException("You have no access to this field parcel");
+        FieldParcelVersion fieldParcelVersion = fieldParcelVersionRepository.findFirstByFieldParcelOrderByCreatedAtDesc(fieldParcel);
+
+        if (fieldParcelVersion == null) {
+            throw new EntityNotFoundException("Field parcel not found.");
         }
 
-        return fieldParcel;
+        if (fieldParcelVersion.getFieldParcel().getCropField().getUser() != user) {
+            throw new ForbiddenException("Access denied to field parcel.");
+        }
+
+        return fieldParcelVersion;
     }
 
-    public void updateFieldParcel(FieldParcel fieldParcel) {
-        if (fieldParcelRepository.findByUid(fieldParcel.getUid()) == null) {
-            throw new EntityNotFoundException("Couldn`t find field parcel with id: " + fieldParcel.getUid());
+    public FieldParcelVersion findByVersionID(UUID uid, User user) {
+        FieldParcelVersion fieldParcelVersion = fieldParcelVersionRepository.findByUid(uid);
+
+        if (fieldParcelVersion == null || !fieldParcelVersion.getFieldParcel().getIsActive()) {
+            throw new EntityNotFoundException("Field parcel not found");
         }
-        polygonValidation(fieldParcel);
-        fieldParcelRepository.save(fieldParcel);
+
+        if (fieldParcelVersion.getFieldParcel().getCropField().getUser() != user) {
+            throw new ForbiddenException("Access denied to field parcel.");
+        }
+
+        return fieldParcelVersion;
+    }
+
+    public void findByCropFieldAndUid(CropFieldVersion cropFieldVersion, UUID uid) {
+        FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
+
+        if (fieldParcel == null || !fieldParcel.getIsActive()) {
+            throw new EntityNotFoundException("Field parcel not found.");
+        }
+
+        if (fieldParcel.getCropField() != cropFieldVersion.getCropField()) {
+            throw new ForbiddenException("Access denied to field parcel.");
+        }
+    }
+
+    public FieldParcelVersion updateFieldParcel(UUID fieldParcelId, FieldParcelVersion fieldParcelUpdate) {
+        FieldParcel fieldParcel = fieldParcelRepository.findByUid(fieldParcelId);
+
+        if (fieldParcel == null || !fieldParcel.getIsActive()) {
+            throw new EntityNotFoundException("Field parcel not found");
+        }
+
+        FieldParcelVersion currentFieldParcelVersion = fieldParcelVersionRepository.findFirstByFieldParcelOrderByCreatedAtDesc(fieldParcel);
+        CropFieldVersion currentCropFieldVersion = currentFieldParcelVersion.getCropFieldVersion();
+        polygonValidation(fieldParcelUpdate, currentCropFieldVersion);
+        fieldParcelUpdate.setFieldParcel(fieldParcel);
+
+        CropFieldVersion versionUpdates = currentCropFieldVersion.createClone();
+        CropFieldVersion newCropFieldVersion = cropFieldVersionRepository.save(versionUpdates);
+
+        Collection<FieldParcelVersion> fieldParcelVersions = currentCropFieldVersion.getFieldParcelVersions();
+        fieldParcelVersions.forEach(fieldParcelVersion1 -> {
+            if (!fieldParcelVersion1.getFieldParcel().getUid().equals(fieldParcelUpdate.getFieldParcel().getUid())) {
+                FieldParcelVersion newFieldParcelVersion = fieldParcelVersion1.createClone();
+                newFieldParcelVersion.setCropFieldVersion(newCropFieldVersion);
+                fieldParcelVersionRepository.save(newFieldParcelVersion);
+            }
+        });
+
+        fieldParcelUpdate.setCropFieldVersion(newCropFieldVersion);
+        return fieldParcelVersionRepository.save(fieldParcelUpdate);
     }
 
     public void deleteById(UUID uid) {
-        if (fieldParcelRepository.findByUid(uid) == null) {
-            throw new EntityNotFoundException("Couldn`t find field parcel with id: " + uid);
+        FieldParcel fieldParcel = fieldParcelRepository.findByUid(uid);
+
+        if (fieldParcel == null || !fieldParcel.getIsActive()) {
+            throw new EntityNotFoundException("Field parcel not found");
         }
-        fieldParcelRepository.deleteById(uid);
+
+        fieldParcel.setIsActive(Boolean.FALSE);
+        fieldParcelRepository.save(fieldParcel);
+
+        FieldParcelVersion fieldParcelVersion = fieldParcelVersionRepository.findFirstByFieldParcelOrderByCreatedAtDesc(fieldParcel);
+        CropFieldVersion currentFieldVersion = fieldParcelVersion.getCropFieldVersion();
+
+        CropFieldVersion versionUpdates = currentFieldVersion.createClone();
+        CropFieldVersion newCropFieldVersion = cropFieldVersionRepository.save(versionUpdates);
+
+        Collection<FieldParcelVersion> fieldParcelVersions = currentFieldVersion.getFieldParcelVersions();
+
+        fieldParcelVersions.forEach(fieldParcelVersion1 -> {
+            if (!fieldParcelVersion1.getUid().equals(fieldParcelVersion.getUid()) &&
+                    fieldParcelVersion1.getFieldParcel().getIsActive()) {
+                FieldParcelVersion newFieldParcelVersion = fieldParcelVersion1.createClone();
+                newFieldParcelVersion.setCropFieldVersion(newCropFieldVersion);
+                fieldParcelVersionRepository.save(newFieldParcelVersion);
+            }
+        });
+
     }
 }

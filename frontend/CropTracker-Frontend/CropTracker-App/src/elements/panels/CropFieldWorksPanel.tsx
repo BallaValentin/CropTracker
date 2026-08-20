@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import type { GetFieldWorkDTO } from "../../interfaces/response/GetFieldWorkDTO";
+import { useTranslation } from "react-i18next";
 
 interface CropFieldWorkPanelProps {
   fieldWorks: GetFieldWorkDTO[];
@@ -16,6 +17,7 @@ interface CropFieldWorkPanelProps {
   placeholderText: string;
   onDetailsClick: (fieldWorkId: string) => void;
   onEditClick: (fieldWorkId: string) => void;
+  onDeleteClick: (fieldWorkId: string) => void;
 }
 
 function CropFieldWorksPanel({
@@ -24,9 +26,12 @@ function CropFieldWorksPanel({
   placeholderText,
   onDetailsClick,
   onEditClick,
+  onDeleteClick,
 }: CropFieldWorkPanelProps) {
+  const { t } = useTranslation();
+
   const handleDetailsClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
+    event: React.MouseEvent<HTMLElement>,
     fieldWorkId: string,
   ) => {
     event.stopPropagation();
@@ -34,12 +39,21 @@ function CropFieldWorksPanel({
   };
 
   const handleEditClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
+    event: React.MouseEvent<HTMLElement>,
     fieldWorkId: string,
   ) => {
     event.stopPropagation();
     onEditClick(fieldWorkId);
   };
+
+  const handleDeleteClick = (
+    event: React.MouseEvent<HTMLElement>,
+    fieldWorkId: string,
+  ) => {
+    event.stopPropagation();
+    onDeleteClick(fieldWorkId);
+  };
+
   return (
     <Box
       sx={{
@@ -83,6 +97,7 @@ function CropFieldWorksPanel({
                 alignItems: "center",
                 justifyContent: "space-between",
               }}
+              onClick={(e) => handleDetailsClick(e, work.uid)}
             >
               <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                 <Typography
@@ -98,16 +113,21 @@ function CropFieldWorksPanel({
 
               <Box sx={{ display: "flex", gap: 1 }}>
                 <Button
-                  onClick={(e) => handleDetailsClick(e, work.uid)}
-                  color="success"
-                >
-                  Details
-                </Button>
-                <Button
                   onClick={(e) => handleEditClick(e, work.uid)}
                   color="success"
                 >
-                  Edit
+                  {t("elements.panels.cropFieldWorksPanel.editButton", {
+                    defaultValue: "Edit",
+                  })}
+                </Button>
+
+                <Button
+                  onClick={(e) => handleDeleteClick(e, work.uid)}
+                  color="error"
+                >
+                  {t("elements.panels.cropFieldWorksPanel.deleteButton", {
+                    defaultValue: "Delete",
+                  })}
                 </Button>
               </Box>
             </ListItemButton>

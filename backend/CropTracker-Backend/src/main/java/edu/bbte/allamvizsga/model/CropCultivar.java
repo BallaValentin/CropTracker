@@ -24,5 +24,5 @@ public class CropCultivar extends BaseEntity {
 
     @Column
     @OneToMany(mappedBy = "cropCultivar", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Collection<FieldParcel> fieldParcels;
+    private Collection<FieldParcelVersion> fieldParcelVersions;
 }

@@ -12,51 +12,131 @@ import {
   type SelectChangeEvent,
 } from "@mui/material";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
-import { useCropSearch } from "../../hooks/UseCropSearch";
-import { useState } from "react";
-import AddParcelView from "../../leaflet/AddParcelsView";
-import { ChromePicker, type ColorResult } from "react-color";
-import type { LatLngObject } from "../../interfaces/LatLngObject";
+import { useCropSearch } from "../../hooks/caching/UseCropSearch";
+import { useEffect, useState } from "react";
+import AddParcelView from "../../leaflet/view/AddParcelsView";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import type { CreateFieldParcelDTO } from "../../interfaces/request/CreateFieldParcelDTO";
 import { calculatePolygonArea } from "../../utils/PolygonHelper";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import { LayoutTypes } from "../../utils/LayoutTypes";
-import { cropWidthCm, maxLines } from "../../utils/Constants";
+import { cropWidthCm, maxLines, PastelPresets } from "../../utils/Constants";
 import { calculateRowWidth } from "../../utils/CalculateRowWidth";
-import { getGeneratedRows } from "../../utils/GenerateShapesUtil";
+import {
+  getGeneratedRows,
+  getNumberOfCrops,
+} from "../../utils/GenerateShapesUtil";
+import type { UpdateFieldParcelDTO } from "../../interfaces/request/UpdateFieldParcelDTO";
+import PastelColorPicker from "../color-pickers/PastelColorPicker";
+import { useTranslation } from "react-i18next";
 
 interface CreateFieldParcelFormProps {
-  onSubmit: (createFieldParcelData: CreateFieldParcelDTO) => void;
+  fieldParcelToUpdate?: GetFieldParcelDTO | null;
+  onSubmit: (
+    createFieldParcelData: CreateFieldParcelDTO | UpdateFieldParcelDTO,
+  ) => void;
   isPending: boolean;
   cropfield: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
 }
 
 function CreateFieldParcelForm({
+  fieldParcelToUpdate = null,
   onSubmit,
   cropfield,
   isPending,
   fieldParcels,
 }: CreateFieldParcelFormProps) {
+  const { t } = useTranslation();
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [newFieldParcel, setNewFieldParcel] = useState<CreateFieldParcelDTO>({
     cropFieldId: cropfield.uid,
-    cropCultivarId: "",
-    area: 0,
-    polygonPoints: [] as LatLngObject[],
-    polygonColor: "#ff0000",
-    layoutType: LayoutTypes.SingleRow,
+    cropCultivarId: fieldParcelToUpdate?.cultivarId || "",
+    area: fieldParcelToUpdate?.area || 0,
+    polygonPoints: fieldParcelToUpdate?.polygonPoints || ([] as LatLngObject[]),
+    polygonColor: fieldParcelToUpdate?.polygonColor || PastelPresets[0],
+    layoutType: fieldParcelToUpdate?.layoutType || LayoutTypes.SingleRow,
     layoutParameters: {
-      referenceRow: [],
-      bedSpacing: 10,
-      plantSpacing: 30,
-      rowSpacing: 30,
-      numberOfRows: 0,
-      marginSpacing: 10,
-      linesPerRow: 1,
-      rowWidth: cropWidthCm,
+      referenceRow: fieldParcelToUpdate?.layoutParameters.referenceRow || [],
+      bedSpacing: fieldParcelToUpdate?.layoutParameters.bedSpacing || 10,
+      plantSpacing: fieldParcelToUpdate?.layoutParameters.plantSpacing || 30,
+      rowSpacing: fieldParcelToUpdate?.layoutParameters.rowSpacing || 30,
+      numberOfRows: fieldParcelToUpdate?.layoutParameters.numberOfRows || 0,
+      marginSpacing: fieldParcelToUpdate?.layoutParameters.marginSpacing || 10,
+      linesPerRow: fieldParcelToUpdate?.layoutParameters.linesPerRow || 1,
+      numberOfCrops: fieldParcelToUpdate?.layoutParameters.numberOfCrops || 0,
+      rowWidth:
+        fieldParcelToUpdate?.layoutParameters.linesPerRow || cropWidthCm + 20,
     },
   });
+
+  const [rows, setRows] = useState<LatLngObject[][]>([]);
+  const [targetRowCount, setTargetRowCount] = useState<number>(
+    newFieldParcel.layoutParameters.numberOfRows || 0,
+  );
+
+  useEffect(() => {
+    if (cropfield.uid) {
+      setNewFieldParcel((prev) => ({
+        ...prev,
+        cropFieldId: cropfield.uid,
+      }));
+    }
+  }, [cropfield.uid]);
+
+  useEffect(() => {
+    const generatedRows =
+      getGeneratedRows({
+        polygonCoords: newFieldParcel.polygonPoints,
+        referenceRow: newFieldParcel.layoutParameters.referenceRow,
+        numberOfRows: targetRowCount,
+        rowDistance:
+          newFieldParcel.layoutParameters.bedSpacing +
+          newFieldParcel.layoutParameters.rowWidth,
+      }) || [];
+    setRows(generatedRows);
+
+    const numberOfCrops = getNumberOfCrops({
+      rows: generatedRows,
+      rowWidth: newFieldParcel.layoutParameters.rowWidth,
+      rowMargin: newFieldParcel.layoutParameters.marginSpacing,
+      rowSpacing: newFieldParcel.layoutParameters.rowSpacing,
+      cropSpacing: newFieldParcel.layoutParameters.plantSpacing,
+    });
+
+    setNewFieldParcel((prev) => ({
+      ...prev,
+      layoutParameters: {
+        ...prev.layoutParameters,
+        numberOfRows: generatedRows.length,
+        numberOfCrops: numberOfCrops,
+      },
+    }));
+  }, [
+    newFieldParcel.polygonPoints,
+    newFieldParcel.layoutParameters.referenceRow,
+    targetRowCount,
+    newFieldParcel.layoutParameters.bedSpacing,
+    newFieldParcel.layoutParameters.rowWidth,
+    newFieldParcel.layoutParameters.marginSpacing,
+    newFieldParcel.layoutParameters.rowSpacing,
+    newFieldParcel.layoutParameters.plantSpacing,
+  ]);
+
+  useEffect(() => {
+    if (fieldParcelToUpdate) {
+      setNewFieldParcel({
+        ...fieldParcelToUpdate,
+        cropFieldId: cropfield.uid,
+        cropCultivarId: fieldParcelToUpdate.cultivarId,
+
+        layoutParameters: {
+          ...fieldParcelToUpdate.layoutParameters,
+        },
+      });
+    }
+  }, [fieldParcelToUpdate, cropfield]);
 
   const { data: crops } = useCropSearch(searchTerm);
 
@@ -72,10 +152,10 @@ function CreateFieldParcelForm({
     }));
   };
 
-  const changeOverlayColor = (color: ColorResult) => {
+  const handleColorChange = (color: string) => {
     setNewFieldParcel((prev) => ({
       ...prev,
-      polygonColor: color.hex,
+      polygonColor: color,
     }));
   };
 
@@ -100,6 +180,10 @@ function CreateFieldParcelForm({
       ...prev,
       polygonPoints: [],
       area: 0,
+      layoutParameters: {
+        ...prev.layoutParameters,
+        referenceRow: [],
+      },
     }));
   };
 
@@ -128,31 +212,22 @@ function CreateFieldParcelForm({
     const { name, value } = event.target;
     let numericValue = Number.parseInt(value) || 0;
 
+    const nextParams = {
+      ...newFieldParcel.layoutParameters,
+      [name]: numericValue,
+    };
+
+    const newRowWidth = calculateRowWidth(
+      nextParams,
+      newFieldParcel.layoutType,
+      false,
+    );
+
     if (name === "linesPerRow") {
       numericValue = Math.max(1, Math.min(numericValue, maxLines));
     }
 
-    if (name === "numberOfRows") {
-      const actualRows = getGeneratedRows({
-        polygonCoords: newFieldParcel.polygonPoints,
-        referenceRow: newFieldParcel.layoutParameters.referenceRow,
-        numberOfRows: numericValue,
-        rowDistance:
-          newFieldParcel.layoutParameters.bedSpacing +
-          newFieldParcel.layoutParameters.rowWidth,
-      });
-
-      if (actualRows && actualRows.length > 0) {
-        console.log("ACTUAL: ", actualRows.length, " TARGET: ", numericValue);
-        numericValue = actualRows.length;
-      }
-    }
-
     setNewFieldParcel((prev) => {
-      const layoutType = prev.layoutType;
-      const nextParams = { ...prev.layoutParameters, [name]: numericValue };
-      const newRowWidth = calculateRowWidth(nextParams, layoutType, false);
-
       return {
         ...prev,
         layoutParameters: {
@@ -161,6 +236,12 @@ function CreateFieldParcelForm({
         },
       };
     });
+  };
+
+  const handleRowCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    const numericValue = Number.isInteger(Number(value)) ? Number(value) : 0;
+    setTargetRowCount(numericValue);
   };
 
   const handleReferenceRowAdded = (referenceRow: LatLngObject[]) => {
@@ -180,7 +261,6 @@ function CreateFieldParcelForm({
         sx={{
           mb: 2,
           mt: 2,
-          height: 800,
           width: "100%",
           border: "1px solid",
           borderColor: "divider",
@@ -192,15 +272,16 @@ function CreateFieldParcelForm({
           variant="h6"
           sx={{ p: 2, fontWeight: "bold", letterSpacing: "0.05rem" }}
         >
-          Create Field Parcel
+          {t("elements.forms.addFieldParcelForm.formTitle") ||
+            "Add Field Parcel"}
         </Typography>
         <Box sx={{ display: "flex", height: "100%" }}>
           <Box sx={{ flex: 1, p: 2 }}>
             <AddParcelView
+              mapHeight={700}
               polygonPoints={cropfield.polygonPoints}
               markerPosition={cropfield.markerPosition}
               uid={cropfield.uid}
-              mapHeight={700}
               parcelPolygonPoints={newFieldParcel.polygonPoints}
               polygonColor={newFieldParcel.polygonColor}
               onParcelAdded={handleFieldParcelPolygonCreated}
@@ -211,21 +292,43 @@ function CreateFieldParcelForm({
               allowDelete={true}
               layoutParameters={newFieldParcel.layoutParameters}
               onReferenceRowAdded={handleReferenceRowAdded}
+              rows={rows}
             />
           </Box>
-          <Box sx={{ flex: 1, p: 2, height: 700 }}>
+          <Box
+            sx={{
+              flex: 1,
+              p: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+            }}
+          >
             <form
               onSubmit={handleSubmit}
               style={{
-                height: "100%",
                 display: "flex",
                 flexDirection: "column",
+                gap: 2,
               }}
             >
               <Autocomplete
                 options={crops || []}
+                value={
+                  fieldParcelToUpdate
+                    ? {
+                        uid: fieldParcelToUpdate.cultivarId,
+                        specieId: fieldParcelToUpdate.specieId,
+                        cultivarName: fieldParcelToUpdate.cultivarName,
+                        specieName: fieldParcelToUpdate.specieName,
+                      }
+                    : null
+                }
+                isOptionEqualToValue={(option, value) =>
+                  option.uid === value.uid
+                }
                 getOptionLabel={(option) =>
-                  `${option.cultivarName} (${option.specieName})`
+                  `${t(`elements.forms.addFieldParcelForm.crops.${option.specieName}`)} - ${option.cultivarName}`
                 }
                 loading={isPending}
                 onInputChange={(_event, newInputValue) => {
@@ -238,60 +341,68 @@ function CreateFieldParcelForm({
                   <TextField
                     color="success"
                     {...params}
-                    label="Search Crop Cultivar"
+                    label={
+                      t(
+                        "elements.forms.addFieldParcelForm.searchCultivarLabel",
+                      ) || "Search Crop Cultivar"
+                    }
                   />
                 )}
               />
-              <Typography
-                variant="subtitle1"
-                sx={{ mt: 2, mb: 1, fontWeight: "bold", fontStyle: "italic" }}
-              >
-                Select Overlay Color
-              </Typography>
 
-              <ChromePicker
+              <PastelColorPicker
                 color={newFieldParcel.polygonColor}
-                onChangeComplete={(color) => changeOverlayColor(color)}
+                onColorChange={handleColorChange}
               />
 
-              <FormControl sx={{ mt: 2, mb: 2, width: 200 }}>
-                <InputLabel
-                  color="success"
-                  id="layout-type-lavel"
-                  sx={{ mt: 2 }}
-                >
-                  Layout Type
+              <FormControl sx={{ mt: 2, mb: 2, width: "100%" }}>
+                <InputLabel color="success" id="layout-type-lavel">
+                  {t("elements.forms.addFieldParcelForm.layoutTypeLabel") ||
+                    "Layout Type"}
                 </InputLabel>
                 <Select
                   color="success"
                   labelId="layout-type-label"
-                  label="Layout type"
+                  label={
+                    t("elements.forms.addFieldParcelForm.layoutTypeLabel") ||
+                    "Layout Type"
+                  }
                   value={newFieldParcel.layoutType}
                   onChange={handleLayoutChange}
-                  sx={{ mt: 2, mb: 2 }}
                 >
-                  <MenuItem value={LayoutTypes.SingleRow}>Single-Row</MenuItem>
-                  <MenuItem value={LayoutTypes.MultiRow}>Multi-Row</MenuItem>
+                  <MenuItem value={LayoutTypes.SingleRow}>
+                    {t("elements.forms.addFieldParcelForm.singleRowOption") ||
+                      "Single-Row"}
+                  </MenuItem>
+                  <MenuItem value={LayoutTypes.MultiRow}>
+                    {t("elements.forms.addFieldParcelForm.multiRowOption") ||
+                      "Multi-Row"}
+                  </MenuItem>
                 </Select>
               </FormControl>
 
-              <TextField
-                color="success"
-                name="numberOfRows"
-                type="number"
-                label="Number of Rows"
-                value={newFieldParcel.layoutParameters.numberOfRows}
-                onChange={handleLayoutParamsChange}
-                sx={{ mb: 1 }}
-              />
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <TextField
+                  color="success"
+                  name="targetRowCount"
+                  type="number"
+                  label={
+                    t("elements.forms.addFieldParcelForm.numberOfRows") ||
+                    "Number Of Rows"
+                  }
+                  value={newFieldParcel.layoutParameters.numberOfRows}
+                  onChange={handleRowCountChange}
+                />
 
-              <Box sx={{ display: "flex", gap: 1, mt: "auto" }}>
                 {newFieldParcel.layoutType === LayoutTypes.MultiRow && (
                   <TextField
                     color="success"
                     name="linesPerRow"
                     type="number"
-                    label="Lines per Row"
+                    label={
+                      t("elements.forms.addFieldParcelForm.linesPerRow") ||
+                      "Lines Per Row"
+                    }
                     value={newFieldParcel.layoutParameters.linesPerRow}
                     onChange={handleLayoutParamsChange}
                   />
@@ -301,7 +412,10 @@ function CreateFieldParcelForm({
                   color="success"
                   name="bedSpacing"
                   type="number"
-                  label="Bed Spacing(cm)"
+                  label={
+                    t("elements.forms.addFieldParcelForm.bedSpacing") ||
+                    "Bed Spacing(cm)"
+                  }
                   value={newFieldParcel.layoutParameters.bedSpacing}
                   onChange={handleLayoutParamsChange}
                 />
@@ -311,7 +425,10 @@ function CreateFieldParcelForm({
                     color="success"
                     name="rowSpacing"
                     type="number"
-                    label="Rows Distance(cm)"
+                    label={
+                      t("elements.forms.addFieldParcelForm.rowsDistance") ||
+                      "Rows Distance(cm)"
+                    }
                     value={newFieldParcel.layoutParameters.rowSpacing}
                     onChange={handleLayoutParamsChange}
                   />
@@ -321,7 +438,10 @@ function CreateFieldParcelForm({
                   color="success"
                   name="plantSpacing"
                   type="number"
-                  label="Crop Spacing(cm)"
+                  label={
+                    t("elements.forms.addFieldParcelForm.cropSpacing") ||
+                    "Crop Spacing(cm)"
+                  }
                   value={newFieldParcel.layoutParameters.plantSpacing}
                   onChange={handleLayoutParamsChange}
                 />
@@ -329,10 +449,23 @@ function CreateFieldParcelForm({
                   color="success"
                   name="marginSpacing"
                   type="number"
-                  label="Row Margins(cm)"
+                  label={
+                    t("elements.forms.addFieldParcelForm.rowMargin") ||
+                    "Row Margins(cm)"
+                  }
                   value={newFieldParcel.layoutParameters.marginSpacing}
                   onChange={handleLayoutParamsChange}
                 />
+              </Box>
+
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <Typography variant="caption">
+                  {t("elements.forms.addFieldParcelForm.numberOfCrops") ||
+                    "Number of Crops: "}
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: "600" }}>
+                  {newFieldParcel.layoutParameters.numberOfCrops}
+                </Typography>
               </Box>
 
               <Box
@@ -347,9 +480,13 @@ function CreateFieldParcelForm({
                   disabled={isPending}
                   variant="contained"
                   color="success"
-                  sx={{ mt: 3 }}
                 >
-                  {isPending ? "Creating..." : "Create Field Parcel"}
+                  {isPending
+                    ? t(
+                        "elements.forms.addFieldParcelForm.saveButtonPending",
+                      ) || "Saving Field Parcel..."
+                    : t("elements.forms.addFieldParcelForm.saveButton") ||
+                      "Save Field Parcel"}
                 </Button>
               </Box>
             </form>

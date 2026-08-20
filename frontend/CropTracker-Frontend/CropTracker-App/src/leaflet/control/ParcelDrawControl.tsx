@@ -1,0 +1,325 @@
+import { useEffect, useRef } from "react";
+import { useParcelDraw } from "../../hooks/leaflet/UseParcelDraw";
+import Flatbush from "flatbush";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
+import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
+import "@geoman-io/leaflet-geoman-free";
+import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+import { useMap } from "react-leaflet";
+import L from "leaflet";
+import { useZoom } from "../../hooks/leaflet/UseMapZoom";
+import { useMapDistance } from "../../hooks/leaflet/UseMapDistance";
+import { useTranslation } from "react-i18next";
+
+interface DrawingToolsProps {
+  onPolygonCreated: (polygon: LatLngObject[]) => void;
+  onPolygonUpdated: (polygon: LatLngObject[]) => void;
+  onPolygonDeleted: () => void;
+  onReferenceRowAdded: (row: LatLngObject[]) => void;
+  polygonColor: string;
+  fieldParcels: GetFieldParcelDTO[];
+  parentPolygon: LatLngObject[];
+  selectedParcel: LatLngObject[];
+  rows: LatLngObject[][];
+  rowRectangles: LatLngObject[][];
+  crops: LatLngObject[];
+  referenceRow: LatLngObject[];
+  lineRef: React.RefObject<L.Polyline | null>;
+  allowCreate: boolean;
+  allowDelete: boolean;
+  editModeOne: boolean;
+  onEditModeUpdate: (editMode: boolean) => void;
+}
+
+function FieldParcelDrawControl({
+  onPolygonCreated,
+  onPolygonDeleted,
+  onPolygonUpdated,
+  onReferenceRowAdded,
+  polygonColor,
+  fieldParcels,
+  parentPolygon,
+  referenceRow,
+  rows,
+  rowRectangles,
+  crops,
+  allowCreate,
+  allowDelete,
+  selectedParcel,
+  lineRef,
+  onEditModeUpdate,
+}: DrawingToolsProps) {
+  const { t } = useTranslation();
+
+  const map = useMap();
+  const tooltipRef = useRef<L.Tooltip | null>(null);
+
+  const areRowsEqual = (row1: LatLngObject[], row2: LatLngObject[]) => {
+    if (!row1 || !row2) return false;
+
+    if (row1.length !== row2.length) return false;
+
+    return (
+      row1[0].lat === row2[0].lat &&
+      row1[0].lng === row2[0].lng &&
+      row1[row1.length - 1].lat === row2[row2.length - 1].lat &&
+      row1[row1.length - 1].lng === row2[row2.length - 1].lng
+    );
+  };
+
+  const { _onCreated, _onDeleted, _onUpdated, _onEditStart, _onEditEnd } =
+    useParcelDraw({
+      onPolygonCreated,
+      onPolygonDeleted,
+      onPolygonUpdated,
+      onReferenceRowAdded,
+      fieldParcels: fieldParcels,
+      polygonCoords: selectedParcel,
+      parentPolygon: parentPolygon,
+      referenceRow: referenceRow,
+      lineRef,
+      selectedParcel,
+      onEditStart: () => onEditModeUpdate(true),
+      onEditEnd: () => onEditModeUpdate(false),
+    });
+
+  const { _onDrawStart, _onDrawEnd } = useMapDistance();
+
+  const lowZoomGroupRef = useRef(L.layerGroup());
+
+  useEffect(() => {
+    const layerGroup = lowZoomGroupRef.current;
+    layerGroup.clearLayers();
+
+    rows.forEach((row) => {
+      L.polyline(row, {
+        color: !areRowsEqual(row, referenceRow) ? "black" : "blue",
+        weight: !areRowsEqual(row, referenceRow) ? 1 : 2,
+        pmIgnore: true,
+      }).addTo(layerGroup);
+    });
+  }, [rows, referenceRow]);
+
+  const midZoomGroupRef = useRef(L.layerGroup());
+
+  useEffect(() => {
+    const layerGroup = midZoomGroupRef.current;
+    layerGroup.clearLayers();
+
+    rowRectangles.map(
+      (rectangle, index) => {
+        L.polygon(rectangle, {
+          color: !areRowsEqual(rows[index], referenceRow) ? "black" : "blue",
+          fillColor: !areRowsEqual(rows[index], referenceRow)
+            ? "black"
+            : "blue",
+          fillOpacity: 0.8,
+          pmIgnore: true,
+        }).addTo(layerGroup);
+      },
+      [rowRectangles],
+    );
+  }, [referenceRow, rowRectangles, rows]);
+
+  const highZoomGroupRef = useRef(L.layerGroup());
+  const spacialIndexRef = useRef<Flatbush | null>(null);
+  const cropsRef = useRef<LatLngObject[]>([]);
+
+  useEffect(() => {
+    const layerGroup = highZoomGroupRef.current;
+    layerGroup.clearLayers();
+
+    if (crops.length === 0) {
+      cropsRef.current = crops;
+      spacialIndexRef.current = null;
+      return;
+    }
+
+    const index = new Flatbush(crops.length);
+
+    crops.forEach((crop) => {
+      index.add(crop.lng, crop.lat, crop.lng, crop.lat);
+    });
+
+    index.finish();
+
+    cropsRef.current = crops;
+    spacialIndexRef.current = index;
+    _onMapViewChange();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [crops]);
+
+  const { _onZoom, _onMapViewChange } = useZoom({
+    lowZoomGroupRef: lowZoomGroupRef,
+    mediumZoomGroupRef: midZoomGroupRef,
+    mediumSelectZoomRef: null,
+    highZoomGroupRef: highZoomGroupRef,
+    indexRef: spacialIndexRef,
+    cropsRef: cropsRef,
+  });
+
+  useEffect(() => {
+    if (!map || !map.pm) return;
+
+    map.pm.setLang(
+      "custom-en" as Parameters<typeof map.pm.setLang>[0],
+      {
+        buttonTitles: {
+          drawPolyButton: t(
+            "leaflet.control.parcelDrawControl.buttonTitles.drawPolyButton",
+            {
+              defaultValue: "Draw parcel outline",
+            },
+          ),
+          editButton: t(
+            "leaflet.control.parcelDrawControl.buttonTitles.editButton",
+            {
+              defaultValue: "Edit parcel and reference line",
+            },
+          ),
+          deleteButton: t(
+            "leaflet.control.parcelDrawControl.buttonTitles.deleteButton",
+            {
+              defaultValue: "Remove parcel outline",
+            },
+          ),
+          drawLineButton: t(
+            "leaflet.control.parcelDrawControl.buttonTitles.drawLineButton",
+            {
+              defaultValue: "Draw reference line",
+            },
+          ),
+        },
+        actions: {
+          finish: t("leaflet.control.parcelDrawControl.actions.finish", {
+            defaultValue: "Finish",
+          }),
+          removeLastVertex: t(
+            "leaflet.control.parcelDrawControl.actions.removeLastVertex",
+            {
+              defaultValue: "Remove last point",
+            },
+          ),
+          cancel: t("leaflet.control.parceldDrawControl.actions.cancel", {
+            defaultValue: "Cancel",
+          }),
+          reset: t("leaflet.control.parcelDrawControl.actions.reset", {
+            defaultValue: "Reset",
+          }),
+          clear: t("leaflet.control.parcelDrawControl.actions.clear", {
+            defaultValue: "Clear",
+          }),
+        },
+      },
+      "en",
+    );
+  }, [map]);
+
+  useEffect(() => {
+    if (!map || !map.pm) return;
+
+    if (!tooltipRef.current) {
+      tooltipRef.current = L.tooltip({
+        permanent: true,
+        direction: "right",
+        className: "distance-tooltip",
+      });
+    }
+
+    if (!map.getPane("cropPane")) {
+      map.createPane("cropPane");
+      map.getPane("cropPane")!.style.zIndex = "400";
+
+      L.svg({ pane: "cropPane" }).addTo(map);
+    }
+
+    map.on("moveend", _onMapViewChange);
+    map.on("resize", _onMapViewChange);
+    map.on("pm:drawstart", _onDrawStart);
+    map.on("pm:drawend", _onDrawEnd);
+    map.on("pm:create", _onCreated);
+    map.on("zoomend", _onZoom);
+    map.on("pm:globaleditmodetoggled", (e) => {
+      if (e.enabled) {
+        const layersGroup = map.pm.getGeomanLayers(true) as L.FeatureGroup;
+
+        layersGroup.getLayers().forEach((layer) => {
+          _onEditStart(layer);
+        });
+      } else {
+        const layersGroup = map.pm.getGeomanLayers(true) as L.FeatureGroup;
+
+        layersGroup.getLayers().forEach((layer) => {
+          _onEditEnd(layer);
+          _onUpdated(layer);
+        });
+      }
+    });
+    map.on("pm:remove", _onDeleted);
+    map.pm.addControls({
+      position: "topright",
+
+      drawMode: allowCreate,
+      drawControls: allowCreate,
+      editMode:
+        selectedParcel.length > 0 ||
+        (!!referenceRow && referenceRow.length > 0),
+      rotateMode: false,
+      dragMode: false,
+      removalMode: selectedParcel && selectedParcel.length > 0,
+
+      drawPolygon: selectedParcel && selectedParcel.length === 0,
+      cutPolygon: false,
+      drawText: false,
+      drawRectangle: false,
+      drawCircle: false,
+      drawMarker: false,
+      drawPolyline: selectedParcel.length > 0 && referenceRow.length === 0,
+      drawCircleMarker: false,
+    });
+    map.pm.setPathOptions({
+      color: polygonColor,
+    });
+    map.pm.setGlobalOptions({
+      tooltips: false,
+      snappable: true,
+      snapDistance: 20,
+      allowSelfIntersection: false,
+      requireContainment: [],
+    });
+
+    return () => {
+      map.off("moveend", _onMapViewChange);
+      map.off("resize", _onMapViewChange);
+      map.off("zoomend", _onZoom);
+      map.off("pm:create", _onCreated);
+      map.off("pm:drawend", _onDrawEnd);
+      map.off("pm:drawstart", _onDrawStart);
+      map.off("pm:globaleditmodetoggled");
+      map.off("pm:remove", _onDeleted);
+      map.pm.removeControls();
+    };
+  }, [
+    _onCreated,
+    _onDeleted,
+    _onUpdated,
+    _onDrawStart,
+    _onMapViewChange,
+    allowCreate,
+    allowDelete,
+    map,
+    polygonColor,
+    fieldParcels,
+    parentPolygon,
+    selectedParcel,
+    _onZoom,
+    _onDrawEnd,
+    _onEditStart,
+    _onEditEnd,
+    referenceRow,
+  ]);
+
+  return null;
+}
+
+export default FieldParcelDrawControl;

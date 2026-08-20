@@ -2,11 +2,7 @@ import {
   Box,
   Button,
   Divider,
-  IconButton,
   List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   ListSubheader,
   Paper,
   Typography,
@@ -15,38 +11,46 @@ import ColumnCenterContainer from "../containers/ColumnCenterContainer";
 import type { GetCropFieldDTO } from "../../interfaces/response/GetCropFieldDTO";
 import AddIcon from "@mui/icons-material/Add";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
-import DeleteIcon from "@mui/icons-material/Delete";
-import UpdateIcon from "@mui/icons-material/Update";
 import { useEffect, useState } from "react";
 import DeleteFieldParcelDialog from "../dialogs/DeleteFieldParcelDialog";
-import FieldDetailMapPreview from "../../leaflet/FieldDetailMapPreview";
-import type { LatLngObject } from "../../interfaces/LatLngObject";
+import FieldDetailMapPreview from "../../leaflet/view/FieldDetailMapPreview";
+import type { LatLngObject } from "../../interfaces/helper/LatLngObject";
 import {
   getGeneratedCrops,
   getGeneratedRectabgles,
   getGeneratedRows,
 } from "../../utils/GenerateShapesUtil";
+import FieldParcelItem from "../list-item/FieldParcelItem";
+import { useTranslation } from "react-i18next";
 
 interface CropFieldInfoPanelProps {
   isLoading: boolean;
   cropFieldDetail: GetCropFieldDTO;
   fieldParcels: GetFieldParcelDTO[];
+  parcelsSelected: boolean[];
   onAddParcelClick: () => void;
   onUpdateParcelClick: (fieldParcel: GetFieldParcelDTO) => void;
   onConfirmDelete: (fieldParcelId: string) => void;
+  onParcelSelected: (index: number) => void;
 }
 
 function CropFieldInfoPanel({
   isLoading,
   fieldParcels,
+  parcelsSelected,
   cropFieldDetail,
   onAddParcelClick,
   onUpdateParcelClick,
   onConfirmDelete,
+  onParcelSelected,
 }: CropFieldInfoPanelProps) {
+  const { t } = useTranslation();
+
   const [rows, setRows] = useState<LatLngObject[][][]>([]);
   const [rowRectangles, setRowRectangles] = useState<LatLngObject[][]>([]);
   const [cropCoords, setCropCoords] = useState<LatLngObject[]>([]);
+  const [deleteParcelOpen, setDeleteParcelOpen] = useState(false);
+  const [selectedParcel, setSelectedParcel] = useState("");
 
   useEffect(() => {
     const currentRows =
@@ -94,19 +98,13 @@ function CropFieldInfoPanel({
         size="medium"
         color="success"
       >
-        Add new field parcel
+        {t("elements.panels.cropFieldInfoPanel.addFieldParcelButton") ||
+          "Add Field Parcel"}
       </Button>
     );
   };
 
-  const [deleteParcelOpen, setDeleteParcelOpen] = useState(false);
-  const [selectedParcel, setSelectedParcel] = useState("");
-
-  const handleParcelDeleteClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    fieldParcelId: string,
-  ) => {
-    event.stopPropagation();
+  const handleParcelDeleteClick = (fieldParcelId: string) => {
     setDeleteParcelOpen(true);
     setSelectedParcel(fieldParcelId);
   };
@@ -122,12 +120,12 @@ function CropFieldInfoPanel({
     setSelectedParcel("");
   };
 
-  const handleParcelUpdateClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    fieldParcel: GetFieldParcelDTO,
-  ) => {
-    event.stopPropagation();
+  const handleParcelUpdate = (fieldParcel: GetFieldParcelDTO) => {
     onUpdateParcelClick(fieldParcel);
+  };
+
+  const handleParcelExpand = (index: number) => {
+    onParcelSelected(index);
   };
 
   return (
@@ -139,8 +137,8 @@ function CropFieldInfoPanel({
             color="text.secondary"
             sx={{ mb: 4, fontStyle: "italic" }}
           >
-            Here you can view the details of your field. The map below shows the
-            location and boundaries of your field.
+            {t("elements.panels.cropFieldInfoPanel.fieldDetailsInfo") ||
+              "Below you can find the details of the crop field, including its name, location, and size. You can also view the list of field parcels associated with this crop field."}
           </Typography>
 
           <Paper
@@ -163,6 +161,7 @@ function CropFieldInfoPanel({
               uid={cropFieldDetail.uid}
               markerPosition={cropFieldDetail.markerPosition}
               polygonPoints={cropFieldDetail.polygonPoints}
+              parcelsSelected={parcelsSelected}
               fieldParcels={fieldParcels}
               rows={rows.flat()}
               rowRectangles={rowRectangles}
@@ -172,13 +171,6 @@ function CropFieldInfoPanel({
           </Paper>
         </Box>
         <Box sx={{ flex: 1, p: 2 }}>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ mb: 4, fontStyle: "italic" }}
-          >
-            Here you can view the list of parcels of your field.
-          </Typography>
           {!isLoading && fieldParcels.length > 0 ? (
             <Box
               sx={{
@@ -186,7 +178,7 @@ function CropFieldInfoPanel({
                 alignItems: "center",
                 margin: "auto",
                 flexDirection: "column",
-                maxWidth: 360,
+                maxWidth: 400,
                 maxHeight: 450,
                 gap: 1,
                 overflowX: "hidden",
@@ -194,42 +186,36 @@ function CropFieldInfoPanel({
               }}
             >
               <List
+                sx={{
+                  width: "100%",
+                  "& .MuiListItem-root": { my: 0, py: 0.25 },
+                }}
+                disablePadding
                 subheader={
                   <ListSubheader
                     sx={{ fontWeight: "bold", lineHeight: "40px" }}
                   >
-                    Field parcels list
-                    <Divider />
+                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                      {t(
+                        "elements.panels.cropFieldInfoPanel.parcelListTitle",
+                      ) || "Field Parcels"}
+                    </Typography>
+                    <Divider
+                      sx={{ borderBottomWidth: 2.5, borderColor: "grey.300" }}
+                    />
                   </ListSubheader>
                 }
               >
                 {fieldParcels.map((parcel, index) => (
-                  <ListItem key={parcel.uid}>
-                    <ListItemButton
-                      sx={{
-                        minWidth: 320,
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <ListItemText primary={`Parcel ${index + 1}`} />
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <IconButton
-                          onClick={(e) => handleParcelUpdateClick(e, parcel)}
-                        >
-                          <UpdateIcon />
-                        </IconButton>
-                        <IconButton
-                          onClick={(e) =>
-                            handleParcelDeleteClick(e, parcel.uid)
-                          }
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    </ListItemButton>
-                  </ListItem>
+                  <FieldParcelItem
+                    key={index}
+                    parcel={parcel}
+                    selected={parcelsSelected[index]}
+                    index={index}
+                    onParcelExpand={handleParcelExpand}
+                    onParcelUpdate={handleParcelUpdate}
+                    onParcelDelete={handleParcelDeleteClick}
+                  />
                 ))}
               </List>
               {cropFieldDetail.polygonPoints.length > 3 && <AddParcelButton />}
@@ -245,7 +231,9 @@ function CropFieldInfoPanel({
                   letterSpacing: "0.05rem",
                 }}
               >
-                You have no field parcels added.
+                {t(
+                  "elements.panels.cropFieldInfoPanel.parcelListEmptyMessage",
+                ) || "No field parcels added yet."}
               </Typography>
               {cropFieldDetail.polygonPoints.length > 3 && <AddParcelButton />}
             </ColumnCenterContainer>

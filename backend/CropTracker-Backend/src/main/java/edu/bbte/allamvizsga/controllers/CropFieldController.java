@@ -2,13 +2,13 @@ package edu.bbte.allamvizsga.controllers;
 
 import edu.bbte.allamvizsga.dto.request.cropfield.CreateCropFieldDTO;
 import edu.bbte.allamvizsga.dto.request.cropfield.UpdateCropFieldDTO;
+import edu.bbte.allamvizsga.dto.response.cropfield.ConfirmUpdateDTO;
 import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldDTO;
+import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldNameDTO;
+import edu.bbte.allamvizsga.dto.response.cropfield.GetCropFieldWorkDTO;
 import edu.bbte.allamvizsga.mappers.CropFieldMapper;
-import edu.bbte.allamvizsga.mappers.FieldParcelMapper;
-import edu.bbte.allamvizsga.model.CropField;
-import edu.bbte.allamvizsga.model.FieldParcel;
-import edu.bbte.allamvizsga.model.FieldWork;
-import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.mappers.CropFieldVersionMapper;
+import edu.bbte.allamvizsga.model.*;
 import edu.bbte.allamvizsga.services.CropFieldService;
 import edu.bbte.allamvizsga.services.FieldWorkService;
 import edu.bbte.allamvizsga.services.UserService;
@@ -35,81 +35,108 @@ public class CropFieldController {
     private final UserService userService;
     private final FieldWorkService fieldWorkService;
     private final CropFieldMapper cropFieldMapper;
-    private final FieldParcelMapper fieldParcelMapper;
+    private final CropFieldVersionMapper cropFieldVersionMapper;
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void createCropField(@Valid @RequestBody CreateCropFieldDTO createCropFieldDTO,
                                 @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
+
         CropField cropField = cropFieldMapper.createCropFieldDTOtoModel(createCropFieldDTO);
+        CropFieldVersion cropFieldVersion = cropFieldVersionMapper.createCropFieldToModel(createCropFieldDTO);
+
         cropField.setUser(user);
-        cropFieldService.createCropField(cropField);
+        cropFieldService.createCropField(cropField, cropFieldVersion);
     }
 
     @PutMapping("/update")
-    public void updateCropField(@Valid @RequestBody UpdateCropFieldDTO updateCropFieldDTO,
-                                @RequestParam(name = "id") String plotID,
-                                @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> updateCropField(@Valid @RequestBody UpdateCropFieldDTO updateCropFieldDTO,
+                                             @RequestParam(name = "id") UUID cropFieldId,
+                                             @RequestParam(name = "confirm", required = false) Boolean confirm,
+                                             @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        CropField cropField = cropFieldService.findCropFieldByUser(UUID.fromString(plotID), user);
-        cropFieldMapper.updateModelFromUpdateCropFieldDto(updateCropFieldDTO, cropField);
-        cropFieldService.updateCropField(cropField);
+        CropFieldVersion cropFieldVersion = cropFieldVersionMapper.updateCropFieldToModel(updateCropFieldDTO);
+
+        CropFieldVersion cropFieldToUpdate = cropFieldService.findById(cropFieldId, user);
+
+        Collection<FieldWork> ongoingWorks = fieldWorkService.findAllOngoing(cropFieldToUpdate);
+        Collection<FieldWork> scheduledWorks = fieldWorkService.findAllScheduled(cropFieldToUpdate);
+
+        if (!ongoingWorks.isEmpty() || !scheduledWorks.isEmpty()) {
+            if (confirm) {
+                CropFieldVersion newVersion = cropFieldService.updateCropField(cropFieldId, updateCropFieldDTO.getName(), user, cropFieldVersion);
+
+                scheduledWorks.forEach(fieldWork -> {
+                    fieldWork.setCropFieldVersion(newVersion);
+                    fieldWorkService.updateScheduledWork(fieldWork);
+                });
+
+                return ResponseEntity.ok(null);
+            } else {
+                ConfirmUpdateDTO confirmUpdateDTO = new ConfirmUpdateDTO(ongoingWorks.size(), scheduledWorks.size());
+                return ResponseEntity.ok(confirmUpdateDTO);
+            }
+        }
+
+        cropFieldService.updateCropField(cropFieldId, updateCropFieldDTO.getName(), user, cropFieldVersion);
+        return ResponseEntity.ok(null);
     }
 
     @GetMapping("/findall")
     public ResponseEntity<Collection<GetCropFieldDTO>> getCropFields(
             @RequestHeader("Authorization") String authorizationHeader) {
         User user = userService.extractUser(authorizationHeader);
-        Collection<CropField> cropFields = cropFieldService.getCropFields(user);
+        Collection<CropFieldVersion> cropFieldVersions = cropFieldService.getCropFieldVersions(user);
 
-        Collection<GetCropFieldDTO> getCropFieldDTOS = cropFields.stream().map(cropField -> {
-            GetCropFieldDTO getCropFieldDTO = cropFieldMapper.modelToGetCropFieldDTO(cropField);
-            Collection<FieldParcel> fieldParcels = cropField.getFieldParcels();
-            getCropFieldDTO.setFieldParcelDTOS(fieldParcels.stream()
-                    .map(fieldParcelMapper::modelToGetFieldParcelDTO)
-                    .toList());
-            return getCropFieldDTO;
-        }).toList();
+        Collection<GetCropFieldDTO> getCropFieldDTOS = cropFieldVersions.stream().map(
+                cropFieldVersionMapper::modelToGetCropField
+        ).toList();
         return ResponseEntity.ok(getCropFieldDTOS);
+    }
+
+    @GetMapping(value = "/findall", params = "pattern")
+    public ResponseEntity<Collection<GetCropFieldNameDTO>> getWorkTypesByPattern(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam("pattern") String pattern) {
+        User user = userService.extractUser(authorizationHeader);
+
+        Collection<CropField> cropFields = cropFieldService.findByPattern(user, pattern);
+
+        return ResponseEntity.ok(cropFields.stream().map(cropFieldMapper::modelToGetCropFieldName).toList());
     }
 
     @GetMapping(value = "/findby", params = "id")
     public ResponseEntity<GetCropFieldDTO> getCropFieldById(
-            @RequestParam(name = "id") String cropFieldId
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam(name = "id") UUID cropFieldId
     ) {
-        UUID uid = UUID.fromString(cropFieldId);
-        CropField cropField = cropFieldService.findById(uid);
-        Collection<FieldParcel> fieldParcels = cropField.getFieldParcels();
-        GetCropFieldDTO getCropFieldDTO = cropFieldMapper.modelToGetCropFieldDTO(cropField);
-        getCropFieldDTO.setFieldParcelDTOS(fieldParcels.stream().map(fieldParcelMapper::modelToGetFieldParcelDTO)
-                .toList());
+
+        User user = userService.extractUser(authorizationHeader);
+        CropFieldVersion cropFieldVersion = cropFieldService.findById(cropFieldId, user);
+        GetCropFieldDTO getCropFieldDTO = cropFieldVersionMapper.modelToGetCropField(cropFieldVersion);
         return ResponseEntity.ok(getCropFieldDTO);
     }
 
     @GetMapping(value = "/findby", params = "fieldWorkId")
-    public ResponseEntity<GetCropFieldDTO> getCropFieldByFieldWorkId(
-            @RequestParam(name = "fieldWorkId") String workId,
+    public ResponseEntity<GetCropFieldWorkDTO> getCropFieldByFieldWorkId(
+            @RequestParam(name = "fieldWorkId") UUID fieldWorkId,
             @RequestHeader("Authorization") String authorizationHeader
     ) {
-        UUID uid = UUID.fromString(workId);
         User user = userService.extractUser(authorizationHeader);
 
-        FieldWork fieldWork = fieldWorkService.findById(uid, user);
-        CropField cropField = fieldWork.getCropField();
+        FieldWork fieldWork = fieldWorkService.findById(fieldWorkId, user);
+        CropFieldVersion cropFieldVersion = fieldWork.getCropFieldVersion();
 
-        Collection<FieldParcel> fieldParcels = cropField.getFieldParcels();
-
-        GetCropFieldDTO getCropFieldDTO = cropFieldMapper.modelToGetCropFieldDTO(cropField);
-        getCropFieldDTO.setFieldParcelDTOS(fieldParcels.stream().map(fieldParcelMapper::modelToGetFieldParcelDTO)
-                .toList());
-        return ResponseEntity.ok(getCropFieldDTO);
+        GetCropFieldWorkDTO getCropFieldWorkDTO = cropFieldVersionMapper.modelToGetCropFieldWork(cropFieldVersion);
+        return ResponseEntity.ok(getCropFieldWorkDTO);
     }
 
     @DeleteMapping("/delete")
-    public void deleteCropFieldById(@RequestParam(name = "id") String cropFieldId) {
-        UUID uid = UUID.fromString(cropFieldId);
-        cropFieldService.deleteById(uid);
+    public void deleteCropFieldById(@RequestHeader("Authorization") String authorizationHeader,
+                                    @RequestParam(name = "id") UUID cropFieldId) {
+        User user = userService.extractUser(authorizationHeader);
+        cropFieldService.deleteById(cropFieldId, user);
     }
 
 }

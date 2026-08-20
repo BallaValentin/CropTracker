@@ -1,5 +1,5 @@
 import { TreeItem } from "@mui/x-tree-view";
-import { useCropsStore } from "../../hooks/UseCropsStore";
+import { useCropsStore } from "../../hooks/caching/UseCropsStore";
 import { Box, CircularProgress, IconButton, Typography } from "@mui/material";
 import type { GetCropCategoryDTO } from "../../interfaces/response/GetCropCategoryDTO";
 import SpecieItem from "./SpecieItem";
@@ -8,11 +8,22 @@ import AddIcon from "@mui/icons-material/Add";
 import AddCropSpecieForm from "../forms/AddCropSpecieForm";
 import type { CreateCropSpecieDTO } from "../../interfaces/request/CreateCropSpecieDTO";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
+import type { ErrorResponse } from "../../interfaces/error/ErrorResponse";
+import { createCropSpecie } from "../../services/CropSpecieService";
 
-function CategoryItem(category: GetCropCategoryDTO) {
+interface CategoryItemProps {
+  category: GetCropCategoryDTO;
+  onOperationSuccess: (message: string) => void;
+}
+
+function CategoryItem({ category, onOperationSuccess }: CategoryItemProps) {
   const emptySpeciesList = [] as GetCropSpecieDTO[];
   const [addSpecieOpen, setAddSpecieOpen] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const species = useCropsStore(
     (s) => s.species[category.uid] || emptySpeciesList,
   );
@@ -37,10 +48,26 @@ function CategoryItem(category: GetCropCategoryDTO) {
     setAddSpecieOpen(false);
   };
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: createCropSpecie,
+    onSuccess: (newCropSpecie: GetCropSpecieDTO) => {
+      addNewSpecie(newCropSpecie);
+      setErrorMessage("");
+      setAddSpecieOpen(false);
+      setSelectedCategory("");
+      onOperationSuccess("New crop specie successfully added.");
+    },
+    onError: (error: AxiosError) => {
+      console.log(error.response);
+      if (error.response?.status === 400) {
+        const message = (error.response.data as ErrorResponse).message;
+        setErrorMessage(message || "");
+      }
+    },
+  });
+
   const addSpecie = async (newCropSpecie: CreateCropSpecieDTO) => {
-    await addNewSpecie(newCropSpecie);
-    setAddSpecieOpen(false);
-    setSelectedCategory("");
+    mutate(newCropSpecie);
   };
 
   return (
@@ -79,7 +106,13 @@ function CategoryItem(category: GetCropCategoryDTO) {
             label={<CircularProgress size={16} />}
           />
         ) : (
-          species.map((specie) => <SpecieItem key={specie.uid} {...specie} />)
+          species.map((specie) => (
+            <SpecieItem
+              key={specie.uid}
+              specie={specie}
+              onOperationSuccess={onOperationSuccess}
+            />
+          ))
         )}
       </TreeItem>
       {addSpecieOpen && (
@@ -88,6 +121,8 @@ function CategoryItem(category: GetCropCategoryDTO) {
           categoryId={selectedCategory}
           onSubmit={addSpecie}
           onClose={handleDialogClose}
+          errorMessage={errorMessage}
+          isPending={isPending}
         />
       )}
     </Box>

@@ -11,6 +11,7 @@ import {
 import type { LoginUserDTO } from "../../interfaces/request/LoginUserDTO";
 import { useState } from "react";
 import ColumnCenterContainer from "../containers/ColumnCenterContainer";
+import { useTranslation } from "react-i18next";
 
 interface LoginFormProps {
   onLoginSubmit: (loginData: LoginUserDTO) => void;
@@ -19,6 +20,8 @@ interface LoginFormProps {
 }
 
 function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
+  const { t } = useTranslation();
+
   const [loginData, setLoginData] = useState<LoginUserDTO>({
     username: "",
     password: "",
@@ -43,7 +46,7 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
         }}
       >
         <Typography variant="h4" gutterBottom sx={{ textAlign: "center" }}>
-          Sign in
+          {t("elements.forms.loginForm.formTitle") || "Login"}
         </Typography>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
@@ -53,11 +56,10 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
                 variant="body1"
                 gutterBottom
               >
-                Username
+                {t("elements.forms.loginForm.usernameLabel") || "Username"}
               </Typography>
               <TextField
                 name="username"
-                placeholder="Your username"
                 required
                 onChange={handleFormChange}
                 fullWidth
@@ -70,12 +72,11 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
                   variant="body1"
                   gutterBottom
                 >
-                  Password
+                  {t("elements.forms.loginForm.passwordLabel") || "Password"}
                 </Typography>
                 <TextField
                   name="password"
                   type="password"
-                  placeholder="Your password"
                   required
                   onChange={handleFormChange}
                   fullWidth
@@ -91,9 +92,11 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
               )}
 
               <Typography sx={{ textAlign: "left" }} variant="subtitle2">
-                Forgot password?{" "}
+                {t("elements.forms.loginForm.forgotPassword") ||
+                  "Forgot password?"}
                 <Link href="/forgot-password" underline="hover">
-                  Click here
+                  {t("elements.forms.loginForm.forgotPasswordLink") ||
+                    "Click here"}
                 </Link>
               </Typography>
 
@@ -104,14 +107,18 @@ function LoginForm({ onLoginSubmit, isPending, loginError }: LoginFormProps) {
                 color="primary"
                 disabled={isPending}
               >
-                {isPending ? "Logging in..." : "Log in"}
+                {isPending
+                  ? t("elements.forms.loginForm.loginButtonPending") ||
+                    "Logging in..."
+                  : t("elements.forms.loginForm.loginButton") || "Login"}
               </Button>
 
               <Box sx={{ mt: 1, textAlign: "center" }}>
                 <Typography variant="body1">
-                  Don`t have an account?{" "}
+                  {t("elements.forms.loginForm.dontHaveAccount") ||
+                    "Don't have an account?"}
                   <Link href="/signup" underline="hover">
-                    Signup
+                    {t("elements.forms.loginForm.registerLink") || "Register"}
                   </Link>
                 </Typography>
               </Box>

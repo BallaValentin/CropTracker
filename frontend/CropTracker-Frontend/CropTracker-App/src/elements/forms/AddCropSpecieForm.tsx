@@ -3,18 +3,24 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogTitle,
+  Divider,
   Grid,
+  IconButton,
   TextField,
   Typography,
 } from "@mui/material";
 import type { CreateCropSpecieDTO } from "../../interfaces/request/CreateCropSpecieDTO";
 import { useState } from "react";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface AddCropSpecieProps {
   open: boolean;
   categoryId: string;
   onSubmit: (newCropSpecie: CreateCropSpecieDTO) => void;
   onClose: () => void;
+  errorMessage: string;
+  isPending: boolean;
 }
 
 function AddCropSpecieForm({
@@ -22,6 +28,8 @@ function AddCropSpecieForm({
   categoryId,
   onSubmit,
   onClose,
+  errorMessage,
+  isPending,
 }: AddCropSpecieProps) {
   const [newCropSpecie, setNewCropSpecie] = useState<CreateCropSpecieDTO>({
     commonName: "",
@@ -59,15 +67,20 @@ function AddCropSpecieForm({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+      <DialogTitle sx={{ display: "flex", position: "relative" }}>
+        <Typography sx={{ fontWeight: "bold", letterSpacing: "0.05rem" }}>
+          Add crop specie
+        </Typography>
+        <IconButton
+          sx={{ position: "absolute", top: 8, right: 8 }}
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <Divider />
       <form onSubmit={handleSubmit}>
         <DialogContent>
-          <Typography
-            variant="h6"
-            fontSize={"large"}
-            sx={{ mb: 4, fontWeight: "bold", letterSpacing: "0.05rem" }}
-          >
-            Add crop specie
-          </Typography>
           <Grid container spacing={2}>
             <Grid size={{ xs: 12 }}>
               <TextField
@@ -89,13 +102,26 @@ function AddCropSpecieForm({
               />
             </Grid>
           </Grid>
+
+          <Typography
+            variant="subtitle2"
+            color="error"
+            sx={{ my: 1, textAlign: "center" }}
+          >
+            {errorMessage}
+          </Typography>
         </DialogContent>
 
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button color="success" onClick={handleCancel}>
+          <Button disabled={isPending} color="success" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button type="submit" variant="contained" color="success">
+          <Button
+            disabled={isPending}
+            type="submit"
+            variant="contained"
+            color="success"
+          >
             Submit
           </Button>
         </DialogActions>

@@ -1,9 +1,18 @@
 package edu.bbte.allamvizsga.controllers;
+
 import edu.bbte.allamvizsga.dto.request.user.LoginRequestDTO;
 import edu.bbte.allamvizsga.dto.request.user.RegisterRequestDTO;
+import edu.bbte.allamvizsga.dto.request.user.ResendVerificationCodeDTO;
+import edu.bbte.allamvizsga.dto.request.user.VerifyAccountDTO;
+import edu.bbte.allamvizsga.dto.response.user.GetResendCodeDTO;
+import edu.bbte.allamvizsga.dto.response.user.GetVerifyEmailTokenDTO;
 import edu.bbte.allamvizsga.dto.response.user.LoginResponseDTO;
 import edu.bbte.allamvizsga.dto.response.user.RefreshTokenResponseDTO;
 import edu.bbte.allamvizsga.exceptions.RefreshTokenException;
+import edu.bbte.allamvizsga.model.VerifyEmailToken;
+import edu.bbte.allamvizsga.services.MailService;
+import edu.bbte.allamvizsga.services.VerifyEmailTokenService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import edu.bbte.allamvizsga.mappers.UserMapper;
@@ -26,6 +35,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.URI;
+import java.util.Arrays;
 import java.util.UUID;
 
 @RestController
@@ -36,6 +47,8 @@ import java.util.UUID;
 public class AuthController {
     private final UserService userService;
     private final RefreshTokenService refreshTokenService;
+    private final VerifyEmailTokenService verifyEmailTokenService;
+    private final MailService mailService;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -56,13 +69,13 @@ public class AuthController {
         LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
         loginResponseDTO.setAccessToken(token);
 
-        RefreshToken refreshToken = new RefreshToken(foundUser, UUID.randomUUID());
+        RefreshToken refreshToken = new RefreshToken(foundUser, UUID.randomUUID().toString());
         refreshTokenService.save(refreshToken);
 
-        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken.getToken().toString());
+        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken.getToken());
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setMaxAge(3600 * 24);
+        refreshTokenCookie.setMaxAge(3600 * 24 * 30);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setAttribute("SameSite", "Strict");
         response.addCookie(refreshTokenCookie);
@@ -72,8 +85,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void register(@Valid @RequestBody RegisterRequestDTO registerRequest) throws IOException {
-        log.debug("Received register request");
+    public ResponseEntity<GetVerifyEmailTokenDTO> register(@Valid @RequestBody RegisterRequestDTO registerRequest) throws IOException {
 
         if (!registerRequest.getPassword().equals(registerRequest.getPassword2())) {
             throw new InvalidSignupException("Passwords do not match");
@@ -81,22 +93,52 @@ public class AuthController {
 
         User user = userMapper.registerDtoToModel(registerRequest);
         user.setIsActive(Boolean.TRUE);
+        user.setIsVerified(Boolean.FALSE);
         userService.createUser(user, registerRequest.getIsGrower(), registerRequest.getIsWorker());
-        userMapper.registerDtoToModel(registerRequest);
+
+        VerifyEmailToken verifyEmailToken = verifyEmailTokenService.createToken(user);
+
+        mailService.sendEmailVerificationMail(user.getEmail(),
+                user.getUsername(), verifyEmailToken.getVerificationCode());
+
+        return new ResponseEntity<>(userMapper.modelToGetVerifyEmail(verifyEmailToken),
+                HttpStatus.CREATED);
     }
 
-    @GetMapping("/refresh-token")
-    public ResponseEntity<RefreshTokenResponseDTO> refreshToken(HttpServletRequest request) {
+    @PostMapping("/resend-code")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<GetResendCodeDTO> resendMail(@Valid @RequestBody ResendVerificationCodeDTO resendVerificationCodeDTO) {
+        String email = resendVerificationCodeDTO.getEmail();
+
+        User user = userService.findUserByEmail(email);
+
+        verifyEmailTokenService.deleteByUser(user);
+        VerifyEmailToken verifyEmailToken = verifyEmailTokenService.createToken(user);
+
+        mailService.sendEmailVerificationMail(user.getEmail(), user.getUsername(),
+                verifyEmailToken.getVerificationCode());
+
+        return new ResponseEntity<>(userMapper.modelToGetResendCode(verifyEmailToken),
+                HttpStatus.CREATED);
+    }
+
+    @PostMapping("/verify-account")
+    public void verifyAccount(@Valid @RequestBody VerifyAccountDTO verifyAccountDTO) {
+        userService.verifyAccount(verifyAccountDTO.getEmail(),
+                verifyAccountDTO.getVerificationCode());
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<RefreshTokenResponseDTO> getRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
-        if (cookies == null) {
-            throw new RefreshTokenException("Invalid or missing refresh token");
+        if (cookies == null || Arrays.stream(cookies).findAny().isEmpty()) {
+            throw new EntityNotFoundException("Invalid or missing refresh token.");
         }
 
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("refresh_token")) {
-                UUID refreshToken = UUID.fromString(cookie.getValue());
-                RefreshToken foundToken = refreshTokenService.findByToken(refreshToken);
+                RefreshToken foundToken = refreshTokenService.findByToken(cookie.getValue());
                 if (foundToken != null) {
                     String accessToken = jwtUtil.generateToken(foundToken.getUser().getUid());
                     RefreshTokenResponseDTO refreshTokenResponseDTO = new RefreshTokenResponseDTO(accessToken);
@@ -110,8 +152,10 @@ public class AuthController {
     @GetMapping("/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie: cookies) {
-            if (cookie.getName().equals("refresh-token")) {
+        for (Cookie cookie : cookies) {
+            System.out.println("Cookie: " + cookie.getName());
+            if (cookie.getName().equals("refresh_token")) {
+                refreshTokenService.invalidateToken(cookie.getValue());
                 cookie.setMaxAge(0);
                 cookie.setValue("");
                 cookie.setPath("/");

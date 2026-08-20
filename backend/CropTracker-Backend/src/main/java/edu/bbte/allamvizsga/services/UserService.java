@@ -1,11 +1,13 @@
 package edu.bbte.allamvizsga.services;
 
-import edu.bbte.allamvizsga.dto.request.user.UserUpdateDTO;
+import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.exceptions.InvalidSignupException;
 import edu.bbte.allamvizsga.model.Role;
 import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.model.VerifyEmailToken;
 import edu.bbte.allamvizsga.repository.RoleRepository;
 import edu.bbte.allamvizsga.repository.UserRepository;
+import edu.bbte.allamvizsga.repository.VerifyEmailTokenRepository;
 import edu.bbte.allamvizsga.util.JwtUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -15,7 +17,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -31,19 +33,20 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
     private final JwtUtil jwtUtil;
+    private final VerifyEmailTokenRepository verifyEmailTokenRepository;
 
-    public void createUser(User user, Boolean isGrower, Boolean isWorker) throws IOException {
+    public void createUser(User user, Boolean isGrower, Boolean isWorker) {
 
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            throw new InvalidSignupException("User with username " + user.getUsername() + " already exists");
+            throw new InvalidSignupException("Username already taken.");
         }
 
         if (userRepository.findByEmail(user.getEmail()) != null) {
-            throw new InvalidSignupException("User with email " + user.getEmail() + " already exists");
+            throw new InvalidSignupException("Email address already taken.");
         }
 
         if (!isGrower && !isWorker) {
-            throw new InvalidSignupException("One of the roles must be chosen");
+            throw new InvalidSignupException("No roles have been chosen.");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -52,7 +55,7 @@ public class UserService {
         if (isGrower) {
             Optional<Role> farmerRole = roleRepository.findByName("GROWER");
             if (farmerRole.isEmpty()) {
-                throw new RuntimeException("Role not found");
+                throw new RuntimeException("Role not found.");
             }
             user.getRoles().add(farmerRole.get());
         }
@@ -60,23 +63,22 @@ public class UserService {
         if (isWorker) {
             Optional<Role> dayLaborerRole = roleRepository.findByName("WORKER");
             if (dayLaborerRole.isEmpty()) {
-                throw new RuntimeException("Role not found");
+                throw new RuntimeException("Role not found.");
             }
             user.getRoles().add(dayLaborerRole.get());
         }
 
         userRepository.save(user);
-        imageService.uploadDefaultImage(user);
     }
 
     public Collection<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public User findUserById(UUID uid) {
-        User user = userRepository.findByUid(uid);
+    public User findUserById(UUID userId) {
+        User user = userRepository.findByUid(userId);
         if (user == null) {
-            throw new EntityNotFoundException("Couldn't find user");
+            throw new EntityNotFoundException("User not found.");
         } else {
             return user;
         }
@@ -85,7 +87,7 @@ public class UserService {
     public User findUserByEmail(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new EntityNotFoundException("Couldn't find user with email: " + email);
+            throw new EntityNotFoundException("User not found.");
         } else {
             return user;
         }
@@ -94,43 +96,63 @@ public class UserService {
     public User findUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
-            throw new EntityNotFoundException("Couldn't find user with username: " + username);
+            throw new EntityNotFoundException("User not found.");
         } else {
             return user;
         }
     }
 
     public User authenticate(User user) {
-        User user1 = userRepository.findByUsername(user.getUsername());
-        if (user1 != null) {
-            if (passwordEncoder.matches(user.getPassword(), user1.getPassword())) {
-                return user1;
+        User foundUser = userRepository.findByUsername(user.getUsername());
+        if (foundUser != null) {
+            if (passwordEncoder.matches(user.getPassword(), foundUser.getPassword()) &&
+            foundUser.getIsActive() && foundUser.getIsVerified()) {
+                return foundUser;
             } else {
-                throw new BadCredentialsException("Invalid username or password");
+                throw new BadCredentialsException("Invalid username or password.");
             }
         } else {
-            throw new BadCredentialsException("Invalid username or password");
+            throw new BadCredentialsException("Invalid username or password.");
         }
     }
 
-    public void changeAvatar(User user, String newImageSrc) throws IOException {
+    public void verifyAccount(String email, String verificationCode) {
+        User user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            throw new EntityNotFoundException("User not found.");
+        }
+
+        VerifyEmailToken verifyEmailToken =
+                verifyEmailTokenRepository.findByVerificationCode(verificationCode);
+
+        if (verifyEmailToken == null) {
+            throw new EntityNotFoundException(
+                    "Account verification token not found. Please try with a different verification code.");
+        }
+
+        if (Instant.now().isAfter(verifyEmailToken.getExpires())) {
+            verifyEmailTokenRepository.deleteById(verifyEmailToken.getUid());
+            throw new InvalidSignupException("Account verification token has expired");
+        }
+
+        user.setIsVerified(Boolean.TRUE);
+        userRepository.save(user);
+
+        verifyEmailTokenRepository.deleteById(verifyEmailToken.getUid());
+
+        imageService.uploadDefaultImage(user);
+    }
+
+    public void changeAvatar(User user, String newImageSrc) {
         imageService.updateUserAvatar(user, newImageSrc);
     }
 
-    public User updateUser(User user, UserUpdateDTO userUpdates) {
-        UUID uid = user.getUid();
-        String newUsername = userUpdates.getUsername();
-        String newEmail = userUpdates.getEmail();
-
-        if (!newUsername.equals(user.getUsername())) {
-            userRepository.updateUsername(newUsername, uid);
+    public void updateUser(User user, String newAvatar) {
+        if (newAvatar != null && !newAvatar.isBlank()) {
+            changeAvatar(user, newAvatar);
         }
-
-        if (!newEmail.equals(user.getEmail())) {
-            userRepository.updateEmail(newEmail, uid);
-        }
-
-        return userRepository.findByUid(uid);
+        userRepository.save(user);
     }
 
     public void updateUserStatus(User user, Boolean isActive) {
@@ -150,7 +172,15 @@ public class UserService {
 
     public User extractUser(String authorizationHeader) {
         String accessToken = authorizationHeader.substring(7);
-        UUID uid = jwtUtil.getUid(accessToken);
-        return findUserById(uid);
+        String uid = jwtUtil.getUid(accessToken);
+        try {
+            if (uid == null || uid.isBlank()) {
+                throw new BadRequestException("The user id is missing");
+            }
+            UUID userId = UUID.fromString(uid);
+            return findUserById(userId);
+        } catch (IllegalArgumentException exception) {
+            throw new BadRequestException("Invalid user id format");
+        }
     }
 }

@@ -4,36 +4,41 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getCropFieldByFieldWorkId } from "../services/CropFieldService";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import { Box, Button } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
-import { useFieldParcels } from "../hooks/UseFieldParcels";
 import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { type GetWorkTypeDTO } from "../interfaces/response/GetWorkTypeDTO";
-import { useWorkTypes } from "../hooks/UseWorkTypes";
+import { useWorkTypes } from "../hooks/caching/UseWorkTypes";
 import { updateFieldWork } from "../services/FieldWorkService";
 import type { CreateFieldWorkDTO } from "../interfaces/request/CreateFieldWorkDTO";
 import { createWorkType } from "../services/WorkTypeService";
 import { queryClient } from "../query-client/QueryClient";
 import type { CreateWorkTypeDTO } from "../interfaces/request/CreateWorkTypeDTO";
-import UpdateFieldWorkForm from "../elements/forms/UpdateFieldWorkForm";
 import type { UpdateFieldWorkDTO } from "../interfaces/request/UpdateFieldWorkDTO";
-import { useFieldWork } from "../hooks/UseFieldWork";
+import { useFieldWork } from "../hooks/caching/UseFieldWork";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import AddFieldWorkForm from "../elements/forms/AddFieldWorkForm";
+import { type GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
+import { useCropFieldVersionParcels } from "../hooks/caching/UseCropFieldVersionParcels";
+import { useTranslation } from "react-i18next";
 
 function UpdateFieldWorkPage() {
+  const { t } = useTranslation();
+
   const { id } = useParams();
   const navigate = useNavigate();
   const [cropField, setCropField] = useState<GetCropFieldDTO | null>(null);
   const [fieldParcels, setFieldParcels] = useState<GetFieldParcelDTO[]>([]);
+  const [fieldWork, setFieldWork] = useState<GetFieldWorkDTO | null>(null);
   const [workTypes, setWorkTypes] = useState<GetWorkTypeDTO[]>([]);
 
   const {
     data: user,
     isLoading: isUserLoading,
     error: userError,
-  } = useUserProfile();
+  } = useCurrentProfile();
 
   const { data: fieldWorkData, isLoading: isFieldWorkLoading } = useFieldWork(
     id || "",
@@ -58,10 +63,13 @@ function UpdateFieldWorkPage() {
       queryClient.invalidateQueries({
         queryKey: ["fieldWork", id],
       });
-      navigate(`/cropfield-details/${cropFieldData?.uid}`, {
+      navigate(`/cropfield-details/${cropFieldData?.cropFieldId}`, {
         state: {
           success: true,
-          message: "Field work updated successfully!",
+          message: t("pages.updateFieldWorkPage.successMessage", {
+            defaultValue: "Field work updated successfully!",
+          }),
+          key: `${Date.now()}`,
         },
       });
     },
@@ -89,7 +97,10 @@ function UpdateFieldWorkPage() {
   };
 
   const { data: fieldParcelsData, isLoading: isFieldParcelsLoading } =
-    useFieldParcels(cropFieldData?.uid || "");
+    useCropFieldVersionParcels(
+      fieldWorkData?.cropFieldId || "",
+      !!fieldWorkData?.cropFieldId,
+    );
 
   useEffect(() => {
     if (fieldParcelsData) {
@@ -109,10 +120,16 @@ function UpdateFieldWorkPage() {
     }
   }, [workTypesData]);
 
+  useEffect(() => {
+    if (fieldWorkData) {
+      console.log("Received field work: ", fieldWorkData);
+      setFieldWork(fieldWorkData);
+    }
+  }, [fieldWorkData]);
+
   if (
     isUserLoading ||
     isFieldWorkLoading ||
-    !fieldWorkData ||
     isCropFieldLoading ||
     isFieldParcelsLoading ||
     isWorkTypesLoading
@@ -129,8 +146,8 @@ function UpdateFieldWorkPage() {
   return (
     <>
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
+        <MainHeader />
+        <MainContainer>
           <Button
             color="success"
             startIcon={<ArrowBackIcon />}
@@ -139,9 +156,10 @@ function UpdateFieldWorkPage() {
             Back to {cropField?.name}
           </Button>
 
-          {cropField && fieldParcels && workTypes.length > 0 && (
-            <UpdateFieldWorkForm
-              fieldWorkData={fieldWorkData}
+          {cropField && fieldParcels && workTypes && fieldWork && (
+            <AddFieldWorkForm
+              isUpdating={true}
+              fieldWorkToUpdate={fieldWork}
               cropField={cropField}
               fieldParcels={fieldParcels}
               workTypes={workTypes}

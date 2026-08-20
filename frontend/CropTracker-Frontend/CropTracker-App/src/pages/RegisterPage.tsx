@@ -5,20 +5,26 @@ import { registerUser } from "../services/AuthService";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { CreateUserDTO } from "../interfaces/request/CreateUserDTO";
+import type { ErrorResponse } from "../interfaces/error/ErrorResponse";
+import type { GetVerifyEmailDTO } from "../interfaces/response/GetVerifyEmailDTO";
+import { addSnackbar } from "../utils/SnackbarHelper";
+import MainHeader from "../elements/headers/MainHeader";
 
 function RegisterPage() {
   const navigate = useNavigate();
+
   const { mutate, isPending } = useMutation({
     mutationFn: registerUser,
-    onSuccess: () => {
-      navigate("/signin", {
-        state: {
-          signUpMessage: "Your account has been successfully created.",
-        },
-      });
+    onSuccess: (response: GetVerifyEmailDTO) => {
+      navigate(`/verify-email?token=${response.token}`);
     },
     onError: (err: AxiosError) => {
-      console.log(err.message);
+      if (err.response?.status === 400) {
+        const message = (err.response.data as ErrorResponse).message;
+        if (message) {
+          addSnackbar(message);
+        }
+      }
     },
   });
 
@@ -28,6 +34,7 @@ function RegisterPage() {
 
   return (
     <Box>
+      <MainHeader hasLogin={false} />
       <RegisterForm onSubmit={handleRegister} isPending={isPending} />
     </Box>
   );

@@ -7,32 +7,38 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  IconButton,
   List,
   ListItemButton,
   TextField,
   Typography,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 import type { GetWorkTypeDTO } from "../../interfaces/response/GetWorkTypeDTO";
+import { useTranslation } from "react-i18next";
 
 interface AffectedWorksDialogProps {
-  onConfirmSelect: (numberOfDays: number, selectedWorkTypes: string[]) => void;
+  isPending: boolean;
+  onConfirmSelect: (numberOfDays: number) => void;
   onConfirmCancel: () => void;
   workTypes: GetWorkTypeDTO[];
   open: boolean;
+  checkedWorkTypes: boolean[];
+  onSelectWorkType: (checkedWorkTypes: boolean[], workTypeName: string) => void;
 }
 
 function SelectAffectedRowsDialog({
+  isPending,
   onConfirmSelect,
   onConfirmCancel,
   workTypes,
   open,
+  checkedWorkTypes,
+  onSelectWorkType,
 }: AffectedWorksDialogProps) {
+  const { t } = useTranslation();
   const [numberOfDays, setNumberOfDays] = useState("");
-  const [selectedWorkTypes, setSelectedWorkTypes] = useState<string[]>([]);
-  const [checkedItems, setCheckedItems] = useState<boolean[]>(
-    Array(workTypes.length).fill(false),
-  );
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNumberOfDays(event.target.value);
@@ -40,18 +46,16 @@ function SelectAffectedRowsDialog({
 
   const handleConfirm = () => {
     const days = Number(numberOfDays) || 0;
-    onConfirmSelect(days >= 0 ? days : 0, selectedWorkTypes);
+    onConfirmSelect(days >= 0 ? days : 0);
   };
 
   const handleCheckAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     const checked = event.target.checked;
 
     if (checked) {
-      setSelectedWorkTypes(workTypes.map((workType) => workType.uid));
-      setCheckedItems(Array(workTypes.length).fill(true));
+      onSelectWorkType(Array(workTypes.length).fill(true), "");
     } else {
-      setSelectedWorkTypes([]);
-      setCheckedItems(Array(workTypes.length).fill(false));
+      onSelectWorkType(Array(workTypes.length).fill(false), "");
     }
   };
 
@@ -62,31 +66,34 @@ function SelectAffectedRowsDialog({
   ) => {
     const checked = event.target.checked;
 
-    const updatedCheckedItems = [...checkedItems];
+    const updatedCheckedItems = [...checkedWorkTypes];
     updatedCheckedItems[index] = checked;
-    setCheckedItems([...updatedCheckedItems]);
-
-    if (checked) {
-      const updatedSelectedWorkTypes = [...selectedWorkTypes, name];
-      setSelectedWorkTypes(updatedSelectedWorkTypes);
-    } else {
-      const updatedSelectedWorkTypes = selectedWorkTypes.filter(
-        (workType) => workType !== name,
-      );
-      setSelectedWorkTypes(updatedSelectedWorkTypes);
-    }
+    onSelectWorkType([...updatedCheckedItems], name);
   };
 
   return (
     <Box>
       <Dialog open={open} onClose={onConfirmCancel}>
-        <DialogTitle sx={{ fontWeight: "bold" }}>
-          Select previous affected rows
+        <DialogTitle
+          sx={{ display: "flex", fontWeight: "bold", position: "relative" }}
+        >
+          {t("elements.dialogs.selectAffectedRowsDialog.dialogTitle") ||
+            "Select previous affected rows"}
+          <IconButton
+            disabled={isPending}
+            sx={{ position: "absolute", top: 8, right: 8 }}
+            onClick={() => onConfirmCancel()}
+          >
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
         <Divider />
         <DialogContent>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-            <Typography>Select affected rows from the previous</Typography>
+            <Typography>
+              {t("elements.dialogs.selectAffectedRowsDialog.dialogContent1") ||
+                "Select affected rows from the previous"}
+            </Typography>
             <TextField
               color="success"
               type="number"
@@ -101,7 +108,11 @@ function SelectAffectedRowsDialog({
               }}
               onChange={handleChange}
             />
-            <Typography>{"day(s)."}</Typography>
+            <Typography>
+              {" "}
+              {t("elements.dialogs.selectAffectedRowsDialog.dialogContent2") ||
+                "day(s)"}
+            </Typography>
           </Box>
           <Box
             sx={{
@@ -111,7 +122,8 @@ function SelectAffectedRowsDialog({
             }}
           >
             <Typography sx={{ fontWeight: "bold" }}>
-              Get affected rows only from these worktypes
+              {t("elements.dialogs.selectAffectedRowsDialog.workTypesSelect") ||
+                "Get affected rows from these work types"}
             </Typography>
             <Checkbox onChange={(e) => handleCheckAll(e)} />
           </Box>
@@ -126,9 +138,17 @@ function SelectAffectedRowsDialog({
                   justifyContent: "space-between",
                 }}
               >
-                <Typography>{workType.name}</Typography>
+                <Typography>
+                  {t(
+                    `elements.forms.addFieldWorkForm.systemWorkTypes.${workType.name}.name`,
+                    {
+                      defaultValue: workType.name,
+                      returnObjects: false,
+                    },
+                  ) || workType.name}
+                </Typography>
                 <Checkbox
-                  checked={checkedItems[index]}
+                  checked={checkedWorkTypes[index]}
                   onChange={(e) =>
                     handleIndividualCheck(e, index, workType.uid)
                   }
@@ -138,11 +158,13 @@ function SelectAffectedRowsDialog({
           </List>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onConfirmCancel} color="error">
-            Cancel
+          <Button disabled={isPending} onClick={onConfirmCancel} color="error">
+            {t("elements.dialogs.selectAffectedRowsDialog.cancelButton") ||
+              "Cancel"}
           </Button>
-          <Button onClick={handleConfirm} color="success">
-            Apply
+          <Button disabled={isPending} onClick={handleConfirm} color="success">
+            {t("elements.dialogs.selectAffectedRowsDialog.applyButton") ||
+              "Apply"}
           </Button>
         </DialogActions>
       </Dialog>

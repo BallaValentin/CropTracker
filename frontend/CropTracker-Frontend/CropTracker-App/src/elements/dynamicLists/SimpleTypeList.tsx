@@ -8,12 +8,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { FieldDefinition } from "../../interfaces/FieldDefinition";
+import type { FieldDefinition } from "../../interfaces/helper/FieldDefinition";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import type React from "react";
 
 interface SimpleTypeListProps {
+  label: string;
   entries: string[] | number[];
   field: FieldDefinition;
   onNewEntryAdded: (field: FieldDefinition) => void;
@@ -26,6 +27,7 @@ interface SimpleTypeListProps {
 }
 
 function SimpleTypeList({
+  label,
   entries,
   field,
   onNewEntryAdded,
@@ -69,7 +71,7 @@ function SimpleTypeList({
           mb: 1,
         }}
       >
-        <Typography>{field.name}</Typography>
+        <Typography>{label}</Typography>
         <IconButton onClick={(e) => handleAddNewStringNumber(e, field)}>
           <AddIcon />
         </IconButton>

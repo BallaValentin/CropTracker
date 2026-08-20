@@ -8,13 +8,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { FieldDefinition } from "../../interfaces/FieldDefinition";
-import type { StringNumber } from "../../interfaces/StringNumber";
+import type { FieldDefinition } from "../../interfaces/helper/FieldDefinition";
+import type { StringNumber } from "../../interfaces/helper/StringNumber";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import type React from "react";
 
 interface StringNumberListProps {
+  label: string;
   entries: StringNumber[];
   field: FieldDefinition;
   onNewEntryAdded: (field: FieldDefinition) => void;
@@ -27,6 +28,7 @@ interface StringNumberListProps {
 }
 
 function StringNumberList({
+  label,
   entries,
   field,
   onNewEntryAdded,
@@ -84,7 +86,7 @@ function StringNumberList({
           mb: 1,
         }}
       >
-        <Typography>{field.name}</Typography>
+        <Typography>{label}</Typography>
         <IconButton onClick={(e) => handleAddNewStringNumber(e, field)}>
           <AddIcon />
         </IconButton>

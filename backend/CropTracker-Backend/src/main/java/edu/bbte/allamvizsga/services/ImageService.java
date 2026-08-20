@@ -5,13 +5,20 @@ import edu.bbte.allamvizsga.util.InitialAvatarGenerator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 
 @Service
@@ -19,9 +26,9 @@ import java.util.Base64;
 @Slf4j
 public class ImageService {
 
-    public void uploadDefaultImage(User user) throws IOException {
+    public void uploadDefaultImage(User user) {
         int size = 200;
-        BufferedImage avatar = InitialAvatarGenerator.generateAvatar(size, user.getFirstName());
+        BufferedImage avatar = InitialAvatarGenerator.generateAvatar(size, user.getFirstName(), user.getLastName());
 
         String folderName = "./images/" + user.getUid();
         File imageFolder = new File(folderName);
@@ -31,10 +38,14 @@ public class ImageService {
         }
 
         String filename = folderName + "/profile.png";
-        ImageIO.write(avatar, "png", new File(filename));
+        try {
+            ImageIO.write(avatar, "png", new File(filename));
+        } catch (IOException exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
     }
 
-    public void updateUserAvatar(User user, String newImageSrc) throws IOException {
+    public void updateUserAvatar(User user, String newImageSrc) {
         String folderName = "./images/" + user.getUid();
         File imageFolder = new File(folderName);
 
@@ -50,10 +61,41 @@ public class ImageService {
         byte[] imageBytes = Base64.getDecoder().decode(newImageSrc);
 
         ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
-        BufferedImage avatar = ImageIO.read(bis);
 
-        String filename = folderName + "/profile.png";
-        log.info("The filename is: {}", filename);
-        ImageIO.write(avatar, "png", new File(filename));
+        try {
+            BufferedImage avatar = ImageIO.read(bis);
+
+            String filename = folderName + "/profile.png";
+            ImageIO.write(avatar, "png", new File(filename));
+        } catch (IOException exception) {
+            throw  new RuntimeException(exception.getMessage());
+        }
+    }
+
+    public Resource getUserAvatar(User user) {
+
+        String uploadDir = "./images/" + user.getUid().toString() + "/profile.png";
+        Path path = Paths.get(uploadDir);
+
+        try {
+            if (Files.exists(path)) {
+                return new UrlResource(path.toUri());
+            }
+
+            BufferedImage defaultAvatar = InitialAvatarGenerator.generateAvatar(200, user.getFirstName(), user.getLastName());
+
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(defaultAvatar, "png", os);
+            byte[] imageBytes = os.toByteArray();
+
+            return new ByteArrayResource(imageBytes) {
+                @Override
+                public String getFilename() {
+                    return "default_profile.png";
+                }
+            };
+        } catch (IOException exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
     }
 }

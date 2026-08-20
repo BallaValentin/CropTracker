@@ -1,5 +1,5 @@
-import type { LatLngObject } from "../LatLngObject";
-import type { LayoutParameters } from "../LayoutParameters";
+import type { LatLngObject } from "../helper/LatLngObject";
+import type { LayoutParameters } from "../helper/LayoutParameters";
 
 export interface GetFieldParcelDTO {
     uid: string,
@@ -7,7 +7,11 @@ export interface GetFieldParcelDTO {
     area: number,
     cropFieldId: string,
     cultivarId: string,
+    specieId: string,
     polygonColor: string,
     layoutType: string,
-    layoutParameters: LayoutParameters
+    layoutParameters: LayoutParameters,
+    specieName: string,
+    cultivarName: string,
+    createdAt: string
 }

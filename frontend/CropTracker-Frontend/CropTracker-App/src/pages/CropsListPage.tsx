@@ -1,21 +1,35 @@
 import { Box } from "@mui/material";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainHeader from "../elements/headers/MainHeader";
 import MainContainer from "../elements/containers/MainContainer";
-import { useCropCategories } from "../hooks/UseCropCategories";
+import { useCropCategories } from "../hooks/caching/UseCropCategories";
 import CropsTreeView from "../elements/treeviews/CropsTreeView";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import { useEffect, useRef } from "react";
+import { addSnackbar } from "../utils/SnackbarHelper";
 
 function CropsListPage() {
-  const {
-    data: user,
-    isLoading: isUserLoading,
-    error: userError,
-  } = useUserProfile();
+  const { isLoading: isUserLoading, error: userError } = useCurrentProfile();
   const { data: cropCategories, isLoading: isLoadingCategories } =
     useCropCategories();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const feedbackRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const { success, message } = location.state || {};
+    if (
+      success &&
+      message &&
+      (!feedbackRef.current || feedbackRef.current !== location.key)
+    ) {
+      feedbackRef.current = location.key;
+      addSnackbar(message);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   if (isUserLoading) {
     return <ProgressCircle loadingMessage="Loading user data..." />;
@@ -33,11 +47,18 @@ function CropsListPage() {
     }
   }
 
+  const handleOperationSuccess = (message: string) => {
+    addSnackbar(message);
+  };
+
   return (
     <Box>
-      <MainHeader userData={user} />
-      <MainContainer hasDrawer={Boolean(user?.username)}>
-        <CropsTreeView cropCategories={categories} />
+      <MainHeader />
+      <MainContainer>
+        <CropsTreeView
+          cropCategories={categories}
+          onOperationSuccess={handleOperationSuccess}
+        />
       </MainContainer>
     </Box>
   );

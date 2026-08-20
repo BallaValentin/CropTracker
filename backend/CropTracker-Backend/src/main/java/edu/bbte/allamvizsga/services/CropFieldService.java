@@ -1,21 +1,24 @@
 package edu.bbte.allamvizsga.services;
 
+import edu.bbte.allamvizsga.exceptions.BadRequestException;
 import edu.bbte.allamvizsga.exceptions.ForbiddenException;
-import edu.bbte.allamvizsga.model.CropField;
-import edu.bbte.allamvizsga.model.User;
+import edu.bbte.allamvizsga.model.*;
 import edu.bbte.allamvizsga.repository.CropFieldRepository;
+import edu.bbte.allamvizsga.repository.CropFieldVersionRepository;
+import edu.bbte.allamvizsga.repository.FieldParcelRepository;
+import edu.bbte.allamvizsga.repository.FieldParcelVersionRepository;
 import edu.bbte.allamvizsga.services.util.SerialNumberGetter;
 import edu.bbte.allamvizsga.specifications.CropFieldSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,70 +27,179 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class CropFieldService {
     private final CropFieldRepository cropFieldRepository;
+    private final FieldParcelRepository fieldParcelRepository;
+    private final CropFieldVersionRepository cropFieldVersionRepository;
+    private final FieldParcelVersionRepository fieldParcelVersionRepository;
     private final SerialNumberGetter snGetter;
 
-    protected Integer getNextNumber(User user, String originalName) {
+    protected void validatePolygon(Polygon polygon) {
+        if (!polygon.isValid()) {
+            throw new BadRequestException("Invalid polygon shape.");
+        }
+    }
+
+    protected Integer getNextNumber(User user, String originalName, UUID cropFieldId) {
         Collection<String> sameNamesList = cropFieldRepository.findAll(
                 Specification.allOf(
                         CropFieldSpecification.byUser(user)
                                 .and(CropFieldSpecification.withNamePattern(originalName))
-                                .and(CropFieldSpecification.notDeleted())
+                                .and(CropFieldSpecification.isActive())
+                                .and(CropFieldSpecification.notWithId(cropFieldId))
                 )
         ).stream().map(CropField::getName).toList();
 
         return snGetter.getNextNumber(sameNamesList);
-
     }
 
-    public void createCropField(CropField cropField) {
-
-        Integer count = getNextNumber(cropField.getUser(), cropField.getName());
+    protected void updateName(CropField cropField) {
+        Integer count = getNextNumber(cropField.getUser(), cropField.getName(), cropField.getUid());
 
         if (count > 1) {
             cropField.setName(cropField.getName() + "(" + count + ")");
         }
+    }
 
-        cropField.setIsDeleted(Boolean.FALSE);
-        cropFieldRepository.save(cropField);
+    public void createCropField(CropField cropField, CropFieldVersion cropFieldVersion) {
+        validatePolygon(cropFieldVersion.getPolygonPoints());
+        updateName(cropField);
+
+        CropField newCropField = cropFieldRepository.save(cropField);
+        cropFieldVersion.setCropField(newCropField);
+        cropFieldVersionRepository.save(cropFieldVersion);
     }
 
     public CropField findCropFieldByUser(UUID uid, User user) {
-        CropField cropField = cropFieldRepository.findByUid(uid);
+        CropFieldVersion cropFieldVersion = cropFieldVersionRepository.findByUid(uid);
 
-        if (cropField == null) {
-            throw new EntityNotFoundException("Couldn't find plot with id");
+        if (cropFieldVersion == null || !cropFieldVersion.getCropField().getIsActive()) {
+            throw new EntityNotFoundException("Crop field not found.");
         }
 
-        if (cropField.getUser() != user ||
-                cropField.getIsDeleted()) {
-            throw new ForbiddenException("Couldn't access this plot because you are not it's owner");
+        if (cropFieldVersion.getCropField().getUser() != user) {
+            throw new ForbiddenException("Crop field access denied.");
         }
-        return cropField;
+
+        return cropFieldVersion.getCropField();
     }
 
-    public void updateCropField(CropField cropField) {
-        cropFieldRepository.save(cropField);
+    public CropFieldVersion updateCropField(UUID cropFieldId, String newName, User user, CropFieldVersion cropFieldVersion) {
+        CropField cropField = cropFieldRepository.findByUid(cropFieldId);
+
+        if (cropField == null || !cropField.getIsActive()) {
+            throw new EntityNotFoundException("Crop field not found");
+        }
+
+        CropFieldVersion cropFieldVersion1 = cropFieldVersionRepository.findFirstByCropFieldOrderByCreatedAtDesc(cropField);
+
+        if (cropFieldVersion1 == null) {
+            throw new EntityNotFoundException("Crop field not found.");
+        }
+
+        if (cropFieldVersion1.getCropField().getUser() != user) {
+            throw new ForbiddenException("Crop field access denied.");
+        }
+
+        validatePolygon(cropFieldVersion.getPolygonPoints());
+        CropField currentCropField = cropFieldVersion1.getCropField();
+
+        if (!newName.equals(currentCropField.getName())) {
+            currentCropField.setName(newName);
+            updateName(currentCropField);
+        }
+
+        CropField updatedCropField = cropFieldRepository.save(currentCropField);
+
+        cropFieldVersion.setCropField(updatedCropField);
+        CropFieldVersion newCropFieldVersion = cropFieldVersionRepository.save(cropFieldVersion);
+
+        Collection<FieldParcelVersion> fieldParcelVersions = cropFieldVersion.getFieldParcelVersions();
+
+        fieldParcelVersions.forEach(fieldParcelVersion -> {
+            FieldParcelVersion newFieldParcelVersion = fieldParcelVersion.createClone();
+            newFieldParcelVersion.setCropFieldVersion(newCropFieldVersion);
+            fieldParcelVersionRepository.save(newFieldParcelVersion);
+        });
+
+        return newCropFieldVersion;
     }
 
     public Collection<CropField> getCropFields(User user) {
         return cropFieldRepository.findAll(
                 Specification.allOf(CropFieldSpecification
                                 .byUser(user))
-                        .and(CropFieldSpecification.notDeleted()),
+                        .and(CropFieldSpecification.isActive()),
                 Sort.by(Sort.Direction.DESC, "createdAt")
 
         );
     }
 
-    public CropField findById(UUID uid) {
-        CropField cropField = cropFieldRepository.findByUid(uid);
-        if (cropField == null || cropField.getIsDeleted()) {
-            throw new EntityNotFoundException("Couldn't find plot with id");
-        }
-        return cropField;
+    public Collection<CropFieldVersion> getCropFieldVersions(User user) {
+        Collection<CropField> cropFields = getCropFields(user);
+
+        return cropFields.stream().map(cropFieldVersionRepository::findFirstByCropFieldOrderByCreatedAtDesc).toList();
     }
 
-    public void deleteById(UUID uid) {
-        cropFieldRepository.softDeleteById(uid);
+    public Collection<CropField> findByPattern(User user, String pattern) {
+        return cropFieldRepository.findAll(Specification.allOf(
+                CropFieldSpecification.byUser(user)
+                        .and(CropFieldSpecification.isActive())
+                        .and(CropFieldSpecification.withNamePattern(pattern))
+        ));
+    }
+
+    public CropFieldVersion findById(UUID uid, User user) {
+        CropField cropField = cropFieldRepository.findByUid(uid);
+        CropFieldVersion cropFieldVersion = cropFieldVersionRepository.findFirstByCropFieldOrderByCreatedAtDesc(cropField);
+
+        if (cropFieldVersion == null || !cropFieldVersion.getCropField().getIsActive()) {
+            throw new EntityNotFoundException("Crop field not found.");
+        }
+
+        if (cropField.getUser() != user) {
+            throw new ForbiddenException("Crop field access denied");
+        }
+
+        return cropFieldVersion;
+    }
+
+    public CropFieldVersion findByVersionId(UUID uid, User user) {
+        CropFieldVersion cropFieldVersion = cropFieldVersionRepository.findByUid(uid);
+
+        if (cropFieldVersion == null || !cropFieldVersion.getCropField().getIsActive()) {
+            throw new EntityNotFoundException("Crop field not found.");
+        }
+
+        if (cropFieldVersion.getCropField().getUser() != user) {
+            throw new ForbiddenException("Crop field denied access denied.");
+        }
+
+        return cropFieldVersion;
+    }
+
+    public void deleteById(UUID uid, User user) {
+        CropField cropField = cropFieldRepository.findByUid(uid);
+
+        if (cropField == null || !cropField.getIsActive()) {
+            throw new EntityNotFoundException("Crop field not found");
+        }
+
+        if (cropField.getUser() != user) {
+            throw new ForbiddenException("Crop field access denied");
+        }
+
+        cropField.setIsActive(Boolean.FALSE);
+        cropFieldRepository.save(cropField);
+    }
+
+    public CropFieldVersion findByParcelId(UUID fieldParcelId) {
+        FieldParcel fieldParcel = fieldParcelRepository.findByUid(fieldParcelId);
+
+        if (fieldParcel == null || !fieldParcel.getIsActive()) {
+            throw new EntityNotFoundException("Field parcel not found.");
+        }
+
+        CropField cropField = fieldParcel.getCropField();
+
+        return cropFieldVersionRepository.findFirstByCropFieldOrderByCreatedAtDesc(cropField);
     }
 }

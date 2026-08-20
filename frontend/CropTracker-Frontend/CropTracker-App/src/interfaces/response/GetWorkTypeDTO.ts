@@ -1,4 +1,4 @@
-import type { FieldDefinition } from "../FieldDefinition";
+import type { FieldDefinition } from "../helper/FieldDefinition";
 
 export interface GetWorkTypeDTO {
     uid: string;

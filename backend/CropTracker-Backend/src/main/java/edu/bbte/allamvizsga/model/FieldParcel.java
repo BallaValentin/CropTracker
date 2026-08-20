@@ -23,27 +23,14 @@ public class FieldParcel extends BaseEntity {
     @JoinColumn(name = "cropfield_id", nullable = false)
     private CropField cropField;
 
-    @Column(columnDefinition = "POLYGON")
-    private Polygon polygonPoints;
-
-    @Column(nullable = false)
-    private Double area;
-
-    @Column(nullable = false)
-    private String polygonColor;
-
-    @Column(nullable = false)
-    private String layoutType;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(nullable = false)
-    private Map<String, Object> layoutParameters;
-
-    @ManyToOne
-    @JoinColumn(name = "cultivar_id", nullable = false)
-    private CropCultivar cropCultivar;
-
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    @Column(nullable = false)
+    private Boolean isActive;
+
+    @Column
+    @OneToMany(mappedBy = "fieldParcel", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<FieldParcelVersion> fieldParcelVersions;
 }

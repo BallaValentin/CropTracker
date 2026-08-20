@@ -3,19 +3,25 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogTitle,
+  Divider,
   Grid,
+  IconButton,
   TextField,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
 import type { UpdateCropCultivarDTO } from "../../interfaces/request/UpdateCropCultivarDTO";
 import type { GetCropCultivarDTO } from "../../interfaces/response/GetCropCultivarDTO";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface UpdateCropCultivarProps {
   open: boolean;
   cultivar: GetCropCultivarDTO;
   onSubmit: (cropCultivarUpdates: UpdateCropCultivarDTO) => void;
   onClose: () => void;
+  errorMessage: string;
+  isPending: boolean;
 }
 
 function UpdateCropCultivarForm({
@@ -23,6 +29,8 @@ function UpdateCropCultivarForm({
   cultivar,
   onSubmit,
   onClose,
+  errorMessage,
+  isPending,
 }: UpdateCropCultivarProps) {
   const [cropCultivarUpdates, setCropCultivarUpdates] =
     useState<UpdateCropCultivarDTO>({
@@ -59,15 +67,20 @@ function UpdateCropCultivarForm({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+      <DialogTitle sx={{ display: "flex", position: "relative" }}>
+        <Typography sx={{ fontWeight: "bold", letterSpacing: "0.05rem" }}>
+          Add crop cultivar
+        </Typography>
+        <IconButton
+          sx={{ position: "absolute", right: 8, top: 8 }}
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <Divider />
       <form onSubmit={handleSubmit}>
         <DialogContent>
-          <Typography
-            variant="h6"
-            fontSize={"large"}
-            sx={{ mb: 4, fontWeight: "bold", letterSpacing: "0.05rem" }}
-          >
-            Add crop cultivar
-          </Typography>
           <Grid container spacing={2}>
             <Grid size={{ xs: 12 }}>
               <TextField
@@ -114,13 +127,26 @@ function UpdateCropCultivarForm({
               />
             </Grid>
           </Grid>
+
+          <Typography
+            variant="subtitle2"
+            color="error"
+            sx={{ my: 1, textAlign: "center" }}
+          >
+            {errorMessage}
+          </Typography>
         </DialogContent>
 
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button color="success" onClick={handleCancel}>
+          <Button disabled={isPending} color="success" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button type="submit" variant="contained" color="success">
+          <Button
+            disabled={isPending}
+            type="submit"
+            variant="contained"
+            color="success"
+          >
             Submit
           </Button>
         </DialogActions>

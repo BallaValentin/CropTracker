@@ -1,25 +1,29 @@
-import { Alert, Box, Divider, Fab, Typography } from "@mui/material";
+import { Box, Divider, Fab, Typography } from "@mui/material";
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import ColumnCenterContainer from "../elements/containers/ColumnCenterContainer";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
 import { useLocation, useNavigate } from "react-router-dom";
-import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
-import { useUserCropFields } from "../hooks/UseUserCropFields";
+import { useUserCropFields } from "../hooks/caching/UseUserCropFields";
 import CropFieldCard from "../elements/cards/CropFieldCard";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import { addSnackbar } from "../utils/SnackbarHelper";
+import { useTranslation } from "react-i18next";
 
 function PlotsListPage() {
+  const { t } = useTranslation();
+
   const [cropFields, setCropFields] = useState<GetCropFieldDTO[]>([]);
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [fabHovered, setFabHovered] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { data: user, isLoading, error: userError } = useUserProfile();
+  const feedbackRef = useRef<string | null>(null);
+
+  const { data: user, isLoading, error: userError } = useCurrentProfile();
   const { data: cropFieldsData, isLoading: isLoadingCropFields } =
     useUserCropFields(!!user);
 
@@ -31,26 +35,19 @@ function PlotsListPage() {
 
   useEffect(() => {
     const { success, message } = location.state || {};
-    if (success && message) {
-      setFeedbackMessage(message);
-      const timer = setTimeout(() => setFeedbackMessage(null), 7000);
-      return () => clearTimeout(timer);
+    if (
+      success &&
+      message &&
+      (!feedbackRef.current || feedbackRef.current !== location.key)
+    ) {
+      feedbackRef.current = location.key;
+      addSnackbar(message);
+      navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
 
   if (isLoading) {
     return <ProgressCircle loadingMessage="Initializing user data..." />;
-  }
-
-  if (isLoadingCropFields || !cropFieldsData) {
-    return (
-      <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
-          <ProgressCircle loadingMessage="Loading crop fields..." />
-        </MainContainer>
-      </Box>
-    );
   }
 
   if (userError) {
@@ -59,37 +56,41 @@ function PlotsListPage() {
     }
   }
 
+  if (isLoadingCropFields || !cropFieldsData) {
+    return (
+      <Box>
+        <MainHeader />
+        <MainContainer>
+          <ProgressCircle
+            loadingMessage={
+              t("pages.cropFieldListPage.loadingMessage") ||
+              "Loading crop fields..."
+            }
+          />
+        </MainContainer>
+      </Box>
+    );
+  }
+
   return (
     <>
       <Box>
-        <MainHeader userData={user} />
-        <MainContainer hasDrawer={Boolean(user?.username)}>
-          {feedbackMessage && (
-            <Alert
-              icon={<CheckIcon fontSize="inherit" />}
-              sx={{
-                mt: 10,
-                mr: 1,
-              }}
-              severity="success"
-            >
-              {feedbackMessage}
-            </Alert>
-          )}
-
+        <MainHeader />
+        <MainContainer>
           {cropFields.length === 0 ? (
-            <Box sx={{ mt: feedbackMessage ? 0 : 16 }}>
+            <Box>
               <ColumnCenterContainer>
                 <Typography variant="h4">
-                  You haven't added any fields yet.
+                  {t("pages.cropFieldListPage.noCropFieldsMessage") ||
+                    "No crop fields added yet."}
                 </Typography>
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ mt: 2 }}
                 >
-                  Click the button below to create your first field and start
-                  tracking your crops!
+                  {t("pages.cropFieldListPage.noCropFieldsMessage2") ||
+                    "Click the button below to create your first field and start tracking your crops!"}
                 </Typography>
               </ColumnCenterContainer>
             </Box>
@@ -99,10 +100,10 @@ function PlotsListPage() {
                 component={"h1"}
                 color="success"
                 letterSpacing={"0.02em"}
-                sx={{ mt: feedbackMessage ? 0 : 16, fontWeight: "bold" }}
+                sx={{ fontWeight: "bold" }}
                 variant="h3"
               >
-                My Fields
+                {t("pages.cropFieldListPage.pageTitle") || "My Crop Fields"}
               </Typography>
               <Divider
                 sx={{
@@ -149,7 +150,8 @@ function PlotsListPage() {
               }}
             >
               <Typography variant="button" sx={{ fontWeight: "bold" }}>
-                Add Crop Field
+                {t("pages.cropFieldListPage.addCropFieldButton") ||
+                  "Add Crop Field"}
               </Typography>
             </Box>
             <Fab

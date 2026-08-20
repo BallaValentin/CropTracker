@@ -1,84 +1,112 @@
 import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useUserProfile } from "../hooks/UseUserProfile";
 import { useNavigate, useParams } from "react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  getCropFieldById,
-  updateCropField,
-} from "../services/CropFieldService";
-import type { GetCropFieldDTO } from "../interfaces/response/GetCropFieldDTO";
-import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { updateCropField } from "../services/CropFieldService";
 import type { UpdateCropFieldDTO } from "../interfaces/request/UpdateCropFieldDTO";
 import { queryClient } from "../query-client/QueryClient";
 import UpdateCropFieldForm from "../elements/forms/UpdateCropFieldForm";
+import { useCropField } from "../hooks/caching/UseCropField";
+import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import type { ConfirmUpdateDTO } from "../interfaces/response/ConfirmUpdateDTO";
+import ConfirmCropFieldUpdateDialog from "../elements/dialogs/ConfirmCropFieldUpdateDialog";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function UpdatePlotPage() {
-  const {
-    data: user,
-    isLoading: isLoadingUser,
-    error: userError,
-  } = useUserProfile();
-  const [cropFieldDetail, setCropFieldDetail] = useState<GetCropFieldDTO>({
-    uid: "",
-    name: "Unnamed Field",
-    markerPosition: {
-      lat: 51.505,
-      lng: -0.09,
-    },
-    polygonPoints: [],
-    area: 0,
-  });
+  const { t } = useTranslation();
+
+  const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
+  const [scheduledWorks, setScheduledWorks] = useState<number>(0);
+  const [ongoingWorks, setOngoingWorks] = useState<number>(0);
+  const [cropFieldUpdateData, setCropFieldUpdateData] =
+    useState<UpdateCropFieldDTO | null>(null);
 
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: cropField, isLoading: isCropFieldLoading } = useQuery({
-    queryKey: ["plots", id],
-    queryFn: () => getCropFieldById(id || ""),
-    staleTime: 1000 * 60 * 60,
-    enabled: !!id,
-    refetchInterval: 1000 * 60 * 60,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-  });
-
-  useEffect(() => {
-    if (cropField) {
-      setCropFieldDetail(cropField);
-    }
-  }, [cropField]);
+  const { data: cropField, isLoading: isCropFieldLoading } = useCropField(
+    id || "",
+    !!id,
+  );
 
   const { mutate, isPending } = useMutation({
     mutationFn: ({
       cropFieldUpdateData,
       id,
+      confirmUpdate,
     }: {
       cropFieldUpdateData: UpdateCropFieldDTO;
       id: string;
-    }) => updateCropField(cropFieldUpdateData, id || ""),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["plots", id] });
-      navigate(`/cropfield-details/${id}`, {
-        state: {
-          success: true,
-          message: "Field has been successfully updated",
-        },
-      });
+      confirmUpdate: boolean;
+    }) => updateCropField(cropFieldUpdateData, id || "", confirmUpdate),
+    onSuccess: (data: ConfirmUpdateDTO | null) => {
+      if (data?.confirmationRequired) {
+        setScheduledWorks(data.numberOfScheduled);
+        setOngoingWorks(data.numberOfOngoing);
+        setConfirmDialogOpen(true);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["cropfields", id] });
+        queryClient.invalidateQueries({
+          queryKey: ["fieldWorks", id],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["fieldWork"],
+        });
+        navigate(`/cropfield-details/${id}`, {
+          state: {
+            success: true,
+            message: t("pages.updateCropFieldPage.fieldUpdatedMessage", {
+              defaultValue: "Field has been successfully updated",
+            }),
+            key: `${Date.now()}`,
+          },
+        });
+      }
     },
   });
 
   const handleOnUpdate = (cropFieldUpdateData: UpdateCropFieldDTO) => {
-    mutate({ cropFieldUpdateData, id: id || "" });
+    setCropFieldUpdateData(cropFieldUpdateData);
+    mutate({ cropFieldUpdateData, id: id || "", confirmUpdate: false });
+  };
+
+  const handleCancel = () => {
+    setConfirmDialogOpen(false);
+  };
+
+  const handleConfirmUpdate = () => {
+    if (cropFieldUpdateData) {
+      mutate({ cropFieldUpdateData, id: id || "", confirmUpdate: true });
+    }
+    setConfirmDialogOpen(false);
   };
 
   if (isLoadingUser) {
-    return <ProgressCircle loadingMessage="Loading user data" />;
+    return (
+      <ProgressCircle
+        loadingMessage={t("pages.updateCropFieldPage.loadingText", {
+          defaultValue: "Loadinf crop field details",
+        })}
+      />
+    );
   }
 
-  if (isCropFieldLoading) {
-    return <ProgressCircle loadingMessage="Loading field details" />;
+  if (
+    isCropFieldLoading ||
+    !cropField ||
+    !cropField.markerPosition ||
+    !cropField.polygonPoints
+  ) {
+    return (
+      <ProgressCircle
+        loadingMessage={t("pages.updateCropFieldPage.loadingText", {
+          defaultValue: "Loadinf crop field details",
+        })}
+      />
+    );
   }
 
   if (userError) {
@@ -89,13 +117,23 @@ function UpdatePlotPage() {
 
   return (
     <>
-      <MainHeader userData={user} />
-      <MainContainer hasDrawer={Boolean(user?.username)}>
+      <MainHeader />
+      <MainContainer>
         <UpdateCropFieldForm
-          cropField={cropFieldDetail}
+          cropField={cropField}
           onUpdate={handleOnUpdate}
           isPending={isPending}
         />
+        {confirmDialogOpen && (
+          <ConfirmCropFieldUpdateDialog
+            open={confirmDialogOpen}
+            isPending={isPending}
+            numberOfOngoing={ongoingWorks}
+            numberOfScheduled={scheduledWorks}
+            onConfirmCancel={handleCancel}
+            onConfirmUpdate={handleConfirmUpdate}
+          />
+        )}
       </MainContainer>
     </>
   );
