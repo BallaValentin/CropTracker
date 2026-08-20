@@ -6,10 +6,23 @@ import { useFieldWorksWithDays } from "../hooks/caching/UseFieldWorksWithinDays"
 import FieldWorksLineChart from "../elements/charts/FieldWorksLineChart";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { type GetWorkStatDTO } from "../interfaces/response/GetWorkStatDTO";
-import { Box, Card, Divider, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { Check } from "@mui/icons-material";
 import { toDateTimeLocal } from "../utils/DateTimeHelper";
+import { useWorkTypes } from "../hooks/caching/UseWorkTypes";
 
 function WorkStatisticsPage() {
   const { t } = useTranslation();
@@ -21,18 +34,39 @@ function WorkStatisticsPage() {
   const [series, setSeries] = useState<{ data: number[]; label: string }[]>([]);
   const [parameters, setParameters] = useState<string[]>([]);
 
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [checkedWorkTypes, setCheckedWorkTypes] = useState<boolean[]>([]);
+
   const [afterDate, setAfterDate] = useState<string>(
     toDateTimeLocal(new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000)),
   );
+  const workMenuOpen = Boolean(anchorEl);
 
   const [beforeDate, setBeforeDate] = useState<string>(
     toDateTimeLocal(new Date()),
   );
 
+  const handleWorkMenuOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleWorkMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const { data: user } = useCurrentProfile();
+  const { data: workTypes, isLoading: isWorkTypesLoading } = useWorkTypes();
 
   const { data: fieldWorksData, isLoading: isFieldWorksLoading } =
     useFieldWorksWithDays(365, !!user);
+
+  useEffect(() => {
+    if (workTypes) {
+      const newWorkTypesChecked = Array(workTypes.length).fill(false);
+      newWorkTypesChecked[0] = true;
+      setCheckedWorkTypes([...newWorkTypesChecked]);
+    }
+  }, [workTypes]);
 
   useEffect(() => {
     if (fieldWorksData) {
@@ -49,7 +83,16 @@ function WorkStatisticsPage() {
         value: number;
       }[] = [];
 
-      const filteredFieldWorks = fieldWorks.filter(
+      let worksFilteredByWorkType = [...fieldWorks];
+      workTypes?.forEach((workType, index) => {
+        if (!checkedWorkTypes[index]) {
+          worksFilteredByWorkType = worksFilteredByWorkType.filter(
+            (work) => work.workTypeId !== workType.uid,
+          );
+        }
+      });
+
+      const filteredFieldWorks = worksFilteredByWorkType.filter(
         (fieldWork) =>
           fieldWork.startDate >= afterDate && fieldWork.startDate <= beforeDate,
       );
@@ -115,9 +158,9 @@ function WorkStatisticsPage() {
 
       setSeries(newSeries);
     }
-  }, [fieldWorks, afterDate, beforeDate, t]);
+  }, [fieldWorks, workTypes, checkedWorkTypes, afterDate, beforeDate, t]);
 
-  if (isFieldWorksLoading || !fieldWorks) {
+  if (isFieldWorksLoading || !fieldWorks || !workTypes || isWorkTypesLoading) {
     return (
       <>
         <MainHeader />
@@ -201,6 +244,48 @@ function WorkStatisticsPage() {
             onChange={handleDateChange}
           />
         </Box>
+
+        <Box sx={{ my: 1, display: "flex" }}>
+          <Button
+            color="inherit"
+            onClick={handleWorkMenuOpen}
+            sx={{ fontWeight: "bold" }}
+          >
+            Filter by Work type
+          </Button>
+        </Box>
+        <Menu
+          open={workMenuOpen}
+          anchorEl={anchorEl}
+          onClose={handleWorkMenuClose}
+        >
+          {workTypes.map((workType, index) => {
+            return (
+              <MenuItem
+                key={workType.uid}
+                selected={checkedWorkTypes[index]}
+                onClick={() => {
+                  const updatedWorkTypesChecked = [...checkedWorkTypes];
+                  updatedWorkTypesChecked[index] =
+                    !updatedWorkTypesChecked[index];
+                  setCheckedWorkTypes([...updatedWorkTypesChecked]);
+                }}
+              >
+                <ListItemIcon>
+                  {checkedWorkTypes[index] ? <Check fontSize="small" /> : null}
+                </ListItemIcon>
+                <ListItemText>
+                  {t(
+                    `elements.forms.addFieldWorkForm.systemWorkTypes.${workType.name}.name`,
+                    {
+                      defaultValue: workType.name,
+                    },
+                  )}
+                </ListItemText>
+              </MenuItem>
+            );
+          })}
+        </Menu>
 
         <Card sx={{ p: 2 }}>
           <FieldWorksLineChart chartData={chartData} series={series} />
