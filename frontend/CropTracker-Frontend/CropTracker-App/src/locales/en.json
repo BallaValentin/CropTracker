@@ -43,6 +43,16 @@
                 "cancelButton": "Cancel",
                 "saveButton": "Save"
             },
+            "confirmCropFieldUpdateDialog": {
+                "dialogTitle": "Confirm Crop Field Update",
+                "dialogContent1": "Updating this field will affect your ",
+                "dialogContent2": " ongoing and ",
+                "dialogContent3": " scheduled work tasks.",
+                "dialogContentLongText": "By pressing confirm, the scheduled works will automatically use the new layout, but the ongoing works will stay locked to the current layout.",
+                "dialogQuery": "Do you want to proceed with this update?",
+                "cancelButton": "Cancel",
+                "updateButton": "Update"
+            },
             "deleteCropFieldDialog": {
                 "dialogTitle": "Delete Crop Field",
                 "dialogContent": "Are you sure you want to delete this crop field?",
@@ -325,6 +335,7 @@
                 "layoutType": "Layout type",
                 "cropSpecie": "Crop specie",
                 "rowsCount": "Number of rows",
+                "cropsCount": "Number of crops",
                 "area": "Area"
             },
             "fieldWorkHistoryItem": {

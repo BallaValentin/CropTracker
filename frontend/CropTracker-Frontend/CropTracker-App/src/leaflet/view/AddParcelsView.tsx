@@ -33,7 +33,6 @@ interface AddParcelViewProps {
 }
 
 function AddParcelView({
-  mapHeight,
   markerPosition,
   uid,
   polygonPoints,
@@ -108,7 +107,7 @@ function AddParcelView({
     <>
       <Box
         sx={{
-          height: mapHeight,
+          height: "100%",
           width: "100%",
           margin: "0 auto",
           overflow: "hidden",

@@ -43,6 +43,16 @@
                 "cancelButton": "Mégse",
                 "saveButton": "Mentés"
             },
+            "confirmCropFieldUpdateDialog": {
+            "dialogTitle": "Tábla módosításának megerősítése",
+            "dialogContent1": "A tábla módosítása hatással lesz ",
+            "dialogContent2": " folyamatban lévő és ",
+            "dialogContent3": " ütemezett munkafolyamatra.",
+            "dialogContentLongText": "A megerősítés után az ütemezett munkák automatikusan az új elrendezést fogják használni, a folyamatban lévő munkák azonban továbbra is a jelenlegi elrendezéshez lesznek kötve.",
+            "dialogQuery": "Szeretnéd folytatni a módosítást?",
+            "cancelButton": "Mégse",
+            "updateButton": "Módosítás"
+            },
             "deleteCropFieldDialog": {
                 "dialogTitle": "Termőföld törlése",
                 "dialogContent": "Biztosan törölni szeretnéd ezt a termőföldet? Ez a művelet nem visszavonható.",
@@ -323,6 +333,7 @@
                 "layoutType": "Elrendezés",
                 "cropSpecie": "Növényfajta",
                 "rowsCount": "Sorok száma",
+                "cropsCount": "Ültetvények száma",
                 "area": "Terület"
             },
             "fieldWorkHistoryItem": {

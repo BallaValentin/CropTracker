@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { useTranslation } from "react-i18next";
 
 interface ConfirmCropFieldUpdateDialogProps {
   open: boolean;
@@ -28,12 +29,16 @@ function ConfirmCropFieldUpdateDialog({
   onConfirmCancel,
   onConfirmUpdate,
 }: ConfirmCropFieldUpdateDialogProps) {
+  const { t } = useTranslation();
+
   return (
     <Box>
       <Dialog open={open} onClose={onConfirmCancel} maxWidth="md" fullWidth>
         <DialogTitle sx={{ position: "relative", display: "flex" }}>
           <Typography sx={{ fontWeight: "bold", letterSpacing: "0.05rem" }}>
-            Confirm Crop Field Update
+            {t("elements.dialogs.confirmCropFieldUpdateDialog.dialogTitle", {
+              defaultvalue: "Confirm Crop Field Update",
+            })}
           </Typography>
           <IconButton
             sx={{ position: "absolute", top: 8, right: 8 }}
@@ -45,22 +50,38 @@ function ConfirmCropFieldUpdateDialog({
         <Divider />
         <DialogContent>
           <Typography variant="body1" sx={{ mb: 2 }}>
-            Updating this field will affect your{" "}
-            <strong>{numberOfOngoing}</strong> ongoing and{" "}
-            <strong>{numberOfScheduled}</strong> scheduled work tasks.
+            {t("elements.dialogs.confirmCropFieldUpdateDialog.dialogContent1", {
+              defaultvalue: "Updating this field will affect your ",
+            })}
+            <strong>{numberOfOngoing}</strong>
+            {t("elements.dialogs.confirmCropFieldUpdateDialog.dialogContent2", {
+              defaultvalue: "ongoing and ",
+            })}
+            <strong>{numberOfScheduled}</strong>
+            {t("elements.dialogs.confirmCropFieldUpdateDialog.dialogContent3", {
+              defaultvalue: "scheduled work tasks.",
+            })}
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            By pressing confirm, the scheduled works will automatically use the
-            new layout, but the ongoing works will stay locked to the current
-            layout.
+            {t(
+              "elements.dialogs.confirmCropFieldUpdateDialog.dialogContentLongText",
+              {
+                defaultvalue:
+                  "By pressing confirm, the scheduled works will automatically use the new layout, but the ongoing works will stay locked to the current layout.",
+              },
+            )}
           </Typography>
           <Typography variant="body1" sx={{ mt: 2 }}>
-            Do you want to proceed with this update?
+            {t("elements.dialogs.confirmCropFieldUpdateDialog.dialogQuery", {
+              defaultvalue: "Do you want to proceed with this update?",
+            })}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={onConfirmCancel} color="error" disabled={isPending}>
-            Cancel
+            {t("elements.dialogs.confirmCropFieldUpdateDialog.cancelButton", {
+              defaultvalue: "Cancel",
+            })}
           </Button>
           <Button
             onClick={onConfirmUpdate}
@@ -68,7 +89,9 @@ function ConfirmCropFieldUpdateDialog({
             variant="contained"
             disabled={isPending}
           >
-            Update
+            {t("elements.dialogs.confirmCropFieldUpdateDialog.updateButton", {
+              defaultvalue: "Update",
+            })}
           </Button>
         </DialogActions>
       </Dialog>

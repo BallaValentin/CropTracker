@@ -138,6 +138,13 @@ function FieldParcelItem({
           />
 
           <FieldParcelPropItem
+            propName={t("elements.listItems.fieldParcelItem.cropsCount", {
+              defaultValue: "Number of crops",
+            })}
+            propValue={`${parcel.layoutParameters.numberOfCrops}`}
+          />
+
+          <FieldParcelPropItem
             propName={t("elements.listItems.fieldParcelItem.area", {
               defaultValue: "Area",
             })}

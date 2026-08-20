@@ -261,7 +261,6 @@ function CreateFieldParcelForm({
         sx={{
           mb: 2,
           mt: 2,
-          height: 800,
           width: "100%",
           border: "1px solid",
           borderColor: "divider",
@@ -279,10 +278,10 @@ function CreateFieldParcelForm({
         <Box sx={{ display: "flex", height: "100%" }}>
           <Box sx={{ flex: 1, p: 2 }}>
             <AddParcelView
+              mapHeight={700}
               polygonPoints={cropfield.polygonPoints}
               markerPosition={cropfield.markerPosition}
               uid={cropfield.uid}
-              mapHeight={700}
               parcelPolygonPoints={newFieldParcel.polygonPoints}
               polygonColor={newFieldParcel.polygonColor}
               onParcelAdded={handleFieldParcelPolygonCreated}
@@ -300,7 +299,6 @@ function CreateFieldParcelForm({
             sx={{
               flex: 1,
               p: 2,
-              height: 700,
               display: "flex",
               flexDirection: "column",
               gap: 3,
@@ -309,7 +307,6 @@ function CreateFieldParcelForm({
             <form
               onSubmit={handleSubmit}
               style={{
-                height: "100%",
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
@@ -358,7 +355,7 @@ function CreateFieldParcelForm({
                 onColorChange={handleColorChange}
               />
 
-              <FormControl sx={{ mt: 2, mb: 2, width: 200 }}>
+              <FormControl sx={{ mt: 2, mb: 2, width: "100%" }}>
                 <InputLabel color="success" id="layout-type-lavel">
                   {t("elements.forms.addFieldParcelForm.layoutTypeLabel") ||
                     "Layout Type"}
@@ -384,19 +381,19 @@ function CreateFieldParcelForm({
                 </Select>
               </FormControl>
 
-              <TextField
-                color="success"
-                name="targetRowCount"
-                type="number"
-                label={
-                  t("elements.forms.addFieldParcelForm.numberOfRows") ||
-                  "Number Of Rows"
-                }
-                value={newFieldParcel.layoutParameters.numberOfRows}
-                onChange={handleRowCountChange}
-              />
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <TextField
+                  color="success"
+                  name="targetRowCount"
+                  type="number"
+                  label={
+                    t("elements.forms.addFieldParcelForm.numberOfRows") ||
+                    "Number Of Rows"
+                  }
+                  value={newFieldParcel.layoutParameters.numberOfRows}
+                  onChange={handleRowCountChange}
+                />
 
-              <Box sx={{ display: "flex", gap: 1, mt: "auto" }}>
                 {newFieldParcel.layoutType === LayoutTypes.MultiRow && (
                   <TextField
                     color="success"
