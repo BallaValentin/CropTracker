@@ -18,8 +18,11 @@ import { createWorkType } from "../services/WorkTypeService";
 import { queryClient } from "../query-client/QueryClient";
 import type { CreateWorkTypeDTO } from "../interfaces/request/CreateWorkTypeDTO";
 import { useCropField } from "../hooks/caching/UseCropField";
+import { useTranslation } from "react-i18next";
 
 function AddFieldWorkPage() {
+  const { t } = useTranslation();
+
   const { id } = useParams();
   const navigate = useNavigate();
   const [cropField, setCropField] = useState<GetCropFieldDTO | null>(null);
@@ -38,7 +41,9 @@ function AddFieldWorkPage() {
       navigate(`/cropfield-details/${id}`, {
         state: {
           success: true,
-          message: "Field work created successfully!",
+          message: t("pages.addFieldWorkPage.successMessage", {
+            defaultValue: "Field work created successfully!",
+          }),
           key: `${Date.now()}`,
         },
       });

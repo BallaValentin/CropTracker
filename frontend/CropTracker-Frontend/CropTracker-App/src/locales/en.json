@@ -111,6 +111,9 @@
                             "quantityType": {
                                 "name": "Quantity Name",
                                 "options": {
+                                    "option1": "g",
+                                    "option2": "kg",
+                                    "option3": "t",
                                     "option4": "bushels",
                                     "option5": "bales"
                                 }
@@ -126,7 +129,9 @@
                             "waterVolumeType": {
                                 "name": "Water Volume Type",
                                 "options": {
-                                    "option2": "liters"
+                                    "option1": "m³",
+                                    "option2": "liters",
+                                    "option3": "mm"
                                 }
                             }
                         }
@@ -171,7 +176,13 @@
                                 "name": "Used Fertilizers"
                             },
                             "quantityTypes": {
-                                "name": "Quantities Type"
+                                "name": "Quantities Type",
+                                "options": {
+                                    "option1": "g",
+                                    "option2": "kg",
+                                    "option3": "t",
+                                    "option4": "lbs"
+                                }
                             }
                         }
                     },
@@ -182,13 +193,24 @@
                                 "name": "Used Chemicals"
                             },
                             "chemicalQuantityTypes": {
-                                "name": "Chemical Quantity Types"
+                                "name": "Chemical Quantity Types",
+                                "options": {
+                                     "option1": "ml",
+                                    "option2": "l",
+                                    "option3": "g",
+                                    "option4": "kg",
+                                    "option5": "oz"
+                                }
                             },
                             "carrierVolume": {
                                 "name": "Carrier Volume"
                             },
                             "carrierVolumeType": {
-                                "name": "Carrier Volume Type"
+                                "name": "Carrier Volume Type",
+                                "options": {
+                                    "option1": "l/ha",
+                                    "option2": "gal/acre"
+                                }
                             }
                         }
                     },
@@ -367,8 +389,22 @@
         }
     },
     "pages": {
+        "addFieldWorkPage": {
+            "successMessage": "Field work created successfully!"
+        },
+        "updateFieldWorkPage": {
+            "successMessage": "Field work updated successfully!"
+        },
         "createCropFieldPage": {
-            "succcesMessage": "Crop field has been successully added."
+            "succcesMessage": "Crop field has been successully added!"
+        },
+        "createFieldParcelPage": {
+            "loadingMessage": "LOading crop field details...",
+            "succcesMessage": "Field parcel has been successully added!"
+        },
+        "updateFieldParcelPage": {
+            "loadingMessage": "Loading crop field details...",
+            "succcesMessage": "Field parcel has been successully updated!"
         },
         "cropFieldListPage": {
             "loadingMessage": "Loading crop fields...",
@@ -390,6 +426,7 @@
             "addFieldWorkButton": "Add Field Work"
         },
         "fieldWorkDetailsPage": {
+            "loadingMessage": "Loading field work data...",
             "workTypeLabel": "Work Type",
             "startDateLabel": "Starting Date",
             "endDateLabel": "Ending Date",

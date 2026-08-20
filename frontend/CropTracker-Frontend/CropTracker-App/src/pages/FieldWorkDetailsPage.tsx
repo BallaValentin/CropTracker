@@ -112,7 +112,13 @@ function FieldWorkDetailsPage() {
     !rowRectangles ||
     !cropCoords
   ) {
-    return <ProgressCircle loadingMessage="Initializing data..." />;
+    return (
+      <ProgressCircle
+        loadingMessage={t("pages.fieldWorkDetailsPage.loadingMessage", {
+          defaultValue: "Loading field work data...",
+        })}
+      />
+    );
   }
 
   const convertDate = (originalDate: string) => {
@@ -200,11 +206,6 @@ function FieldWorkDetailsPage() {
             </Box>
 
             {Object.entries(fieldWorkData.parameters).map(([key, value]) => {
-              console.log(
-                t(
-                  `elements.forms.addFieldWorkForm.systemWorkTypes.${key}.options.${value}`,
-                ),
-              );
               if (
                 (!Array.isArray(value) && typeof value === "string") ||
                 typeof value === "number"

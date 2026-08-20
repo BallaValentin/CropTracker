@@ -15,8 +15,11 @@ import type { GetFieldParcelDTO } from "../interfaces/response/GetFieldParcelDTO
 import { useEffect, useState } from "react";
 import type { ConfirmUpdateDTO } from "../interfaces/response/ConfirmUpdateDTO";
 import ConfirmCropFieldUpdateDialog from "../elements/dialogs/ConfirmCropFieldUpdateDialog";
+import { useTranslation } from "react-i18next";
 
 function UpdateFieldParcelPage() {
+  const { t } = useTranslation();
+
   const [searchParams] = useSearchParams();
   const [fieldParcels, setFieldParcels] = useState<GetFieldParcelDTO[] | null>(
     null,
@@ -85,7 +88,9 @@ function UpdateFieldParcelPage() {
         navigate(`/cropfield-details/${cropFieldId}`, {
           state: {
             success: true,
-            message: "Field parcel updated successfully!",
+            message: t("pages.updateFieldParcelPage.successMessage", {
+              defaultValue: "Field parcel updated successfully!",
+            }),
             key: `${Date.now()}`,
           },
         });
@@ -131,7 +136,11 @@ function UpdateFieldParcelPage() {
       <Box>
         <MainHeader />
         <MainContainer>
-          <ProgressCircle loadingMessage="Loading crop field details" />
+          <ProgressCircle
+            loadingMessage={t("pages.updateFieldParcelPage.loadingMessage", {
+              defaultValue: "Loading crop field details...",
+            })}
+          />
         </MainContainer>
       </Box>
     );

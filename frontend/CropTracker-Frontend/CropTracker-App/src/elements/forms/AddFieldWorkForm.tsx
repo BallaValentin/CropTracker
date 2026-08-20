@@ -165,7 +165,7 @@ function AddFieldWorkForm({
       } else if (field.type === "number") {
         acc[field.name] = 0;
       } else if (field.type === "select") {
-        acc[field.name] = field.options[0] || "";
+        acc[field.name] = "option1";
       } else {
         acc[field.name] = "";
       }

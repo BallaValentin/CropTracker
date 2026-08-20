@@ -110,6 +110,9 @@
                             "quantityType": {
                                 "name": "Mennyiség neve",
                                 "options": {
+                                    "option1": "g",
+                                    "option2": "kg",
+                                    "option3": "t",
                                     "option4": "bushel",
                                     "option5": "bála"
                                 }
@@ -125,7 +128,9 @@
                             "waterVolumeType": {
                                 "name": "Vízmennyiség típusa",
                                 "options": {
-                                    "option2": "liter"
+                                    "option1": "m³",
+                                    "option2": "liter",
+                                    "option3": "mm"
                                 }
                             }
                         }
@@ -170,7 +175,13 @@
                                 "name": "Használt műtrágyák"
                             },
                             "quantityTypes": {
-                                "name": "Mennyiségek típusa"
+                                "name": "Mennyiségek típusa",
+                                "options": {
+                                    "option1": "g",
+                                    "option2": "kg",
+                                    "option3": "t",
+                                    "option4": "lbs"
+                                }
                             }
                         }
                     },
@@ -181,13 +192,24 @@
                                 "name": "Használt vegyszerek"
                             },
                             "chemicalQuantityTypes": {
-                                "name": "Vegyszer mennyiségi egységei"
+                                "name": "Vegyszer mennyiségi egységei",
+                                "options": {
+                                    "option1": "ml",
+                                    "option2": "l",
+                                    "option3": "g",
+                                    "option4": "kg",
+                                    "option5": "oz"
+                                }
                             },
                             "carrierVolume": {
                                 "name": "Hordozóanyag mennyisége"
                             },
                             "carrierVolumeType": {
-                                "name": "Hordozóanyag mennyiségi egysége"
+                                "name": "Hordozóanyag mennyiségi egysége",
+                                "options": {
+                                    "option1": "l/ha",
+                                    "option2": "gal/acre"
+                                }
                             }
                         }
                     },
@@ -365,8 +387,22 @@
         }
     },
     "pages": {
+        "addFieldWorkPage": {
+            "successMessage": "Munkafolyamat sikeresen hozzáadva!"
+        },
+        "updateFieldWorkPage": {
+            "successMessage": "Munkafolyamat sikeresen frissítve!"
+        },
          "createCropFieldPage": {
-            "succcesMessage": "Termőföld sikeresen megadva."
+            "succcesMessage": "Termőföld sikeresen hozzáadva!"
+        },
+        "createFieldParcelPage": {
+            "loadingMessage": "Termőföld adatainak betöltése...",
+            "succcesMessage": "Parcella sikeresen hozzáadva!"
+        },
+        "updateFieldParcelPage": {
+            "loadingMessage": "Termőföld adatainak betöltése...",
+            "succcesMessage": "Parcella sikeresen frissítve!"
         },
         "cropFieldListPage": {
             "loadingMessage": "Termőföldek betöltése...",
@@ -386,6 +422,7 @@
             "addFieldWorkButton": "Munkafolyamat hozzáadása"
         },
         "fieldWorkDetailsPage": {
+            "loadingMessage": "Munkafolyamat adatainak betöltése...",
             "workTypeLabel": "Munkatípus",
             "startDateLabel": "Kezdési idő",
             "endDateLabel": "Befejezési idő",

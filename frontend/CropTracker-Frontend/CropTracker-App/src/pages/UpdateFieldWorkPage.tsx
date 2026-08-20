@@ -22,8 +22,11 @@ import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import AddFieldWorkForm from "../elements/forms/AddFieldWorkForm";
 import { type GetFieldWorkDTO } from "../interfaces/response/GetFieldWorkDTO";
 import { useCropFieldVersionParcels } from "../hooks/caching/UseCropFieldVersionParcels";
+import { useTranslation } from "react-i18next";
 
 function UpdateFieldWorkPage() {
+  const { t } = useTranslation();
+
   const { id } = useParams();
   const navigate = useNavigate();
   const [cropField, setCropField] = useState<GetCropFieldDTO | null>(null);
@@ -63,7 +66,9 @@ function UpdateFieldWorkPage() {
       navigate(`/cropfield-details/${cropFieldData?.cropFieldId}`, {
         state: {
           success: true,
-          message: "Field work updated successfully!",
+          message: t("pages.updateFieldWorkPage.successMessage", {
+            defaultValue: "Field work updated successfully!",
+          }),
           key: `${Date.now()}`,
         },
       });

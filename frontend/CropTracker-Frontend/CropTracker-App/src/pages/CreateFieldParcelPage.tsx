@@ -13,8 +13,11 @@ import type { CreateFieldParcelDTO } from "../interfaces/request/CreateFieldParc
 import { useState } from "react";
 import type { ConfirmUpdateDTO } from "../interfaces/response/ConfirmUpdateDTO";
 import ConfirmCropFieldUpdateDialog from "../elements/dialogs/ConfirmCropFieldUpdateDialog";
+import { useTranslation } from "react-i18next";
 
 function CreateFieldParcelPage() {
+  const { t } = useTranslation();
+
   const [searchParams] = useSearchParams();
   const [confirmUpdateAlert, setConfirmUpdateAlert] = useState<boolean>(false);
   const [fieldParcelData, setFieldParcelData] =
@@ -63,7 +66,9 @@ function CreateFieldParcelPage() {
         navigate(`/cropfield-details/${cropFieldId}`, {
           state: {
             success: true,
-            message: "Field parcel created successfully!",
+            message: t("pages.createFieldParcelPage.successMessage", {
+              defaultValue: "Field parcel created successfully!",
+            }),
             key: `${Date.now()}`,
           },
         });
@@ -97,7 +102,11 @@ function CreateFieldParcelPage() {
       <Box>
         <MainHeader />
         <MainContainer>
-          <ProgressCircle loadingMessage="Loading crop field details" />
+          <ProgressCircle
+            loadingMessage={t("pages.createFieldParcelPage.loadingMessage", {
+              defaultValue: "Loading crop field details",
+            })}
+          />
         </MainContainer>
       </Box>
     );
