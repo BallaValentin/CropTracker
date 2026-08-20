@@ -405,6 +405,8 @@
         },
         "workStatisticsPage": {
             "pageTitle": "Munka statisztikák",
+            "workTypeFilter": "Szűrés munktípus szerint",
+            "cropFieldFilter": "Szűrés földterület szerint",
             "loadingMessage": "Munka statisztikák betöltése...",
             "afterDateLabel": "Dátum után",
             "beforeDateLabel": "Dátum előtt",

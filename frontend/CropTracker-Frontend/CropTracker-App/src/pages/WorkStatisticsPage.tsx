@@ -6,7 +6,7 @@ import { useFieldWorksWithDays } from "../hooks/caching/UseFieldWorksWithinDays"
 import FieldWorksLineChart from "../elements/charts/FieldWorksLineChart";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import ProgressCircle from "../elements/progress/ProgressCircle";
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useState } from "react";
 import { type GetWorkStatDTO } from "../interfaces/response/GetWorkStatDTO";
 import {
   Box,
@@ -23,6 +23,7 @@ import {
 import { Check } from "@mui/icons-material";
 import { toDateTimeLocal } from "../utils/DateTimeHelper";
 import { useWorkTypes } from "../hooks/caching/UseWorkTypes";
+import { useCropFieldNames } from "../hooks/caching/UseCropFieldNames";
 
 function WorkStatisticsPage() {
   const { t } = useTranslation();
@@ -34,39 +35,48 @@ function WorkStatisticsPage() {
   const [series, setSeries] = useState<{ data: number[]; label: string }[]>([]);
   const [parameters, setParameters] = useState<string[]>([]);
 
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [workTypesAnchor, setWorkTypesAnchor] =
+    useState<HTMLButtonElement | null>(null);
   const [checkedWorkTypes, setCheckedWorkTypes] = useState<boolean[]>([]);
+
+  const [cropFieldsAnchor, setCropFieldsAnchor] =
+    useState<HTMLButtonElement | null>(null);
+  const [checkedCropFields, setCheckedCropFields] = useState<boolean[]>([]);
 
   const [afterDate, setAfterDate] = useState<string>(
     toDateTimeLocal(new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000)),
   );
-  const workMenuOpen = Boolean(anchorEl);
+
+  const workMenuOpen = Boolean(workTypesAnchor);
+  const cropFieldsMenuOpen = Boolean(cropFieldsAnchor);
 
   const [beforeDate, setBeforeDate] = useState<string>(
     toDateTimeLocal(new Date()),
   );
 
-  const handleWorkMenuOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleWorkMenuClose = () => {
-    setAnchorEl(null);
-  };
-
   const { data: user } = useCurrentProfile();
   const { data: workTypes, isLoading: isWorkTypesLoading } = useWorkTypes();
+  const { data: cropFields, isLoading: isCropFieldsLoading } =
+    useCropFieldNames(!!user);
 
   const { data: fieldWorksData, isLoading: isFieldWorksLoading } =
     useFieldWorksWithDays(365, !!user);
 
   useEffect(() => {
     if (workTypes) {
-      const newWorkTypesChecked = Array(workTypes.length).fill(false);
-      newWorkTypesChecked[0] = true;
-      setCheckedWorkTypes([...newWorkTypesChecked]);
+      const defaultWorkTypesChecked = Array(workTypes.length).fill(false);
+      defaultWorkTypesChecked[0] = true;
+      setCheckedWorkTypes([...defaultWorkTypesChecked]);
     }
   }, [workTypes]);
+
+  useEffect(() => {
+    if (cropFields) {
+      const defaultCropFieldsChecked = Array(cropFields.length).fill(false);
+      defaultCropFieldsChecked[0] = true;
+      setCheckedCropFields([...defaultCropFieldsChecked]);
+    }
+  }, [cropFields]);
 
   useEffect(() => {
     if (fieldWorksData) {
@@ -83,16 +93,25 @@ function WorkStatisticsPage() {
         value: number;
       }[] = [];
 
-      let worksFilteredByWorkType = [...fieldWorks];
+      let filteredFieldWorks = [...fieldWorks];
       workTypes?.forEach((workType, index) => {
         if (!checkedWorkTypes[index]) {
-          worksFilteredByWorkType = worksFilteredByWorkType.filter(
+          filteredFieldWorks = filteredFieldWorks.filter(
             (work) => work.workTypeId !== workType.uid,
           );
         }
       });
 
-      const filteredFieldWorks = worksFilteredByWorkType.filter(
+      cropFields?.forEach((cropField, index) => {
+        console.log(cropField.name);
+        if (!checkedCropFields[index]) {
+          filteredFieldWorks = filteredFieldWorks.filter(
+            (work) => work.cropFieldId !== cropField.uid,
+          );
+        }
+      });
+
+      filteredFieldWorks = filteredFieldWorks.filter(
         (fieldWork) =>
           fieldWork.startDate >= afterDate && fieldWork.startDate <= beforeDate,
       );
@@ -158,9 +177,25 @@ function WorkStatisticsPage() {
 
       setSeries(newSeries);
     }
-  }, [fieldWorks, workTypes, checkedWorkTypes, afterDate, beforeDate, t]);
+  }, [
+    fieldWorks,
+    workTypes,
+    checkedWorkTypes,
+    afterDate,
+    beforeDate,
+    t,
+    cropFields,
+    checkedCropFields,
+  ]);
 
-  if (isFieldWorksLoading || !fieldWorks || !workTypes || isWorkTypesLoading) {
+  if (
+    isFieldWorksLoading ||
+    !fieldWorks ||
+    !workTypes ||
+    isWorkTypesLoading ||
+    !cropFields ||
+    isCropFieldsLoading
+  ) {
     return (
       <>
         <MainHeader />
@@ -245,19 +280,32 @@ function WorkStatisticsPage() {
           />
         </Box>
 
-        <Box sx={{ my: 1, display: "flex" }}>
+        <Box sx={{ my: 1, display: "flex", justifyContent: "space-between" }}>
           <Button
             color="inherit"
-            onClick={handleWorkMenuOpen}
+            onClick={(e) => setWorkTypesAnchor(e.currentTarget)}
             sx={{ fontWeight: "bold" }}
           >
-            Filter by Work type
+            {t("pages.workStatisticsPage.workTypeFilter", {
+              defaultValue: "Filter by Work Type",
+            })}
+          </Button>
+
+          <Button
+            color="inherit"
+            onClick={(e) => setCropFieldsAnchor(e.currentTarget)}
+            sx={{ fontWeight: "bold" }}
+          >
+            {t("pages.workStatisticsPage.cropFieldFilter", {
+              defaultValue: "Filter by Crop Field",
+            })}
           </Button>
         </Box>
+
         <Menu
           open={workMenuOpen}
-          anchorEl={anchorEl}
-          onClose={handleWorkMenuClose}
+          anchorEl={workTypesAnchor}
+          onClose={() => setWorkTypesAnchor(null)}
         >
           {workTypes.map((workType, index) => {
             return (
@@ -282,6 +330,32 @@ function WorkStatisticsPage() {
                     },
                   )}
                 </ListItemText>
+              </MenuItem>
+            );
+          })}
+        </Menu>
+
+        <Menu
+          open={cropFieldsMenuOpen}
+          anchorEl={cropFieldsAnchor}
+          onClose={() => setCropFieldsAnchor(null)}
+        >
+          {cropFields.map((cropField, index) => {
+            return (
+              <MenuItem
+                key={cropField.uid}
+                selected={checkedCropFields[index]}
+                onClick={() => {
+                  const updatedCropFieldsChecked = [...checkedCropFields];
+                  updatedCropFieldsChecked[index] =
+                    !updatedCropFieldsChecked[index];
+                  setCheckedCropFields([...updatedCropFieldsChecked]);
+                }}
+              >
+                <ListItemIcon>
+                  {checkedCropFields[index] ? <Check fontSize="small" /> : null}
+                </ListItemIcon>
+                <ListItemText>{cropField.name}</ListItemText>
               </MenuItem>
             );
           })}

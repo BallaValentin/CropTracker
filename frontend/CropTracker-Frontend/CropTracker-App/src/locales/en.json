@@ -409,6 +409,8 @@
         },
         "workStatisticsPage": {
             "pageTitle": "Work Statistics",
+            "workTypeFilter": "Filter by work type",
+            "cropFieldFilter": "Filter by crop field",
             "loadingMessage": "Loading work statistics...",
             "afterDateLabel": "After Date",
             "beforeDateLabel": "Before Date",

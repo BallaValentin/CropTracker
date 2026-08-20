@@ -4,6 +4,7 @@ export interface GetWorkStatDTO {
     uid: string;
     workTypeName: string;
     workTypeId: string;
+    cropFieldVersionId: string;
     cropFieldId: string;
     workTiming: string;
     startDate: string;

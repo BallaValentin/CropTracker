@@ -8,6 +8,7 @@ import java.util.UUID;
 @Data
 public class GetWorkStatDTO {
     private UUID uid;
+    private UUID cropFieldVersionId;
     private UUID cropFieldId;
     private UUID workTypeId;
     private String workTypeName;

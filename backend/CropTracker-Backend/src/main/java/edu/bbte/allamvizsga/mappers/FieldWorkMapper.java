@@ -91,7 +91,8 @@ public abstract class FieldWorkMapper {
     protected void afterModelToGetWorkStat(FieldWork fieldWork, @MappingTarget GetWorkStatDTO getWorkStatDTO) {
         getWorkStatDTO.setWorkTypeId(fieldWork.getWorkType().getUid());
         getWorkStatDTO.setWorkTypeName(fieldWork.getWorkType().getName());
-        getWorkStatDTO.setCropFieldId(fieldWork.getCropFieldVersion().getUid());
+        getWorkStatDTO.setCropFieldVersionId(fieldWork.getCropFieldVersion().getUid());
+        getWorkStatDTO.setCropFieldId((fieldWork.getCropFieldVersion().getCropField().getUid()));
 
         getWorkStatDTO.setStartDate(fieldWork.getStartDate().toString());
         if (fieldWork.getEndDate() == null) {

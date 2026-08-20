@@ -142,6 +142,7 @@ public class CropFieldService {
     public Collection<CropField> findByPattern(User user, String pattern) {
         return cropFieldRepository.findAll(Specification.allOf(
                 CropFieldSpecification.byUser(user)
+                        .and(CropFieldSpecification.isActive())
                         .and(CropFieldSpecification.withNamePattern(pattern))
         ));
     }
