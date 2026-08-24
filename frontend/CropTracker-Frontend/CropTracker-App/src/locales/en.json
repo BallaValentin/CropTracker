@@ -410,6 +410,12 @@
         }
     },
     "pages": {
+        "mainPage": {
+            "welcomeTitle": "Welcome to Crop Tracker!",
+            "welcomeBackTitle": "Welcome back,",
+            "signupHelperText": "Click on the button below to start your crop tracking journey",
+            "signupNutton": "Register"
+        },
         "addFieldWorkPage": {
             "successMessage": "Field work created successfully!"
         },

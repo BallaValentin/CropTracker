@@ -1,4 +1,4 @@
-import { Box, GlobalStyles, Typography } from "@mui/material";
+import { Box, Button, GlobalStyles, Typography } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainContainer from "../elements/containers/MainContainer";
@@ -8,9 +8,12 @@ import InvalidAuthTokenDialog from "../elements/dialogs/InvalidAuthTokenDialog";
 import { useEffect, useState } from "react";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import MainPageHeroCarousel from "../elements/hero-carousel/MainPageHeroCarousel";
+import { useTranslation } from "react-i18next";
 
 function MainPage() {
-  const { isLoading } = useCurrentProfile(
+  const { t } = useTranslation();
+
+  const { data: user, isLoading } = useCurrentProfile(
     !!sessionStorage.getItem("accessToken"),
   );
   const navigate = useNavigate();
@@ -40,15 +43,69 @@ function MainPage() {
 
   return (
     <>
-      <GlobalStyles styles={{ body: { margin: 0 } }} />
-      <Box sx={{ bgcolor: "#f4f8f4" }}>
-        <MainHeader />
+      <MainHeader />
+      <Box sx={{ minHeight: "100vh", overflow: "visible" }}>
         <MainContainer>
           <ColumnCenterContainer>
-            <Typography variant="h2" component={"h1"}>
-              Welcome to Crop Tracker!
-            </Typography>
-            <MainPageHeroCarousel />
+            {!user ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  my: 5,
+                  gap: 10,
+                  overflow: "visible",
+                }}
+              >
+                <Typography
+                  variant="h2"
+                  component={"h1"}
+                  sx={{ mt: 25, fontWeight: "bold" }}
+                >
+                  {t("pages.mainPage.welcomeTitle", {
+                    defaultValue: "Welcome to Crop Tracker!",
+                  })}
+                </Typography>
+                <MainPageHeroCarousel />
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    textAlign: "center",
+                    gap: 2,
+                  }}
+                >
+                  <Typography sx={{ mx: "auto", fontWeight: 500 }}>
+                    {t("pages.mainPage.signupHelperText", {
+                      defaultValue:
+                        "Click on the button below to start your crop tracking journey",
+                    })}
+                  </Typography>
+                  <Button
+                    color="success"
+                    variant="contained"
+                    sx={{ mb: 5, mx: "auto", width: 300 }}
+                    onClick={() => navigate("/signup")}
+                  >
+                    {t("pages.mainPage.signupButton", {
+                      defaultValue: "Register",
+                    })}
+                  </Button>
+                </Box>
+              </Box>
+            ) : (
+              <Box>
+                <Typography
+                  variant="h2"
+                  component={"h1"}
+                  sx={{ fontWeight: "bold" }}
+                >
+                  {`${t("pages.mainPage.welcomeBackTitle", {
+                    defaultValue: "Welcome back,",
+                  })} ${user.firstName}`}
+                </Typography>
+              </Box>
+            )}
           </ColumnCenterContainer>
         </MainContainer>
 

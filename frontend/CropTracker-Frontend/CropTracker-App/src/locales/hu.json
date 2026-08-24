@@ -99,7 +99,7 @@
         "forms": {
             "addFieldWorkForm": {
                 "formTitle": "Munkafolyamat hozzáadása",
-                "schedulingSection": "Mnnkafolyamat kategorizálása és ütemezése",
+                "schedulingSection": "Munkafolyamat kategorizálása és ütemezése",
                 "schedulingSectionSubtext": "Munkafolyamat kategorizálása és ütemezése. Add meg az elvégzendő terepi munka típusát, és állítsd be a munkavégzés időkeretét.",
                 "workTypeLabel": "Munkatípus",
                 "addWorkTypeButton": "Új munkatípus hozzáadása",
@@ -408,6 +408,12 @@
         }
     },
     "pages": {
+        "mainPage": {
+            "welcomeTitle": "Üdvözlünk a Crop Tracker főoldalán!",
+            "welcomeBackTitle": "Üdvözlünk újra,",
+            "signupHelperText": "Kattints az alábbi gombra, hogy elkezdhesd követni a mezőgazdasági munkáidat!",
+            "signupButton": "Regisztráció"
+        },
         "addFieldWorkPage": {
             "successMessage": "Munkafolyamat sikeresen hozzáadva!"
         },
@@ -463,7 +469,7 @@
         },
         "workStatisticsPage": {
             "pageTitle": "Munka statisztikák",
-            "workTypeFilter": "Szűrés munktípus szerint",
+            "workTypeFilter": "Szűrés munkatípus szerint",
             "cropFieldFilter": "Szűrés földterület szerint",
             "loadingMessage": "Munka statisztikák betöltése...",
             "afterDateLabel": "Dátum után",
