@@ -15,11 +15,12 @@ export const cropCultivarApi = axios.create({
 
 attachAuthInterceptors(cropCultivarApi);
 
-export const getCropCultivarsWithPattern = async (pattern: string): Promise<GetSimpleCropCultivarDTO[]> => {
-    console.log("Sending get-cropcultivars with pattern request to server")
+export const getCropCultivarsWithPattern = async (pattern: string, language: string): Promise<GetSimpleCropCultivarDTO[]> => {
+    console.log("Sending get-cropcultivars with pattern request to server: ", language)
     const response = await cropCultivarApi.get<GetSimpleCropCultivarDTO[]>("/findall", {
         params: {
-            pattern: pattern
+            pattern: pattern,
+            language: language
         },
     })
 

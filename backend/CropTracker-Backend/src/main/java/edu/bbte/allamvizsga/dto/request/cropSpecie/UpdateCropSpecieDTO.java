@@ -17,6 +17,10 @@ public class UpdateCropSpecieDTO {
     )
     private String commonName;
 
+    private String hungarianName;
+
+    private String romanianName;
+
     private UUID categoryId;
 
     @Pattern(regexp = "^(?!\\s*$).+", message = "Scientific name cannot be blank")

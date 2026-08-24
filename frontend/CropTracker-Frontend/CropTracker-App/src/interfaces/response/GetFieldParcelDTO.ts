@@ -11,7 +11,7 @@ export interface GetFieldParcelDTO {
     polygonColor: string,
     layoutType: string,
     layoutParameters: LayoutParameters,
-    specieName: string,
+    specieName: Record<string, string>,
     cultivarName: string,
     createdAt: string
 }

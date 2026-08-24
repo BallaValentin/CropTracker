@@ -10,12 +10,14 @@ import edu.bbte.allamvizsga.model.CropSpecie;
 import edu.bbte.allamvizsga.services.CropCultivarService;
 import edu.bbte.allamvizsga.services.CropSpecieService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -90,16 +92,19 @@ public class CropCultivarController {
     }
 
     @GetMapping(value = "/findall", params = "pattern")
+    @Validated
     public ResponseEntity<Collection<GetSimpleCropCultivarDTO>> findAllWithPattern(
-            @RequestParam("pattern") String pattern
+            @RequestParam("pattern") String pattern,
+            @Pattern(regexp = "^(en|ro|hu)$", message = "Invalid can only be either en, hu or ro")
+            @RequestParam(name = "language", defaultValue = "en") String language
     ) {
-        Collection<CropCultivar> cropCultivars = cropCultivarService.findAllWithPattern(pattern);
+        Collection<CropCultivar> cropCultivars = cropCultivarService.findAllWithPattern(pattern, language);
 
         return ResponseEntity.ok(cropCultivars.stream().map(cropCultivar -> {
             GetSimpleCropCultivarDTO getCropCultivarDTO = cropCultivarMapper.modelToGetSimpleCropCultivar(cropCultivar);
+
             getCropCultivarDTO.setSpecieName(cropCultivar.getCropSpecie().getCommonName());
             getCropCultivarDTO.setSpecieId(cropCultivar.getCropSpecie().getUid());
-            getCropCultivarDTO.setSpecieName(cropCultivar.getCropSpecie().getCommonName());
             return getCropCultivarDTO;
         }).toList());
     }

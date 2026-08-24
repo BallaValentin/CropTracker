@@ -47,7 +47,7 @@ function CreateFieldParcelForm({
   isPending,
   fieldParcels,
 }: CreateFieldParcelFormProps) {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [newFieldParcel, setNewFieldParcel] = useState<CreateFieldParcelDTO>({
@@ -76,6 +76,14 @@ function CreateFieldParcelForm({
     newFieldParcel.layoutParameters.numberOfRows || 0,
   );
 
+  const getSafeLanguage = () => {
+    const lang = i18n.resolvedLanguage || i18n.language;
+    return lang ? lang.split("-")[0] : "en";
+  };
+
+  const [currentLanguage, setCurrentLanguage] =
+    useState<string>(getSafeLanguage);
+
   useEffect(() => {
     if (cropfield.uid) {
       setNewFieldParcel((prev) => ({
@@ -84,6 +92,10 @@ function CreateFieldParcelForm({
       }));
     }
   }, [cropfield.uid]);
+
+  useEffect(() => {
+    setCurrentLanguage(i18n.language.split("-")[0]);
+  }, [i18n]);
 
   useEffect(() => {
     const generatedRows =
@@ -138,7 +150,7 @@ function CreateFieldParcelForm({
     }
   }, [fieldParcelToUpdate, cropfield]);
 
-  const { data: crops } = useCropSearch(searchTerm);
+  const { data: crops } = useCropSearch(searchTerm, currentLanguage);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -328,7 +340,7 @@ function CreateFieldParcelForm({
                   option.uid === value.uid
                 }
                 getOptionLabel={(option) =>
-                  `${t(`elements.forms.addFieldParcelForm.crops.${option.specieName}`)} - ${option.cultivarName}`
+                  `${option.specieName[currentLanguage] || option.specieName["en"]} - ${option.cultivarName}`
                 }
                 loading={isPending}
                 onInputChange={(_event, newInputValue) => {

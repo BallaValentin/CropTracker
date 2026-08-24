@@ -15,6 +15,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import type { GetFieldParcelDTO } from "../../interfaces/response/GetFieldParcelDTO";
 import FieldParcelPropItem from "./FieldParcelPropItem";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
 
 interface FieldParcelItemProps {
   parcel: GetFieldParcelDTO;
@@ -33,7 +34,13 @@ function FieldParcelItem({
   onParcelUpdate,
   onParcelDelete,
 }: FieldParcelItemProps) {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+
+  const getSafeLanguage = () => {
+    const lang = i18n.language || i18n.resolvedLanguage;
+    return lang ? lang.split("-")[0] : "en";
+  };
+
   const handleParcelSelect = (
     event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
   ) => {
@@ -50,6 +57,13 @@ function FieldParcelItem({
     event.stopPropagation();
     onParcelDelete(parcel.uid);
   };
+
+  const [currentLanguage, setCurrentLanguage] =
+    useState<string>(getSafeLanguage);
+
+  useEffect(() => {
+    setCurrentLanguage(i18n.language.split("-")[0]);
+  }, [i18n]);
 
   return (
     <ListItem
@@ -127,7 +141,7 @@ function FieldParcelItem({
             propName={t("elements.listItems.fieldParcelItem.cropSpecie", {
               defaultValue: "Crop Specie",
             })}
-            propValue={`${t(`elements.forms.addFieldParcelForm.crops.${parcel.specieName}`)} - ${parcel.cultivarName}`}
+            propValue={`${parcel.specieName[currentLanguage] || parcel.specieName["en"]} - ${parcel.cultivarName}`}
           />
 
           <FieldParcelPropItem

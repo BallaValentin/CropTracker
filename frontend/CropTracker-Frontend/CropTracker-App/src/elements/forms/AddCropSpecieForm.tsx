@@ -33,6 +33,8 @@ function AddCropSpecieForm({
 }: AddCropSpecieProps) {
   const [newCropSpecie, setNewCropSpecie] = useState<CreateCropSpecieDTO>({
     commonName: "",
+    hungarianName: "",
+    romanianName: "",
     scientificName: null,
     categoryId: categoryId,
   });
@@ -51,6 +53,8 @@ function AddCropSpecieForm({
   const handleCancel = () => {
     setNewCropSpecie({
       commonName: "",
+      romanianName: "",
+      hungarianName: "",
       scientificName: "",
       categoryId: "",
     });
@@ -88,6 +92,24 @@ function AddCropSpecieForm({
                 name="commonName"
                 label="Common Name"
                 required
+                onChange={handleInput}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                color="success"
+                name="hungarianName"
+                label="Hungarian Name"
+                onChange={handleInput}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                color="success"
+                name="romanianName"
+                label="Romanian Name"
                 onChange={handleInput}
                 fullWidth
               />

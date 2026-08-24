@@ -25,9 +25,9 @@ public class CropCultivarService {
         ));
     }
 
-    public Collection<CropCultivar> findAllWithPattern(String pattern) {
+    public Collection<CropCultivar> findAllWithPattern(String pattern, String language) {
         return cropCultivarRepository.findAll(Specification.allOf(
-                CropCultivarSpecification.withPattern(pattern)
+                CropCultivarSpecification.withPattern(pattern, language)
         ));
     }
 

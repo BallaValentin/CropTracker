@@ -168,7 +168,7 @@ function SpecieItem({ specie, onOperationSuccess }: SpecieItemProps) {
             }}
           >
             <Typography sx={{ fontWeight: "bold" }}>
-              {specie.commonName}
+              {specie.commonName["en"]}
             </Typography>
             <Box sx={{ display: "flex" }}>
               <IconButton
