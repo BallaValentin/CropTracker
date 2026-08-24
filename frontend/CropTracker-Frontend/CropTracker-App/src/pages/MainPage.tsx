@@ -1,4 +1,4 @@
-import { Box, Button, GlobalStyles, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainContainer from "../elements/containers/MainContainer";

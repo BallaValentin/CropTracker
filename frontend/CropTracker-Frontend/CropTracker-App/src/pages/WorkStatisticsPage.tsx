@@ -3,7 +3,7 @@ import MainContainer from "../elements/containers/MainContainer";
 import MainHeader from "../elements/headers/MainHeader";
 import PageTitle from "../elements/typographies/PageTitle";
 import { useFieldWorksWithDays } from "../hooks/caching/UseFieldWorksWithinDays";
-import FieldWorksLineChart from "../elements/charts/FieldWorksLineChart";
+import FieldWorksBarChart from "../elements/charts/FieldWorksBarChart";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import { useEffect, useState } from "react";
@@ -362,7 +362,7 @@ function WorkStatisticsPage() {
         </Menu>
 
         <Card sx={{ p: 2 }}>
-          <FieldWorksLineChart chartData={chartData} series={series} />
+          <FieldWorksBarChart chartData={chartData} series={series} />
         </Card>
 
         <Box sx={{ mt: 3 }}>

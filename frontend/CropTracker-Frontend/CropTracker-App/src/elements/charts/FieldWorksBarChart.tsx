@@ -1,4 +1,4 @@
-import { LineChart } from "@mui/x-charts";
+import { BarChart } from "@mui/x-charts";
 
 interface FieldWorkLineChartProps {
   chartData: {
@@ -10,12 +10,12 @@ interface FieldWorkLineChartProps {
   series: { label: string; data: number[] }[];
 }
 
-function FieldWorkLineChart({ chartData, series }: FieldWorkLineChartProps) {
+function FieldWorkBarChart({ chartData, series }: FieldWorkLineChartProps) {
   return (
-    <LineChart
+    <BarChart
       xAxis={[
         {
-          scaleType: "point",
+          scaleType: "band",
           data: chartData.map((entry) => `${entry.startDate.substring(0, 10)}`),
         },
       ]}
@@ -25,4 +25,4 @@ function FieldWorkLineChart({ chartData, series }: FieldWorkLineChartProps) {
   );
 }
 
-export default FieldWorkLineChart;
+export default FieldWorkBarChart;
