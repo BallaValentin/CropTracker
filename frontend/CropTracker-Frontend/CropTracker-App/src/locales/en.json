@@ -329,6 +329,16 @@
                 "loginButton": "Login"
             }
         },
+        "heroCarousels": {
+            "mainPageHeroCarousel": {
+                "slide1Text": "Create and edit crop fields with real-time map coordinates.",
+                "slide2Text": "Divide fields into parcels by crop type and configure custom row layouts.",
+                "slide3Text": "Log completed activities or schedule future field tasks.",
+                "slide4Text": "Use built-in activity types or create your own custom workflows.",
+                "slide5Text": "Review and monitor your complete field history.",
+                "slide6Text": "Gain insights with automatically generated work performance analytics."
+            }
+        },
         "listItems": {
             "fieldParcelItem": {
                 "name": "Parcel",

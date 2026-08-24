@@ -327,6 +327,16 @@
                 "loginButton": "Bejelentkezés"
             }
         },
+        "heroCarousels": {
+            "mainPageHeroCarousel": {
+                "slide1Text": "Hozz létre és szerkessz szántóföldeket valós idejű térképkoordinátákkal.",
+                "slide2Text": "Oszd fel a földterületet parcellákra növénykultúrák szerint, és alakíts ki egyedi művelési sorokat.",
+                "slide3Text": "Rögzítsd az elvégzett tevékenységeket, vagy tervezz előre jövőbeli feladatokat.",
+                "slide4Text": "Használd a beépített munkatípusokat, vagy hozz létre saját folyamatokat.",
+                "slide5Text": "Tekintsd át és kövesd nyomon a teljes munkafolyamat előzményeket.",
+                "slide6Text": "Hozd ki a legtöbbet döntéseidből az automatikusan generált munkastatisztikák segítségével."
+            }
+        },
         "listItems": {
             "fieldParcelItem": {
                 "name": "Parcella",

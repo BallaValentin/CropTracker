@@ -7,6 +7,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import InvalidAuthTokenDialog from "../elements/dialogs/InvalidAuthTokenDialog";
 import { useEffect, useState } from "react";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
+import MainPageHeroCarousel from "../elements/hero-carousel/MainPageHeroCarousel";
 
 function MainPage() {
   const { isLoading } = useCurrentProfile(
@@ -47,6 +48,7 @@ function MainPage() {
             <Typography variant="h2" component={"h1"}>
               Welcome to Crop Tracker!
             </Typography>
+            <MainPageHeroCarousel />
           </ColumnCenterContainer>
         </MainContainer>
 
