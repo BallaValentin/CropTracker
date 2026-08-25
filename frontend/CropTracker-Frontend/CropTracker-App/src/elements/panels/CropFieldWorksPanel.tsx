@@ -108,7 +108,12 @@ function CropFieldWorksPanel({
                   {`${work.startDate.substring(0, 10)} ${work.startDate.substring(11, 16)}`}
                 </Typography>
 
-                <Typography>{work.workTypeName}</Typography>
+                <Typography>
+                  {t(
+                    `elements.forms.addFieldWorkForm.systemWorkTypes.${work.workTypeName}.name`,
+                    { defaultValue: work.workTypeName },
+                  )}
+                </Typography>
               </Box>
 
               <Box sx={{ display: "flex", gap: 1 }}>

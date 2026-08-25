@@ -182,7 +182,12 @@ function SelectWorksDialog({
                       <Box sx={{ display: "block", width: "16ch" }} />
                     )}
                   </Box>
-                  <Typography>{fieldWork.workTypeName}</Typography>
+                  <Typography>
+                    {t(
+                      `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWork.workTypeName}.name`,
+                      { defaultValue: fieldWork.workTypeName },
+                    )}
+                  </Typography>
                 </Box>
                 <Checkbox
                   checked={checkedFieldWorks[index] ?? false}

@@ -136,7 +136,12 @@ public class FieldWorkService {
         }
         OffsetDateTime startDate = referenceDate.minusDays(numberOfDays);
 
-        return fieldWorkRepository.findAll(Sort.by(Sort.Direction.ASC, "startDate"));
+        return fieldWorkRepository.findAll(Specification.allOf(
+                FieldWorkSpecification.byCropFieldVersion(cropFieldVersion)
+                        .and(FieldWorkSpecification.byWorkTypeIn(selectedWorkTypes))
+                        .and(FieldWorkSpecification.byStartDateAfter(startDate))
+                        .and(FieldWorkSpecification.byIsActive())
+        ),Sort.by(Sort.Direction.ASC, "startDate"));
     }
 
     public FieldWork findById(UUID uid, User user) {

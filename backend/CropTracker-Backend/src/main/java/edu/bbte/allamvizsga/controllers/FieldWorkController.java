@@ -154,13 +154,11 @@ public class FieldWorkController {
                                                                             @RequestParam("cropFieldId") UUID cropFieldId,
                                                                             @RequestParam("numberOfDays") Integer numberOfDays,
                                                                             @RequestParam("referenceDate") String refDateString,
-                                                                            @RequestParam("workTypes") List<String> selectedWorkTypes) {
+                                                                            @RequestParam("workTypes") List<UUID> selectedWorkTypeIds) {
         User user = userService.extractUser(authorizationHeader);
 
         CropFieldVersion cropFieldVersion = cropFieldService.findById(cropFieldId, user);
         OffsetDateTime refDate = OffsetDateTime.parse(refDateString);
-
-        List<UUID> selectedWorkTypeIds = selectedWorkTypes.stream().map(UUID::fromString).toList();
 
         List<FieldWork> previousFieldWorks = fieldWorkService.findAllWithinPastDays(
                 cropFieldVersion, refDate, numberOfDays, selectedWorkTypeIds);
