@@ -412,7 +412,11 @@
             "welcomeTitle": "Üdvözlünk a Crop Tracker főoldalán!",
             "welcomeBackTitle": "Üdvözlünk újra,",
             "signupHelperText": "Kattints az alábbi gombra, hogy elkezdhesd követni a mezőgazdasági munkáidat!",
-            "signupButton": "Regisztráció"
+            "signupButton": "Regisztráció",
+            "fieldWorksText1": "Jelenleg ",
+            "fieldWorksText2": " munkád van a mai napra:",
+            "noFieldWorksText": "Nincsenek a mai napra programált munkáid.",
+            "fieldWorkDetailsButton": "Részletek"
         },
         "addFieldWorkPage": {
             "successMessage": "Munkafolyamat sikeresen hozzáadva!"

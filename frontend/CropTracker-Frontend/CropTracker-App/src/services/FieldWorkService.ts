@@ -67,6 +67,16 @@ export const getFieldWorksByCropField = async(cropFieldId: string): Promise<GetF
     return response.data;
 }
 
+export const getFieldWorksByToday = async(): Promise<GetPreviousWorkDTO[]> => {
+    console.log("Sending get-field-works request to server for todays works");
+    const response = await fieldWorkApi.get<GetPreviousWorkDTO[]>("/findall-by-day", {
+        params: {
+            userDateTime: new Date().toISOString()
+        },
+    });
+    return response.data;
+}
+
 export const getFieldWork = async(fieldWorkId: string): Promise<GetFieldWorkDTO> => {
     console.log("Sending get-field-work request to server");
     const response = await fieldWorkApi.get<GetFieldWorkDTO>('/findby', {

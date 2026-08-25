@@ -115,6 +115,17 @@ public class FieldWorkController {
         return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList());
     }
 
+    @GetMapping("/findall-by-day")
+    public Collection<GetPreviousWorkDTO> findAllByDay(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam("userDateTime") OffsetDateTime userDateTime
+    ) {
+        User user = userService.extractUser(authorizationHeader);
+        Collection<FieldWork> fieldWorks = fieldWorkService.findAllByDay(user, userDateTime);
+
+        return fieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList();
+    }
+
 
     @GetMapping(value = "/findall", params = "cropFieldId")
     public ResponseEntity<Collection<GetFieldWorkDTO>> findAllOfCropField(@RequestHeader("Authorization")

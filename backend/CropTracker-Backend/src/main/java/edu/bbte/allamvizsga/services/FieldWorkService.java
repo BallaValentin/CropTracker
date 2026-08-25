@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -44,6 +45,24 @@ public class FieldWorkService {
                 Specification.allOf(FieldWorkSpecification.byUser(user))
                         .and(FieldWorkSpecification.byIsActive()),
                 Sort.by(Sort.Direction.DESC, "startDate"));
+    }
+
+    public Collection<FieldWork> findAllByDay(User user, OffsetDateTime userDateTime) {
+        OffsetDateTime startOfDayUtc = userDateTime
+                .withOffsetSameInstant(ZoneOffset.UTC)
+                .truncatedTo(ChronoUnit.DAYS);
+
+        OffsetDateTime endOfDayUtc = startOfDayUtc
+                .plusDays(1)
+                .minusNanos(1);
+        
+        return fieldWorkRepository.findAll(
+                FieldWorkSpecification.byUser(user)
+                        .and(FieldWorkSpecification.byIsActive())
+                        .and(FieldWorkSpecification.withStartDateBetween(startOfDayUtc, endOfDayUtc)),
+                Sort.by(Sort.Direction.ASC, "startDate")
+
+        );
     }
 
     public Collection<FieldWork> findAllWithinDays(User user, int numberOfDays) {

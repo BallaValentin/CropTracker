@@ -414,7 +414,12 @@
             "welcomeTitle": "Welcome to Crop Tracker!",
             "welcomeBackTitle": "Welcome back,",
             "signupHelperText": "Click on the button below to start your crop tracking journey",
-            "signupNutton": "Register"
+            "signupNutton": "Register",
+            "fieldWorksText1": "You have ",
+            "fieldWorksText2": " works programmed for today:",
+            "noFieldWorksText": "You have no work programmed for today.",
+            "fieldWorkDetailsButton": "Details"
+
         },
         "addFieldWorkPage": {
             "successMessage": "Field work created successfully!"

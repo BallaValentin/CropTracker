@@ -102,4 +102,10 @@ public class FieldWorkSpecification {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"), offsetDateTime);
     }
+
+    public static Specification<FieldWork> withStartDateBetween(OffsetDateTime minDate, OffsetDateTime maxDate) {
+        return (root, query, criteriaBuilder) ->
+            criteriaBuilder.between(root.get("startDate"), minDate, maxDate);
+
+    }
 }

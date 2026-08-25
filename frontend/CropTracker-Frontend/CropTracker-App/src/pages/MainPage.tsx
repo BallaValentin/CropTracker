@@ -1,4 +1,11 @@
-import { Box, Button, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  List,
+  ListItemButton,
+  Typography,
+} from "@mui/material";
 import MainHeader from "../elements/headers/MainHeader";
 import ProgressCircle from "../elements/progress/ProgressCircle";
 import MainContainer from "../elements/containers/MainContainer";
@@ -9,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import MainPageHeroCarousel from "../elements/hero-carousel/MainPageHeroCarousel";
 import { useTranslation } from "react-i18next";
+import { useTodaysFieldWorks } from "../hooks/caching/UseTodaysWorks";
 
 function MainPage() {
   const { t } = useTranslation();
@@ -16,6 +24,9 @@ function MainPage() {
   const { data: user, isLoading } = useCurrentProfile(
     !!sessionStorage.getItem("accessToken"),
   );
+  const { data: fieldWorksData, isLoading: isLoadingFieldWorks } =
+    useTodaysFieldWorks(!!user);
+
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -37,7 +48,7 @@ function MainPage() {
     navigate("/signin");
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingFieldWorks) {
     return <ProgressCircle loadingMessage="Loading your profile" />;
   }
 
@@ -104,6 +115,65 @@ function MainPage() {
                     defaultValue: "Welcome back,",
                   })} ${user.firstName}`}
                 </Typography>
+                {!!fieldWorksData && fieldWorksData.length > 0 ? (
+                  <Box sx={{ mt: 10 }}>
+                    <Typography sx={{ textAlign: "left" }}>
+                      {t("pages.mainPage.fieldWorksText1", {
+                        defaultValue: "You have ",
+                      })}
+                      {fieldWorksData.length}
+                      {t("pages.mainPage.fieldWorksText2", {
+                        defaultValue: " works programmed for today",
+                      })}
+                    </Typography>
+                    <Divider sx={{ my: 1 }} />
+                    <List>
+                      {fieldWorksData?.map((fieldWork) => (
+                        <ListItemButton
+                          key={fieldWork.uid}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: "bold" }}
+                          >
+                            {fieldWork.startDate.substring(11, 16)}
+                          </Typography>
+                          <Typography variant="body1">
+                            {fieldWork.cropFieldName} -{" "}
+                            {t(
+                              `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWork.workTypeName}.name`,
+                              {
+                                defaultValue: fieldWork.workTypeName,
+                              },
+                            )}
+                          </Typography>
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <Button
+                              onClick={() =>
+                                navigate(`/field-work-details/${fieldWork.uid}`)
+                              }
+                            >
+                              {t("pages.mainPage.fieldWorkDetailsButton", {
+                                defaultValue: "Details",
+                              })}
+                            </Button>
+                          </Box>
+                        </ListItemButton>
+                      ))}
+                    </List>
+                  </Box>
+                ) : (
+                  <Typography>
+                    {t("pages.mainPage.noFieldWorksText", {
+                      defaultValue: "You have no works programmed for today",
+                    })}
+                  </Typography>
+                )}
               </Box>
             )}
           </ColumnCenterContainer>
