@@ -87,24 +87,30 @@ public class FieldWorkController {
                                                                   String authorizationHeader,
                                                                   @RequestParam(name = "lastSeen", required = false) UUID lastSeen,
                                                                   @RequestParam("size") int size,
-                                                                  @RequestParam(name = "cropFieldId", required = false) UUID cropFieldId,
-                                                                  @RequestParam(name = "workTypeId", required = false) UUID workTypeId) {
+                                                                  @RequestParam(name = "cropFieldIds", required = false) List<UUID> cropFieldIds,
+                                                                  @RequestParam(name = "workTypeIds", required = false) List<UUID> workTypeIds) {
 
         User user = userService.extractUser(authorizationHeader);
 
-        WorkType workType = null;
+        Collection<WorkType> workTypes = new ArrayList<>();
 
-        if (workTypeId != null) {
-            workType = workTypesService.findByUser(user, workTypeId);
+        if (!workTypeIds.isEmpty()) {
+            workTypeIds.forEach(workTypeId -> {
+                WorkType workType = workTypesService.findByUser(user, workTypeId);
+                workTypes.add(workType);
+            });
         }
 
-        CropField cropField = null;
+        Collection<CropField> cropFields = new ArrayList<>();
 
-        if (cropFieldId != null) {
-            cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
+        if (!cropFieldIds.isEmpty()) {
+            cropFieldIds.forEach(cropFieldId -> {
+                CropField cropField = cropFieldService.findCropFieldByUser(cropFieldId, user);
+                cropFields.add(cropField);
+            });
         }
 
-        List<FieldWork> fieldWorks = fieldWorkService.findAllPastWorks(user, workType, cropField, lastSeen, size);
+        List<FieldWork> fieldWorks = fieldWorkService.findAllPastWorks(user, workTypes, cropFields, lastSeen, size);
 
         return ResponseEntity.ok(fieldWorks.stream().map(fieldWorkMapper::modelToGetPreviousWork).toList());
     }

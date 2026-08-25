@@ -4,9 +4,8 @@ import edu.bbte.allamvizsga.model.*;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.lang.reflect.Field;
-import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +19,19 @@ public class FieldWorkSpecification {
                 Join<CropFieldVersion, Object> cropFieldVersionJoin =
                         root.join("cropFieldVersion");
                 return cropFieldVersionJoin.get("cropField").equalTo(cropField);
+            }
+        });
+    }
+
+    public static Specification<FieldWork> byCropFieldCollection(Collection<CropField> cropFields) {
+        return ((root, query, criteriaBuilder) ->
+        {
+            if (cropFields.isEmpty()) {
+                return criteriaBuilder.disjunction();
+            } else {
+                Join<CropFieldVersion, Object> cropFieldVersionJoin =
+                        root.join("cropFieldVersion");
+                return cropFieldVersionJoin.get("cropField").in(cropFields);
             }
         });
     }
@@ -66,12 +78,12 @@ public class FieldWorkSpecification {
         );
     }
 
-    public static Specification<FieldWork> byWorkType(WorkType workType) {
+    public static Specification<FieldWork> byWorkTypeCollection(Collection<WorkType> workTypes) {
         return ((root, query, criteriaBuilder) -> {
-            if (workType == null) {
-                return criteriaBuilder.conjunction();
+            if (workTypes.isEmpty()) {
+                return criteriaBuilder.disjunction();
             } else {
-                return criteriaBuilder.equal(root.get("workType"), workType);
+                return root.get("workType").in(workTypes);
             }
         });
     }

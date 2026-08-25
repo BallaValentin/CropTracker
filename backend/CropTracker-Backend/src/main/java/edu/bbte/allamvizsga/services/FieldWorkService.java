@@ -67,15 +67,15 @@ public class FieldWorkService {
         return ScrollPosition.of(keys, ScrollPosition.Direction.FORWARD);
     }
 
-    public List<FieldWork> findAllPastWorks(User user, WorkType workType, CropField cropField, UUID lastSeen, int pageSize) {
+    public List<FieldWork> findAllPastWorks(User user, Collection<WorkType> workTypes, Collection<CropField> cropFields, UUID lastSeen, int pageSize) {
         ScrollPosition scrollPosition = getScrollPosition(lastSeen);
 
         Window<FieldWork> fieldWorksWindows = fieldWorkRepository.scrollAll(
                 Specification.allOf(FieldWorkSpecification.byUser(user)
                         .and(FieldWorkSpecification.byIsActive())
-                        .and(FieldWorkSpecification.byWorkType(workType))
+                        .and(FieldWorkSpecification.byWorkTypeCollection(workTypes))
                         .and(FieldWorkSpecification.byWorkTiming("Past"))
-                        .and(FieldWorkSpecification.byCropField(cropField))), scrollPosition, pageSize, "startDate");
+                        .and(FieldWorkSpecification.byCropFieldCollection(cropFields))), scrollPosition, pageSize, "startDate");
 
         return fieldWorksWindows.getContent();
     }

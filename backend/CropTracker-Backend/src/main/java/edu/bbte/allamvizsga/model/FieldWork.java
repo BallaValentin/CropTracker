@@ -3,6 +3,7 @@ package edu.bbte.allamvizsga.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.TimeZoneColumn;
 import org.hibernate.annotations.TimeZoneStorage;
@@ -21,10 +22,12 @@ import java.util.UUID;
 public class FieldWork extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "cropfield_version_id", nullable = false)
+    @ToString.Exclude
     private CropFieldVersion cropFieldVersion;
 
     @ManyToOne
     @JoinColumn(name = "worktypes_id", nullable = false)
+    @ToString.Exclude
     private WorkType workType;
 
     private String workTiming;

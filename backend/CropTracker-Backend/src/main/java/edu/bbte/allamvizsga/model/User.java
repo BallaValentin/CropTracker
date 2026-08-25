@@ -3,6 +3,7 @@ package edu.bbte.allamvizsga.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -23,11 +24,13 @@ public class User extends BaseEntity{
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id")
                ,inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @ToString.Exclude
     private Collection<Role> roles;
 
     @Column
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,
             fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Collection<CropField> cropFields;
 
     @Column(unique = true, nullable = false)

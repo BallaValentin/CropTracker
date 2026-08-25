@@ -69,17 +69,17 @@ public class CropFieldService {
     }
 
     public CropField findCropFieldByUser(UUID uid, User user) {
-        CropFieldVersion cropFieldVersion = cropFieldVersionRepository.findByUid(uid);
+        CropField cropField = cropFieldRepository.findByUid(uid);
 
-        if (cropFieldVersion == null || !cropFieldVersion.getCropField().getIsActive()) {
+        if (cropField== null || !cropField.getIsActive()) {
             throw new EntityNotFoundException("Crop field not found.");
         }
 
-        if (cropFieldVersion.getCropField().getUser() != user) {
+        if (cropField.getUser() != user) {
             throw new ForbiddenException("Crop field access denied.");
         }
 
-        return cropFieldVersion.getCropField();
+        return cropField;
     }
 
     public CropFieldVersion updateCropField(UUID cropFieldId, String newName, User user, CropFieldVersion cropFieldVersion) {

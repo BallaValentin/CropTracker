@@ -30,14 +30,16 @@ export const updateFieldWork = async(updateFieldWorkDTO: UpdateFieldWorkDTO, fie
     });
 }
 
-export const getFieldWorksByCursor = async(lastSeen: string | null, cropFieldId: string | null, workTypeId: string | null, size: number): Promise<GetPreviousWorkDTO[]> => {
-    console.log("Sending get-field-works request to server");
+export const getFieldWorksByCursor = async(lastSeen: string | null, checkedCropFieldIds: string[], checkedWorkTypeIds: string[], size: number): Promise<GetPreviousWorkDTO[]> => {
+    const workTypeIdsParam = checkedWorkTypeIds.join(",");
+    const cropFieldIdsParam = checkedCropFieldIds.join(",");
+    console.log("Sending get-field-works request to server: ", checkedCropFieldIds);
     const response = await fieldWorkApi.get<GetPreviousWorkDTO[]>("/find-by-page", {
         params: {
             lastSeen: lastSeen,
             size: size,
-            cropFieldId: cropFieldId,
-            workTypeId: workTypeId
+            cropFieldIds: cropFieldIdsParam,
+            workTypeIds: workTypeIdsParam
         }
     });
     console.log("Received response from server:", response.data);

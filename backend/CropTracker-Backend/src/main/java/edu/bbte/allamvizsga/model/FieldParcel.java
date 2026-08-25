@@ -3,6 +3,7 @@ package edu.bbte.allamvizsga.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcType;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class FieldParcel extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "cropfield_id", nullable = false)
+    @ToString.Exclude
     private CropField cropField;
 
     @CreationTimestamp

@@ -3,6 +3,7 @@ package edu.bbte.allamvizsga.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Range;
 
 import java.util.Collection;
@@ -16,6 +17,7 @@ public class CropCultivar extends BaseEntity {
     private String cultivarName;
     @ManyToOne
     @JoinColumn(name = "specie_id", nullable = false)
+    @ToString.Exclude
     private CropSpecie cropSpecie;
     private Integer daysToMaturity;
     @Range(min = 1, max = 10)

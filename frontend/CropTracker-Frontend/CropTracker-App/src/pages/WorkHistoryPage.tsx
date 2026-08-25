@@ -20,78 +20,102 @@ import {
 } from "../services/FieldWorkService";
 import { pageSize } from "../utils/Constants";
 import FieldWorkHistoryItem from "../elements/list-item/FieldWorkHistoryItem";
-import CropFieldAutocomplete from "../elements/auto-completes/CropFieldAutocomplete";
-import WorkTypeAutocomplete from "../elements/auto-completes/WorkTypeAutocomplete";
-import { getCropFieldNames } from "../services/CropFieldService";
-import type { GetCropFieldNameDTO } from "../interfaces/response/GetCropFieldNameDTO";
+import CropFieldMenu from "../elements/menus/CropFieldMenu";
+import WorkTypeMenu from "../elements/menus/WorkTypeMenu";
 import { useMutation } from "@tanstack/react-query";
-import type { GetWorkTypeNameDTO } from "../interfaces/response/GetWorkTypeNameDTO";
-import { getWorkTypeNames } from "../services/WorkTypeService";
 import DeleteFieldWorkDialog from "../elements/dialogs/DeleteFieldWorkDialog";
 import { useTranslation } from "react-i18next";
+import { useCropFieldNames } from "../hooks/caching/UseCropFieldNames";
+import { useWorkTypes } from "../hooks/caching/UseWorkTypes";
 
 function WorkHistoryPage() {
   const { t } = useTranslation();
 
-  const { isLoading: isLoadingUser, error: userError } = useCurrentProfile();
+  const {
+    data: user,
+    isLoading: isLoadingUser,
+    error: userError,
+  } = useCurrentProfile();
   const [fieldWorks, setFieldWorks] = useState<GetPreviousWorkDTO[]>([]);
   const navigate = useNavigate();
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [cropFieldId, setCropFieldId] = useState<string | null>(null);
-  const [workTypeId, setWorkTypeId] = useState<string | null>(null);
+
+  const [checkedCropFieldIds, setCheckedCropFieldIds] = useState<
+    string[] | null
+  >(null);
+  const [checkedWorkTypeIds, setCheckedWorkTypeIds] = useState<string[] | null>(
+    null,
+  );
+
   const [dialogToggled, setDialogToggled] = useState<boolean>(false);
 
   const cursorRef = useRef<string | null>(null);
   const isFetchingRef = useRef<boolean>(false);
 
-  const [cropFields, setCropFields] = useState<GetCropFieldNameDTO[]>([]);
-  const [workTypes, setWorkTypes] = useState<GetWorkTypeNameDTO[]>([]);
+  const { data: workTypes, isLoading: isLoadingWorkTypeNames } = useWorkTypes();
 
-  const { mutate: cropFieldMutate, isPending: isCropFieldPending } =
-    useMutation({
-      mutationFn: getCropFieldNames,
-      onSuccess: (response: GetCropFieldNameDTO[]) => {
-        setCropFields(response);
-      },
-    });
+  const { data: cropFields, isLoading: isLoadingCropFieldNames } =
+    useCropFieldNames(!!user);
 
-  const handleCropFieldSearch = (searchTerm: string) => {
-    cropFieldMutate(searchTerm);
-  };
+  const handleCropFieldSelect = (cropFieldId: string, checked: boolean) => {
+    if (cropFieldId && checkedCropFieldIds) {
+      if (checked) {
+        if (
+          !checkedCropFieldIds?.some((checkedId) => checkedId === cropFieldId)
+        ) {
+          const updatedCropFieldIds = [...checkedCropFieldIds, cropFieldId];
+          console.log("Checked crop field ids updated: ", updatedCropFieldIds);
+          setCheckedCropFieldIds([...updatedCropFieldIds]);
+        }
+      } else {
+        if (
+          checkedCropFieldIds?.some((checkedId) => checkedId === cropFieldId)
+        ) {
+          const filteredCheckedCropFieldIds = checkedCropFieldIds.filter(
+            (checkedId) => checkedId !== cropFieldId,
+          );
+          console.log(
+            "Checked crop field ids updated: ",
+            filteredCheckedCropFieldIds,
+          );
+          setCheckedCropFieldIds([...filteredCheckedCropFieldIds]);
+        }
+      }
 
-  const handleCropFieldSelect = (cropFieldId: string) => {
-    if (cropFieldId) {
-      setCropFieldId(cropFieldId);
       cursorRef.current = null;
       setFieldWorks([]);
       setHasMore(true);
     }
   };
 
-  const { mutate: workTypeMutate, isPending: isWorkTypePending } = useMutation({
-    mutationFn: getWorkTypeNames,
-    onSuccess: (response: GetWorkTypeNameDTO[]) => {
-      setWorkTypes(response);
-    },
-  });
+  const handleWorkTypeSelect = (workTypeId: string, checked: boolean) => {
+    if (workTypeId && checkedWorkTypeIds) {
+      if (checked) {
+        if (
+          !checkedWorkTypeIds?.some((checkedId) => checkedId === workTypeId)
+        ) {
+          const updatedWorkTypeIds = [...checkedWorkTypeIds, workTypeId];
+          setCheckedWorkTypeIds([...updatedWorkTypeIds]);
+        }
+      } else {
+        if (checkedWorkTypeIds?.some((checkedId) => checkedId === workTypeId)) {
+          const filteredCheckedWorkTypeIds = checkedWorkTypeIds.filter(
+            (checkedId) => checkedId !== workTypeId,
+          );
+          setCheckedWorkTypeIds([...filteredCheckedWorkTypeIds]);
+        }
+      }
+
+      cursorRef.current = null;
+      setFieldWorks([]);
+      setHasMore(true);
+    }
+  };
 
   const { mutate: deleteFieldWorksMutate, isPending: isDeletePending } =
     useMutation({
       mutationFn: deleteSelectedFieldWorks,
     });
-
-  const handleWorkTypeSearch = (searchTerm: string) => {
-    workTypeMutate(searchTerm);
-  };
-
-  const handleWorkTypeSelect = (workTypeId: string) => {
-    if (workTypeId) {
-      setWorkTypeId(workTypeId);
-      cursorRef.current = null;
-      setFieldWorks([]);
-      setHasMore(true);
-    }
-  };
 
   const updateFieldWorkChecked = (fieldWorkId: string, isChecked: boolean) => {
     console.log("Field work ID:", fieldWorkId, "Checked:", isChecked);
@@ -141,15 +165,15 @@ function WorkHistoryPage() {
   };
 
   const getNextWorks = useCallback(async () => {
-    if (!hasMore || isFetchingRef.current) return;
+    if (!hasMore || isFetchingRef.current || !cropFields || !workTypes) return;
 
     isFetchingRef.current = true;
 
     try {
       const response = await getFieldWorksByCursor(
         cursorRef.current,
-        cropFieldId,
-        workTypeId,
+        checkedCropFieldIds || [],
+        checkedWorkTypeIds || [],
         pageSize,
       );
       if (response.length === 0) {
@@ -171,15 +195,27 @@ function WorkHistoryPage() {
     } finally {
       isFetchingRef.current = false;
     }
-  }, [cropFieldId, hasMore, workTypeId]);
+  }, [hasMore, cropFields, workTypes, checkedCropFieldIds, checkedWorkTypeIds]);
 
   useEffect(() => {
     if (cursorRef.current === null) {
       getNextWorks();
     }
-  }, [getNextWorks, cropFieldId, workTypeId, fieldWorks]);
+  }, [getNextWorks, fieldWorks]);
 
-  if (isLoadingUser) {
+  useEffect(() => {
+    if (cropFields) {
+      setCheckedCropFieldIds(cropFields.map((cropField) => cropField.uid));
+    }
+  }, [cropFields]);
+
+  useEffect(() => {
+    if (workTypes) {
+      setCheckedWorkTypeIds(workTypes.map((workType) => workType.uid));
+    }
+  }, [workTypes]);
+
+  if (isLoadingUser || isLoadingCropFieldNames || isLoadingWorkTypeNames) {
     return (
       <ProgressCircle
         loadingMessage={t("pages.workHistoryPage.loadingText", {
@@ -245,19 +281,15 @@ function WorkHistoryPage() {
         <Box sx={{ mb: 3 }}>
           <Box sx={{ display: "flex", gap: 1, width: "100%", mb: 1 }}>
             <Box sx={{ flex: 1 }}>
-              <CropFieldAutocomplete
+              <CropFieldMenu
                 onCropFieldSelect={handleCropFieldSelect}
-                onCropFieldSearch={handleCropFieldSearch}
-                cropFields={cropFields}
-                isPending={isCropFieldPending}
+                cropFields={cropFields || []}
               />
             </Box>
             <Box sx={{ flex: 1 }}>
-              <WorkTypeAutocomplete
+              <WorkTypeMenu
                 onWorkTypeSelect={handleWorkTypeSelect}
-                onWorkTypeSearch={handleWorkTypeSearch}
-                workTypes={workTypes}
-                isPending={isWorkTypePending}
+                workTypes={workTypes || []}
               />
             </Box>
           </Box>

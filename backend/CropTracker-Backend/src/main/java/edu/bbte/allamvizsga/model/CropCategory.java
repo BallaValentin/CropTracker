@@ -3,6 +3,7 @@ package edu.bbte.allamvizsga.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Collection;
 
@@ -15,6 +16,7 @@ public class CropCategory extends BaseEntity {
     private String categoryName;
     @OneToMany(mappedBy = "cropCategory", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true
     )
+    @ToString.Exclude
     private Collection<CropSpecie> cropSpecies;
 
     public CropCategory(String categoryName) {
