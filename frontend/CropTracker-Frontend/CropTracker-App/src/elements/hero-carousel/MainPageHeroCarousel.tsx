@@ -98,6 +98,8 @@ function MainPageHeroCarousel() {
         mx: "auto",
         overflow: "hidden",
         borderRadius: 3,
+        bgcolor: "background.paper",
+        boxShadow: 2,
       }}
     >
       <Box ref={emblaRef} sx={{ overflow: "hidden", width: "100%" }}>
@@ -113,8 +115,8 @@ function MainPageHeroCarousel() {
                 alt={slide.text}
                 sx={{
                   width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
+                  height: "auto",
+                  objectFit: "contain",
                   display: "block",
                 }}
               />
