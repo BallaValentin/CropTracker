@@ -19,7 +19,6 @@ import {
   getPersonNameError,
   getUsernameError,
 } from "../../utils/FormSubmitHelper";
-import LanguageSelect from "../selects/LanguageSelect";
 import { useTranslation } from "react-i18next";
 
 interface EditUserFormProps {
@@ -171,7 +170,7 @@ function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
           <Divider sx={{ mt: 2 }} />
           <FormControl>
             <Grid container spacing={4} alignItems="center" sx={{ mt: 2 }}>
-              <Grid
+              {/* <Grid
                 size={12}
                 container
                 spacing={2}
@@ -187,7 +186,7 @@ function EditUserForm({ onSubmit, userData, isUpdating }: EditUserFormProps) {
                 <Grid size={9}>
                   <LanguageSelect />
                 </Grid>
-              </Grid>
+              </Grid> */}
               <Grid size={3}>
                 <Typography sx={{ fontWeight: "bold" }} variant="subtitle1">
                   {t("elements.forms.editUserForm.username") || "Username"}

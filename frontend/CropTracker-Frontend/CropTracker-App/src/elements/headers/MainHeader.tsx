@@ -131,6 +131,7 @@ function MainHeader({ hasLogin = true }: MainHeaderProps) {
               </Typography>
             </>
           )}
+          <LanguageSelect />
           {userData && hasLogin ? (
             <>
               <Button onClick={handleClick}>
