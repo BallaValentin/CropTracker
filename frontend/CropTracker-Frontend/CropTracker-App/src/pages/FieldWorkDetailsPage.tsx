@@ -19,6 +19,7 @@ import { useCurrentProfile } from "../hooks/caching/UseCurrentUser";
 import { useFieldWorkCropField } from "../hooks/caching/UseFieldWorkCropField";
 import { useCropFieldVersionParcels } from "../hooks/caching/UseCropFieldVersionParcels";
 import { useTranslation } from "react-i18next";
+import { useWorkTypeByID } from "../hooks/caching/UseWorkTypeByID";
 
 function FieldWorkDetailsPage() {
   const { t } = useTranslation();
@@ -46,6 +47,10 @@ function FieldWorkDetailsPage() {
       fieldWorkData?.cropFieldId || "",
       !!fieldWorkData?.cropFieldId,
     );
+  const { data: workType, isLoading: isWorkTypeLoading } = useWorkTypeByID(
+    fieldWorkData?.workTypeId || "",
+    !!fieldWorkData?.workTypeId,
+  );
 
   const navigate = useNavigate();
 
@@ -100,14 +105,22 @@ function FieldWorkDetailsPage() {
     setCropCoords(crops);
   }, [fieldParcelsData, rows]);
 
+  useEffect(() => {
+    if (workType) {
+      console.log("Work type received: ", workType);
+    }
+  });
+
   if (
     isUserLoading ||
     isFieldWorkLoading ||
     isCropFieldLoading ||
     isFieldParcelsLoading ||
+    isWorkTypeLoading ||
     !fieldWorkData ||
     !cropFieldData ||
     !fieldParcelsData ||
+    !workType ||
     !rows ||
     !rowRectangles ||
     !cropCoords
@@ -205,75 +218,92 @@ function FieldWorkDetailsPage() {
               )}
             </Box>
 
-            {Object.entries(fieldWorkData.parameters).map(([key, value]) => {
-              if (
-                (!Array.isArray(value) && typeof value === "string") ||
-                typeof value === "number"
-              ) {
-                return (
-                  <FieldInfoContainer
-                    labelText={t(
-                      `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.fields.${key}.name`,
-                      {
-                        defaultValue: key,
-                      },
-                    )}
-                  >
-                    <Typography>
-                      {value
-                        ? t(
-                            `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.fields.${key}.options.${value}`,
-                            {
-                              defaultValue: value,
-                            },
-                          )
-                        : "N/A"}
-                    </Typography>
-                  </FieldInfoContainer>
-                );
-              }
-
-              if (Array.isArray(value)) {
-                return (
-                  <Box sx={{ width: 800 }}>
-                    <Typography color="success">{key}</Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 2,
-                      }}
+            {Object.entries(fieldWorkData.parameters).map(
+              ([key, value], paramIndex) => {
+                if (
+                  typeof value === "object" &&
+                  "numericValue" in value &&
+                  "optionIndex" in value
+                ) {
+                  return (
+                    <FieldInfoContainer
+                      labelText={t(
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.fields.${key}.name`,
+                        {
+                          defaultValue: key,
+                        },
+                      )}
                     >
-                      <Divider />
-                      {value.map((element) => {
-                        if (isStringNumber(element)) {
-                          const snElement = element as StringNumber;
-                          return (
-                            <Box sx={{ display: "flex", gap: 5 }}>
-                              <FieldInfoContainer>
-                                <Typography>
-                                  {snElement.textValue || "N/A"}
-                                </Typography>
-                              </FieldInfoContainer>
-                              <FieldInfoContainer>
-                                <Typography>
-                                  {snElement.numberValue ?? "N/A"}
-                                </Typography>
-                              </FieldInfoContainer>
-                            </Box>
-                          );
-                        } else {
-                          <FieldInfoContainer>
-                            <Typography>{element || "N/A"}</Typography>
-                          </FieldInfoContainer>;
-                        }
-                      })}
-                      <Divider />
+                      {`${value["numericValue"]} ${workType.fieldDefinitions[paramIndex].options[value.optionIndex].optionName}`}
+                    </FieldInfoContainer>
+                  );
+                }
+                if (!Array.isArray(value) && typeof value === "string") {
+                  return (
+                    <FieldInfoContainer
+                      labelText={t(
+                        `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.fields.${key}.name`,
+                        {
+                          defaultValue: key,
+                        },
+                      )}
+                    >
+                      <Typography>
+                        {value
+                          ? t(
+                              `elements.forms.addFieldWorkForm.systemWorkTypes.${fieldWorkData.workTypeName}.fields.${key}.options.${value}`,
+                              {
+                                defaultValue: value,
+                              },
+                            )
+                          : "N/A"}
+                      </Typography>
+                    </FieldInfoContainer>
+                  );
+                }
+
+                if (Array.isArray(value)) {
+                  return (
+                    <Box sx={{ width: 800 }}>
+                      <Typography color="success">{key}</Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 2,
+                        }}
+                      >
+                        <Divider />
+                        {value.map((element) => {
+                          if (isStringNumber(element)) {
+                            const snElement = element as StringNumber;
+                            return (
+                              <Box sx={{ display: "flex", gap: 5 }}>
+                                <FieldInfoContainer>
+                                  <Typography>
+                                    {snElement.textValue || "N/A"}
+                                  </Typography>
+                                </FieldInfoContainer>
+                                <FieldInfoContainer>
+                                  <Typography>
+                                    {snElement.numberValue ?? "N/A"}
+                                  </Typography>
+                                </FieldInfoContainer>
+                              </Box>
+                            );
+                          } else {
+                            <FieldInfoContainer>
+                              <Typography>{element || "N/A"}</Typography>
+                            </FieldInfoContainer>;
+                          }
+                        })}
+                        <Divider />
+                      </Box>
                     </Box>
-                  </Box>
-                );
-              }
-            })}
+                  );
+                }
+              },
+            )}
           </Box>
           <Typography variant="h6" sx={{ fontWeight: "bold", my: 2 }}>
             {t("pages.fieldWorkDetailsPage.parcelsAffected", {

@@ -1,9 +1,6 @@
 package edu.bbte.allamvizsga.model;
 
-import edu.bbte.allamvizsga.dto.customValidations.ValidName;
 import edu.bbte.allamvizsga.dto.enums.FieldType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -18,5 +15,7 @@ public class FieldDefinition {
 
     private Boolean required;
 
-    private Collection<String> options;
+    private Boolean hasOptions;
+
+    private Collection<OptionType> options;
 }

@@ -16,7 +16,7 @@ attachAuthInterceptors(workTypeApi);
 export const getUserWorkTypes = async(): Promise<GetWorkTypeDTO[]> => {
     console.log("Sending get-work-type request to server");
     const response = await workTypeApi.get<GetWorkTypeDTO[]>("/findall");
-
+    console.log("Received work types: ", response.data);
     return response.data;
 }
 
@@ -25,6 +25,18 @@ export const getWorkTypeNames = async(pattern: string): Promise<GetWorkTypeNameD
     const response = await workTypeApi.get<GetWorkTypeNameDTO[]>("/findall", {
         params: {
             pattern: pattern
+        }
+    });
+
+    console.log("Received response from server:", response.data);
+    return response.data;
+}
+
+export const getWorkTypeById = async(workTypeId: string): Promise<GetWorkTypeDTO> => {
+    console.log("Sending get-work-type-by-id request to server");
+    const response = await workTypeApi.get<GetWorkTypeDTO>("/find-by-id", {
+        params: {
+            workTypeId: workTypeId
         }
     });
 

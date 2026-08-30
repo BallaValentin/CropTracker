@@ -1,10 +1,7 @@
 package edu.bbte.allamvizsga.configurations;
 
 import edu.bbte.allamvizsga.dto.enums.FieldType;
-import edu.bbte.allamvizsga.model.CropCategory;
-import edu.bbte.allamvizsga.model.FieldDefinition;
-import edu.bbte.allamvizsga.model.Role;
-import edu.bbte.allamvizsga.model.WorkType;
+import edu.bbte.allamvizsga.model.*;
 import edu.bbte.allamvizsga.repository.CropCategoryRepository;
 import edu.bbte.allamvizsga.repository.RoleRepository;
 import edu.bbte.allamvizsga.repository.WorkTypesRepository;
@@ -12,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -42,43 +40,71 @@ public class DataInitializer {
     public CommandLineRunner initWorkTypes(WorkTypesRepository workTypesRepository) {
         return args -> {
 
-            FieldDefinition tillageType = new FieldDefinition("tillageType", FieldType.SELECT, Boolean.FALSE, List.of("Primary Plowing", "Secondary Conditioning", "Subsoiling", "Strip-Till"));
-            FieldDefinition targetDepth = new FieldDefinition("targetDepthCm", FieldType.NUMBER, Boolean.FALSE, List.of());
+            Collection<OptionType> tillageOptions = new ArrayList<>();
+            tillageOptions.add(new OptionType("Primary Plowing", 1));
+            tillageOptions.add(new OptionType("Secondary Conditioning", 1));
+            tillageOptions.add(new OptionType("Subsoiling", 1));
+            tillageOptions.add(new OptionType("Strip-Till", 1));
+
+            FieldDefinition tillageType = new FieldDefinition("tillageType", FieldType.SELECT, Boolean.FALSE, Boolean.FALSE, tillageOptions);
+            FieldDefinition targetDepth = new FieldDefinition("targetDepthCm", FieldType.NUMBER, Boolean.FALSE, Boolean.FALSE, List.of());
             Collection<FieldDefinition> tillageFieldDefinitions = List.of(tillageType, targetDepth);
             createWorkTypeIfNotExists(workTypesRepository, "Tillage", tillageFieldDefinitions);
 
-            FieldDefinition quantity = new FieldDefinition("quantity", FieldType.NUMBER, Boolean.FALSE, List.of());
+            FieldDefinition quantity = new FieldDefinition("quantity", FieldType.NUMBER, Boolean.FALSE, Boolean.FALSE, List.of());
             Collection<FieldDefinition> sowingFieldDefinitions = List.of(quantity);
             createWorkTypeIfNotExists(workTypesRepository, "Sowing", sowingFieldDefinitions);
 
-            FieldDefinition usedFertilizers = new FieldDefinition("usedFertilizers", FieldType.STRINGNUMBER_ARRAY, Boolean.FALSE, List.of());
-            FieldDefinition quantityTypes = new FieldDefinition("quantityTypes", FieldType.SELECT, Boolean.FALSE, List.of("g", "kg", "t", "lbs"));
-            Collection<FieldDefinition> fertilizationFieldDefinitions = List.of(usedFertilizers, quantityTypes);
+            Collection<OptionType> usedFertilizerOptions = new ArrayList<>();
+            usedFertilizerOptions.add(new OptionType("g", 0.001));
+            usedFertilizerOptions.add(new OptionType("kg", 1));
+            usedFertilizerOptions.add(new OptionType("t", 1000));
+            usedFertilizerOptions.add(new OptionType("lbs", 0.4536));
+
+            FieldDefinition usedFertilizers = new FieldDefinition("usedFertilizers", FieldType.STRINGNUMBER_ARRAY, Boolean.FALSE, Boolean.TRUE, usedFertilizerOptions);
+            Collection<FieldDefinition> fertilizationFieldDefinitions = List.of(usedFertilizers);
             createWorkTypeIfNotExists(workTypesRepository, "Fertilization", fertilizationFieldDefinitions);
 
+            Collection<OptionType> chemicalOptions = new ArrayList<>();
+            chemicalOptions.add(new OptionType("ml", 0.001));
+            chemicalOptions.add(new OptionType("l", 1));
+            chemicalOptions.add(new OptionType("g", 0.001));
+            chemicalOptions.add(new OptionType("kg", 1));
+            chemicalOptions.add(new OptionType("oz", 0.02957));
 
-            FieldDefinition usedChemicals = new FieldDefinition("usedChemicals", FieldType.STRINGNUMBER_ARRAY, Boolean.FALSE, List.of());
-            FieldDefinition chemicalQuantityTypes = new FieldDefinition("chemicalQuantityTypes", FieldType.SELECT, Boolean.FALSE, List.of("ml", "l", "g", "kg", "oz"));
-            FieldDefinition carrierVolume = new FieldDefinition("carrierVolume", FieldType.NUMBER, Boolean.FALSE, List.of());
-            FieldDefinition carrierVolumeType = new FieldDefinition("carrierVolumeType", FieldType.SELECT, Boolean.FALSE, List.of("l/ha", "gal/acre"));
-            Collection<FieldDefinition> sprayingFieldDefinitions = List.of(usedChemicals, chemicalQuantityTypes, carrierVolume, carrierVolumeType);
+            Collection<OptionType> carrierVolumeOptions = new ArrayList<>();
+            carrierVolumeOptions.add(new OptionType("l/ha", 1));
+            carrierVolumeOptions.add(new OptionType("gal/acre", 0.1069));
+
+
+            FieldDefinition usedChemicals = new FieldDefinition("usedChemicals", FieldType.STRINGNUMBER_ARRAY, Boolean.FALSE, Boolean.TRUE, chemicalOptions);
+            FieldDefinition carrierVolume = new FieldDefinition("carrierVolume", FieldType.NUMBER, Boolean.FALSE, Boolean.TRUE, carrierVolumeOptions);
+            Collection<FieldDefinition> sprayingFieldDefinitions = List.of(usedChemicals, carrierVolume);
             createWorkTypeIfNotExists(workTypesRepository, "Spraying", sprayingFieldDefinitions);
 
-            FieldDefinition waterVolume = new FieldDefinition("waterVolume", FieldType.NUMBER, Boolean.FALSE, List.of());
-            FieldDefinition waterVolumeType = new FieldDefinition("waterVolumeType", FieldType.SELECT, Boolean.FALSE, List.of("m³", "liters", "mm"));
-            Collection<FieldDefinition> irrigationFieldDefinitions = List.of(waterVolume, waterVolumeType);
+            Collection<OptionType> waterVolumeOptions = new ArrayList<>();
+            waterVolumeOptions.add(new OptionType("m3", 1000));
+            waterVolumeOptions.add(new OptionType("l", 1));
+
+            FieldDefinition waterVolume = new FieldDefinition("waterVolume", FieldType.NUMBER, Boolean.FALSE, Boolean.TRUE, waterVolumeOptions);
+            Collection<FieldDefinition> irrigationFieldDefinitions = List.of(waterVolume);
             createWorkTypeIfNotExists(workTypesRepository, "Irrigation", irrigationFieldDefinitions);
 
-            FieldDefinition observations = new FieldDefinition("observations", FieldType.STRING_ARRAY, Boolean.FALSE, List.of());
+            FieldDefinition observations = new FieldDefinition("observations", FieldType.STRING_ARRAY, Boolean.FALSE, Boolean.FALSE, List.of());
             Collection<FieldDefinition> scoutingFieldDefinitions = List.of(observations);
             createWorkTypeIfNotExists(workTypesRepository, "Scouting", scoutingFieldDefinitions);
 
-            FieldDefinition harvestedQuantity = new FieldDefinition("harvestedQuantity", FieldType.NUMBER, Boolean.TRUE, List.of());
-            FieldDefinition quantityType = new FieldDefinition("quantityType", FieldType.SELECT, Boolean.FALSE, List.of("g", "kg", "t", "bushels", "bales", "lbs"));
-            Collection<FieldDefinition> harvestingFieldDefinitions = List.of(harvestedQuantity, quantityType);
+            Collection<OptionType> harvestedQuantityOptions = new ArrayList<>();
+            harvestedQuantityOptions.add(new OptionType("g", 0.001));
+            harvestedQuantityOptions.add(new OptionType("kg", 1));
+            harvestedQuantityOptions.add(new OptionType("t", 1000));
+            harvestedQuantityOptions.add(new OptionType("lbs", 0.4536));
+
+            FieldDefinition harvestedQuantity = new FieldDefinition("harvestedQuantity", FieldType.NUMBER, Boolean.TRUE, Boolean.TRUE, harvestedQuantityOptions);
+            Collection<FieldDefinition> harvestingFieldDefinitions = List.of(harvestedQuantity);
             createWorkTypeIfNotExists(workTypesRepository, "Harvesting", harvestingFieldDefinitions);
 
-            FieldDefinition maintenanceType = new FieldDefinition("maintenanceType", FieldType.STRING, Boolean.FALSE, List.of());
+            FieldDefinition maintenanceType = new FieldDefinition("maintenanceType", FieldType.STRING, Boolean.FALSE, Boolean.FALSE, List.of());
             Collection<FieldDefinition> maintenanceFieldDefinitions = List.of(maintenanceType);
             createWorkTypeIfNotExists(workTypesRepository, "Maintenance", maintenanceFieldDefinitions);
 

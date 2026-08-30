@@ -11,12 +11,14 @@ import edu.bbte.allamvizsga.services.WorkTypeService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/work-types")
@@ -36,6 +38,15 @@ public class WorkTypeController {
         Collection<WorkType> workTypes = workTypesService.findAllOfUser(user);
 
         return ResponseEntity.ok(workTypes.stream().map(workTypeMapper::modelToGetWorkTypesDTO).toList());
+    }
+
+    @GetMapping("/find-by-id")
+    public ResponseEntity<GetWorkTypeDTO> getWorkTypes(@RequestHeader("Authorization")
+                                                       String authorizationHeader, @RequestParam("workTypeId") UUID workTypeId) {
+        User user = userService.extractUser(authorizationHeader);
+        WorkType workType = workTypesService.findByID(user, workTypeId);
+
+        return ResponseEntity.ok(workTypeMapper.modelToGetWorkTypesDTO(workType));
     }
 
     @GetMapping(value = "/findall", params = "pattern")

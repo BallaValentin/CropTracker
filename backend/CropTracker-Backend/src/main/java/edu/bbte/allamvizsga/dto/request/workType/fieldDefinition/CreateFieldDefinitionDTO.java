@@ -2,6 +2,7 @@ package edu.bbte.allamvizsga.dto.request.workType.fieldDefinition;
 
 import edu.bbte.allamvizsga.dto.customValidations.ValidName;
 import edu.bbte.allamvizsga.dto.enums.AllowedFieldType;
+import edu.bbte.allamvizsga.model.OptionType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -25,5 +26,5 @@ public class CreateFieldDefinitionDTO {
         private Boolean required;
 
         @NotNull(message = "Options cannot be null")
-        private Collection<String> options;
+        private Collection<OptionType> options;
 }

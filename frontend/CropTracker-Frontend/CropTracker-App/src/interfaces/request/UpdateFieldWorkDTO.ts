@@ -1,3 +1,4 @@
+import type { NumberWithOption } from "../helper/NumberWithOption";
 import type { StringNumber } from "../helper/StringNumber";
 
 export interface UpdateFieldWorkDTO {
@@ -7,6 +8,6 @@ export interface UpdateFieldWorkDTO {
     startDate: string;
     endDate: string;
     workTiming: string;
-    parameters: Record<string, string | number | string[] | number[] | StringNumber[]>;
+    parameters: Record<string, string | NumberWithOption | string[] | number[] | StringNumber[]>;
     affectedRows: boolean[];
 }

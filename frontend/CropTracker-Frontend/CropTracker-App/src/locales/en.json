@@ -369,6 +369,11 @@
                 "showPreviousWorks": "Show affected rows from previous works",
                 "hideRowsCheckbox": "Hide previous affected rows"
             }
+        },
+        "selects": {
+            "parameterUnitSelect": {
+                "labelText": "Options"
+            }
         }
     },
     "leaflet": {

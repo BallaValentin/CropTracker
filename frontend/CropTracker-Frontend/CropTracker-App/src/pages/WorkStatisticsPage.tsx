@@ -24,6 +24,7 @@ import { Check } from "@mui/icons-material";
 import { toDateTimeLocal } from "../utils/DateTimeHelper";
 import { useWorkTypes } from "../hooks/caching/UseWorkTypes";
 import { useCropFieldNames } from "../hooks/caching/UseCropFieldNames";
+import type { NumberWithOption } from "../interfaces/helper/NumberWithOption";
 
 function WorkStatisticsPage() {
   const { t } = useTranslation();
@@ -84,6 +85,31 @@ function WorkStatisticsPage() {
     }
   }, [fieldWorksData]);
 
+  const getWorkTypeIndex = (workTypeId: string) => {
+    if (!workTypes) return 0;
+    for (let i = 0; i < workTypes.length; i++) {
+      if (workTypes[i].uid === workTypeId) {
+        return i;
+      }
+    }
+
+    return 0;
+  };
+
+  const getDefinitionIndex = (workTypeIndex: number, fieldName: string) => {
+    if (!workTypes) return 0;
+
+    const fieldDefinitions = workTypes[workTypeIndex].fieldDefinitions;
+
+    for (let i = 0; i < fieldDefinitions.length; i++) {
+      if (fieldDefinitions[i].name === fieldName) {
+        return i;
+      }
+    }
+
+    return 0;
+  };
+
   useEffect(() => {
     if (fieldWorks) {
       const newChartData: {
@@ -120,7 +146,33 @@ function WorkStatisticsPage() {
         const workParamaters = fieldWork.parameters;
 
         Object.entries(workParamaters).forEach(([key, value]) => {
-          if (!!value && Number.isInteger(Number(value))) {
+          const isNumberWithOption =
+            typeof value === "object" &&
+            value !== null &&
+            "numericValue" in value &&
+            "optionIndex" in value;
+
+          if (
+            !!value &&
+            (Number.isInteger(Number(value)) || isNumberWithOption)
+          ) {
+            let numericalValue: number = 0;
+
+            if (isNumberWithOption) {
+              const optionIndex = (value as NumberWithOption).optionIndex;
+              const workTypeIndex = getWorkTypeIndex(fieldWork.workTypeId);
+              const definitionIndex = getDefinitionIndex(workTypeIndex, key);
+
+              const conversionRate =
+                workTypes?.[workTypeIndex]?.fieldDefinitions?.[definitionIndex]
+                  ?.options?.[optionIndex]?.conversionRate ?? 1;
+
+              numericalValue =
+                (value as NumberWithOption).numericValue * conversionRate;
+            } else if (typeof value === "number") {
+              numericalValue = Number(value);
+            }
+
             newChartData.push({
               startDate:
                 fieldWork.startDate.substring(0, 10) +
@@ -143,7 +195,7 @@ function WorkStatisticsPage() {
                   defaultValue: key,
                 },
               )}`,
-              value: Number(value),
+              value: numericalValue,
             });
           }
         });
@@ -177,6 +229,7 @@ function WorkStatisticsPage() {
 
       setSeries(newSeries);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     fieldWorks,
     workTypes,

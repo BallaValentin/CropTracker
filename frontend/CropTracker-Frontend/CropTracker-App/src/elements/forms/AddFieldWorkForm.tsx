@@ -29,6 +29,8 @@ import type { UpdateFieldWorkDTO } from "../../interfaces/request/UpdateFieldWor
 import type { GetPreviousWorkDTO } from "../../interfaces/response/GetPreviousWorkDTO";
 import { useTranslation } from "react-i18next";
 import { toDateTimeLocal } from "../../utils/DateTimeHelper";
+import ParameterUnitSelect from "../selects/ParameterUnitSelect";
+import type { NumberWithOption } from "../../interfaces/helper/NumberWithOption";
 
 interface AddFieldWorkFormProps {
   fieldWorkToUpdate?: GetFieldWorkDTO | null;
@@ -152,7 +154,10 @@ function AddFieldWorkForm({
 
   const getEmptyWorkParameters = (updatedActiveFields: FieldDefinition[]) => {
     return updatedActiveFields.reduce<
-      Record<string, string | number | string[] | number[] | StringNumber[]>
+      Record<
+        string,
+        string | NumberWithOption | string[] | number[] | StringNumber[]
+      >
     >((acc, field) => {
       if (field.type === "stringNumber[]") {
         acc[field.name] = [{ textValue: "", numberValue: 0 }];
@@ -163,7 +168,7 @@ function AddFieldWorkForm({
       } else if (field.type === "string") {
         acc[field.name] = "";
       } else if (field.type === "number") {
-        acc[field.name] = 0;
+        acc[field.name] = { numericValue: 0, optionIndex: 0 };
       } else if (field.type === "select") {
         acc[field.name] = "option1";
       } else {
@@ -652,24 +657,83 @@ function AddFieldWorkForm({
               )}
 
               {field.type === "number" && (
-                <Box sx={{ width: 400 }}>
-                  <FormControl fullWidth variant="outlined">
+                <Box
+                  sx={{
+                    display: field.hasOptions ? "flex" : "block",
+                    gap: 20,
+                    width: field.hasOptions ? 820 : 400,
+                  }}
+                >
+                  <FormControl variant="outlined" sx={{ width: 400 }}>
                     <TextField
                       label={t(
                         `elements.forms.addFieldWorkForm.systemWorkTypes.${workTypes[currentWorkTypeIndex].name}.fields.${field.name}.name`,
-
                         {
                           defaultValue: field.name,
                           returnObjects: false,
                         },
                       )}
                       name={field.name}
-                      value={createFieldWorkDTO.parameters[field.name] || 0}
+                      value={
+                        field.hasOptions
+                          ? ((
+                              createFieldWorkDTO.parameters[
+                                field.name
+                              ] as NumberWithOption
+                            )?.numericValue ?? 0)
+                          : ((createFieldWorkDTO.parameters[field.name] as
+                              | number
+                              | string) ?? 0)
+                      }
                       color="success"
                       type="number"
-                      onChange={handleWorkParametersTextfieldChange}
+                      onChange={(e) => {
+                        if (field.hasOptions) {
+                          const numericValue =
+                            e.target.value === "" ? 0 : Number(e.target.value);
+
+                          setCreateFieldWorkDTO((prev) => ({
+                            ...prev,
+                            parameters: {
+                              ...prev.parameters,
+                              [field.name]: {
+                                ...(prev.parameters[
+                                  field.name
+                                ] as NumberWithOption),
+                                numericValue: numericValue,
+                              },
+                            },
+                          }));
+                        } else {
+                          handleWorkParametersTextfieldChange(
+                            e as React.ChangeEvent<HTMLInputElement>,
+                          );
+                        }
+                      }}
                     />
                   </FormControl>
+
+                  {field.hasOptions && (
+                    <ParameterUnitSelect
+                      fieldName={field.name}
+                      workTypeName={workTypes[currentWorkTypeIndex].name}
+                      options={field.options}
+                      onOptionSelected={(newOptionIndex: number) => {
+                        setCreateFieldWorkDTO((prev) => ({
+                          ...prev,
+                          parameters: {
+                            ...prev.parameters,
+                            [field.name]: {
+                              ...(prev.parameters[
+                                field.name
+                              ] as NumberWithOption),
+                              optionIndex: newOptionIndex,
+                            },
+                          },
+                        }));
+                      }}
+                    />
+                  )}
                 </Box>
               )}
 

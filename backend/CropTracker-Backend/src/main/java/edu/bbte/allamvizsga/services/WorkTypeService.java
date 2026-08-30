@@ -28,6 +28,16 @@ public class WorkTypeService {
         ));
     }
 
+    public WorkType findByID(User user, UUID workTypeId) {
+        WorkType workType = workTypesRepository.findByUid(workTypeId);
+
+        if (workType == null || (!workType.getIsSystem() && workType.getUser() != user)) {
+            throw new EntityNotFoundException("Work type not found.");
+        }
+
+        return workType;
+    }
+
     public Collection<WorkType> findByPattern(User user, String pattern) {
         return workTypesRepository.findAll(Specification.allOf(
                 (WorkTypeSpecification.byUser(user)

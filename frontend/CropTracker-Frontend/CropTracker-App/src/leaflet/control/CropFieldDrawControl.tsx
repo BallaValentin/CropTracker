@@ -87,7 +87,7 @@ function CropFieldDrawControl({
       },
       "en",
     );
-  }, [map]);
+  }, [map, t]);
 
   useEffect(() => {
     if (!map || !map.pm) return;

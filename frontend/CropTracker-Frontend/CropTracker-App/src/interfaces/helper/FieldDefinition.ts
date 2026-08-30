@@ -1,6 +1,12 @@
+export interface Option {
+    optionName: string,
+    conversionRate: number
+}
+
 export interface FieldDefinition {
     name: string;
     type: string;
     required: boolean;
-    options: string[]
+    hasOptions: boolean;
+    options: Option[]
 }

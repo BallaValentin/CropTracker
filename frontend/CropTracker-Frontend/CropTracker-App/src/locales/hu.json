@@ -367,6 +367,11 @@
                 "showPreviousWorks": "Korábbi munkák által érintett sorok megjelenítése",
                 "hideRowsCheckbox": "Érintett sorok elrejtése"
             }
+        },
+        "selects": {
+            "parameterUnitSelect": {
+                "labelText": "Opciók"
+            }
         }
     },
     "leaflet": {

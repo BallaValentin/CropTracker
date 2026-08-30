@@ -16,6 +16,11 @@ public enum FieldType {
         this.value = value;
     }
 
+    public static FieldType fromAllowedFieldType(AllowedFieldType allowedType) {
+        if (allowedType == null) return null;
+        return FieldType.valueOf(allowedType.name());
+    }
+
     @JsonValue
     String getValue() {
         return value;
